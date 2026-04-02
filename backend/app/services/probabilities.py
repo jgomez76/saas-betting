@@ -16,9 +16,18 @@ def calculate_match_probabilities(db, home_team: str, away_team: str):
     if total == 0:
         return None
 
-    home_prob = home_strength / total
-    away_prob = away_strength / total
-    draw_prob = 1 - (home_prob + away_prob)
+    # home_prob = home_strength / total
+    # away_prob = away_strength / total
+    # draw_prob = 1 - (home_prob + away_prob)
+
+# base empate realista
+    draw_prob = 0.25
+
+    # redistribuir el resto
+    remaining = 1 - draw_prob
+
+    home_prob = (home_strength / total) * remaining
+    away_prob = (away_strength / total) * remaining
 
     return {
         "home_win_prob": round(home_prob, 2),
