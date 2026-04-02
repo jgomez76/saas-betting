@@ -45,6 +45,9 @@ type Match = {
       no_value: number | null;
     };
   };
+
+  home_form?: string;
+  away_form?: string;
 };
 
 export default function Home() {
@@ -66,27 +69,44 @@ export default function Home() {
     bookmaker?: string,
     value?: number | null
   ) => {
-    const isValue = value !== null && value !== undefined && value > 0;
+    // const isValue = value !== null && value !== undefined && value > 0;
+
+    const isStrong = value && value > 0.15;
+    const isGood = value && value > 0;
 
     return (
-      <div
-        className={`p-2 rounded border text-center ${
-          isValue
-            ? "bg-green-100 border-green-400 text-green-700"
-            : "bg-gray-100"
-        }`}
-      >
-        <p className="text-xs">{label}</p>
-        <p className="text-lg font-bold">{odd ?? "-"}</p>
-        <p className="text-xs text-gray-500">{bookmaker ?? ""}</p>
+      // <div
+      //   className={`p-2 rounded border text-center ${
+      //     isValue
+      //       ? "bg-green-100 border-green-400 text-green-700"
+      //       : "bg-gray-100"
+      //   }`}
+      // >
+        <div
+          className={`p-3 rounded-xl border text-center ${
+            isStrong
+              ? "bg-green-200 border-green-500"
+              : isGood
+              ? "bg-green-100 border-green-400"
+              : "bg-gray-100"
+          }`}
+        >
+        <p className="text-sm font-semibold">{label}</p>
+        <p className="text-2xl font-extrabold">{odd ?? "-"}</p>
+        <p className="text-xl text-gray-500">{bookmaker ?? ""}</p>
         {value !== null && value !== undefined && (
-          <p className="text-xs">
-            {value > 0 ? "+" : ""}
-            {value}
-          </p>
+          <p className="text-sm font-bold">{formatValue(value)}</p>
         )}
       </div>
     );
+  };
+
+  const formatValue = (v: number | null) => {
+    if (v === null || v === undefined) return "-";
+
+    const percent = v * 100;
+
+    return `${percent > 0 ? "+" : ""}${percent.toFixed(1)}%`;
   };
 
   // 🎯 FILTROS
@@ -101,6 +121,30 @@ export default function Home() {
       return matchDate === dateFilter;
     });
 
+  // RACHA
+  const renderForm = (form: string) => {
+    return (
+      <div className="flex gap-1 mt-1">
+        {form?.split("").map((f, i) => {
+          let color = "bg-gray-300";
+
+          if (f === "W") color = "bg-green-500";
+          if (f === "D") color = "bg-yellow-400";
+          if (f === "L") color = "bg-red-500";
+
+          return (
+            <span
+              key={i}
+              className={`text-white text-xs px-2 py-1 rounded ${color}`}
+            >
+              {f}
+            </span>
+          );
+        })}
+      </div>
+    );
+  }; 
+
   return (
     <main className="p-6 bg-gray-50 min-h-screen">
       <h1 className="text-3xl font-bold mb-6">🔥 Top Value Bets</h1>
@@ -112,8 +156,8 @@ export default function Home() {
           className="p-2 border rounded"
         >
           <option value="ALL">Todas las ligas</option>
-          <option value="La Liga">La Liga</option>
-          <option value="Segunda División">Segunda</option>
+          <option value="La Liga">La Liga EA Sports</option>
+          <option value="Segunda División">La Liga Hypermotion</option>
         </select>
 
         <select
@@ -152,20 +196,57 @@ export default function Home() {
           });
 
           return (
-            <div key={index} className="bg-white p-4 rounded-xl shadow">
+            <div key={index} className="bg-white p-5 rounded-2xl shadow-md hover:shadow-lg transition">  
               {/* 🏟️ PARTIDO */}
-              <h2 className="font-semibold">
-                {match.home_team} vs {match.away_team}
-              </h2>
 
-              <p className="text-sm text-gray-500 mb-3">
+              {/* <div className="text-center mb-4">
+                <h2 className="text-xl font-bold">
+                  {match.home_team} vs {match.away_team}
+                </h2>
+
+                <div className="flex justify-center gap-6 mt-2">
+                  <div>
+                    {renderForm(match.home_form || "")}
+                  </div>
+                  <div>
+                    {renderForm(match.away_form || "")}
+                  </div>
+                </div>
+              </div> */}
+              {/* <div className="grid grid-cols-3 items-center mb-4 text-center"> */}
+              <div className="grid items-center mb-4 text-center" style={{ gridTemplateColumns: "45% 10% 45%"}}>
+  
+              {/* 🏠 HOME */}
+              <div>
+                <p className="font-semibold text-xl">{match.home_team}</p>
+                <div className="flex justify-center mt-1">
+                  {renderForm(match.home_form || "")}
+                </div>
+              </div>
+
+              {/* ⚔️ VS */}
+              <div>
+                <p className="text-lg font-bold text-gray-600">vs</p>
+              </div>
+
+              {/* 🚶 AWAY */}
+              <div>
+                <p className="font-semibold text-xl">{match.away_team}</p>
+                <div className="flex justify-center mt-1">
+                  {renderForm(match.away_form || "")}
+                </div>
+              </div>
+
+            </div>
+
+              <p className="text-m text-gray-500 text-center mb-4">
                 {match.league}, {formattedDate}, {formattedTime}
               </p>
 
               {/* 🧮 1X2 */}
               {(marketFilter === "ALL" || marketFilter === "1X2") &&
                 match.markets?.["1X2"] && (
-                  <div className="grid grid-cols-3 gap-2 mb-3">
+                  <div className="grid grid-cols-3 gap-3 mb-4">
                     {renderOdd(
                       "Home",
                       match.markets["1X2"].home?.odd,
@@ -194,7 +275,7 @@ export default function Home() {
                     <p className="text-sm font-semibold mb-1">
                       ⚽ Over/Under 2.5
                     </p>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-3">
                       {renderOdd(
                         "Over",
                         match.markets.OU25.over?.odd,
@@ -216,7 +297,7 @@ export default function Home() {
                 match.markets?.BTTS && (
                   <div>
                     <p className="text-sm font-semibold mb-1">🔁 BTTS</p>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-3">
                       {renderOdd(
                         "Yes",
                         match.markets.BTTS.yes?.odd,

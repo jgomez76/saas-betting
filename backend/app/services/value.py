@@ -7,6 +7,7 @@ from app.models.odds import Odds
 from app.services.probabilities import calculate_match_probabilities, calculate_extra_markets
 from app.services.stats import get_team_stats
 from app.core.config import LEAGUES
+from app.services.team import get_team_form
 
 # -----------------------------
 # VALUE CALCULATION
@@ -112,7 +113,9 @@ def get_value_bets(db: Session, limit=50):
     results = []
 
     for match in matches:
-        print("MATCH:", match.home_team, "vs", match.away_team, "|", match.date)
+        # print("MATCH:", match.home_team, "vs", match.away_team, "|", match.date)
+        home_form = get_team_form(db, match.home_team)
+        away_form = get_team_form(db, match.away_team)
 
         # -----------------------------
         # PROBABILIDADES 1X2
@@ -191,6 +194,8 @@ def get_value_bets(db: Session, limit=50):
         results.append({
             "home_team": match.home_team,
             "away_team": match.away_team,
+            "home_form": home_form,
+            "away_form": away_form,
             "league": match.league,
             "date": match.date,
 

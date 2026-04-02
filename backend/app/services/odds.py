@@ -33,11 +33,25 @@ def save_odds(db: Session, data: dict):
                         outcome = "away"
 
                     # OVER / UNDER
-                    elif raw_outcome in "Over":
-                        outcome = "over"
+                    # elif raw_outcome in "Over":
+                    #     print(raw_outcome)
+                    #     print(value)
+                    #     outcome = "over"
 
-                    elif raw_outcome in "Under":
-                        outcome = "under"
+                    # elif raw_outcome in "Under":
+                    #     outcome = "under"
+                    elif "over/under" in market.lower():
+
+                        raw = str(value["value"]).strip().lower()
+
+                        # SOLO queremos líneas con número (ej: 2.5)
+                        if any(x in raw for x in ["0.5", "1.5", "2.5", "3.5", "4.5", "5.5"]):
+
+                            outcome = raw   # 👈 "over 2.5"
+
+                        else:
+                            # print("IGNORED OU:", raw)
+                            continue
 
                     # BTTS
                     elif raw_outcome.lower() in ["yes", "no"]:
