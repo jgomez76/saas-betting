@@ -8,31 +8,40 @@ def calculate_match_probabilities(db, home_team: str, away_team: str):
     if not home_stats or not away_stats:
         return None
 
-    # ⚽ estimación básica
-    home_strength = home_stats["avg_goals_scored"] - home_stats["avg_goals_conceded"]
-    away_strength = away_stats["avg_goals_scored"] - away_stats["avg_goals_conceded"]
+    # fuerza ofensiva (mínimo 0.1 para evitar negativos)
+    home_attack = max(home_stats["avg_goals_scored"], 0.1)
+    away_attack = max(away_stats["avg_goals_scored"], 0.1)
 
-    total = home_strength + away_strength
+    home_defense = max(home_stats["avg_goals_conceded"], 0.1)
+    away_defense = max(away_stats["avg_goals_conceded"], 0.1)
 
-    if total <= 0:
+    # expected goals simples
+    home_xg = home_attack * away_defense
+    away_xg = away_attack * home_defense
+
+    total_xg = home_xg + away_xg
+
+    if total_xg == 0:
         return None
 
-    # base empate realista
-    draw_prob = 0.25
+    # base probabilidades
+    home_prob = home_xg / total_xg
+    away_prob = away_xg / total_xg
 
-    # redistribuir el resto
+    # empate fijo
+    draw_prob = 0.25
     remaining = 1 - draw_prob
 
-    home_prob = (home_strength / total) * remaining
-    away_prob = (away_strength / total) * remaining
+    home_prob *= remaining
+    away_prob *= remaining
 
     return {
         "home_win_prob": round(home_prob, 2),
-        "draw_prob": round(draw_prob, 2),
+        "draw_prob": draw_prob,
         "away_win_prob": round(away_prob, 2),
 
         "home_odds": round(1 / home_prob, 2) if home_prob > 0 else None,
-        "draw_odds": round(1 / draw_prob, 2) if draw_prob > 0 else None,
+        "draw_odds": round(1 / draw_prob, 2),
         "away_odds": round(1 / away_prob, 2) if away_prob > 0 else None,
     }
 
@@ -46,4 +55,22 @@ def add_bookmaker_odds(probabilities: dict):
         "home_odds_book": safe_odds(probabilities.get("home_odds")),
         "draw_odds_book": safe_odds(probabilities.get("draw_odds")),
         "away_odds_book": safe_odds(probabilities.get("away_odds")),
+    }
+
+def calculate_extra_markets(home_stats, away_stats):
+    avg_goals = home_stats["avg_goals_scored"] + away_stats["avg_goals_scored"]
+
+    # Over 2.5 simple
+    over25_prob = min(avg_goals / 3, 0.9)
+    under25_prob = 1 - over25_prob
+
+    # BTTS simple
+    btts_prob = (home_stats["btts_percentage"] + away_stats["btts_percentage"]) / 200
+    no_btts_prob = 1 - btts_prob
+
+    return {
+        "over25_prob": round(over25_prob, 2),
+        "under25_prob": round(under25_prob, 2),
+        "btts_yes_prob": round(btts_prob, 2),
+        "btts_no_prob": round(no_btts_prob, 2),
     }

@@ -7,8 +7,9 @@ def get_team_stats(db: Session, team_name: str):
             (Fixture.home_team == team_name) | 
             (Fixture.away_team == team_name)
         )\
-        .filter(Fixture.status == "FT")\
+        .filter(Fixture.status.in_(["FT", "AET", "PEN"]))\
         .all()
+        # .filter(Fixture.status == "FT")\
 
     if not matches:
         return None

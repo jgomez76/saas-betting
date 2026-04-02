@@ -49,3 +49,8 @@ def get_odds_by_league(league_id: int, season: int):
     url = f"{BASE_URL}/odds?league={league_id}&season={season}"
     response = requests.get(url, headers=headers)
     return response.json()
+
+def get_odds_by_date(league_id: int, date: str, season: int):
+    url = f"{BASE_URL}/odds?league={league_id}&season={season}&date={date}"
+    response = requests.get(url, headers=headers)
+    return response.json()

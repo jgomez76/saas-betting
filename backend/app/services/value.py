@@ -1,30 +1,110 @@
 from sqlalchemy.orm import Session
-from app.models.fixture import Fixture
-from app.models.odds import Odds
-from app.services.probabilities import calculate_match_probabilities, add_bookmaker_odds
 from datetime import datetime
 
+from app.models.fixture import Fixture
+from app.models.odds import Odds
 
-def calculate_value(probability: float, bookmaker_odds: float):
-    if bookmaker_odds is None:
+from app.services.probabilities import calculate_match_probabilities, calculate_extra_markets
+from app.services.stats import get_team_stats
+from app.core.config import LEAGUES
+
+# -----------------------------
+# VALUE CALCULATION
+# -----------------------------
+def calculate_value(probability: float, odd: float):
+    if probability is None or odd is None:
         return None
-    return round((probability * bookmaker_odds) - 1, 3)
+    # return round((probability * odd) - 1, 3)
+    
+    value = (probability * odd) - 1
 
+    # limitar valores extremos
+    if value > 1:
+        value = 1
+    if value < -1:
+        value = -1
 
-def detect_value(probabilities: dict, bookmaker: dict):
-    return {
-        "home_value": calculate_value(probabilities["home_win_prob"], bookmaker["home_odds_book"]),
-        "draw_value": calculate_value(probabilities["draw_prob"], bookmaker["draw_odds_book"]),
-        "away_value": calculate_value(probabilities["away_win_prob"], bookmaker["away_odds_book"]),
+    return round(value, 3)
+
+# -----------------------------
+# BEST ODDS POR MERCADO
+# -----------------------------
+def get_best_odds_by_market(db: Session, fixture_id: int):
+    odds = db.query(Odds).filter(Odds.fixture_id == fixture_id).all()
+
+    markets = {
+        "1X2": {},
+        "OU25": {},
+        "BTTS": {}
     }
 
-def get_value_bets(db: Session, limit=10):
+    for o in odds:
+        market_name = o.market.lower()
+        outcome = o.outcome.lower()
+
+        # 1X2
+        if "Match Winner" in o.market:
+            key = o.outcome
+
+            if key not in markets["1X2"] or o.odd > markets["1X2"][key]["odd"]:
+                markets["1X2"][key] = {
+                    "odd": o.odd,
+                    "bookmaker": o.bookmaker
+                }
+
+        # -------------------
+        # OVER/UNDER 2.5
+        # -------------------
+        elif market_name == "goals over/under":
+
+            # detectar línea 2.5 en el outcome
+            if "2.5" in outcome:
+
+                if "over" in outcome:
+                    key = "over"
+                elif "under" in outcome:
+                    key = "under"
+                else:
+                    continue
+
+                if key not in markets["OU25"] or o.odd > markets["OU25"][key]["odd"]:
+                    markets["OU25"][key] = {
+                        "odd": o.odd,
+                        "bookmaker": o.bookmaker
+                    }
+
+        # -------------------
+        # BTTS
+        # -------------------
+        elif market_name == "both teams score":
+
+            if "yes" in outcome:
+                key = "yes"
+            elif "no" in outcome:
+                key = "no"
+            else:
+                continue
+
+            if key not in markets["BTTS"] or o.odd > markets["BTTS"][key]["odd"]:
+                markets["BTTS"][key] = {
+                    "odd": o.odd,
+                    "bookmaker": o.bookmaker
+                }
+
+        # print("MARKET RAW:", o.market, "|", o.outcome)
+    return markets
+
+
+# -----------------------------
+# MAIN FUNCTION
+# -----------------------------
+def get_value_bets(db: Session, limit=50):
     now = datetime.utcnow()
 
     matches = db.query(Fixture)\
         .filter(Fixture.date >= now)\
-        .filter(Fixture.status == "NS")\
-        .filter(Fixture.league_id.in_([140, 141]))\
+        .filter(Fixture.status.in_(["NS", "TBD"]))\
+        .filter(Fixture.league_id.in_(LEAGUES))\
         .order_by(Fixture.date.asc())\
         .limit(limit)\
         .all()
@@ -34,58 +114,93 @@ def get_value_bets(db: Session, limit=10):
     for match in matches:
         print("MATCH:", match.home_team, "vs", match.away_team, "|", match.date)
 
+        # -----------------------------
+        # PROBABILIDADES 1X2
+        # -----------------------------
         probs = calculate_match_probabilities(db, match.home_team, match.away_team)
 
         if not probs:
             print("NO PROBS")
-            continue
 
-        if probs["home_odds"] is None or probs["away_odds"] is None:
-            continue
+        # -----------------------------
+        # STATS EXTRA
+        # -----------------------------
+        home_stats = get_team_stats(db, match.home_team)
+        away_stats = get_team_stats(db, match.away_team)
 
-        # bookmaker = add_bookmaker_odds(probs)
-        # value = detect_value(probs, bookmaker)
+        if home_stats and away_stats:
+            extra_probs = calculate_extra_markets(home_stats, away_stats)
+        else:
+            extra_probs = None
 
-        best_odds = get_best_odds(db, match.api_id)
-        print("ODDS:", best_odds)
+        # -----------------------------
+        # ODDS
+        # -----------------------------
+        markets = get_best_odds_by_market(db, match.api_id)
 
-        if not best_odds:
-            continue
+        # print("ODDS:", markets)
 
-        value = {
-            "home_value": calculate_value(probs["home_win_prob"], best_odds.get("home", {}).get("odd")),
-            "draw_value": calculate_value(probs["draw_prob"], best_odds.get("draw", {}).get("odd")),
-            "away_value": calculate_value(probs["away_win_prob"], best_odds.get("away", {}).get("odd")),
-        }
+        # -----------------------------
+        # VALUE 1X2
+        # -----------------------------
+        if probs and markets["1X2"]:
+            value_1x2 = {
+                "home_value": calculate_value(probs["home_win_prob"], markets["1X2"].get("home", {}).get("odd")),
+                "draw_value": calculate_value(probs["draw_prob"], markets["1X2"].get("draw", {}).get("odd")),
+                "away_value": calculate_value(probs["away_win_prob"], markets["1X2"].get("away", {}).get("odd")),
+            }
+        else:
+            value_1x2 = None
 
+        # -----------------------------
+        # VALUE OTROS MERCADOS
+        # -----------------------------
+        market_values = {}
+
+        if extra_probs:
+
+            # OU 2.5
+            if markets["OU25"]:
+                market_values["OU25"] = {
+                    "over_value": calculate_value(
+                        extra_probs["over25_prob"],
+                        markets["OU25"].get("over", {}).get("odd")
+                    ),
+                    "under_value": calculate_value(
+                        extra_probs["under25_prob"],
+                        markets["OU25"].get("under", {}).get("odd")
+                    ),
+                }
+
+            # BTTS
+            if markets["BTTS"]:
+                market_values["BTTS"] = {
+                    "yes_value": calculate_value(
+                        extra_probs["btts_yes_prob"],
+                        markets["BTTS"].get("yes", {}).get("odd")
+                    ),
+                    "no_value": calculate_value(
+                        extra_probs["btts_no_prob"],
+                        markets["BTTS"].get("no", {}).get("odd")
+                    ),
+                }
+
+        # -----------------------------
+        # OUTPUT
+        # -----------------------------
         results.append({
             "home_team": match.home_team,
             "away_team": match.away_team,
             "league": match.league,
             "date": match.date,
+
             "probabilities": probs,
-            "best_odds": best_odds,
-            "value": value
+            "extra_probabilities": extra_probs,
+
+            "markets": markets,
+
+            "value": value_1x2,
+            "market_values": market_values if market_values else None
         })
 
     return results
-
-def get_best_odds(db: Session, fixture_id: int):
-    odds = db.query(Odds).filter(Odds.fixture_id == fixture_id).all()
-
-    best = {}
-
-    for o in odds:
-        # solo mercado 1X2 por ahora
-        if o.market != "Match Winner":
-            continue
-
-        key = o.outcome.lower()  # home, draw, away
-
-        if key not in best or o.odd > best[key]["odd"]:
-            best[key] = {
-                "odd": o.odd,
-                "bookmaker": o.bookmaker
-            }
-
-    return best
