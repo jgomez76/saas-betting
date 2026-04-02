@@ -38,3 +38,11 @@ def calculate_match_probabilities(db, home_team: str, away_team: str):
         "draw_odds": round(1 / draw_prob, 2) if draw_prob > 0 else None,
         "away_odds": round(1 / away_prob, 2) if away_prob > 0 else None,
     }
+
+def add_bookmaker_odds(probabilities: dict):
+    # simulación (luego lo conectamos a API-Football)
+    return {
+        "home_odds_book": round(probabilities["home_odds"] * 1.1, 2),
+        "draw_odds_book": round(probabilities["draw_odds"] * 1.1, 2),
+        "away_odds_book": round(probabilities["away_odds"] * 1.1, 2),
+    }

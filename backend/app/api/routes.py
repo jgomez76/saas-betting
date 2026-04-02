@@ -7,6 +7,9 @@ from app.services.api_football import get_fixtures, save_fixtures
 from app.services.analysis import get_last_5_results
 from app.services.stats import get_team_stats
 from app.services.probabilities import calculate_match_probabilities
+from app.services.value import detect_value
+from app.services.probabilities import calculate_match_probabilities, add_bookmaker_odds
+
 
 router = APIRouter()
 
@@ -66,4 +69,22 @@ def match_probabilities(home: str, away: str, db: Session = Depends(get_db)):
         "home_team": home,
         "away_team": away,
         **result
+    }
+
+@router.get("/match/value")
+def match_value(home: str, away: str, db: Session = Depends(get_db)):
+    probs = calculate_match_probabilities(db, home, away)
+
+    if not probs:
+        return {"message": "No data"}
+
+    bookmaker = add_bookmaker_odds(probs)
+    value = detect_value(probs, bookmaker)
+
+    return {
+        "home_team": home,
+        "away_team": away,
+        "probabilities": probs,
+        "bookmaker_odds": bookmaker,
+        "value": value
     }
