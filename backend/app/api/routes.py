@@ -6,6 +6,7 @@ from app.core.database import SessionLocal
 from app.services.api_football import get_fixtures, save_fixtures
 from app.services.analysis import get_last_5_results
 from app.services.stats import get_team_stats
+from app.services.probabilities import calculate_match_probabilities
 
 router = APIRouter()
 
@@ -53,3 +54,16 @@ def team_stats(team_name: str, db: Session = Depends(get_db)):
         }
 
     return stats
+
+@router.get("/match/probabilities")
+def match_probabilities(home: str, away: str, db: Session = Depends(get_db)):
+    result = calculate_match_probabilities(db, home, away)
+
+    if result is None:
+        return {"message": "Not enough data"}
+
+    return {
+        "home_team": home,
+        "away_team": away,
+        **result
+    }
