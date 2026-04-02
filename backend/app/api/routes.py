@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.core.database import SessionLocal
 from app.services.api_football import get_fixtures, save_fixtures
 from app.services.analysis import get_last_5_results
+from app.services.stats import get_team_stats
 
 router = APIRouter()
 
@@ -40,3 +41,15 @@ def team_form(team_name: str, db: Session = Depends(get_db)):
         }
 
     return {"team": team_name, "form": form}
+
+@router.get("/team/{team_name}/stats")
+def team_stats(team_name: str, db: Session = Depends(get_db)):
+    stats = get_team_stats(db, team_name)
+
+    if stats is None:
+        return {
+            "team": team_name,
+            "message": "No data available"
+        }
+
+    return stats
