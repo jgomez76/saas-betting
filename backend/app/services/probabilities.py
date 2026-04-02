@@ -14,14 +14,10 @@ def calculate_match_probabilities(db, home_team: str, away_team: str):
 
     total = home_strength + away_strength
 
-    if total == 0:
+    if total <= 0:
         return None
 
-    # home_prob = home_strength / total
-    # away_prob = away_strength / total
-    # draw_prob = 1 - (home_prob + away_prob)
-
-# base empate realista
+    # base empate realista
     draw_prob = 0.25
 
     # redistribuir el resto
@@ -40,11 +36,14 @@ def calculate_match_probabilities(db, home_team: str, away_team: str):
         "away_odds": round(1 / away_prob, 2) if away_prob > 0 else None,
     }
 
-
-
 def add_bookmaker_odds(probabilities: dict):
+    def safe_odds(odd):
+        if odd is None:
+            return None
+        return round(odd * random.uniform(0.95, 1.05), 2)
+
     return {
-        "home_odds_book": round(probabilities["home_odds"] * random.uniform(0.95, 1.05), 2),
-        "draw_odds_book": round(probabilities["draw_odds"] * random.uniform(0.95, 1.05), 2),
-        "away_odds_book": round(probabilities["away_odds"] * random.uniform(0.95, 1.05), 2),
+        "home_odds_book": safe_odds(probabilities.get("home_odds")),
+        "draw_odds_book": safe_odds(probabilities.get("draw_odds")),
+        "away_odds_book": safe_odds(probabilities.get("away_odds")),
     }

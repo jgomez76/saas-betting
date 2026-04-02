@@ -7,6 +7,9 @@ class Fixture(Base):
     id = Column(Integer, primary_key=True, index=True)
     api_id = Column(Integer, unique=True, index=True)
 
+    league_id = Column(Integer)
+    league = Column(String)
+
     home_team = Column(String)
     away_team = Column(String)
 
@@ -17,5 +20,4 @@ class Fixture(Base):
     
     date = Column(DateTime)
 
-    league = Column(String)
     season = Column(Integer)
