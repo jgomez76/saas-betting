@@ -1,5 +1,5 @@
 import random
-from app.services.stats import get_team_stats
+from app.services.stats import get_team_stats, get_team_stats_split
 
 def calculate_match_probabilities(db, home_team: str, away_team: str):
     home_stats = get_team_stats(db, home_team)
@@ -9,11 +9,50 @@ def calculate_match_probabilities(db, home_team: str, away_team: str):
         return None
 
     # fuerza ofensiva (mínimo 0.1 para evitar negativos)
-    home_attack = max(home_stats["avg_goals_scored"], 0.1)
-    away_attack = max(away_stats["avg_goals_scored"], 0.1)
 
-    home_defense = max(home_stats["avg_goals_conceded"], 0.1)
-    away_defense = max(away_stats["avg_goals_conceded"], 0.1)
+    ## Paso 3, Home/Away Split
+    # home_attack = max(home_stats["avg_goals_scored"], 0.1)
+    # away_attack = max(away_stats["avg_goals_scored"], 0.1)
+
+    # home_defense = max(home_stats["avg_goals_conceded"], 0.1)
+    # away_defense = max(away_stats["avg_goals_conceded"], 0.1)
+    home_split = get_team_stats_split(db, home_team)
+    away_split = get_team_stats_split(db, away_team)
+
+    # -------------------------
+    # ATTACK
+    # -------------------------
+    home_attack = max(
+        home_split["home_scored_avg"]
+        if home_split["home_scored_avg"] is not None
+        else home_stats["avg_goals_scored"],
+        0.1
+    )
+
+    away_attack = max(
+        away_split["away_scored_avg"]
+        if away_split["away_scored_avg"] is not None
+        else away_stats["avg_goals_scored"],
+        0.1
+    )
+
+    # -------------------------
+    # DEFENSE
+    # -------------------------
+    home_defense = max(
+        home_split["home_conceded_avg"]
+        if home_split["home_conceded_avg"] is not None
+        else home_stats["avg_goals_conceded"],
+        0.1
+    )
+
+    away_defense = max(
+        away_split["away_conceded_avg"]
+        if away_split["away_conceded_avg"] is not None
+        else away_stats["avg_goals_conceded"],
+        0.1
+    )
+    ## Fin paso 3
 
     # expected goals simples
     home_xg = home_attack * away_defense

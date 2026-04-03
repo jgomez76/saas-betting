@@ -45,3 +45,30 @@ def get_team_stats(db: Session, team_name: str):
         "over_2_5_percentage": round((over_25 / total_matches) * 100, 2),
         "btts_percentage": round((btts / total_matches) * 100, 2)
     }
+
+## Paso 3, Home/Away Split
+def get_team_stats_split(db: Session, team: str):
+    home_matches = db.query(Fixture).filter(
+        Fixture.home_team == team,
+        Fixture.status == "FT"
+    ).all()
+
+    away_matches = db.query(Fixture).filter(
+        Fixture.away_team == team,
+        Fixture.status == "FT"
+    ).all()
+
+    # HOME
+    home_scored = sum(m.home_goals for m in home_matches)
+    home_conceded = sum(m.away_goals for m in home_matches)
+
+    # AWAY
+    away_scored = sum(m.away_goals for m in away_matches)
+    away_conceded = sum(m.home_goals for m in away_matches)
+
+    return {
+        "home_scored_avg": home_scored / len(home_matches) if home_matches else None,
+        "home_conceded_avg": home_conceded / len(home_matches) if home_matches else None,
+        "away_scored_avg": away_scored / len(away_matches) if away_matches else None,
+        "away_conceded_avg": away_conceded / len(away_matches) if away_matches else None,
+    }
