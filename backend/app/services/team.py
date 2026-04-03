@@ -33,3 +33,31 @@ def get_team_form(db: Session, team_name: str, limit: int = 5):
                 form += "L"
 
     return form
+
+
+# 🔥 NUEVO → HOME / AWAY SPLIT
+def get_team_stats(db: Session, team: str):
+    home_matches = db.query(Fixture).filter(
+        Fixture.home_team == team,
+        Fixture.status == "FT"
+    ).all()
+
+    away_matches = db.query(Fixture).filter(
+        Fixture.away_team == team,
+        Fixture.status == "FT"
+    ).all()
+
+    # HOME
+    home_scored = sum(m.home_goals for m in home_matches)
+    home_conceded = sum(m.away_goals for m in home_matches)
+
+    # AWAY
+    away_scored = sum(m.away_goals for m in away_matches)
+    away_conceded = sum(m.home_goals for m in away_matches)
+
+    return {
+        "home_avg_scored": home_scored / len(home_matches) if home_matches else 0,
+        "home_avg_conceded": home_conceded / len(home_matches) if home_matches else 0,
+        "away_avg_scored": away_scored / len(away_matches) if away_matches else 0,
+        "away_avg_conceded": away_conceded / len(away_matches) if away_matches else 0,
+    }

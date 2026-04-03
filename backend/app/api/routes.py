@@ -12,6 +12,8 @@ from datetime import datetime, timedelta
 
 from app.core.config import CURRENT_SEASON, LEAGUES
 
+from app.models.fixture import Fixture
+
 router = APIRouter()
 
 
@@ -61,3 +63,29 @@ def update_odds(db: Session = Depends(get_db)):
             save_odds(db, data)
 
     return {"message": "Odds updated (today + next 2 days)"}
+
+@router.get("/team/{team_name}/matches")
+def get_team_matches(team_name: str, db: Session = Depends(get_db)):
+    matches = (
+        db.query(Fixture)
+        .filter(
+            (Fixture.home_team == team_name) | (Fixture.away_team == team_name),
+            Fixture.status == "FT"
+        )
+        .order_by(Fixture.date.desc())
+        .limit(5)
+        .all()
+    )
+
+    result = []
+
+    for m in matches:
+        result.append({
+            "home": m.home_team,
+            "away": m.away_team,
+            "home_goals": m.home_goals,
+            "away_goals": m.away_goals,
+            "date": m.date
+        })
+
+    return result

@@ -50,11 +50,21 @@ type Match = {
   away_form?: string;
 };
 
+type TeamMatch = {
+  home: string;
+  away: string;
+  home_goals: number;
+  away_goals: number;
+  date: string;
+};
+
 export default function Home() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [leagueFilter, setLeagueFilter] = useState("ALL");
   const [marketFilter, setMarketFilter] = useState("ALL");
   const [dateFilter, setDateFilter] = useState("");
+  const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
+  const [teamMatches, setTeamMatches] = useState<TeamMatch[]>([]);
 
   useEffect(() => {
     fetch("http://127.0.0.1:8000/value-bets")
@@ -122,9 +132,40 @@ export default function Home() {
     });
 
   // RACHA
-  const renderForm = (form: string) => {
+  // const renderForm = (form: string) => {
+  //   return (
+  //     <div className="flex gap-1 mt-1">
+  //       {form?.split("").map((f, i) => {
+  //         let color = "bg-gray-300";
+
+  //         if (f === "W") color = "bg-green-500";
+  //         if (f === "D") color = "bg-yellow-400";
+  //         if (f === "L") color = "bg-red-500";
+
+  //         return (
+  //           <span
+  //             key={i}
+  //             className={`text-white text-xs px-2 py-1 rounded ${color}`}
+  //           >
+  //             {f}
+  //           </span>
+  //         );
+  //       })}
+  //     </div>
+  //   );
+  // }; 
+    const renderForm = (form: string, team: string) => {
     return (
-      <div className="flex gap-1 mt-1">
+      <div
+        className="flex gap-1 mt-1 cursor-pointer"
+        onClick={() => {
+          setSelectedTeam(team);
+
+          fetch(`http://127.0.0.1:8000/team/${team}/matches`)
+            .then((res) => res.json())
+            .then((data) => setTeamMatches(data));
+        }}
+      >
         {form?.split("").map((f, i) => {
           let color = "bg-gray-300";
 
@@ -143,8 +184,7 @@ export default function Home() {
         })}
       </div>
     );
-  }; 
-
+  };
   return (
     <main className="p-6 bg-gray-50 min-h-screen">
       <h1 className="text-3xl font-bold mb-6">🔥 Top Value Bets</h1>
@@ -197,30 +237,13 @@ export default function Home() {
 
           return (
             <div key={index} className="bg-white p-5 rounded-2xl shadow-md hover:shadow-lg transition">  
-              {/* 🏟️ PARTIDO */}
-
-              {/* <div className="text-center mb-4">
-                <h2 className="text-xl font-bold">
-                  {match.home_team} vs {match.away_team}
-                </h2>
-
-                <div className="flex justify-center gap-6 mt-2">
-                  <div>
-                    {renderForm(match.home_form || "")}
-                  </div>
-                  <div>
-                    {renderForm(match.away_form || "")}
-                  </div>
-                </div>
-              </div> */}
-              {/* <div className="grid grid-cols-3 items-center mb-4 text-center"> */}
               <div className="grid items-center mb-4 text-center" style={{ gridTemplateColumns: "45% 10% 45%"}}>
   
               {/* 🏠 HOME */}
               <div>
                 <p className="font-semibold text-xl">{match.home_team}</p>
                 <div className="flex justify-center mt-1">
-                  {renderForm(match.home_form || "")}
+                  {renderForm(match.home_form || "", match.home_team)}
                 </div>
               </div>
 
@@ -233,7 +256,7 @@ export default function Home() {
               <div>
                 <p className="font-semibold text-xl">{match.away_team}</p>
                 <div className="flex justify-center mt-1">
-                  {renderForm(match.away_form || "")}
+                  {renderForm(match.away_form || "", match.away_team)}
                 </div>
               </div>
 
@@ -314,9 +337,72 @@ export default function Home() {
                   </div>
                 )}
             </div>
-          );
+          );  
         })}
       </div>
-    </main>
-  );
+      {selectedTeam && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white p-6 rounded-2xl w-[400px] shadow-xl">
+        
+        {/* TITLE */}
+        <h2 className="text-xl font-bold mb-4 text-center">
+        {selectedTeam}
+        </h2>
+        
+        {/* MATCHES */}
+            <div className="space-y-2">
+              {teamMatches.map((m, i) => {
+                const isDraw = m.home_goals === m.away_goals;
+                // const isHomeWin = m.home_goals > m.away_goals;
+
+                const isWin =
+                  (m.home === selectedTeam && m.home_goals > m.away_goals) ||
+                  (m.away === selectedTeam && m.away_goals > m.home_goals);
+
+                const isLoss =
+                  (m.home === selectedTeam && m.home_goals < m.away_goals) ||
+                  (m.away === selectedTeam && m.away_goals < m.home_goals);
+
+                return (
+                  <div
+                    key={i}
+                    className="grid grid-cols-3 items-center text-sm border-b pb-2"
+                  >
+                    {/* HOME */}
+                    <span className="text-center pr-2">{m.home}</span>
+
+                    {/* RESULT */}
+                    <span
+                      className={`text-center font-bold ${
+                        isDraw
+                          ? "text-yellow-500"
+                          : isWin
+                          ? "text-green-600"
+                          : isLoss
+                          ? "text-red-500"
+                          : ""
+                      }`}
+                    >
+                      {m.home_goals} - {m.away_goals}
+                    </span>
+
+                    {/* AWAY */}
+                    <span className="text-center pl-2">{m.away}</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* CLOSE */}
+            <button
+              onClick={() => setSelectedTeam(null)}
+              className="mt-4 w-full bg-gray-200 hover:bg-gray-300 p-2 rounded"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
+      </main>
+    );
 }
