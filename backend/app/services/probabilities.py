@@ -1,5 +1,5 @@
 import random
-from app.services.stats import get_team_stats, get_team_stats_split
+from app.services.stats import get_team_stats, get_team_stats_split, get_recent_stats
 
 def calculate_match_probabilities(db, home_team: str, away_team: str):
     home_stats = get_team_stats(db, home_team)
@@ -22,37 +22,118 @@ def calculate_match_probabilities(db, home_team: str, away_team: str):
     # -------------------------
     # ATTACK
     # -------------------------
-    home_attack = max(
+    ## Paso 4 , forma reciente
+
+    # home_attack = max(
+    #     home_split["home_scored_avg"]
+    #     if home_split["home_scored_avg"] is not None
+    #     else home_stats["avg_goals_scored"],
+    #     0.1
+    # )
+
+    # away_attack = max(
+    #     away_split["away_scored_avg"]
+    #     if away_split["away_scored_avg"] is not None
+    #     else away_stats["avg_goals_scored"],
+    #     0.1
+    # )
+
+    # # -------------------------
+    # # DEFENSE
+    # # -------------------------
+    # home_defense = max(
+    #     home_split["home_conceded_avg"]
+    #     if home_split["home_conceded_avg"] is not None
+    #     else home_stats["avg_goals_conceded"],
+    #     0.1
+    # )
+
+    # away_defense = max(
+    #     away_split["away_conceded_avg"]
+    #     if away_split["away_conceded_avg"] is not None
+    #     else away_stats["avg_goals_conceded"],
+    #     0.1
+    # )
+    # ## Fin paso 3
+
+        # 🔥 RECENT FORM
+    home_recent = get_recent_stats(db, home_team)
+    away_recent = get_recent_stats(db, away_team)
+
+    # PESOS
+    SEASON_WEIGHT = 0.7
+    RECENT_WEIGHT = 0.3
+
+    # -------------------------
+    # ATTACK
+    # -------------------------
+    home_attack_base = (
         home_split["home_scored_avg"]
         if home_split["home_scored_avg"] is not None
-        else home_stats["avg_goals_scored"],
-        0.1
+        else home_stats["avg_goals_scored"]
     )
 
-    away_attack = max(
+    away_attack_base = (
         away_split["away_scored_avg"]
         if away_split["away_scored_avg"] is not None
-        else away_stats["avg_goals_scored"],
-        0.1
+        else away_stats["avg_goals_scored"]
     )
+
+    # aplicar forma reciente
+    if home_recent:
+        home_attack = (
+            home_attack_base * SEASON_WEIGHT +
+            home_recent["scored_avg"] * RECENT_WEIGHT
+        )
+    else:
+        home_attack = home_attack_base
+
+    if away_recent:
+        away_attack = (
+            away_attack_base * SEASON_WEIGHT +
+            away_recent["scored_avg"] * RECENT_WEIGHT
+        )
+    else:
+        away_attack = away_attack_base
 
     # -------------------------
     # DEFENSE
     # -------------------------
-    home_defense = max(
+    home_defense_base = (
         home_split["home_conceded_avg"]
         if home_split["home_conceded_avg"] is not None
-        else home_stats["avg_goals_conceded"],
-        0.1
+        else home_stats["avg_goals_conceded"]
     )
 
-    away_defense = max(
+    away_defense_base = (
         away_split["away_conceded_avg"]
         if away_split["away_conceded_avg"] is not None
-        else away_stats["avg_goals_conceded"],
-        0.1
+        else away_stats["avg_goals_conceded"]
     )
-    ## Fin paso 3
+
+    if home_recent:
+        home_defense = (
+            home_defense_base * SEASON_WEIGHT +
+            home_recent["conceded_avg"] * RECENT_WEIGHT
+        )
+    else:
+        home_defense = home_defense_base
+
+    if away_recent:
+        away_defense = (
+            away_defense_base * SEASON_WEIGHT +
+            away_recent["conceded_avg"] * RECENT_WEIGHT
+        )
+    else:
+        away_defense = away_defense_base
+
+    # seguridad mínima
+    home_attack = max(home_attack, 0.1)
+    away_attack = max(away_attack, 0.1)
+    home_defense = max(home_defense, 0.1)
+    away_defense = max(away_defense, 0.1)
+
+    ## Fin paso 4
 
     # expected goals simples
     home_xg = home_attack * away_defense

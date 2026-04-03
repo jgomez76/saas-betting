@@ -72,3 +72,35 @@ def get_team_stats_split(db: Session, team: str):
         "away_scored_avg": away_scored / len(away_matches) if away_matches else None,
         "away_conceded_avg": away_conceded / len(away_matches) if away_matches else None,
     }
+
+## Paso 4, forma reciente
+def get_recent_stats(db: Session, team: str, limit: int = 5):
+    matches = (
+        db.query(Fixture)
+        .filter(
+            ((Fixture.home_team == team) | (Fixture.away_team == team)),
+            Fixture.status == "FT"
+        )
+        .order_by(Fixture.date.desc())
+        .limit(limit)
+        .all()
+    )
+
+    if not matches:
+        return None
+
+    goals_scored = 0
+    goals_conceded = 0
+
+    for m in matches:
+        if m.home_team == team:
+            goals_scored += m.home_goals
+            goals_conceded += m.away_goals
+        else:
+            goals_scored += m.away_goals
+            goals_conceded += m.home_goals
+
+    return {
+        "scored_avg": goals_scored / len(matches),
+        "conceded_avg": goals_conceded / len(matches),
+    }
