@@ -158,60 +158,106 @@ export default function TopValueModal({
             </div>
 
             {/* TABLA */}
-            <table className="w-full border border-gray-700 text-base">
-              <thead className="bg-slate-800">
-                <tr>
-                  <th className="p-3 border">✔</th>
-                  <th className="p-3 border">Match</th>
-                  <th className="p-3 border">Market</th>
-                  <th className="p-3 border">Pick</th>
-                  <th className="p-3 border">Odd</th>
-                  <th className="p-3 border">Book</th>
-                  <th className="p-3 border">Value</th>
-                </tr>
-              </thead>
+            <div className="hidden lg:block">
+              <table className="w-full border border-gray-700 text-base">
+                <thead className="bg-slate-800">
+                  <tr>
+                    <th className="p-3 border">✔</th>
+                    <th className="p-3 border">Match</th>
+                    <th className="p-3 border">Market</th>
+                    <th className="p-3 border">Pick</th>
+                    <th className="p-3 border">Odd</th>
+                    <th className="p-3 border">Book</th>
+                    <th className="p-3 border">Value</th>
+                  </tr>
+                </thead>
 
-              <tbody>
-                {bets.map((b, i) => {
-                  const [home, away] = b.match.split(" vs ");
+                <tbody>
+                  {bets.map((b, i) => {
+                    const [home, away] = b.match.split(" vs ");
 
-                  return (
-                    <tr
-                      key={i}
-                      className="text-center border hover:bg-slate-800"
-                    >
-                      <td className="border">
-                        <input
-                          type="checkbox"
-                          checked={selected.includes(i)}
-                          onChange={() => toggleSelect(i)}
-                        />
-                      </td>
+                    return (
+                      <tr
+                        key={i}
+                        className="text-center border hover:bg-slate-800"
+                      >
+                        <td className="border">
+                          <input
+                            type="checkbox"
+                            checked={selected.includes(i)}
+                            onChange={() => toggleSelect(i)}
+                          />
+                        </td>
 
-                      {/* MATCH CENTRADO */}
-                      <td className="border p-3">
-                        <div
-                          className="grid"
-                          style={{ gridTemplateColumns: "45% 10% 45%" }}
-                        >
-                          <span className="text-center pr-2">{home}</span>
-                          <span className="text-center font-bold">vs</span>
-                          <span className="text-center pl-2">{away}</span>
-                        </div>
-                      </td>
+                        {/* MATCH CENTRADO */}
+                        <td className="border p-3">
+                          <div
+                            className="grid"
+                            style={{ gridTemplateColumns: "45% 10% 45%" }}
+                          >
+                            <span className="text-center pr-2">{home}</span>
+                            <span className="text-center font-bold">vs</span>
+                            <span className="text-center pl-2">{away}</span>
+                          </div>
+                        </td>
 
-                      <td className="border">{b.market}</td>
-                      <td className="border font-semibold">{b.selection}</td>
-                      <td className="border text-lg font-bold">{b.odd}</td>
-                      <td className="border text-gray-400">{b.bookmaker}</td>
-                      <td className="border text-green-400 font-bold">
+                        <td className="border">{b.market}</td>
+                        <td className="border font-semibold">{b.selection}</td>
+                        <td className="border text-lg font-bold">{b.odd}</td>
+                        <td className="border text-gray-400">{b.bookmaker}</td>
+                        <td className="border text-green-400 font-bold">
+                          +{b.value}%
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            {/* CARDS MOVIL */}
+            {/* <div className="lg:hidden flex flex-col gap-3"> */}
+            <div className="lg:hidden grid sm:grid-cols-2 gap-3">
+              {bets.map((b, i) => {
+                const [home, away] = b.match.split(" vs ");
+
+                return (
+                  <div
+                    key={i}
+                    className="bg-slate-800 p-4 rounded-xl border border-gray-700"
+                  >
+                    {/* SELECT + VALUE */}
+                    <div className="flex justify-between items-center mb-2">
+                      <input
+                        type="checkbox"
+                        checked={selected.includes(i)}
+                        onChange={() => toggleSelect(i)}
+                      />
+                      <span className="text-green-400 font-bold text-lg">
                         +{b.value}%
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                      </span>
+                    </div>
+
+                    {/* MATCH */}
+                    <div
+                      className="grid text-sm mb-2"
+                      style={{ gridTemplateColumns: "45% 10% 45%" }}
+                    >
+                      <span className="text-right font-semibold">{home}</span>
+                      <span className="text-center font-bold">vs</span>
+                      <span className="text-left font-semibold">{away}</span>
+                    </div>
+
+                    {/* INFO */}
+                    <div className="text-sm text-gray-300 space-y-1">
+                      <p><strong>Market:</strong> {b.market}</p>
+                      <p><strong>Pick:</strong> {b.selection}</p>
+                      <p><strong>Odd:</strong> {b.odd}</p>
+                      <p><strong>Book:</strong> {b.bookmaker}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </>
         )}
       </div>
