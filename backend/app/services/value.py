@@ -214,3 +214,84 @@ def get_value_bets(db: Session, limit=50):
         })
 
     return results
+
+
+
+# -----------------------------
+# TOP VALUE BETS
+# -----------------------------
+
+def get_top_value_bets(db: Session, top_n=5):
+
+    matches = get_value_bets(db)
+
+    all_bets = []
+
+    for match in matches:
+
+        home = match["home_team"]
+        away = match["away_team"]
+        league = match["league"]
+        date = match["date"]
+
+        # 1X2
+        if match["value"]:
+            for key in ["home", "draw", "away"]:
+                value = match["value"].get(f"{key}_value")
+                odd = match["markets"]["1X2"].get(key, {}).get("odd")
+                book = match["markets"]["1X2"].get(key, {}).get("bookmaker")
+
+                if value and value > 0:
+                    all_bets.append({
+                        "match": f"{home} vs {away}",
+                        "league": league,
+                        "date": date,
+                        "market": "1X2",
+                        "selection": key.upper(),
+                        "odd": odd,
+                        "bookmaker": book,
+                        "value": round(value * 100, 2)
+                    })
+
+        # OU25
+        if match.get("market_values") and match["market_values"].get("OU25"):
+            for key in ["over", "under"]:
+                value = match["market_values"]["OU25"].get(f"{key}_value")
+                odd = match["markets"]["OU25"].get(key, {}).get("odd")
+                book = match["markets"]["OU25"].get(key, {}).get("bookmaker")
+
+                if value and value > 0:
+                    all_bets.append({
+                        "match": f"{home} vs {away}",
+                        "league": league,
+                        "date": date,
+                        "market": "OU25",
+                        "selection": key.upper(),
+                        "odd": odd,
+                        "bookmaker": book,
+                        "value": round(value * 100, 2)
+                    })
+
+        # BTTS
+        if match.get("market_values") and match["market_values"].get("BTTS"):
+            for key in ["yes", "no"]:
+                value = match["market_values"]["BTTS"].get(f"{key}_value")
+                odd = match["markets"]["BTTS"].get(key, {}).get("odd")
+                book = match["markets"]["BTTS"].get(key, {}).get("bookmaker")
+
+                if value and value > 0:
+                    all_bets.append({
+                        "match": f"{home} vs {away}",
+                        "league": league,
+                        "date": date,
+                        "market": "BTTS",
+                        "selection": key.upper(),
+                        "odd": odd,
+                        "bookmaker": book,
+                        "value": round(value * 100, 2)
+                    })
+
+    # 🔥 ordenar por value
+    all_bets = sorted(all_bets, key=lambda x: x["value"], reverse=True)
+
+    return all_bets[:top_n]
