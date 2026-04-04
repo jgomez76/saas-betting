@@ -1,21 +1,18 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.core.database import SessionLocal
-
-from app.services.api_football import get_fixtures, save_fixtures, get_odds_by_date
-from app.services.value import get_value_bets
-
-from app.services.api_football import get_odds_by_league
-from app.services.odds import save_odds
-
 from datetime import datetime, timedelta
 
+from app.core.database import SessionLocal
 from app.core.config import CURRENT_SEASON, LEAGUES
 
 from app.models.fixture import Fixture
 
-router = APIRouter()
+from app.services.api_football import get_fixtures, save_fixtures, get_odds_by_date, get_odds_by_league
+from app.services.value import get_value_bets
+from app.services.odds import save_odds
+from app.services.injuries import fetch_injuries
 
+router = APIRouter()
 
 def get_db():
     db = SessionLocal()
@@ -89,3 +86,11 @@ def get_team_matches(team_name: str, db: Session = Depends(get_db)):
         })
 
     return result
+
+
+@router.get("/injuries/update")
+def update_injuries(db: Session = Depends(get_db)):
+    for league in LEAGUES:
+        fetch_injuries(db, league, 2025)
+
+    return {"status": "injuries updated"}

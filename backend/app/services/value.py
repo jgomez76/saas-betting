@@ -120,7 +120,12 @@ def get_value_bets(db: Session, limit=50):
         # -----------------------------
         # PROBABILIDADES 1X2
         # -----------------------------
-        probs = calculate_match_probabilities(db, match.home_team, match.away_team)
+        probs = calculate_match_probabilities(
+            db, 
+            match.home_team, 
+            match.away_team,
+            match.api_id
+        )
 
         if not probs:
             print("NO PROBS")

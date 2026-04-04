@@ -1,62 +1,17 @@
 import random
 from app.services.stats import get_team_stats, get_team_stats_split, get_recent_stats
+from app.services.injuries import get_team_injuries_impact
 
-def calculate_match_probabilities(db, home_team: str, away_team: str):
+def calculate_match_probabilities(db, home_team: str, away_team: str, fixture_id: int):
     home_stats = get_team_stats(db, home_team)
     away_stats = get_team_stats(db, away_team)
 
     if not home_stats or not away_stats:
         return None
 
-    # fuerza ofensiva (mínimo 0.1 para evitar negativos)
-
-    ## Paso 3, Home/Away Split
-    # home_attack = max(home_stats["avg_goals_scored"], 0.1)
-    # away_attack = max(away_stats["avg_goals_scored"], 0.1)
-
-    # home_defense = max(home_stats["avg_goals_conceded"], 0.1)
-    # away_defense = max(away_stats["avg_goals_conceded"], 0.1)
     home_split = get_team_stats_split(db, home_team)
     away_split = get_team_stats_split(db, away_team)
 
-    # -------------------------
-    # ATTACK
-    # -------------------------
-    ## Paso 4 , forma reciente
-
-    # home_attack = max(
-    #     home_split["home_scored_avg"]
-    #     if home_split["home_scored_avg"] is not None
-    #     else home_stats["avg_goals_scored"],
-    #     0.1
-    # )
-
-    # away_attack = max(
-    #     away_split["away_scored_avg"]
-    #     if away_split["away_scored_avg"] is not None
-    #     else away_stats["avg_goals_scored"],
-    #     0.1
-    # )
-
-    # # -------------------------
-    # # DEFENSE
-    # # -------------------------
-    # home_defense = max(
-    #     home_split["home_conceded_avg"]
-    #     if home_split["home_conceded_avg"] is not None
-    #     else home_stats["avg_goals_conceded"],
-    #     0.1
-    # )
-
-    # away_defense = max(
-    #     away_split["away_conceded_avg"]
-    #     if away_split["away_conceded_avg"] is not None
-    #     else away_stats["avg_goals_conceded"],
-    #     0.1
-    # )
-    # ## Fin paso 3
-
-        # 🔥 RECENT FORM
     home_recent = get_recent_stats(db, home_team)
     away_recent = get_recent_stats(db, away_team)
 
@@ -133,7 +88,19 @@ def calculate_match_probabilities(db, home_team: str, away_team: str):
     home_defense = max(home_defense, 0.1)
     away_defense = max(away_defense, 0.1)
 
-    ## Fin paso 4
+
+
+    # 🏥 INJURIES
+    home_injuries = get_team_injuries_impact(db, home_team, fixture_id)
+    away_injuries = get_team_injuries_impact(db, away_team, fixture_id)
+
+    home_attack *= (1 + home_injuries["attack_impact"])
+    away_attack *= (1 + away_injuries["attack_impact"])
+
+    home_defense *= (1 + home_injuries["defense_impact"])
+    away_defense *= (1 + away_injuries["defense_impact"])
+    
+    ## Fin paso 5
 
     # expected goals simples
     home_xg = home_attack * away_defense
