@@ -146,6 +146,9 @@ def get_value_bets(db: Session, limit=50):
         # -----------------------------
         markets = get_best_odds_by_market(db, match.api_id)
 
+        if not markets.get("1X2") or not any(markets["1X2"].values()):
+            continue
+
         # print("ODDS:", markets)
 
         # -----------------------------
