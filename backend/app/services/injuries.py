@@ -70,103 +70,9 @@ def get_unavailable_players(db: Session, team: str, fixture_id: int):
 # -----------------------------
 # IMPACTO EN MODELO
 # -----------------------------
-def get_team_injuries_impact(db: Session, team: str, fixture_id: int):
+# def get_team_injuries_impact(db: Session, team: str, fixture_id: int):
 
-    injuries = get_unavailable_players(db, team, fixture_id)
-
-    if not injuries:
-        return {
-            "attack_impact": 0,
-            "defense_impact": 0
-        }
-
-    attack_impact = 0
-    defense_impact = 0
-
-    for inj in injuries:
-        if not inj.player:
-            continue
-
-        name = inj.player.lower()
-
-        # lógica básica (mejoraremos luego)
-        if any(x in name for x in ["st", "fw", "wing"]):
-            attack_impact -= 0.05
-
-        elif any(x in name for x in ["cb", "back", "def"]):
-            defense_impact += 0.05
-
-    # límites
-    attack_impact = max(attack_impact, -0.3)
-    defense_impact = min(defense_impact, 0.3)
-
-    return {
-        "attack_impact": attack_impact,
-        "defense_impact": defense_impact
-    }
-
-
-
-# def fetch_injuries(db: Session, league: int, season: int):
-#     db.query(Injury).filter(Injury.league_id == league).delete()
-#     db.commit()
-
-#     url = "https://v3.football.api-sports.io/injuries"
-
-#     headers = {
-#         "x-apisports-key": API_FOOTBALL_KEY
-#     }
-
-#     params = {
-#         "league": league,
-#         "season": season
-#     }
-
-#     response = requests.get(url, headers=headers, params=params)
-#     data = response.json()
-
-#     for item in data.get("response", []):
-#         team = item["team"]["name"]
-#         player = item["player"]["name"]
-#         reason = item["player"].get("reason", "")
-#         type_ = item["player"].get("type", "")
-
-#         if player == "Endrick":
-#             print(item)
-
-#         if not player or not team:
-#             continue
-
-#         if player.lower() in ["unknown", "n/a"]:
-#             continue
-
-#         player = str(player).strip()
-#         team = str(team).strip()
-
-#         # 🔥 UPSERT
-#         existing = db.query(Injury).filter(
-#             Injury.player == player,
-#             Injury.team == team,
-#             Injury.league_id == league
-#         ).first()
-
-#         if existing:
-#             existing.reason = reason
-#             existing.type = type_
-#         else:
-#             db.add(Injury(
-#                 player=player,
-#                 team=team,
-#                 reason=reason,
-#                 type=type_,
-#                 league_id=league
-#             ))
-
-#     db.commit()
-
-
-# def get_team_injuries_impact(db: Session, team: str):
-#     injuries = db.query(Injury).filter(Injury.team == team).all()
+#     injuries = get_unavailable_players(db, team, fixture_id)
 
 #     if not injuries:
 #         return {
@@ -181,9 +87,9 @@ def get_team_injuries_impact(db: Session, team: str, fixture_id: int):
 #         if not inj.player:
 #             continue
 
-#         name = str(inj.player).lower()
+#         name = inj.player.lower()
 
-#         # 🔥 lógica simple (mejoraremos luego)
+#         # lógica básica (mejoraremos luego)
 #         if any(x in name for x in ["st", "fw", "wing"]):
 #             attack_impact -= 0.05
 
@@ -200,28 +106,45 @@ def get_team_injuries_impact(db: Session, team: str, fixture_id: int):
 #     }
 
 
+def get_team_injuries_impact(db: Session, team: str, fixture_id: int):
 
-## PARA SIMULAR INJURIES
+    injuries = get_unavailable_players(db, team, fixture_id)
 
-# def get_team_injuries_impact(team: str):
-#     """
-#     Simulación básica de impacto de lesiones.
-#     Luego lo conectaremos a API real.
-#     """
+    if not injuries:
+        return {
+            "attack_impact": 0,
+            "defense_impact": 0
+        }
 
-#     # 🔥 EJEMPLO (puedes ajustar manualmente)
-#     injuries = {
-#         "Real Madrid": {
-#             "attack_impact": -0.15,
-#             "defense_impact": 0.10,
-#         },
-#         "Barcelona": {
-#             "attack_impact": -0.10,
-#             "defense_impact": 0.05,
-#         },
-#     }
+    attack_impact = 0
+    defense_impact = 0
 
-#     return injuries.get(team, {
-#         "attack_impact": 0,
-#         "defense_impact": 0,
-#     })
+    for inj in injuries:
+        name = inj.player.lower()
+
+        # 🔥 TOP PLAYERS (puedes ampliar esto)
+        if any(x in name for x in ["mbappe", "vinicius", "lewandowski", "griezmann"]):
+            attack_impact -= 0.12
+            continue
+
+        # 🧠 ATAQUE
+        if any(x in name for x in ["fw", "st", "wing"]):
+            attack_impact -= 0.05
+
+        # 🛡 DEFENSA
+        elif any(x in name for x in ["cb", "back", "def"]):
+            defense_impact += 0.05
+
+        # 🧩 NEUTRAL (centrocampistas)
+        else:
+            attack_impact -= 0.02
+            defense_impact += 0.02
+
+    # límites
+    attack_impact = max(attack_impact, -0.4)
+    defense_impact = min(defense_impact, 0.4)
+
+    return {
+        "attack_impact": attack_impact,
+        "defense_impact": defense_impact
+    }

@@ -1,5 +1,7 @@
+import requests
 from sqlalchemy.orm import Session
 from app.models.odds import Odds
+from app.core.config import API_FOOTBALL_KEY
 
 
 def save_odds(db: Session, data: dict):
@@ -85,3 +87,23 @@ def save_odds(db: Session, data: dict):
                         db.add(new_odd)
 
     db.commit()
+
+def fetch_odds(db, league: int, season: int, date: str):
+
+    url = "https://v3.football.api-sports.io/odds"
+
+    headers = {
+        "x-apisports-key": API_FOOTBALL_KEY
+    }
+
+    params = {
+        "league": league,
+        "season": season,
+        "date": date
+    }
+
+    response = requests.get(url, headers=headers, params=params)
+    data = response.json()
+
+    # 🔥 reutilizamos tu lógica actual
+    save_odds(db, data)
