@@ -7,6 +7,9 @@ export type Bet = {
     bookmaker?: string;
     value?: number | null;
     date: string;
+
+    fixture_id?: number;
+    
     status: "pending" | "won" | "lost";
     result?: string;
 }

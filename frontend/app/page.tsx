@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Navbar from "@/components/Navbar";
 import TopValueModal from "@/components/TopValueModal";
 import BetsModal from "@/components/BetsModal";
@@ -96,15 +96,22 @@ export default function Home() {
 
   const [bets, setBets] = useState<Bet[]>(() => {
   if (typeof window === "undefined") return [];
-  const stored = localStorage.getItem("bets");
-  return stored ? JSON.parse(stored) : [];
-});
+    const stored = localStorage.getItem("bets");
+    return stored ? JSON.parse(stored) : [];
+  });
 
-const [favorites, setFavorites] = useState<string[]>(() => {
-  if (typeof window === "undefined") return [];
-  const stored = localStorage.getItem("favorites");
-  return stored ? JSON.parse(stored) : [];
-});
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    if (typeof window === "undefined") return [];
+    const stored = localStorage.getItem("favorites");
+    return stored ? JSON.parse(stored) : [];
+  });
+
+  const betsRef = useRef<Bet[]>(bets);
+
+  // --------- SINCRO REF --------
+  useEffect(() => {
+    betsRef.current = bets;
+  }, [bets]);
 
   // ---------------- LOAD DATA ----------------
 
@@ -127,6 +134,81 @@ const [favorites, setFavorites] = useState<string[]>(() => {
 
     // const storedFav = localStorage.getItem("favorites");
     // if (storedFav) setFavorites(JSON.parse(storedFav));
+  }, []);
+
+  // ------------- AUTO RESOLVE BETS -----------
+
+  useEffect(() => {
+    const resolveBets = async () => {
+      if (!betsRef.current.length) return;
+
+      const updated = await Promise.all(
+        betsRef.current.map(async (bet) => {
+          if (bet.status !== "pending" || !bet.fixture_id) return bet;
+
+          try {
+            const res = await fetch(
+              `${API_URL}/fixture/${bet.fixture_id}/result`
+            );
+            const data = await res.json();
+
+            if (!data || data.status !== "FT") return bet;
+
+            const { home_goals, away_goals } = data;
+
+            let status: "won" | "lost" = "lost";
+
+            // ---------------- 1X2 ----------------
+            if (bet.market === "1X2") {
+              if (
+                (bet.selection === "home" && home_goals > away_goals) ||
+                (bet.selection === "away" && away_goals > home_goals) ||
+                (bet.selection === "draw" && home_goals === away_goals)
+              ) {
+                status = "won";
+              }
+            }
+
+            // ---------------- OU25 ----------------
+            if (bet.market === "OU25") {
+              const total = home_goals + away_goals;
+
+              if (
+                (bet.selection === "over" && total > 2.5) ||
+                (bet.selection === "under" && total < 2.5)
+              ) {
+                status = "won";
+              }
+            }
+
+            // ---------------- BTTS ----------------
+            if (bet.market === "BTTS") {
+              const btts = home_goals > 0 && away_goals > 0;
+
+              if (
+                (bet.selection === "yes" && btts) ||
+                (bet.selection === "no" && !btts)
+              ) {
+                status = "won";
+              }
+            }
+
+            return {
+              ...bet,
+              status,
+              result: `${home_goals}-${away_goals}`,
+            };
+          } catch {
+            return bet;
+          }
+        })
+      );
+
+      setBets(updated);
+      localStorage.setItem("bets", JSON.stringify(updated));
+    };
+
+    resolveBets();
   }, []);
 
   // ---------------- BET SYSTEM ----------------
