@@ -98,7 +98,7 @@ def get_team_matches(team_name: str, db: Session = Depends(get_db)):
 @router.get("/injuries/update")
 def update_injuries(db: Session = Depends(get_db)):
     for league in LEAGUES:
-        fetch_injuries(db, league, 2025)
+        fetch_injuries(db, league, CURRENT_SEASON)
 
     return {"status": "injuries updated"}
 

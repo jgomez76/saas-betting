@@ -319,6 +319,22 @@ export default function Home() {
         {matches.map((match, index) => {
           const id = match.home_team + match.away_team;
 
+          // FECHA PARTIDOS
+          const dateObj = new Date(match.date + "Z");
+
+          const formattedDate = dateObj.toLocaleDateString("es-ES", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+            timeZone: "Europe/Madrid",
+          });
+
+          const formattedTime = dateObj.toLocaleTimeString("es-ES", {
+            hour: "2-digit",
+            minute: "2-digit",
+            timeZone: "Europe/Madrid",
+          });
+
           return (
             <div
               key={index}
@@ -349,6 +365,12 @@ export default function Home() {
                   {renderForm(match.away_form || "")}
                 </div>
               </div>
+
+              {/* FECHA */}
+              <p className="text-xm text-gray-300 text-center mb-2">
+                {/* {match.league} • {formattedDate} • {formattedTime} */}
+                {formattedDate} • {formattedTime}
+              </p>
 
               {/* 1X2 */}
               {(marketFilter === "ALL" || marketFilter === "1X2") &&
