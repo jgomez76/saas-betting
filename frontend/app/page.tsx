@@ -1,14 +1,32 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { API_URL } from "@/lib/api";
-// import TopValueTable from "@/components/TopValueTable";
-// import Sidebar from "@/components/Sidebar";
 import Navbar from "@/components/Navbar";
+import TopValueModal from "@/components/TopValueModal";
+import { API_URL } from "@/lib/api";
 
 type Odd = {
   odd: number;
   bookmaker: string;
+};
+
+type TeamMatch = {
+  home: string;
+  away: string;
+  home_goals: number;
+  away_goals: number;
+  date: string;
+};
+
+type MarketValues = {
+  OU25?: {
+    over_value: number | null;
+    under_value: number | null;
+  };
+  BTTS?: {
+    yes_value: number | null;
+    no_value: number | null;
+  };
 };
 
 type Match = {
@@ -39,466 +57,329 @@ type Match = {
     };
   };
 
-  market_values?: {
-    OU25?: {
-      over_value: number | null;
-      under_value: number | null;
-    };
-    BTTS?: {
-      yes_value: number | null;
-      no_value: number | null;
-    };
-  };
+  market_values?: MarketValues;
 
   home_form?: string;
   away_form?: string;
 };
 
-type TeamMatch = {
-  home: string;
-  away: string;
-  home_goals: number;
-  away_goals: number;
-  date: string;
-};
-
-// const API_URL = process.env.NEXT_PUBLIC_API_URL
-
 export default function Home() {
   const [matches, setMatches] = useState<Match[]>([]);
-  const [leagueFilter, setLeagueFilter] = useState("ALL");
+  const [loading, setLoading] = useState(true);
+
   const [marketFilter, setMarketFilter] = useState("ALL");
-  const [dateFilter, setDateFilter] = useState("");
+
+  const [showTopModal, setShowTopModal] = useState(false);
+
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [teamMatches, setTeamMatches] = useState<TeamMatch[]>([]);
-  const [loading, setLoading] = useState(true);
-  
 
-
-  // useEffect(() => {
-  //   fetch("http://127.0.0.1:8000/value-bets")
-  //     .then((res) => res.json())
-  //     .then((data) => setMatches(data));
-  // }, []);
   useEffect(() => {
-    const loadData = async () => {
+    const load = async () => {
       setLoading(true);
+      const res = await fetch(`${API_URL}/value-bets`);
+      const data = await res.json();
 
-      try {
-        const res = await fetch(`${API_URL}/value-bets`);
-        const data = await res.json();
-        setMatches(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
+      // ❗ nunca mostrar partidos sin odds
+      const filtered = data.filter((m: Match) => m.markets?.["1X2"]);
+
+      setMatches(filtered);
+      setLoading(false);
     };
 
-    loadData();
+    load();
   }, []);
 
-  // 🎯 RENDER CUOTA
-  const renderOdd = (
-    label: string,
-    odd?: number,
-    bookmaker?: string,
-    value?: number | null
-  ) => {
-    // const isValue = value !== null && value !== undefined && value > 0;
+  // -----------------------
+  // TEAM MODAL
+  // -----------------------
+  const openTeamModal = async (team: string) => {
+    setSelectedTeam(team);
 
-    const isStrong = value && value > 0.15;
-    const isGood = value && value > 0;
+    const res = await fetch(`${API_URL}/team/${team}/matches`);
+    const data: TeamMatch[] = await res.json();
 
-    return (
-        <div
-          className={`p-3 rounded-xl border text-center ${
-            isStrong
-              ? "bg-green-200 border-green-500"
-              : isGood
-              ? "bg-green-100 border-green-400"
-              : "bg-gray-100"
-          }`}
-        >
-        <p className="text-sm font-semibold">{label}</p>
-        <p className="text-2xl font-extrabold">{odd ?? "-"}</p>
-        <p className="text-xl text-gray-500">{bookmaker ?? ""}</p>
-        {value !== null && value !== undefined && (
-          <p className="text-sm font-bold">{formatValue(value)}</p>
-        )}
-      </div>
-    );
+    console.log("TEAM MATCHES RAW:", data);
+
+    setTeamMatches(data);
   };
 
-  const formatValue = (v: number | null) => {
-    if (v === null || v === undefined) return "-";
+  const getResultColor = (m: TeamMatch, team: string) => {
+    const isHome = m.home === team;
 
-    const percent = v * 100;
+    const teamGoals = isHome ? m.home_goals : m.away_goals;
+    const oppGoals = isHome ? m.away_goals : m.home_goals;
 
-    return `${percent > 0 ? "+" : ""}${percent.toFixed(1)}%`;
+    if (teamGoals > oppGoals) return "text-green-400";
+    if (teamGoals < oppGoals) return "text-red-400";
+    return "text-yellow-400";
   };
 
-  // 🎯 FILTROS
-  const filteredMatches = matches
-    .filter((m) => {
-      if (leagueFilter === "ALL") return true;
-      return m.league === leagueFilter;
-    })
-    .filter((m) => {
-      if (!dateFilter) return true;
-      const matchDate = new Date(m.date).toISOString().split("T")[0];
-      return matchDate === dateFilter;
-    });
-
-  // RACHA
-  // const renderForm = (form: string) => {
-  //   return (
-  //     <div className="flex gap-1 mt-1">
-  //       {form?.split("").map((f, i) => {
-  //         let color = "bg-gray-300";
-
-  //         if (f === "W") color = "bg-green-500";
-  //         if (f === "D") color = "bg-yellow-400";
-  //         if (f === "L") color = "bg-red-500";
-
-  //         return (
-  //           <span
-  //             key={i}
-  //             className={`text-white text-xs px-2 py-1 rounded ${color}`}
-  //           >
-  //             {f}
-  //           </span>
-  //         );
-  //       })}
-  //     </div>
-  //   );
-  // }; 
-    const renderForm = (form: string, team: string) => {
-    return (
-      <div
-        className="flex gap-1 mt-1 cursor-pointer"
-        onClick={() => {
-          setSelectedTeam(team);
-
-          fetch(`http://127.0.0.1:8000/team/${team}/matches`)
-            .then((res) => res.json())
-            .then((data) => setTeamMatches(data));
-        }}
-      >
-        {form?.split("").map((f, i) => {
-          let color = "bg-gray-300";
-
-          if (f === "W") color = "bg-green-500";
-          if (f === "D") color = "bg-yellow-400";
-          if (f === "L") color = "bg-red-500";
-
-          return (
-            <span
-              key={i}
-              className={`text-white text-xs px-2 py-1 rounded ${color}`}
-            >
-              {f}
-            </span>
-          );
-        })}
-      </div>
-    );
+  const formatValue = (v: number | null | undefined) => {
+    if (v === null || v === undefined) return null;
+    return `${v > 0 ? "+" : ""}${(v * 100).toFixed(1)}%`;
   };
 
+  const renderForm = (form: string) => (
+    <div className="flex justify-center gap-1 mt-1">
+      {form.split("").map((f, i) => {
+        let color = "bg-gray-500";
+        if (f === "W") color = "bg-green-500";
+        if (f === "D") color = "bg-yellow-400";
+        if (f === "L") color = "bg-red-500";
 
-  // LOADING ...
+        return (
+          <span key={i} className={`text-white text-xs px-1 rounded ${color}`}>
+            {f}
+          </span>
+        );
+      })}
+    </div>
+  );
+
+  // -----------------------
+  // LOADING
+  // -----------------------
   if (loading) {
     return (
-      <main className="p-10 bg-gray-50 min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-xl font-semibold mb-4">
-            Cargando próximos partidos...
-          </p>
+      <main className="p-6 bg-gray-100 min-h-screen">
+        <p className="text-center text-lg font-semibold mb-4">
+          ⏳ Cargando próximos partidos...
+        </p>
 
-          <div className="w-64 h-2 bg-gray-300 rounded">
-            <div className="h-2 bg-blue-500 animate-pulse w-full rounded"></div>
-          </div>
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="bg-white p-5 rounded-xl animate-pulse">
+              <div className="h-4 bg-gray-300 mb-3 rounded"></div>
+              <div className="grid grid-cols-3 gap-2">
+                {[1, 2, 3].map((j) => (
+                  <div key={j} className="h-12 bg-gray-200 rounded"></div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </main>
     );
   }
-// FIN LOADING
 
+  // -----------------------
+  // RENDER
+  // -----------------------
   return (
+    <main className="p-6 bg-gray-100 min-h-screen">
 
-    <div className="bg-slate-900 min-h-screen">
+      <Navbar
+        onOpenTop={() => setShowTopModal(true)}
+        marketFilter={marketFilter}
+        setMarketFilter={setMarketFilter}
+      />
 
-      {/* NAVBAR */}
-      <Navbar />
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+        {matches.map((match, index) => {
 
-      {/* CONTENIDO */}
-      <div className="p-6 text-gray-800">
-        {/* aquí tu dashboard */}
-        <main className="p-6 bg-gray-50 min-h-screen">
-          <h1 className="text-3xl font-bold mb-6">🔥 Top Value Bets</h1>
-          {/* <TopValueTable/> */}
-          {/* Exportar/Envio top values */}
-          {/* <div className="flex gap-3 mb-6 flex-wrap">
+          const dateObj = new Date(match.date + "Z");
 
-            <button
-              onClick={() => window.open(`${API_URL}/top-value?action=export&format=csv`)}
-              className="bg-blue-500 text-white px-4 py-2 rounded"
-            >
-              📄 CSV
-            </button>
+          const formattedTime = dateObj.toLocaleTimeString("es-ES", {
+            hour: "2-digit",
+            minute: "2-digit",
+            timeZone: "Europe/Madrid",
+          });
 
-            <button
-              onClick={() => window.open(`${API_URL}/top-value?action=export&format=excel`)}
-              className="bg-green-600 text-white px-4 py-2 rounded"
-            >
-              📊 Excel
-            </button>
+          return (
+            <div key={index} className="bg-[#1e1e1e] text-white p-4 rounded-xl">
 
-            <button
-              onClick={() => fetch(`${API_URL}/top-value?action=telegram`)}
-              className="bg-blue-400 text-white px-4 py-2 rounded"
-            >
-              📲 Telegram
-            </button>
-
-            <button
-              onClick={() => fetch(`${API_URL}/top-value?action=email`)}
-              className="bg-red-500 text-white px-4 py-2 rounded"
-            >
-              📧 Email
-            </button>
-
-            <button
-              onClick={async () => {
-                const res = await fetch(`${API_URL}/top-value?action=whatsapp`);
-                const data = await res.json();
-                window.open(data.url, "_blank");
-              }}
-              className="bg-green-500 text-white px-4 py-2 rounded"
-            >
-              💬 WhatsApp
-            </button>
-
-          </div> */}
-          {/* Fin Exportar/Envio */}
-
-
-          {/* 🎛️ FILTROS */}
-          <div className="flex gap-4 mb-6 flex-wrap">
-            <select
-              onChange={(e) => setLeagueFilter(e.target.value)}
-              className="p-2 border rounded"
-            >
-              <option value="ALL">Todas las ligas</option>
-              <option value="La Liga">La Liga EA Sports</option>
-              <option value="Segunda División">La Liga Hypermotion</option>
-            </select>
-
-            <select
-              onChange={(e) => setMarketFilter(e.target.value)}
-              className="p-2 border rounded"
-            >
-              <option value="ALL">Todos los mercados</option>
-              <option value="1X2">1X2</option>
-              <option value="OU25">Over 2.5</option>
-              <option value="BTTS">BTTS</option>
-            </select>
-
-            <input
-              type="date"
-              onChange={(e) => setDateFilter(e.target.value)}
-              className="p-2 border rounded"
-            />
-          </div>
-
-          {/* 📦 GRID */}
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-            {filteredMatches.map((match, index) => {
-              const dateObj = new Date(match.date + "Z");
-
-              const formattedDate = dateObj.toLocaleDateString("es-ES", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-                timeZone: "Europe/Madrid",
-              });
-
-              const formattedTime = dateObj.toLocaleTimeString("es-ES", {
-                hour: "2-digit",
-                minute: "2-digit",
-                timeZone: "Europe/Madrid",
-              });
-
-              return (
-                <div key={index} className="bg-white text-gray-900 p-5 rounded-2xl shadow-md hover:shadow-lg transition">  
-                  <div className="grid items-center mb-4 text-center" style={{ gridTemplateColumns: "45% 10% 45%"}}>
-      
-                  {/* 🏠 HOME */}
-                  <div>
-                    <p className="font-semibold text-xl">{match.home_team}</p>
-                    <div className="flex justify-center mt-1">
-                      {renderForm(match.home_form || "", match.home_team)}
-                    </div>
-                  </div>
-
-                  {/* ⚔️ VS */}
-                  <div>
-                    <p className="text-lg font-bold text-gray-600">vs</p>
-                  </div>
-
-                  {/* 🚶 AWAY */}
-                  <div>
-                    <p className="font-semibold text-xl">{match.away_team}</p>
-                    <div className="flex justify-center mt-1">
-                      {renderForm(match.away_form || "", match.away_team)}
-                    </div>
-                  </div>
-
+              {/* TEAMS */}
+              <div className="grid text-center mb-3" style={{ gridTemplateColumns: "45% 10% 45%" }}>
+                <div onClick={() => openTeamModal(match.home_team)}>
+                  <p>{match.home_team}</p>
+                  {renderForm(match.home_form || "")}
                 </div>
 
-                  <p className="text-m text-gray-500 text-center mb-4">
-                    {match.league}, {formattedDate}, {formattedTime}
-                  </p>
+                <div className="text-gray-400 text-xs">vs</div>
 
-                  {/* 🧮 1X2 */}
-                  {(marketFilter === "ALL" || marketFilter === "1X2") &&
-                    match.markets?.["1X2"] && (
-                      <div className="grid grid-cols-3 gap-3 mb-4">
-                        {renderOdd(
-                          "Home",
-                          match.markets["1X2"].home?.odd,
-                          match.markets["1X2"].home?.bookmaker,
-                          match.value?.home_value
-                        )}
-                        {renderOdd(
-                          "Draw",
-                          match.markets["1X2"].draw?.odd,
-                          match.markets["1X2"].draw?.bookmaker,
-                          match.value?.draw_value
-                        )}
-                        {renderOdd(
-                          "Away",
-                          match.markets["1X2"].away?.odd,
-                          match.markets["1X2"].away?.bookmaker,
-                          match.value?.away_value
-                        )}
-                      </div>
-                    )}
-
-                  {/* ⚽ OU25 */}
-                  {(marketFilter === "ALL" || marketFilter === "OU25") &&
-                    match.markets?.OU25 && (
-                      <div className="mb-3">
-                        <p className="text-sm font-semibold mb-1">
-                          ⚽ Over/Under 2.5
-                        </p>
-                        <div className="grid grid-cols-2 gap-3">
-                          {renderOdd(
-                            "Over",
-                            match.markets.OU25.over?.odd,
-                            match.markets.OU25.over?.bookmaker,
-                            match.market_values?.OU25?.over_value
-                          )}
-                          {renderOdd(
-                            "Under",
-                            match.markets.OU25.under?.odd,
-                            match.markets.OU25.under?.bookmaker,
-                            match.market_values?.OU25?.under_value
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                  {/* 🔁 BTTS */}
-                  {(marketFilter === "ALL" || marketFilter === "BTTS") &&
-                    match.markets?.BTTS && (
-                      <div>
-                        <p className="text-sm font-semibold mb-1">🔁 BTTS</p>
-                        <div className="grid grid-cols-2 gap-3">
-                          {renderOdd(
-                            "Yes",
-                            match.markets.BTTS.yes?.odd,
-                            match.markets.BTTS.yes?.bookmaker,
-                            match.market_values?.BTTS?.yes_value
-                          )}
-                          {renderOdd(
-                            "No",
-                            match.markets.BTTS.no?.odd,
-                            match.markets.BTTS.no?.bookmaker,
-                            match.market_values?.BTTS?.no_value
-                          )}
-                        </div>
-                      </div>
-                    )}
+                <div onClick={() => openTeamModal(match.away_team)}>
+                  <p>{match.away_team}</p>
+                  {renderForm(match.away_form || "")}
                 </div>
-              );  
-            })}
-          </div>
-          {selectedTeam && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-2xl w-[400px] shadow-xl">
-            
-            {/* TITLE */}
-            <h2 className="text-xl font-bold mb-4 text-center">
-            {selectedTeam}
-            </h2>
-            
-            {/* MATCHES */}
-                <div className="space-y-2">
-                  {teamMatches.map((m, i) => {
-                    const isDraw = m.home_goals === m.away_goals;
-                    // const isHomeWin = m.home_goals > m.away_goals;
-
-                    const isWin =
-                      (m.home === selectedTeam && m.home_goals > m.away_goals) ||
-                      (m.away === selectedTeam && m.away_goals > m.home_goals);
-
-                    const isLoss =
-                      (m.home === selectedTeam && m.home_goals < m.away_goals) ||
-                      (m.away === selectedTeam && m.away_goals < m.home_goals);
-
-                    return (
-                      <div
-                        key={i}
-                        className="grid grid-cols-3 items-center text-sm border-b pb-2"
-                      >
-                        {/* HOME */}
-                        <span className="text-center pr-2">{m.home}</span>
-
-                        {/* RESULT */}
-                        <span
-                          className={`text-center font-bold ${
-                            isDraw
-                              ? "text-yellow-500"
-                              : isWin
-                              ? "text-green-600"
-                              : isLoss
-                              ? "text-red-500"
-                              : ""
-                          }`}
-                        >
-                          {m.home_goals} - {m.away_goals}
-                        </span>
-
-                        {/* AWAY */}
-                        <span className="text-center pl-2">{m.away}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* CLOSE */}
-                <button
-                  onClick={() => setSelectedTeam(null)}
-                  className="mt-4 w-full bg-gray-200 hover:bg-gray-300 p-2 rounded"
-                >
-                  Cerrar
-                </button>
               </div>
+
+              <p className="text-xs text-center mb-3 text-gray-400">
+                {match.league} · {formattedTime}
+              </p>
+
+              {/* 1X2 */}
+              {(marketFilter === "ALL" || marketFilter === "1X2") &&
+                match.markets?.["1X2"] && (
+                  <div className="grid grid-cols-3 gap-2 mb-3">
+                    {(["home","draw","away"] as const).map((k) => {
+                      const odd = match.markets?.["1X2"]?.[k];
+                      const value = match.value?.[`${k}_value` as keyof typeof match.value];
+
+                      return (
+                        <div key={k} className="bg-[#2a2a2a] p-2 rounded text-center">
+                          <p>{k}</p>
+                          <p className="font-bold">{odd?.odd ?? "-"}</p>
+                          {value !== null && value !== undefined && (
+                            <p className="text-xs">{formatValue(value)}</p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+              )}
+
+              {/* OU25 */}
+              {(marketFilter === "ALL" || marketFilter === "OU25") &&
+                match.markets?.OU25 && (
+                  <div className="grid grid-cols-2 gap-2 mb-3">
+                    {(["over","under"] as const).map((k) => {
+                      const odd = match.markets?.OU25?.[k];
+                      const value =
+                        k === "over"
+                          ? match.market_values?.OU25?.over_value
+                          : match.market_values?.OU25?.under_value;
+
+                      return (
+                        <div key={k} className="bg-[#2a2a2a] p-2 rounded text-center">
+                          <p>{k} 2.5</p>
+                          <p className="font-bold">{odd?.odd ?? "-"}</p>
+                          {value !== null && value !== undefined && (
+                            <p className="text-xs">{formatValue(value)}</p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+              )}
+
+              {/* BTTS */}
+              {(marketFilter === "ALL" || marketFilter === "BTTS") &&
+                match.markets?.BTTS && (
+                  <div className="grid grid-cols-2 gap-2">
+                    {(["yes","no"] as const).map((k) => {
+                      const odd = match.markets?.BTTS?.[k];
+                      const value =
+                        k === "yes"
+                          ? match.market_values?.BTTS?.yes_value
+                          : match.market_values?.BTTS?.no_value;
+
+                      return (
+                        <div key={k} className="bg-[#2a2a2a] p-2 rounded text-center">
+                          <p>BTTS {k}</p>
+                          <p className="font-bold">{odd?.odd ?? "-"}</p>
+                          {value !== null && value !== undefined && (
+                            <p className="text-xs">{formatValue(value)}</p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+              )}
+
             </div>
-          )}
-        </main>
+          );
+        })}
       </div>
-    </div>
-    );
+
+      {/* MODALS */}
+      <TopValueModal open={showTopModal} onClose={() => setShowTopModal(false)} />
+
+      {selectedTeam && (
+        // <div className="fixed inset-0 bg-black/80 flex items-center justify-center">
+        //   <div className="bg-[#1e1e1e] p-6 rounded-xl w-[90%] md:w-[500px] text-white">
+        //     <div className="flex justify-between mb-4">
+        //       <h2>{selectedTeam}</h2>
+        //       <button onClick={() => setSelectedTeam(null)}>✖</button>
+        //     </div>
+
+        //     {teamMatches.map((m, i) => (
+        //       // <div key={i} className="flex justify-between mb-2">
+        //       //   <span>{m.home_team}</span>
+        //       //   <span className={getResultColor(m, selectedTeam)}>
+        //       //     {m.home_goals} - {m.away_goals}
+        //       //   </span>
+        //       //   <span>{m.away_team}</span>
+        //       // </div>
+        //       <div
+        //         key={i}
+        //         className="flex justify-between items-center mb-2 bg-[#2a2a2a] p-2 rounded text-white"
+        //       >
+        //         <span className="w-[40%] text-left font-semibold text-white">
+        //           {m.home_team}
+        //         </span>
+
+        //         <span
+        //           className={`w-[20%] text-center font-bold ${getResultColor(
+        //             m,
+        //             selectedTeam
+        //           )}`}
+        //         >
+        //           {m.home_goals} - {m.away_goals}
+        //         </span>
+
+        //         <span className="w-[40%] text-right font-semibold text-white">
+        //           {m.away_team}
+        //         </span>
+        //       </div>
+        //     ))}
+        //   </div>
+        // </div>
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+          <div className="bg-[#1e1e1e] p-6 rounded-xl w-[90%] md:w-[500px]">
+
+            {/* HEADER */}
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-white text-xl font-bold">
+                Últimos partidos - {selectedTeam}
+              </h2>
+              <button
+                onClick={() => setSelectedTeam(null)}
+                className="text-white text-lg"
+              >
+                ✖
+              </button>
+            </div>
+
+            {/* LIST */}
+            <div className="space-y-2">
+              {teamMatches.map((m, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between bg-[#2a2a2a] p-3 rounded"
+                >
+                  {/* HOME */}
+                  <span
+                    style={{ color: "#ffffff" }}
+                    className="w-[40%] text-left font-semibold"
+                  >
+                    {m.home || "—"}
+                  </span>
+
+                  {/* SCORE */}
+                  <span
+                    className={`w-[20%] text-center font-bold ${getResultColor(
+                      m,
+                      selectedTeam
+                    )}`}
+                  >
+                    {m.home_goals ?? "-"} - {m.away_goals ?? "-"}
+                  </span>
+
+                  {/* AWAY */}
+                  <span
+                    style={{ color: "#ffffff" }}
+                    className="w-[40%] text-right font-semibold"
+                  >
+                    {m.away || "—"}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+    </main>
+  );
 }

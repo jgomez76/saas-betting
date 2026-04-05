@@ -1,81 +1,62 @@
 "use client";
 
-import { useState } from "react";
-import TopValueModal from "@/components/TopValueModal";
-
-type MenuItemProps = {
-  label: string;
-  children?: React.ReactNode;
+type Props = {
+  onOpenTop: () => void;
+  marketFilter: string;
+  setMarketFilter: (value: string) => void;
 };
 
-function MenuItem({ label, children }: MenuItemProps) {
-  const [open, setOpen] = useState(false);
-
+export default function Navbar({ onOpenTop, marketFilter, setMarketFilter }: Props) {
   return (
-    <div
-      className="relative"
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-    >
-      <div className="px-4 py-2 cursor-pointer hover:text-cyan-400">
-        {label}
-      </div>
+    <div className="w-full bg-[#111] text-white p-4 mb-6 rounded-xl shadow flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
-      {open && children && (
-        <div className="absolute top-full left-0 bg-slate-900 border border-cyan-500/30 rounded-xl shadow-lg min-w-[220px] z-50">
-          {children}
-        </div>
-      )}
-    </div>
-  );
-}
+      {/* LEFT */}
+      <div className="flex items-center gap-6">
+        <h1 className="text-xl font-bold text-cyan-400">⚡ BetSaaS</h1>
 
-function DropdownItem({
-  label,
-  onClick,
-}: {
-  label: string;
-  onClick?: () => void;
-}) {
-  return (
-    <div
-      onClick={onClick}
-      className="px-4 py-2 hover:bg-cyan-500/20 cursor-pointer"
-    >
-      {label}
-    </div>
-  );
-}
+        {/* MERCADOS */}
+        <div className="flex gap-2">
+          {[
+            { label: "1X2", value: "1X2" },
+            { label: "Over 2.5", value: "OU25" },
+            { label: "BTTS", value: "BTTS" },
+          ].map((m) => (
+            <button
+              key={m.value}
+              onClick={() => setMarketFilter(m.value)}
+              className={`px-3 py-1 rounded text-sm ${
+                marketFilter === m.value
+                  ? "bg-cyan-600"
+                  : "bg-[#2a2a2a] hover:bg-[#3a3a3a]"
+              }`}
+            >
+              {m.label}
+            </button>
+          ))}
 
-export default function Navbar() {
-  const [openTopBets, setOpenTopBets] = useState(false);
-
-  return (
-    <>
-      <div className="w-full bg-slate-950 text-white border-b border-cyan-500/30">
-        <div className="flex justify-between px-6 h-14 items-center">
-
-          <div className="text-xl font-bold text-cyan-400">
-            ⚡ Betting AI
-          </div>
-
-          <div className="flex gap-6">
-
-            <MenuItem label="🧠 Apuestas">
-              <DropdownItem
-                label="🔥 Top Apuestas (Premium)"
-                onClick={() => setOpenTopBets(true)}
-              />
-            </MenuItem>
-
-          </div>
+          {/* ALL */}
+          <button
+            onClick={() => setMarketFilter("ALL")}
+            className={`px-3 py-1 rounded text-sm ${
+              marketFilter === "ALL"
+                ? "bg-green-600"
+                : "bg-[#2a2a2a] hover:bg-[#3a3a3a]"
+            }`}
+          >
+            ALL
+          </button>
         </div>
       </div>
 
-      <TopValueModal
-        open={openTopBets}
-        onClose={() => setOpenTopBets(false)}
-      />
-    </>
+      {/* RIGHT */}
+      <div>
+        <button
+          onClick={onOpenTop}
+          className="px-4 py-2 bg-cyan-600 rounded hover:bg-cyan-500"
+        >
+          🔥 Top Value
+        </button>
+      </div>
+    </div>
   );
 }
