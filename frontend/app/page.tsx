@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import TopValueModal from "@/components/TopValueModal";
 import BetsModal from "@/components/BetsModal";
 import { API_URL } from "@/lib/api";
+import { Bet } from "@/types/bet";
 
 // ---------------- TYPES ----------------
 
@@ -21,16 +22,16 @@ type TeamMatch = {
   date: string;
 };
 
-type Bet = {
-  id: string;
-  match: string;
-  market: string;
-  selection: string;
-  odd?: number;
-  bookmaker?: string;
-  value?: number | null;
-  date: string;
-};
+// type Bet = {
+//   id: string;
+//   match: string;
+//   market: string;
+//   selection: string;
+//   odd?: number;
+//   bookmaker?: string;
+//   value?: number | null;
+//   date: string;
+// };
 
 type Match = {
   home_team: string;
@@ -88,6 +89,8 @@ export default function Home() {
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [teamMatches, setTeamMatches] = useState<TeamMatch[]>([]);
 
+  const [pendingBet, setPendingBet] = useState<Omit<Bet, "id" | "date" | "status"> | null>(null);
+
   // const [bets, setBets] = useState<Bet[]>([]);
   // const [favorites, setFavorites] = useState<string[]>([]);
 
@@ -128,18 +131,19 @@ const [favorites, setFavorites] = useState<string[]>(() => {
 
   // ---------------- BET SYSTEM ----------------
 
-  const addBet = (bet: Omit<Bet, "id" | "date">) => {
+  const addBet = (bet: Omit<Bet, "id" | "date" | "status">) => {
     const newBet: Bet = {
       ...bet,
       id: crypto.randomUUID(),
       date: new Date().toISOString(),
+      status: "pending",
     };
 
     const updated = [...bets, newBet];
     setBets(updated);
     localStorage.setItem("bets", JSON.stringify(updated));
 
-    alert("✅ Apuesta añadida");
+    // alert("✅ Apuesta añadida");
   };
 
   // ---------------- FAVORITES ----------------
@@ -276,8 +280,18 @@ const [favorites, setFavorites] = useState<string[]>(() => {
                       return (
                         <div
                           key={k}
+                          // onClick={() =>
+                          //   addBet({
+                          //     match: `${match.home_team} vs ${match.away_team}`,
+                          //     market: "1X2",
+                          //     selection: k,
+                          //     odd: odd?.odd,
+                          //     bookmaker: odd?.bookmaker,
+                          //     value,
+                          //   })
+                          // }
                           onClick={() =>
-                            addBet({
+                            setPendingBet({
                               match: `${match.home_team} vs ${match.away_team}`,
                               market: "1X2",
                               selection: k,
@@ -314,8 +328,18 @@ const [favorites, setFavorites] = useState<string[]>(() => {
                       return (
                         <div
                           key={k}
+                          // onClick={() =>
+                          //   addBet({
+                          //     match: `${match.home_team} vs ${match.away_team}`,
+                          //     market: "OU25",
+                          //     selection: k,
+                          //     odd: odd?.odd,
+                          //     bookmaker: odd?.bookmaker,
+                          //     value,
+                          //   })
+                          // }
                           onClick={() =>
-                            addBet({
+                            setPendingBet({
                               match: `${match.home_team} vs ${match.away_team}`,
                               market: "OU25",
                               selection: k,
@@ -353,8 +377,18 @@ const [favorites, setFavorites] = useState<string[]>(() => {
                       return (
                         <div
                           key={k}
+                          // onClick={() =>
+                          //   addBet({
+                          //     match: `${match.home_team} vs ${match.away_team}`,
+                          //     market: "BTTS",
+                          //     selection: k,
+                          //     odd: odd?.odd,
+                          //     bookmaker: odd?.bookmaker,
+                          //     value,
+                          //   })
+                          // }
                           onClick={() =>
-                            addBet({
+                            setPendingBet({
                               match: `${match.home_team} vs ${match.away_team}`,
                               market: "BTTS",
                               selection: k,
@@ -362,7 +396,7 @@ const [favorites, setFavorites] = useState<string[]>(() => {
                               bookmaker: odd?.bookmaker,
                               value,
                             })
-                          }
+                          }                          
                           className={`${getValueColor(
                             value
                           )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
@@ -416,6 +450,67 @@ const [favorites, setFavorites] = useState<string[]>(() => {
         bets={bets}
       />
 
+      {pendingBet && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+          <div className="bg-[#1e1e1e] text-white p-6 rounded-xl w-[90%] md:w-[420px] shadow-lg">
+
+            {/* TITLE */}
+            <h2 className="text-xl font-bold text-center mb-4">
+              Confirmar apuesta
+            </h2>
+
+            {/* INFO */}
+            <div className="bg-[#2a2a2a] p-4 rounded-lg text-center space-y-2">
+
+              <p className="text-lg font-semibold">
+                {pendingBet.match}
+              </p>
+
+              <p className="text-sm text-gray-400">
+                {pendingBet.market} — {pendingBet.selection.toUpperCase()}
+              </p>
+
+              <p className="text-3xl font-bold">
+                {pendingBet.odd ?? "-"}
+              </p>
+
+              {pendingBet.bookmaker && (
+                <p className="text-sm text-gray-400">
+                  {pendingBet.bookmaker}
+                </p>
+              )}
+
+              {pendingBet.value !== null && pendingBet.value !== undefined && (
+                <p className="text-green-400 font-bold">
+                  {formatValue(pendingBet.value)}
+                </p>
+              )}
+            </div>
+
+            {/* ACTIONS */}
+            <div className="flex gap-3 mt-5">
+
+              <button
+                onClick={() => setPendingBet(null)}
+                className="flex-1 bg-gray-600 py-2 rounded-lg"
+              >
+                Cancelar
+              </button>
+
+              <button
+                onClick={() => {
+                  addBet(pendingBet);
+                  setPendingBet(null);
+                }}
+                className="flex-1 bg-green-600 py-2 rounded-lg font-bold"
+              >
+                Confirmar
+              </button>
+
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

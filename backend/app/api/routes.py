@@ -207,3 +207,16 @@ def top_value(request: Request, db: Session = Depends(get_db)):
     # DEFAULT
     # -----------------------
     return bets
+
+@router.get("/fixture/{fixture_id}/result")
+def get_fixture_result(fixture_id: int, db: Session = Depends(get_db)):
+    match = db.query(Fixture).filter(Fixture.api_id == fixture_id).first()
+
+    if not match:
+        return None
+
+    return {
+        "home_goals": match.home_goals,
+        "away_goals": match.away_goals,
+        "status": match.status
+    }

@@ -8,5 +8,10 @@ BASE_URL = "https://v3.football.api-sports.io"
 DATABASE_URL = "sqlite:///./app.db"
 SEASONS = [2025]
 CURRENT_SEASON = 2025
-LEAGUES = [140, 141]
+#Ligas:
+# - 140: La Liga EA Sports
+# - 141: La Liga Hypermotion
+# - 61: Ligue 1
+# - 39: Premier leage
+LEAGUES = [61, 140, 141]
 # LEAGUES = [141]
