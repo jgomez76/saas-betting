@@ -2,11 +2,17 @@
 
 type Props = {
   onOpenTop: () => void;
+  onOpenBets: () => void;
   marketFilter: string;
   setMarketFilter: (value: string) => void;
 };
 
-export default function Navbar({ onOpenTop, marketFilter, setMarketFilter }: Props) {
+export default function Navbar({ 
+  onOpenTop, 
+  onOpenBets,
+  marketFilter, 
+  setMarketFilter 
+}: Props) {
   return (
     <div className="w-full bg-[#111] text-white p-4 mb-6 rounded-xl shadow flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
@@ -49,7 +55,22 @@ export default function Navbar({ onOpenTop, marketFilter, setMarketFilter }: Pro
       </div>
 
       {/* RIGHT */}
-      <div>
+      {/* <div>
+        <button
+          onClick={onOpenTop}
+          className="px-4 py-2 bg-cyan-600 rounded hover:bg-cyan-500"
+        >
+          🔥 Top Value
+        </button>
+      </div> */}
+      <div className="flex gap-3">
+        <button
+          onClick={onOpenBets}
+          className="px-4 py-2 bg-yellow-600 rounded hover:bg-yellow-500"
+        >
+          💰 Mis apuestas
+        </button>
+
         <button
           onClick={onOpenTop}
           className="px-4 py-2 bg-cyan-600 rounded hover:bg-cyan-500"

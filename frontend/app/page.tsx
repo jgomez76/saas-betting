@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import TopValueModal from "@/components/TopValueModal";
+import BetsModal from "@/components/BetsModal";
 import { API_URL } from "@/lib/api";
 
 // ---------------- TYPES ----------------
@@ -82,6 +83,7 @@ export default function Home() {
 
   const [marketFilter, setMarketFilter] = useState("ALL");
   const [showTopModal, setShowTopModal] = useState(false);
+  const [showBetsModal, setShowBetsModal] = useState(false);
 
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [teamMatches, setTeamMatches] = useState<TeamMatch[]>([]);
@@ -222,6 +224,7 @@ const [favorites, setFavorites] = useState<string[]>(() => {
     <main className="p-6 bg-gray-100 min-h-screen">
       <Navbar
         onOpenTop={() => setShowTopModal(true)}
+        onOpenBets={() => setShowBetsModal(true)}
         marketFilter={marketFilter}
         setMarketFilter={setMarketFilter}
       />
@@ -407,6 +410,12 @@ const [favorites, setFavorites] = useState<string[]>(() => {
         open={showTopModal}
         onClose={() => setShowTopModal(false)}
       />
+      <BetsModal
+        open={showBetsModal}
+        onClose={() => setShowBetsModal(false)}
+        bets={bets}
+      />
+
     </main>
   );
 }
