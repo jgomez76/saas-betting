@@ -11,8 +11,10 @@ CURRENT_SEASON = 2025
 #Ligas:
 # - 39: Premier leage
 # - 61: Ligue 1
-# - 71: Serie A
+# - 71: Serie A Brasil
+# - 78: Bundesliga
+# - 135: Seria A Italia
 # - 140: La Liga EA Sports
 # - 141: La Liga Hypermotion
-LEAGUES = [39, 61, 71, 140, 141]
-# LEAGUES = [71]
+LEAGUES = [39, 61, 135, 140, 141]
+# LEAGUES = [78]

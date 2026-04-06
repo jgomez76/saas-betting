@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import Navbar from "@/components/Navbar";
 import TopValueModal from "@/components/TopValueModal";
 import BetsModal from "@/components/BetsModal";
@@ -79,15 +79,17 @@ type Match = {
 // ---------------- COMPONENT ----------------
 
 export default function Home() {
-  const [matches, setMatches] = useState<Match[]>([]);
+  // const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [marketFilter, setMarketFilter] = useState("ALL");
+  const [leagueFilter, setLeagueFilter] = useState("ALL");
   const [showTopModal, setShowTopModal] = useState(false);
   const [showBetsModal, setShowBetsModal] = useState(false);
 
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [teamMatches, setTeamMatches] = useState<TeamMatch[]>([]);
+  const [allMatches, setAllMatches] = useState<Match[]>([]);
 
   const [pendingBet, setPendingBet] = useState<Omit<Bet, "id" | "date" | "status"> | null>(null);
 
@@ -115,26 +117,65 @@ export default function Home() {
 
   // ---------------- LOAD DATA ----------------
 
+  // useEffect(() => {
+  //   const load = async () => {
+  //     setLoading(true);
+  //     const res = await fetch(`${API_URL}/value-bets`);
+  //     const data = await res.json();
+
+  //     // const filtered = data.filter((m: Match) => m.markets?.["1X2"]);
+  //     const filtered = data
+  //     .filter((m: Match) => m.markets?.["1X2"]) // solo partidos con cuotas
+  //     .filter((m: Match) =>
+  //       leagueFilter === "ALL" ? true : m.league === leagueFilter
+  //     );
+
+  //     setMatches(filtered);
+  //     setLoading(false);
+  //   };
+
+  //   load();
+  // }, [leagueFilter]);
+
   useEffect(() => {
     const load = async () => {
       setLoading(true);
+
       const res = await fetch(`${API_URL}/value-bets`);
       const data = await res.json();
 
+      // 👇 solo partidos con odds
       const filtered = data.filter((m: Match) => m.markets?.["1X2"]);
 
-      setMatches(filtered);
+      setAllMatches(filtered); // 👈 guardamos TODOS
+      // setMatches(filtered);    // 👈 inicial
+
       setLoading(false);
     };
 
     load();
-
-    // const storedBets = localStorage.getItem("bets");
-    // if (storedBets) setBets(JSON.parse(storedBets));
-
-    // const storedFav = localStorage.getItem("favorites");
-    // if (storedFav) setFavorites(JSON.parse(storedFav));
   }, []);
+
+  const matches = useMemo(() => {
+    let filtered: Match[] = [...allMatches];
+
+    // 🏆 LIGA
+    if (leagueFilter !== "ALL") {
+      filtered = filtered.filter((m) => m.league === leagueFilter);
+    }
+
+    // ⚽ MERCADO
+    if (marketFilter !== "ALL") {
+      filtered = filtered.filter((m) => {
+        if (marketFilter === "1X2") return !!m.markets?.["1X2"];
+        if (marketFilter === "OU25") return !!m.markets?.OU25;
+        if (marketFilter === "BTTS") return !!m.markets?.BTTS;
+        return true;
+      });
+    }
+
+    return filtered;
+  }, [allMatches, leagueFilter, marketFilter]);
 
   // ------------- AUTO RESOLVE BETS -----------
 
@@ -318,6 +359,8 @@ export default function Home() {
         onOpenBets={() => setShowBetsModal(true)}
         marketFilter={marketFilter}
         setMarketFilter={setMarketFilter}
+        leagueFilter={leagueFilter}
+        setLeagueFilter={setLeagueFilter}
       />
 
       {Object.entries(groupedMatches).map(([league, leagueMatches]) => (
