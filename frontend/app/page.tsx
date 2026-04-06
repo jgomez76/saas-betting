@@ -22,17 +22,6 @@ type TeamMatch = {
   date: string;
 };
 
-// type Bet = {
-//   id: string;
-//   match: string;
-//   market: string;
-//   selection: string;
-//   odd?: number;
-//   bookmaker?: string;
-//   value?: number | null;
-//   date: string;
-// };
-
 type Match = {
   home_team: string;
   away_team: string;
@@ -74,6 +63,19 @@ type Match = {
 
   home_form?: string;
   away_form?: string;
+
+  probabilities?: {
+    home_odds?: number;
+    draw_odds?: number;
+    away_odds?: number;
+  };
+
+  extra_probabilities?: {
+    over25_prob?: number;
+    under25_prob?: number;
+    btts_yes_prob?: number;
+    btts_no_prob?: number;
+  };
 };
 
 // ---------------- COMPONENT ----------------
@@ -114,6 +116,24 @@ export default function Home() {
 
   const betsRef = useRef<Bet[]>(bets);
 
+  const mergeMatches = (oldMatches: Match[], newMatches: Match[]) => {
+    const map = new Map<string, Match>();
+
+    // 🔹 guardamos antiguos
+    oldMatches.forEach((m) => {
+      const key = m.home_team + m.away_team + m.date;
+      map.set(key, m);
+    });
+
+    // 🔹 sobrescribimos con nuevos
+    newMatches.forEach((m) => {
+      const key = m.home_team + m.away_team + m.date;
+      map.set(key, m);
+    });
+
+    return Array.from(map.values());
+  };
+
   // --------- SINCRO REF --------
   useEffect(() => {
     betsRef.current = bets;
@@ -138,6 +158,24 @@ export default function Home() {
     };
 
     load();
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`${API_URL}/value-bets`);
+        const data = await res.json();
+
+        const filtered = data.filter((m: Match) => m.markets?.["1X2"]);
+
+        setAllMatches((prev) => mergeMatches(prev, filtered));
+
+      } catch (err) {
+        console.error("Refresh error", err);
+      }
+    }, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const matches = useMemo(() => {
@@ -342,12 +380,6 @@ export default function Home() {
   }
 
   // ---------------- RENDER ----------------
-  const groupedMatches = matches.reduce((acc, match) => {
-    if (!acc[match.league]) acc[match.league] = [];
-    acc[match.league].push(match);
-    return acc;
-  }, {} as Record<string, Match[]>);
-
   return (
     <main className="p-6 bg-gray-100 min-h-screen">
       <Navbar
@@ -359,13 +391,10 @@ export default function Home() {
         setLeagueFilter={setLeagueFilter}
       />
 
-      {Object.entries(groupedMatches).map(([league, leagueMatches]) => (
+      {Object.entries(grouped).map(([league, leagueMatches]) => (
         <div key={league}>
 
           {/* 🏆 NOMBRE LIGA */}
-          {/* <h2 className="text-xl font-bold mt-6 mb-3 text-gray-700">
-            {league}
-          </h2> */}
           <div
             onClick={() => toggleLeague(league)}
             className="flex justify-between items-center bg-[#2a2a2a] text-white px-4 py-3 rounded-lg cursor-pointer hover:bg-[#3a3a3a] transition mt-6"
@@ -393,8 +422,7 @@ export default function Home() {
               {leagueMatches.map((match, index) => {
                 const id = match.home_team + match.away_team;
 
-                // 👉 AQUÍ SIGUE TODO TU CÓDIGO ACTUAL DEL PARTIDO
-                          // FECHA PARTIDOS
+                // FECHA PARTIDOS
                 const dateObj = new Date(match.date + "Z");
 
                 const formattedDate = dateObj.toLocaleDateString("es-ES", {
@@ -414,6 +442,7 @@ export default function Home() {
                   <div
                     key={index}
                     className="bg-[#1e1e1e] text-white p-4 rounded-xl relative"
+                    // className="bg-[#0D0D0D] text-white p-4 rounded-xl relative"
                   >
                     {/* ⭐ FAVORITO */}
                     <button
@@ -456,19 +485,16 @@ export default function Home() {
                             const value =
                               match.value?.[`${k}_value` as keyof typeof match.value];
 
+                            const fairOdd =
+                              k === "home"
+                                ? match.probabilities?.home_odds
+                                : k === "draw"
+                                ? match.probabilities?.draw_odds
+                                : match.probabilities?.away_odds;
+
                             return (
                               <div
                                 key={k}
-                                // onClick={() =>
-                                //   addBet({
-                                //     match: `${match.home_team} vs ${match.away_team}`,
-                                //     market: "1X2",
-                                //     selection: k,
-                                //     odd: odd?.odd,
-                                //     bookmaker: odd?.bookmaker,
-                                //     value,
-                                //   })
-                                // }
                                 onClick={() =>
                                   setPendingBet({
                                     match: `${match.home_team} vs ${match.away_team}`,
@@ -481,18 +507,37 @@ export default function Home() {
                                 }
                                 className={`${getValueColor(
                                   value
-                                )} p-2 rounded text-center cursor-pointer`}
+                                )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
                               >
-                                <p>{k}</p>
-                                <p className="font-bold">{odd?.odd ?? "-"}</p>
-                                {value !== null && value !== undefined && (
-                                  <p className="text-xs">{formatValue(value)}</p>
-                                )}
+                                {/* 🏷️ LABEL */}
+                                <p className="text-sm uppercase text-gray-300">{k}</p>
+
+                                {/* 💰 CUOTA REAL */}
+                                <p className="font-bold text-3xl">{odd?.odd ?? "-"}</p>
+
+                                {/* 🏦 BOOKMAKER */}
+                                <p className="text-lg text-gray-300">
+                                  {odd?.bookmaker ?? ""}
+                                </p>
+
+                                {/* 📊 FAIR ODDS + VALUE */}
+                                <p
+                                  className={`text-xs ${
+                                    value !== null && value !== undefined && value < 0
+                                      ? "text-red-400"
+                                      : "text-gray-300"
+                                  }`}
+                                >
+                                  {fairOdd ? Number(fairOdd.toFixed(2)) : "-"}{" "}
+                                  {value !== null && value !== undefined &&
+                                    `(${formatValue(value)})`}
+                                </p>
                               </div>
                             );
                           })}
                         </div>
                     )}
+
                     {/* OU25 */}
                     {(marketFilter === "ALL" || marketFilter === "OU25") &&
                       match.markets?.OU25 && (
@@ -504,19 +549,19 @@ export default function Home() {
                                 ? match.market_values?.OU25?.over_value
                                 : match.market_values?.OU25?.under_value;
 
+                            // 👉 FAIR ODDS (IMPORTANTE)
+                            const fairOdd =
+                              k === "over"
+                                ? match.extra_probabilities?.over25_prob
+                                  ? 1 / match.extra_probabilities.over25_prob
+                                  : null
+                                : match.extra_probabilities?.under25_prob
+                                ? 1 / match.extra_probabilities.under25_prob
+                                : null;
+
                             return (
                               <div
                                 key={k}
-                                // onClick={() =>
-                                //   addBet({
-                                //     match: `${match.home_team} vs ${match.away_team}`,
-                                //     market: "OU25",
-                                //     selection: k,
-                                //     odd: odd?.odd,
-                                //     bookmaker: odd?.bookmaker,
-                                //     value,
-                                //   })
-                                // }
                                 onClick={() =>
                                   setPendingBet({
                                     match: `${match.home_team} vs ${match.away_team}`,
@@ -531,16 +576,38 @@ export default function Home() {
                                   value
                                 )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
                               >
-                                <p>{k} 2.5</p>
-                                <p className="font-bold">{odd?.odd ?? "-"}</p>
-                                {value !== null && value !== undefined && (
-                                  <p className="text-xs">{formatValue(value)}</p>
-                                )}
+                                {/* 🏷️ LABEL */}
+                                <p className="text-sm uppercase text-gray-300">
+                                  {k} 2.5
+                                </p>
+
+                                {/* 💰 CUOTA REAL */}
+                                <p className="font-bold text-3xl">
+                                  {odd?.odd ?? "-"}
+                                </p>
+
+                                {/* 🏦 BOOKMAKER */}
+                                <p className="text-lg text-gray-300">
+                                  {odd?.bookmaker ?? ""}
+                                </p>
+
+                                {/* 📊 FAIR ODDS + VALUE */}
+                                <p
+                                    className={`text-xs ${
+                                      value !== null && value !== undefined && value < 0
+                                        ? "text-red-400"
+                                        : "text-gray-300"
+                                    }`}
+                                  >
+                                    {fairOdd ? Number(fairOdd.toFixed(2)) : "-"}{" "}
+                                    {value !== null && value !== undefined &&
+                                      `(${formatValue(value)})`}
+                                  </p>
                               </div>
                             );
                           })}
                         </div>
-                    )}
+                    )}                    
 
                     {/* BTTS */}
                     {(marketFilter === "ALL" || marketFilter === "BTTS") &&
@@ -548,24 +615,25 @@ export default function Home() {
                         <div className="grid grid-cols-2 gap-2">
                           {(["yes", "no"] as const).map((k) => {
                             const odd = match.markets?.BTTS?.[k];
+
                             const value =
                               k === "yes"
                                 ? match.market_values?.BTTS?.yes_value
                                 : match.market_values?.BTTS?.no_value;
 
+                            // 👉 FAIR ODDS
+                            const fairOdd =
+                              k === "yes"
+                                ? match.extra_probabilities?.btts_yes_prob
+                                  ? 1 / match.extra_probabilities.btts_yes_prob
+                                  : null
+                                : match.extra_probabilities?.btts_no_prob
+                                ? 1 / match.extra_probabilities.btts_no_prob
+                                : null;
+
                             return (
                               <div
                                 key={k}
-                                // onClick={() =>
-                                //   addBet({
-                                //     match: `${match.home_team} vs ${match.away_team}`,
-                                //     market: "BTTS",
-                                //     selection: k,
-                                //     odd: odd?.odd,
-                                //     bookmaker: odd?.bookmaker,
-                                //     value,
-                                //   })
-                                // }
                                 onClick={() =>
                                   setPendingBet({
                                     match: `${match.home_team} vs ${match.away_team}`,
@@ -575,21 +643,43 @@ export default function Home() {
                                     bookmaker: odd?.bookmaker,
                                     value,
                                   })
-                                }                          
+                                }
                                 className={`${getValueColor(
                                   value
                                 )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
                               >
-                                <p>BTTS {k}</p>
-                                <p className="font-bold">{odd?.odd ?? "-"}</p>
-                                {value !== null && value !== undefined && (
-                                  <p className="text-xs">{formatValue(value)}</p>
-                                )}
+                                {/* 🏷️ LABEL */}
+                                <p className="text-sm uppercase text-gray-300">
+                                  BTTS {k}
+                                </p>
+
+                                {/* 💰 CUOTA REAL */}
+                                <p className="font-bold text-3xl">
+                                  {odd?.odd ?? "-"}
+                                </p>
+
+                                {/* 🏦 BOOKMAKER */}
+                                <p className="text-lg text-gray-300">
+                                  {odd?.bookmaker ?? ""}
+                                </p>
+
+                                {/* 📊 FAIR + VALUE */}
+                                <p
+                                    className={`text-xs ${
+                                      value !== null && value !== undefined && value < 0
+                                        ? "text-red-400"
+                                        : "text-gray-300"
+                                    }`}
+                                  >
+                                    {fairOdd ? Number(fairOdd.toFixed(2)) : "-"}{" "}
+                                    {value !== null && value !== undefined &&
+                                      `(${formatValue(value)})`}
+                                  </p>
                               </div>
                             );
                           })}
                         </div>
-                    )}
+                    )}                    
                   </div>
                 );
               })}
