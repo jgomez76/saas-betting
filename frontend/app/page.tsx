@@ -305,6 +305,11 @@ export default function Home() {
   }
 
   // ---------------- RENDER ----------------
+  const groupedMatches = matches.reduce((acc, match) => {
+    if (!acc[match.league]) acc[match.league] = [];
+    acc[match.league].push(match);
+    return acc;
+  }, {} as Record<string, Match[]>);
 
   return (
     <main className="p-6 bg-gray-100 min-h-screen">
@@ -315,210 +320,224 @@ export default function Home() {
         setMarketFilter={setMarketFilter}
       />
 
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-        {matches.map((match, index) => {
-          const id = match.home_team + match.away_team;
+      {Object.entries(groupedMatches).map(([league, leagueMatches]) => (
+        <div key={league}>
 
-          // FECHA PARTIDOS
-          const dateObj = new Date(match.date + "Z");
+          {/* 🏆 NOMBRE LIGA */}
+          <h2 className="text-xl font-bold mt-6 mb-3 text-gray-700">
+            {league}
+          </h2>
 
-          const formattedDate = dateObj.toLocaleDateString("es-ES", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-            timeZone: "Europe/Madrid",
-          });
+          {/* 📦 GRID DE PARTIDOS */}
+          <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+            
+            {leagueMatches.map((match, index) => {
+              const id = match.home_team + match.away_team;
 
-          const formattedTime = dateObj.toLocaleTimeString("es-ES", {
-            hour: "2-digit",
-            minute: "2-digit",
-            timeZone: "Europe/Madrid",
-          });
+              // 👉 AQUÍ SIGUE TODO TU CÓDIGO ACTUAL DEL PARTIDO
+                        // FECHA PARTIDOS
+              const dateObj = new Date(match.date + "Z");
 
-          return (
-            <div
-              key={index}
-              className="bg-[#1e1e1e] text-white p-4 rounded-xl relative"
-            >
-              {/* ⭐ FAVORITO */}
-              <button
-                onClick={() => toggleFavorite(id)}
-                className="absolute top-2 right-2"
-              >
-                {favorites.includes(id) ? "⭐" : "☆"}
-              </button>
+              const formattedDate = dateObj.toLocaleDateString("es-ES", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+                timeZone: "Europe/Madrid",
+              });
 
-              {/* EQUIPOS */}
-              <div
-                className="grid text-center mb-3"
-                style={{ gridTemplateColumns: "45% 10% 45%" }}
-              >
-                <div onClick={() => openTeamModal(match.home_team)}>
-                  <p>{match.home_team}</p>
-                  {renderForm(match.home_form || "")}
+              const formattedTime = dateObj.toLocaleTimeString("es-ES", {
+                hour: "2-digit",
+                minute: "2-digit",
+                timeZone: "Europe/Madrid",
+              });
+
+              return (
+                <div
+                  key={index}
+                  className="bg-[#1e1e1e] text-white p-4 rounded-xl relative"
+                >
+                  {/* ⭐ FAVORITO */}
+                  <button
+                    onClick={() => toggleFavorite(id)}
+                    className="absolute top-2 right-2"
+                  >
+                    {favorites.includes(id) ? "⭐" : "☆"}
+                  </button>
+
+                  {/* EQUIPOS */}
+                  <div
+                    className="grid text-center mb-3"
+                    style={{ gridTemplateColumns: "45% 10% 45%" }}
+                  >
+                    <div onClick={() => openTeamModal(match.home_team)}>
+                      <p>{match.home_team}</p>
+                      {renderForm(match.home_form || "")}
+                    </div>
+
+                    <div className="text-gray-400 text-xs">vs</div>
+
+                    <div onClick={() => openTeamModal(match.away_team)}>
+                      <p>{match.away_team}</p>
+                      {renderForm(match.away_form || "")}
+                    </div>
+                  </div>
+
+                  {/* FECHA */}
+                  <p className="text-xm text-gray-300 text-center mb-2">
+                    {/* {match.league} • {formattedDate} • {formattedTime} */}
+                    {formattedDate} • {formattedTime}
+                  </p>
+
+                  {/* 1X2 */}
+                  {(marketFilter === "ALL" || marketFilter === "1X2") &&
+                    match.markets?.["1X2"] && (
+                      <div className="grid grid-cols-3 gap-2 mb-3">
+                        {(["home", "draw", "away"] as const).map((k) => {
+                          const odd = match.markets?.["1X2"]?.[k];
+                          const value =
+                            match.value?.[`${k}_value` as keyof typeof match.value];
+
+                          return (
+                            <div
+                              key={k}
+                              // onClick={() =>
+                              //   addBet({
+                              //     match: `${match.home_team} vs ${match.away_team}`,
+                              //     market: "1X2",
+                              //     selection: k,
+                              //     odd: odd?.odd,
+                              //     bookmaker: odd?.bookmaker,
+                              //     value,
+                              //   })
+                              // }
+                              onClick={() =>
+                                setPendingBet({
+                                  match: `${match.home_team} vs ${match.away_team}`,
+                                  market: "1X2",
+                                  selection: k,
+                                  odd: odd?.odd,
+                                  bookmaker: odd?.bookmaker,
+                                  value,
+                                })
+                              }
+                              className={`${getValueColor(
+                                value
+                              )} p-2 rounded text-center cursor-pointer`}
+                            >
+                              <p>{k}</p>
+                              <p className="font-bold">{odd?.odd ?? "-"}</p>
+                              {value !== null && value !== undefined && (
+                                <p className="text-xs">{formatValue(value)}</p>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                  )}
+                  {/* OU25 */}
+                  {(marketFilter === "ALL" || marketFilter === "OU25") &&
+                    match.markets?.OU25 && (
+                      <div className="grid grid-cols-2 gap-2 mb-3">
+                        {(["over", "under"] as const).map((k) => {
+                          const odd = match.markets?.OU25?.[k];
+                          const value =
+                            k === "over"
+                              ? match.market_values?.OU25?.over_value
+                              : match.market_values?.OU25?.under_value;
+
+                          return (
+                            <div
+                              key={k}
+                              // onClick={() =>
+                              //   addBet({
+                              //     match: `${match.home_team} vs ${match.away_team}`,
+                              //     market: "OU25",
+                              //     selection: k,
+                              //     odd: odd?.odd,
+                              //     bookmaker: odd?.bookmaker,
+                              //     value,
+                              //   })
+                              // }
+                              onClick={() =>
+                                setPendingBet({
+                                  match: `${match.home_team} vs ${match.away_team}`,
+                                  market: "OU25",
+                                  selection: k,
+                                  odd: odd?.odd,
+                                  bookmaker: odd?.bookmaker,
+                                  value,
+                                })
+                              }
+                              className={`${getValueColor(
+                                value
+                              )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
+                            >
+                              <p>{k} 2.5</p>
+                              <p className="font-bold">{odd?.odd ?? "-"}</p>
+                              {value !== null && value !== undefined && (
+                                <p className="text-xs">{formatValue(value)}</p>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                  )}
+
+                  {/* BTTS */}
+                  {(marketFilter === "ALL" || marketFilter === "BTTS") &&
+                    match.markets?.BTTS && (
+                      <div className="grid grid-cols-2 gap-2">
+                        {(["yes", "no"] as const).map((k) => {
+                          const odd = match.markets?.BTTS?.[k];
+                          const value =
+                            k === "yes"
+                              ? match.market_values?.BTTS?.yes_value
+                              : match.market_values?.BTTS?.no_value;
+
+                          return (
+                            <div
+                              key={k}
+                              // onClick={() =>
+                              //   addBet({
+                              //     match: `${match.home_team} vs ${match.away_team}`,
+                              //     market: "BTTS",
+                              //     selection: k,
+                              //     odd: odd?.odd,
+                              //     bookmaker: odd?.bookmaker,
+                              //     value,
+                              //   })
+                              // }
+                              onClick={() =>
+                                setPendingBet({
+                                  match: `${match.home_team} vs ${match.away_team}`,
+                                  market: "BTTS",
+                                  selection: k,
+                                  odd: odd?.odd,
+                                  bookmaker: odd?.bookmaker,
+                                  value,
+                                })
+                              }                          
+                              className={`${getValueColor(
+                                value
+                              )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
+                            >
+                              <p>BTTS {k}</p>
+                              <p className="font-bold">{odd?.odd ?? "-"}</p>
+                              {value !== null && value !== undefined && (
+                                <p className="text-xs">{formatValue(value)}</p>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                  )}
                 </div>
+              );
+            })}
 
-                <div className="text-gray-400 text-xs">vs</div>
-
-                <div onClick={() => openTeamModal(match.away_team)}>
-                  <p>{match.away_team}</p>
-                  {renderForm(match.away_form || "")}
-                </div>
-              </div>
-
-              {/* FECHA */}
-              <p className="text-xm text-gray-300 text-center mb-2">
-                {/* {match.league} • {formattedDate} • {formattedTime} */}
-                {formattedDate} • {formattedTime}
-              </p>
-
-              {/* 1X2 */}
-              {(marketFilter === "ALL" || marketFilter === "1X2") &&
-                match.markets?.["1X2"] && (
-                  <div className="grid grid-cols-3 gap-2 mb-3">
-                    {(["home", "draw", "away"] as const).map((k) => {
-                      const odd = match.markets?.["1X2"]?.[k];
-                      const value =
-                        match.value?.[`${k}_value` as keyof typeof match.value];
-
-                      return (
-                        <div
-                          key={k}
-                          // onClick={() =>
-                          //   addBet({
-                          //     match: `${match.home_team} vs ${match.away_team}`,
-                          //     market: "1X2",
-                          //     selection: k,
-                          //     odd: odd?.odd,
-                          //     bookmaker: odd?.bookmaker,
-                          //     value,
-                          //   })
-                          // }
-                          onClick={() =>
-                            setPendingBet({
-                              match: `${match.home_team} vs ${match.away_team}`,
-                              market: "1X2",
-                              selection: k,
-                              odd: odd?.odd,
-                              bookmaker: odd?.bookmaker,
-                              value,
-                            })
-                          }
-                          className={`${getValueColor(
-                            value
-                          )} p-2 rounded text-center cursor-pointer`}
-                        >
-                          <p>{k}</p>
-                          <p className="font-bold">{odd?.odd ?? "-"}</p>
-                          {value !== null && value !== undefined && (
-                            <p className="text-xs">{formatValue(value)}</p>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-              )}
-              {/* OU25 */}
-              {(marketFilter === "ALL" || marketFilter === "OU25") &&
-                match.markets?.OU25 && (
-                  <div className="grid grid-cols-2 gap-2 mb-3">
-                    {(["over", "under"] as const).map((k) => {
-                      const odd = match.markets?.OU25?.[k];
-                      const value =
-                        k === "over"
-                          ? match.market_values?.OU25?.over_value
-                          : match.market_values?.OU25?.under_value;
-
-                      return (
-                        <div
-                          key={k}
-                          // onClick={() =>
-                          //   addBet({
-                          //     match: `${match.home_team} vs ${match.away_team}`,
-                          //     market: "OU25",
-                          //     selection: k,
-                          //     odd: odd?.odd,
-                          //     bookmaker: odd?.bookmaker,
-                          //     value,
-                          //   })
-                          // }
-                          onClick={() =>
-                            setPendingBet({
-                              match: `${match.home_team} vs ${match.away_team}`,
-                              market: "OU25",
-                              selection: k,
-                              odd: odd?.odd,
-                              bookmaker: odd?.bookmaker,
-                              value,
-                            })
-                          }
-                          className={`${getValueColor(
-                            value
-                          )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
-                        >
-                          <p>{k} 2.5</p>
-                          <p className="font-bold">{odd?.odd ?? "-"}</p>
-                          {value !== null && value !== undefined && (
-                            <p className="text-xs">{formatValue(value)}</p>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-              )}
-
-              {/* BTTS */}
-              {(marketFilter === "ALL" || marketFilter === "BTTS") &&
-                match.markets?.BTTS && (
-                  <div className="grid grid-cols-2 gap-2">
-                    {(["yes", "no"] as const).map((k) => {
-                      const odd = match.markets?.BTTS?.[k];
-                      const value =
-                        k === "yes"
-                          ? match.market_values?.BTTS?.yes_value
-                          : match.market_values?.BTTS?.no_value;
-
-                      return (
-                        <div
-                          key={k}
-                          // onClick={() =>
-                          //   addBet({
-                          //     match: `${match.home_team} vs ${match.away_team}`,
-                          //     market: "BTTS",
-                          //     selection: k,
-                          //     odd: odd?.odd,
-                          //     bookmaker: odd?.bookmaker,
-                          //     value,
-                          //   })
-                          // }
-                          onClick={() =>
-                            setPendingBet({
-                              match: `${match.home_team} vs ${match.away_team}`,
-                              market: "BTTS",
-                              selection: k,
-                              odd: odd?.odd,
-                              bookmaker: odd?.bookmaker,
-                              value,
-                            })
-                          }                          
-                          className={`${getValueColor(
-                            value
-                          )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
-                        >
-                          <p>BTTS {k}</p>
-                          <p className="font-bold">{odd?.odd ?? "-"}</p>
-                          {value !== null && value !== undefined && (
-                            <p className="text-xs">{formatValue(value)}</p>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+          </div>
+        </div>
+      ))}
 
       {/* TEAM MODAL */}
       {selectedTeam && (
