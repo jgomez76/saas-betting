@@ -201,6 +201,7 @@ def get_value_bets(db: Session, limit=50):
         # -----------------------------
         results.append({
             "api_id": match.api_id,
+            "fixture_id": match.api_id,
             "home_team": match.home_team,
             "away_team": match.away_team,
             "home_form": home_form,

@@ -27,6 +27,7 @@ type Match = {
   away_team: string;
   league: string;
   date: string;
+  fixture_id: number;
 
   value?: {
     home_value: number | null;
@@ -92,7 +93,9 @@ export default function Home() {
   const [teamMatches, setTeamMatches] = useState<TeamMatch[]>([]);
   const [allMatches, setAllMatches] = useState<Match[]>([]);
 
-  const [pendingBet, setPendingBet] = useState<Omit<Bet, "id" | "date" | "status"> | null>(null);
+  // const [pendingBet, setPendingBet] = useState<Omit<Bet, "id" | "date" | "status"> | null>(null);
+  type PendingBet = Omit<Bet, "id">;
+  const [pendingBet, setPendingBet] = useState<PendingBet | null>(null);
 
   const [bets, setBets] = useState<Bet[]>(() => {
   if (typeof window === "undefined") return [];
@@ -276,19 +279,30 @@ export default function Home() {
 
   // ---------------- BET SYSTEM ----------------
 
-  const addBet = (bet: Omit<Bet, "id" | "date" | "status">) => {
+  // const addBet = (bet: Omit<Bet, "id" | "date" | "status">) => {
+  //   const newBet: Bet = {
+  //     ...bet,
+  //     id: crypto.randomUUID(),
+  //     date: bet.date ?? new Date().toISOString(),
+  //     status: "pending",
+  //   };
+
+  //   const updated = [...bets, newBet];
+  //   setBets(updated);
+  //   localStorage.setItem("bets", JSON.stringify(updated));
+
+  //   // alert("✅ Apuesta añadida");
+  // };
+
+  const addBet = (bet: PendingBet) => {
     const newBet: Bet = {
       ...bet,
       id: crypto.randomUUID(),
-      date: new Date().toISOString(),
-      status: "pending",
     };
 
     const updated = [...bets, newBet];
     setBets(updated);
     localStorage.setItem("bets", JSON.stringify(updated));
-
-    // alert("✅ Apuesta añadida");
   };
 
   // ---------------- FAVORITES ----------------
@@ -503,6 +517,9 @@ export default function Home() {
                                     odd: odd?.odd,
                                     bookmaker: odd?.bookmaker,
                                     value,
+                                    fixture_id: match.fixture_id,
+                                    status: "pending",
+                                    date: match.date
                                   })
                                 }
                                 className={`${getValueColor(
@@ -570,6 +587,9 @@ export default function Home() {
                                     odd: odd?.odd,
                                     bookmaker: odd?.bookmaker,
                                     value,
+                                    fixture_id: match.fixture_id,
+                                    status: "pending",
+                                    date: match.date
                                   })
                                 }
                                 className={`${getValueColor(
@@ -642,6 +662,9 @@ export default function Home() {
                                     odd: odd?.odd,
                                     bookmaker: odd?.bookmaker,
                                     value,
+                                    fixture_id: match.fixture_id,
+                                    status: "pending",
+                                    date: match.date
                                   })
                                 }
                                 className={`${getValueColor(

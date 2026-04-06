@@ -16,5 +16,9 @@ CURRENT_SEASON = 2025
 # - 135: Seria A Italia
 # - 140: La Liga EA Sports
 # - 141: La Liga Hypermotion
-LEAGUES = [39, 61, 135, 140, 141]
-# LEAGUES = [78]
+# - 2: Champions League
+# - 3: Europa League
+# - 848 - Conference League 
+LEAGUES = [2, 8, 39, 61, 135, 140, 141]
+# LEAGUES = [8]
+

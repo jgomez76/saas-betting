@@ -5,19 +5,6 @@ import { Bet } from "@/types/bet";
 
 // ---------------- TYPES ----------------
 
-// type Bet = {
-//   id: string;
-//   match: string;
-//   market: string;
-//   selection: string;
-//   odd?: number;
-//   bookmaker?: string;
-//   value?: number | null;
-//   date: string;
-//   status: "pending" | "won" | "lost";
-//   result?: string;
-// };
-
 type Props = {
   open: boolean;
   onClose: () => void;
@@ -30,6 +17,64 @@ export default function BetsModal({ open, onClose, bets }: Props) {
   
 
   const stake = 10;
+
+  // const formatDate = (date: string) => {
+  //   if (!date) return "-";
+
+  //   const d = new Date(date + "Z");
+
+  //   const day = d.toLocaleDateString("es-ES", {
+  //     day: "2-digit",
+  //     month: "2-digit",
+  //   });
+
+  //   const time = d.toLocaleTimeString("es-ES", {
+  //     hour: "2-digit",
+  //     minute: "2-digit",
+  //   });
+
+  //   return `${day} ${time}`;
+  // };
+  const formatDate = (date: string) => {
+    if (!date) return "-";
+
+    const d = new Date(date + "Z");
+    const now = new Date();
+
+    // 👉 NORMALIZAR (quitar horas para comparar días)
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
+    const matchDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
+    const time = d.toLocaleTimeString("es-ES", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    // 🔥 HOY
+    if (matchDay.getTime() === today.getTime()) {
+      return `Hoy ${time}`;
+    }
+
+    // 🔥 MAÑANA
+    if (matchDay.getTime() === tomorrow.getTime()) {
+      return `Mañana ${time}`;
+    }
+
+    // 🔥 FORMATO NORMAL
+    const day = d.toLocaleDateString("es-ES", {
+      day: "2-digit",
+    });
+
+    const month = d
+      .toLocaleDateString("es-ES", { month: "short" })
+      .replace(".", "");
+
+    return `${day} ${month} ${time}`;
+  };
+
 
   // ---------------- STATS ----------------
   const stats = useMemo(() => {
@@ -143,6 +188,7 @@ export default function BetsModal({ open, onClose, bets }: Props) {
             <thead>
               <tr className="bg-[#2a2a2a] text-gray-300">
                 <th className="p-2 text-left">Match</th>
+                <th className="p-2 text-center">Date</th>
                 <th className="p-2">Market</th>
                 <th className="p-2">Pick</th>
                 <th className="p-2">Odd</th>
@@ -156,6 +202,10 @@ export default function BetsModal({ open, onClose, bets }: Props) {
               {bets.map((b) => (
                 <tr key={b.id} className={`${getRowColor(b.status)} border-b border-[#333]`}>
                   <td className="p-2 text-left">{b.match}</td>
+
+                  <td className="p-2 text-center text-xs text-gray-400">
+                    {formatDate(b.date)}
+                  </td>
 
                   <td className="p-2 text-center">{b.market}</td>
 
