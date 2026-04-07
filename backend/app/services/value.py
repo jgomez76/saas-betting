@@ -259,6 +259,7 @@ def get_value_bets(db: Session, limit=50):
             "home_form": home_form,
             "away_form": away_form,
             "league": match.league,
+            "league_id": match.league_id,
             "date": match.date,
 
             "probabilities": probs,

@@ -70,12 +70,24 @@ export default function Navbar({
             {openLeagues && (
               <div className="absolute left-0 mt-2 w-44 bg-[#1e1e1e] border border-[#333] rounded shadow-lg z-50 overflow-hidden">
 
-                {[
+                {/* {[
                   { label: "Todas", value: "ALL" },
                   { label: "La Liga EA Sports", value: "La Liga" },
                   { label: "La Liga Hypermotion", value: "Segunda División" },
                   { label: "Serie A", value: "Serie A" },
                   { label: "Bundesliga", value: "Bundesliga" },
+                ].map((l) => ( */}
+                {[
+                  { label: "🌍 Todas", value: "ALL" },
+
+                  { label: "La Liga EA Sports", value: "140" },
+                  { label: "La Liga Hypermotion", value: "141" },
+                  { label: "Serie A", value: "135" },
+                  // { label: "Serie A", value: "71" },
+                  { label: "Bundesliga", value: "78" },
+                  { label: "Premier League", value: "39" },
+                  { label: "Champions League", value: "2" },
+                  { label: "Europa League", value: "3" },
                 ].map((l) => (
                   <div
                     key={l.value}

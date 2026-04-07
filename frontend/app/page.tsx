@@ -26,6 +26,7 @@ type Match = {
   home_team: string;
   away_team: string;
   league: string;
+  league_id: number;
   date: string;
   fixture_id: number;
 
@@ -220,7 +221,10 @@ export default function Home() {
 
     // 🏆 LIGA
     if (leagueFilter !== "ALL") {
-      filtered = filtered.filter((m) => m.league === leagueFilter);
+      // filtered = filtered.filter((m) => m.league === leagueFilter);
+      filtered = filtered.filter(
+        (m) => String(m.league_id) === leagueFilter
+      );
     }
 
     // ⚽ MERCADO
@@ -372,6 +376,7 @@ export default function Home() {
     return "bg-[#2a2a2a]";
   };
 
+
   const grouped = useMemo(() => {
     return matches.reduce((acc, match) => {
       if (!acc[match.league]) {
@@ -383,6 +388,16 @@ export default function Home() {
       return acc;
     }, {} as Record<string, Match[]>);
   }, [matches]);
+
+  const leagueIdToName = useMemo(() => {
+    const map: Record<string, string> = {};
+
+    allMatches.forEach((m) => {
+      map[String(m.league_id)] = m.league;
+    });
+
+    return map;
+  }, [allMatches]);
 
   const renderForm = (form: string) => (
     <div className="flex justify-center gap-1 mt-1">
@@ -414,23 +429,46 @@ export default function Home() {
   }
 
   // ---------------- RENDER ----------------
+  // const handleLeagueChange = (value: string) => {
+  //   setLeagueFilter(value);
+
+  //   if (value === "ALL") {
+  //     // 🔥 abrir todas
+  //     const leagues = Array.from(
+  //       new Set(allMatches.map((m) => m.league))
+  //     ) as string[];
+
+  //     const state: Record<string, boolean> = {};
+  //     leagues.forEach((l) => (state[l] = true));
+
+  //     setOpenLeagues(state);
+  //   } else {
+  //     // 🔥 abrir solo una
+  //     setOpenLeagues({ [value]: true });
+  //   }
+  // };
   const handleLeagueChange = (value: string) => {
     setLeagueFilter(value);
 
+    // 🌍 TODAS
     if (value === "ALL") {
-      // 🔥 abrir todas
       const leagues = Array.from(
         new Set(allMatches.map((m) => m.league))
-      ) as string[];
+      );
 
       const state: Record<string, boolean> = {};
       leagues.forEach((l) => (state[l] = true));
 
       setOpenLeagues(state);
-    } else {
-      // 🔥 abrir solo una
-      setOpenLeagues({ [value]: true });
+      return;
     }
+
+    // 🎯 UNA LIGA → convertir ID a nombre
+    const leagueName = leagueIdToName[value];
+
+    if (!leagueName) return;
+
+    setOpenLeagues({ [leagueName]: true });
   };
 
   return (
