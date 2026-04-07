@@ -1,7 +1,16 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Bet } from "@/types/bet";
+
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 // ---------------- TYPES ----------------
 
@@ -11,30 +20,20 @@ type Props = {
   bets: Bet[];
 };
 
+type ChartPoint = {
+  bet: number;
+  bankroll: number;
+  roi?: number;
+  result: string;
+};
+
 // ---------------- COMPONENT ----------------
 
 export default function BetsModal({ open, onClose, bets }: Props) {
   
-
+  const [chartReady, setChartReady] = useState(false);
   const stake = 10;
 
-  // const formatDate = (date: string) => {
-  //   if (!date) return "-";
-
-  //   const d = new Date(date + "Z");
-
-  //   const day = d.toLocaleDateString("es-ES", {
-  //     day: "2-digit",
-  //     month: "2-digit",
-  //   });
-
-  //   const time = d.toLocaleTimeString("es-ES", {
-  //     hour: "2-digit",
-  //     minute: "2-digit",
-  //   });
-
-  //   return `${day} ${time}`;
-  // };
   const formatDate = (date: string) => {
     if (!date) return "-";
 
@@ -96,6 +95,41 @@ export default function BetsModal({ open, onClose, bets }: Props) {
     const roi = totalStake ? (profit / totalStake) * 100 : 0;
     const yieldValue = totalStake ? totalReturn / totalStake : 0;
 
+    const settled = wins + losses;
+    const winrate = settled ? (wins / settled) * 100 : 0;
+
+    // 🔥 STREAK (racha actual y mejor)
+    let currentStreak = 0;
+    let bestStreak = 0;
+
+    // GRAFICO
+    let bankroll = 0;
+    const evolution = bets
+      .filter((b) => b.status !== "pending")
+      .map((b, i) => {
+        if (b.status === "won" && b.odd) {
+          bankroll += b.odd * stake - stake;
+        } else if (b.status === "lost") {
+          bankroll -= stake;
+        }
+
+        return {
+          bet: i + 1,
+          bankroll: Number(bankroll.toFixed(2)),
+          result: b.status,
+        };
+      });
+
+    bets.forEach((b) => {
+      if (b.status === "won") {
+        currentStreak++;
+        bestStreak = Math.max(bestStreak, currentStreak);
+      } else if (b.status === "lost") {
+        currentStreak = 0;
+      }
+    });
+
+
     return {
       totalBets,
       wins,
@@ -105,8 +139,25 @@ export default function BetsModal({ open, onClose, bets }: Props) {
       profit,
       roi,
       yieldValue,
+      winrate,
+      currentStreak,
+      bestStreak,
+      evolution,
     };
   }, [bets]);
+
+  useEffect(() => {
+    if (!open) {
+      setChartReady(false);
+      return;
+    }
+
+    const id = requestAnimationFrame(() => {
+      setChartReady(true);
+    });
+
+    return () => cancelAnimationFrame(id);
+  }, [open]);
 
   if (!open) return null;
 
@@ -180,7 +231,92 @@ export default function BetsModal({ open, onClose, bets }: Props) {
               {stats.yieldValue.toFixed(2)}
             </p>
           </div>
+
+          <div className="bg-[#2a2a2a] p-3 rounded">
+            <p className="text-xs text-gray-400">Winrate</p>
+            <p className="text-lg font-bold">
+              {stats.winrate.toFixed(1)}%
+            </p>
+          </div>
+
+          <div className="bg-[#2a2a2a] p-3 rounded">
+            <p className="text-xs text-gray-400">Racha actual</p>
+            <p className="text-lg font-bold text-green-400">
+              {stats.currentStreak}
+            </p>
+          </div>
+
+          <div className="bg-[#2a2a2a] p-3 rounded">
+            <p className="text-xs text-gray-400">Mejor racha</p>
+            <p className="text-lg font-bold">
+              {stats.bestStreak}
+            </p>
+          </div>
         </div>
+
+        {/* 📈 BANKROLL CHART */}
+        {/* <div className="w-full h-[250px] mb-6">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={stats.evolution}>
+              <XAxis dataKey="bet" stroke="#aaa" />
+              <YAxis stroke="#aaa" />
+              <Tooltip />
+
+              <Line
+                type="monotone"
+                dataKey="bankroll"
+                strokeWidth={2}
+                stroke="#22c55e"
+                // dot={(props: any) => {
+                dot={(props: {
+                  cx?: number;
+                  cy?: number;
+                  payload?: ChartPoint;
+                }) => {
+                  // const { cx, cy, payload } = props;
+                  if (!props.cx || !props.cy || !props.payload) return null;
+                  const color =
+                    props.payload.result === "won" ? "#22c55e" : "#ef4444";
+
+                  return <circle cx={props.cx} cy={props.cy} r={4} fill={color} />;
+                }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div> */}
+
+        {stats.evolution.length === 0 && (
+          <p className="text-center text-gray-400 mb-4">
+            No hay apuestas resueltas aún
+          </p>
+        )}
+        {chartReady && stats.evolution.length > 0 && (
+          <div className="w-full h-[250px] mb-6">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={stats.evolution}>
+                <XAxis dataKey="bet" />
+                <YAxis />
+                <Tooltip />
+
+                {/* 💰 BANKROLL */}
+                <Line
+                  type="monotone"
+                  dataKey="bankroll"
+                  stroke="#22c55e"
+                  strokeWidth={2}
+                />
+
+                {/* 📊 ROI */}
+                <Line
+                  type="monotone"
+                  dataKey="roi"
+                  stroke="#3b82f6"
+                  strokeWidth={2}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        )}
 
         {/* TABLE */}
         <div className="overflow-x-auto">

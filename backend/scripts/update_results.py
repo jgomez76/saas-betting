@@ -17,11 +17,16 @@ def update_results():
 
     today = datetime.utcnow().date()
     yesterday = today - timedelta(days=1)
+    
+    # tomorrow = today + timedelta(2)
+    # print(tomorrow)
 
     from_date = str(yesterday)
     to_date = str(today)
+    # to_tomorrow = str(tomorrow)
 
     print(f"Updating results from {from_date} to {to_date}")
+    # print(f"Updating results from {from_date} to {to_tomorrow}")
 
     for league_id in LEAGUES:
         print(f"➡️ League {league_id}")
@@ -32,6 +37,7 @@ def update_results():
             f"&season={CURRENT_SEASON}"
             f"&from={from_date}"
             f"&to={to_date}"
+            # f"&to={to_tomorrow}"
         )
 
         res = requests.get(url, headers=HEADERS)
@@ -49,9 +55,18 @@ def update_results():
             ).first()
 
             if match:
+                # print(home_goals)
+                # print(away_goals)
+                # print(status)              
                 match.status = status
                 match.home_goals = home_goals
                 match.away_goals = away_goals
+                print(match.home_team)
+                print(match.away_team)
+                print(match.home_goals)
+                print(match.away_goals)
+                print(match.status)
+
 
         db.commit()
 

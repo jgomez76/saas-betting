@@ -10,6 +10,10 @@ type Props = {
 
   leagueFilter: string;
   setLeagueFilter: (value: string) => void;
+  minValue: number;
+  setMinValue: (v: number) => void;
+  minOdd: number;
+  setMinOdd: (v: number) => void;
 };
 
 export default function Navbar({
@@ -19,6 +23,10 @@ export default function Navbar({
   setMarketFilter,
   leagueFilter,
   setLeagueFilter,
+  minValue,
+  setMinValue,
+  minOdd,
+  setMinOdd,
 }: Props) {
   const [openMarkets, setOpenMarkets] = useState(false);
   const [openLeagues, setOpenLeagues] = useState(false);
@@ -69,14 +77,6 @@ export default function Navbar({
 
             {openLeagues && (
               <div className="absolute left-0 mt-2 w-44 bg-[#1e1e1e] border border-[#333] rounded shadow-lg z-50 overflow-hidden">
-
-                {/* {[
-                  { label: "Todas", value: "ALL" },
-                  { label: "La Liga EA Sports", value: "La Liga" },
-                  { label: "La Liga Hypermotion", value: "Segunda División" },
-                  { label: "Serie A", value: "Serie A" },
-                  { label: "Bundesliga", value: "Bundesliga" },
-                ].map((l) => ( */}
                 {[
                   { label: "🌍 Todas", value: "ALL" },
 
@@ -122,7 +122,7 @@ export default function Navbar({
                 {[
                   { label: "Todos", value: "ALL" },
                   { label: "1X2", value: "1X2" },
-                  { label: "Over 1.5", value: "OU15" },
+                  // { label: "Over 1.5", value: "OU15" },
                   { label: "Over 2.5", value: "OU25" },
                   { label: "Over 3.5", value: "OU35" },
                   { label: "BTTS", value: "BTTS" },
@@ -143,6 +143,62 @@ export default function Navbar({
 
               </div>
             )}
+          </div>
+
+          {/* 🎯 FILTROS VALUE PRO */}
+          <div className="flex items-center gap-4 flex-wrap text-xs">
+
+            {/* 📊 VALUE SLIDER */}
+            <div className="flex items-center gap-2">
+              <span>Value:</span>
+
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={minValue}
+                onChange={(e) => setMinValue(Number(e.target.value))}
+                className="cursor-pointer"
+              />
+
+              <span className="w-12 text-center">
+                {(minValue * 100).toFixed(0)}%
+              </span>
+            </div>
+
+            {/* 💰 ODD CONTROL */}
+            <div className="flex items-center gap-2">
+              <span>Odd:</span>
+
+              {/* ➖ */}
+              <button
+                // onClick={() => setMinOdd((prev) => Math.max(1, +(prev - 0.1).toFixed(2)))}
+                onClick={() => setMinOdd(Math.max(1, +(minOdd - 0.1).toFixed(2)))}
+                className="px-2 bg-[#2a2a2a] rounded"
+              >
+                -
+              </button>
+
+              {/* INPUT */}
+              <input
+                type="number"
+                step="0.1"
+                value={minOdd}
+                onChange={(e) => setMinOdd(Number(e.target.value))}
+                className="w-14 px-2 py-1 rounded bg-[#2a2a2a]"
+              />
+
+              {/* ➕ */}
+              <button
+                // onClick={() => setMinOdd((prev) => +(prev + 0.1).toFixed(2))}
+                onClick={() => setMinOdd(+(minOdd + 0.1).toFixed(2))}
+                className="px-2 bg-[#2a2a2a] rounded"
+              >
+                +
+              </button>
+            </div>
+
           </div>
 
         </div>

@@ -145,24 +145,6 @@ def add_bookmaker_odds(probabilities: dict):
         "away_odds_book": safe_odds(probabilities.get("away_odds")),
     }
 
-# def calculate_extra_markets(home_stats, away_stats):
-#     avg_goals = home_stats["avg_goals_scored"] + away_stats["avg_goals_scored"]
-
-#     # Over 2.5 simple
-#     over25_prob = min(avg_goals / 3, 0.9)
-#     under25_prob = 1 - over25_prob
-
-#     # BTTS simple
-#     btts_prob = (home_stats["btts_percentage"] + away_stats["btts_percentage"]) / 200
-#     no_btts_prob = 1 - btts_prob
-
-#     return {
-#         "over25_prob": round(over25_prob, 2),
-#         "under25_prob": round(under25_prob, 2),
-#         "btts_yes_prob": round(btts_prob, 2),
-#         "btts_no_prob": round(no_btts_prob, 2),
-#     }
-
 def poisson_prob(lmbda, k):
     return (lmbda ** k * math.exp(-lmbda)) / math.factorial(k)
 

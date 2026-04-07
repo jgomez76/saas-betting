@@ -42,10 +42,10 @@ type Match = {
       draw?: Odd;
       away?: Odd;
     };
-    OU15?: {
-      over?: Odd;
-      under?: Odd;
-    };
+    // OU15?: {
+    //   over?: Odd;
+    //   under?: Odd;
+    // };
     OU25?: {
       over?: Odd;
       under?: Odd;
@@ -61,10 +61,10 @@ type Match = {
   };
 
   market_values?: {
-    OU15?: {
-      over_value: number | null;
-      under_value: number | null;
-    };
+    // OU15?: {
+    //   over_value: number | null;
+    //   under_value: number | null;
+    // };
     OU25?: {
       over_value: number | null;
       under_value: number | null;
@@ -138,21 +138,24 @@ export default function Home() {
     }));
   };
 
+  const [minValue, setMinValue] = useState(0.1); // 🔥 10% por defecto
+  const [minOdd, setMinOdd] = useState(1.5);     // 🔥 cuota mínima
+
   const betsRef = useRef<Bet[]>(bets);
 
   const mergeMatches = (oldMatches: Match[], newMatches: Match[]) => {
-    const map = new Map<string, Match>();
+    const map = new Map<number, Match>();
 
-    // 🔹 guardamos antiguos
+    // 🔹 antiguos
     oldMatches.forEach((m) => {
-      const key = m.home_team + m.away_team + m.date;
-      map.set(key, m);
+      map.set(m.fixture_id, m);
     });
 
-    // 🔹 sobrescribimos con nuevos
+
+
+    // 🔹 nuevos (sobrescriben siempre)
     newMatches.forEach((m) => {
-      const key = m.home_team + m.away_team + m.date;
-      map.set(key, m);
+      map.set(m.fixture_id, m);
     });
 
     return Array.from(map.values());
@@ -206,6 +209,8 @@ export default function Home() {
 
         const filtered = data.filter((m: Match) => m.markets?.["1X2"]);
 
+        console.log("Refresh: ", filtered.length);
+
         setAllMatches((prev) => mergeMatches(prev, filtered));
 
       } catch (err) {
@@ -231,13 +236,61 @@ export default function Home() {
     if (marketFilter !== "ALL") {
       filtered = filtered.filter((m) => {
         if (marketFilter === "1X2") return !!m.markets?.["1X2"];
-        if (marketFilter === "OU15") return !!m.markets?.OU15;
+        // if (marketFilter === "OU15") return !!m.markets?.OU15;
         if (marketFilter === "OU25") return !!m.markets?.OU25;
         if (marketFilter === "OU35") return !!m.markets?.OU35;
         if (marketFilter === "BTTS") return !!m.markets?.BTTS;
         return true;
       });
     }
+
+    // 🔥 FILTRO VALUE + ODDS (CLAVE)
+    filtered = filtered.filter((m) => {
+      const markets = m.markets;
+
+      if (!markets) return false;
+
+      // 1X2
+      if (markets["1X2"]) {
+        const vals = m.value;
+        if (
+          (vals?.home_value ?? 0) > 0.1 ||
+          (vals?.draw_value ?? 0) > 0.1 ||
+          (vals?.away_value ?? 0) > 0.1
+        ) {
+          const odds = markets["1X2"];
+          return (
+            (odds.home?.odd ?? 0) >= 1.5 ||
+            (odds.draw?.odd ?? 0) >= 1.5 ||
+            (odds.away?.odd ?? 0) >= 1.5
+          );
+        }
+      }
+
+      // OU25 / OU35 / BTTS
+      const checkMarket = (value?: number | null, odd?: number) => {
+        return (value ?? 0) > 0.1 && (odd ?? 0) >= 1.5;
+      };
+
+      return (
+        checkMarket(m.market_values?.OU25?.over_value, markets.OU25?.over?.odd) ||
+        checkMarket(m.market_values?.OU25?.under_value, markets.OU25?.under?.odd) ||
+        checkMarket(m.market_values?.OU35?.over_value, markets.OU35?.over?.odd) ||
+        checkMarket(m.market_values?.OU35?.under_value, markets.OU35?.under?.odd) ||
+        checkMarket(m.market_values?.BTTS?.yes_value, markets.BTTS?.yes?.odd) ||
+        checkMarket(m.market_values?.BTTS?.no_value, markets.BTTS?.no?.odd)
+      );
+    });
+
+    // 🔥 EVITAR DUPLICADOS POR PARTIDO
+    const seen = new Set<number>();
+
+    filtered = filtered.filter((m) => {
+      if (seen.has(m.fixture_id)) return false;
+
+      seen.add(m.fixture_id);
+      return true;
+    });
 
     return filtered;
   }, [allMatches, leagueFilter, marketFilter]);
@@ -282,6 +335,18 @@ export default function Home() {
               if (
                 (bet.selection === "over" && total > 2.5) ||
                 (bet.selection === "under" && total < 2.5)
+              ) {
+                status = "won";
+              }
+            }
+
+            // ---------------- OU35 ----------------
+            if (bet.market === "OU35") {
+              const total = home_goals + away_goals;
+
+              if (
+                (bet.selection === "over" && total > 3.5) ||
+                (bet.selection === "under" && total < 3.5)
               ) {
                 status = "won";
               }
@@ -369,13 +434,21 @@ export default function Home() {
     return `${v > 0 ? "+" : ""}${(v * 100).toFixed(1)}%`;
   };
 
-  const getValueColor = (v?: number | null) => {
+  // const getValueColor = (v?: number | null) => {
+  //   if (v === null || v === undefined) return "bg-[#2a2a2a]";
+  //   if (v > 0.15) return "bg-green-700";
+  //   if (v > 0) return "bg-green-600";
+  //   return "bg-[#2a2a2a]";
+  // };
+  const getValueColor = (v?: number | null, odd?: number) => {
     if (v === null || v === undefined) return "bg-[#2a2a2a]";
-    if (v > 0.15) return "bg-green-700";
-    if (v > 0) return "bg-green-600";
+
+    if (v >= minValue && (odd ?? 0) >= minOdd) {
+      return "bg-green-700";
+    }
+
     return "bg-[#2a2a2a]";
   };
-
 
   const grouped = useMemo(() => {
     return matches.reduce((acc, match) => {
@@ -481,6 +554,12 @@ export default function Home() {
         leagueFilter={leagueFilter}
         // setLeagueFilter={setLeagueFilter}
         setLeagueFilter={handleLeagueChange}
+
+          // 🔥 NUEVO
+        minValue={minValue}
+        setMinValue={setMinValue}
+        minOdd={minOdd}
+        setMinOdd={setMinOdd}
       />
 
       {Object.entries(grouped).map(([league, leagueMatches]) => (
@@ -603,7 +682,8 @@ export default function Home() {
                                   })
                                 }
                                 className={`${getValueColor(
-                                  value
+                                  value,
+                                  odd?.odd
                                 )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
                               >
                                 {/* 🏷️ LABEL */}
@@ -635,79 +715,7 @@ export default function Home() {
                         </div>
                     )}
 
-                    {/* OU15 */}
-                    {(marketFilter === "ALL" || marketFilter === "OU15") &&
-                      match.markets?.OU15 && (
-                        <div className="grid grid-cols-2 gap-2 mb-3">
-                          {(["over", "under"] as const).map((k) => {
-                            const odd = match.markets?.OU15?.[k];
-                            const value =
-                              k === "over"
-                                ? match.market_values?.OU15?.over_value
-                                : match.market_values?.OU15?.under_value;
-
-                            // 👉 FAIR ODDS (IMPORTANTE)
-                            const fairOdd =
-                              k === "over"
-                                ? match.extra_probabilities?.over15_prob
-                                  ? 1 / match.extra_probabilities.over15_prob
-                                  : null
-                                : match.extra_probabilities?.under15_prob
-                                ? 1 / match.extra_probabilities.under15_prob
-                                : null;
-
-                            return (
-                              <div
-                                key={k}
-                                onClick={() =>
-                                  setPendingBet({
-                                    match: `${match.home_team} vs ${match.away_team}`,
-                                    market: "OU15",
-                                    selection: k,
-                                    odd: odd?.odd,
-                                    bookmaker: odd?.bookmaker,
-                                    value,
-                                    fixture_id: match.fixture_id,
-                                    status: "pending",
-                                    date: match.date
-                                  })
-                                }
-                                className={`${getValueColor(
-                                  value
-                                )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
-                              >
-                                {/* 🏷️ LABEL */}
-                                <p className="text-sm uppercase text-gray-300">
-                                  {k} 1.5
-                                </p>
-
-                                {/* 💰 CUOTA REAL */}
-                                <p className="font-bold text-3xl">
-                                  {odd?.odd ?? "-"}
-                                </p>
-
-                                {/* 🏦 BOOKMAKER */}
-                                <p className="text-lg text-gray-300">
-                                  {odd?.bookmaker ?? ""}
-                                </p>
-
-                                {/* 📊 FAIR ODDS + VALUE */}
-                                <p
-                                    className={`text-xs ${
-                                      value !== null && value !== undefined && value < 0
-                                        ? "text-red-400"
-                                        : "text-gray-300"
-                                    }`}
-                                  >
-                                    {fairOdd ? Number(fairOdd.toFixed(2)) : "-"}{" "}
-                                    {value !== null && value !== undefined &&
-                                      `(${formatValue(value)})`}
-                                  </p>
-                              </div>
-                            );
-                          })}
-                        </div>
-                    )}                    
+                  
                     {/* OU25 */}
                     {(marketFilter === "ALL" || marketFilter === "OU25") &&
                       match.markets?.OU25 && (
@@ -746,7 +754,8 @@ export default function Home() {
                                   })
                                 }
                                 className={`${getValueColor(
-                                  value
+                                  value,
+                                  odd?.odd
                                 )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
                               >
                                 {/* 🏷️ LABEL */}
@@ -819,7 +828,8 @@ export default function Home() {
                                   })
                                 }
                                 className={`${getValueColor(
-                                  value
+                                  value,
+                                  odd?.odd
                                 )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
                               >
                                 {/* 🏷️ LABEL */}
@@ -894,7 +904,8 @@ export default function Home() {
                                   })
                                 }
                                 className={`${getValueColor(
-                                  value
+                                  value,
+                                  odd?.odd
                                 )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
                               >
                                 {/* 🏷️ LABEL */}
