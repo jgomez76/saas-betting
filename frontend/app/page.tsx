@@ -104,7 +104,7 @@ type Match = {
 export default function Home() {
   const [loading, setLoading] = useState(true);
 
-  const [marketFilter, setMarketFilter] = useState("ALL");
+  const [marketFilter, setMarketFilter] = useState("1X2");
   const [leagueFilter, setLeagueFilter] = useState("ALL");
   const [showTopModal, setShowTopModal] = useState(false);
   const [showBetsModal, setShowBetsModal] = useState(false);
