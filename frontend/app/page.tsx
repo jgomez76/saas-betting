@@ -175,7 +175,21 @@ export default function Home() {
       const filtered = data.filter((m: Match) => m.markets?.["1X2"]);
 
       setAllMatches(filtered); // 👈 guardamos TODOS
-      // setMatches(filtered);    // 👈 inicial
+
+      // 🔥 ABRIR TODAS LAS LIGAS
+      // const leagues = Array.from(new Set(filtered.map((m: Match) => m.league)));
+
+      const leagues: string[] = Array.from(
+        new Set(filtered.map((m: Match) => m.league))
+      );
+
+      const initialState: Record<string, boolean> = {};
+
+      leagues.forEach((l) => {
+        initialState[l] = true;
+      });
+
+      setOpenLeagues(initialState);
 
       setLoading(false);
     };
@@ -300,22 +314,6 @@ export default function Home() {
   }, []);
 
   // ---------------- BET SYSTEM ----------------
-
-  // const addBet = (bet: Omit<Bet, "id" | "date" | "status">) => {
-  //   const newBet: Bet = {
-  //     ...bet,
-  //     id: crypto.randomUUID(),
-  //     date: bet.date ?? new Date().toISOString(),
-  //     status: "pending",
-  //   };
-
-  //   const updated = [...bets, newBet];
-  //   setBets(updated);
-  //   localStorage.setItem("bets", JSON.stringify(updated));
-
-  //   // alert("✅ Apuesta añadida");
-  // };
-
   const addBet = (bet: PendingBet) => {
     const newBet: Bet = {
       ...bet,
@@ -416,6 +414,25 @@ export default function Home() {
   }
 
   // ---------------- RENDER ----------------
+  const handleLeagueChange = (value: string) => {
+    setLeagueFilter(value);
+
+    if (value === "ALL") {
+      // 🔥 abrir todas
+      const leagues = Array.from(
+        new Set(allMatches.map((m) => m.league))
+      ) as string[];
+
+      const state: Record<string, boolean> = {};
+      leagues.forEach((l) => (state[l] = true));
+
+      setOpenLeagues(state);
+    } else {
+      // 🔥 abrir solo una
+      setOpenLeagues({ [value]: true });
+    }
+  };
+
   return (
     <main className="p-6 bg-gray-100 min-h-screen">
       <Navbar
@@ -424,7 +441,8 @@ export default function Home() {
         marketFilter={marketFilter}
         setMarketFilter={setMarketFilter}
         leagueFilter={leagueFilter}
-        setLeagueFilter={setLeagueFilter}
+        // setLeagueFilter={setLeagueFilter}
+        setLeagueFilter={handleLeagueChange}
       />
 
       {Object.entries(grouped).map(([league, leagueMatches]) => (
@@ -433,7 +451,8 @@ export default function Home() {
           {/* 🏆 NOMBRE LIGA */}
           <div
             onClick={() => toggleLeague(league)}
-            className="flex justify-between items-center bg-[#2a2a2a] text-white px-4 py-3 rounded-lg cursor-pointer hover:bg-[#3a3a3a] transition mt-6"
+            // className="flex justify-between items-center bg-[#2a2a2a] text-white px-4 py-3 rounded-lg cursor-pointer hover:bg-[#3a3a3a] transition mt-6"
+            className="flex justify-between items-center bg-[#2a2a2a] text-white px-4 py-3 rounded-lg cursor-pointer hover:bg-[#3a3a3a] transition mt-8 border border-[#333]"
           >
             <div className="flex items-center gap-2">
               <span>{openLeagues[league] ? "▼" : "▶"}</span>
@@ -453,7 +472,8 @@ export default function Home() {
                 : "max-h-0 opacity-0 overflow-hidden"
             }`}
           >
-            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+            {/* <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3"> */}
+            <div className="grid mt-4 gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
               
               {leagueMatches.map((match, index) => {
                 const id = match.home_team + match.away_team;
