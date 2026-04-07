@@ -35,7 +35,9 @@ def get_best_odds_by_market(db: Session, fixture_id: int):
 
     markets = {
         "1X2": {},
+        "OU15": {},
         "OU25": {},
+        "OU35": {},
         "BTTS": {}
     }
 
@@ -56,23 +58,47 @@ def get_best_odds_by_market(db: Session, fixture_id: int):
         # -------------------
         # OVER/UNDER 2.5
         # -------------------
+        # elif market_name == "goals over/under":
+
+        #     # detectar línea 2.5 en el outcome
+        #     if "2.5" in outcome:
+
+        #         if "over" in outcome:
+        #             key = "over"
+        #         elif "under" in outcome:
+        #             key = "under"
+        #         else:
+        #             continue
+
+        #         if key not in markets["OU25"] or o.odd > markets["OU25"][key]["odd"]:
+        #             markets["OU25"][key] = {
+        #                 "odd": o.odd,
+        #                 "bookmaker": o.bookmaker
+        #             }
+        # -------------------
+        # OVER/UNDER 1.5, 2.5, 3.5
+        # -------------------
         elif market_name == "goals over/under":
 
-            # detectar línea 2.5 en el outcome
-            if "2.5" in outcome:
+            lines = ["1.5", "2.5", "3.5"]
 
-                if "over" in outcome:
-                    key = "over"
-                elif "under" in outcome:
-                    key = "under"
-                else:
-                    continue
+            for line in lines:
+                if line in outcome:
 
-                if key not in markets["OU25"] or o.odd > markets["OU25"][key]["odd"]:
-                    markets["OU25"][key] = {
-                        "odd": o.odd,
-                        "bookmaker": o.bookmaker
-                    }
+                    if "over" in outcome:
+                        key = "over"
+                    elif "under" in outcome:
+                        key = "under"
+                    else:
+                        continue
+
+                    market_key = f"OU{line.replace('.', '')}"
+
+                    if key not in markets[market_key] or o.odd > markets[market_key][key]["odd"]:
+                        markets[market_key][key] = {
+                            "odd": o.odd,
+                            "bookmaker": o.bookmaker
+                        }
 
         # -------------------
         # BTTS
@@ -170,6 +196,19 @@ def get_value_bets(db: Session, limit=50):
 
         if extra_probs:
 
+            # OU 1.5
+            if markets["OU15"]:
+                market_values["OU15"] = {
+                    "over_value": calculate_value(
+                        extra_probs["over15_prob"],
+                        markets["OU15"].get("over", {}).get("odd")
+                    ),
+                    "under_value": calculate_value(
+                        extra_probs["under15_prob"],
+                        markets["OU15"].get("under", {}).get("odd")
+                    ),
+                }
+
             # OU 2.5
             if markets["OU25"]:
                 market_values["OU25"] = {
@@ -182,6 +221,19 @@ def get_value_bets(db: Session, limit=50):
                         markets["OU25"].get("under", {}).get("odd")
                     ),
                 }
+
+            # OU 3.5
+            if markets["OU35"]:
+                market_values["OU35"] = {
+                    "over_value": calculate_value(
+                        extra_probs["over35_prob"],
+                        markets["OU35"].get("over", {}).get("odd")
+                    ),
+                    "under_value": calculate_value(
+                        extra_probs["under35_prob"],
+                        markets["OU35"].get("under", {}).get("odd")
+                    ),
+                }                
 
             # BTTS
             if markets["BTTS"]:

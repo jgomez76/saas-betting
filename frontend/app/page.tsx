@@ -41,7 +41,15 @@ type Match = {
       draw?: Odd;
       away?: Odd;
     };
+    OU15?: {
+      over?: Odd;
+      under?: Odd;
+    };
     OU25?: {
+      over?: Odd;
+      under?: Odd;
+    };
+    OU35?: {
       over?: Odd;
       under?: Odd;
     };
@@ -52,7 +60,15 @@ type Match = {
   };
 
   market_values?: {
+    OU15?: {
+      over_value: number | null;
+      under_value: number | null;
+    };
     OU25?: {
+      over_value: number | null;
+      under_value: number | null;
+    };
+    OU35?: {
       over_value: number | null;
       under_value: number | null;
     };
@@ -72,8 +88,12 @@ type Match = {
   };
 
   extra_probabilities?: {
+    over15_prob?: number;
+    under15_prob?: number;
     over25_prob?: number;
     under25_prob?: number;
+    over35_prob?: number;
+    under35_prob?: number;
     btts_yes_prob?: number;
     btts_no_prob?: number;
   };
@@ -193,7 +213,9 @@ export default function Home() {
     if (marketFilter !== "ALL") {
       filtered = filtered.filter((m) => {
         if (marketFilter === "1X2") return !!m.markets?.["1X2"];
+        if (marketFilter === "OU15") return !!m.markets?.OU15;
         if (marketFilter === "OU25") return !!m.markets?.OU25;
+        if (marketFilter === "OU35") return !!m.markets?.OU35;
         if (marketFilter === "BTTS") return !!m.markets?.BTTS;
         return true;
       });
@@ -555,6 +577,79 @@ export default function Home() {
                         </div>
                     )}
 
+                    {/* OU15 */}
+                    {(marketFilter === "ALL" || marketFilter === "OU15") &&
+                      match.markets?.OU15 && (
+                        <div className="grid grid-cols-2 gap-2 mb-3">
+                          {(["over", "under"] as const).map((k) => {
+                            const odd = match.markets?.OU15?.[k];
+                            const value =
+                              k === "over"
+                                ? match.market_values?.OU15?.over_value
+                                : match.market_values?.OU15?.under_value;
+
+                            // 👉 FAIR ODDS (IMPORTANTE)
+                            const fairOdd =
+                              k === "over"
+                                ? match.extra_probabilities?.over15_prob
+                                  ? 1 / match.extra_probabilities.over15_prob
+                                  : null
+                                : match.extra_probabilities?.under15_prob
+                                ? 1 / match.extra_probabilities.under15_prob
+                                : null;
+
+                            return (
+                              <div
+                                key={k}
+                                onClick={() =>
+                                  setPendingBet({
+                                    match: `${match.home_team} vs ${match.away_team}`,
+                                    market: "OU15",
+                                    selection: k,
+                                    odd: odd?.odd,
+                                    bookmaker: odd?.bookmaker,
+                                    value,
+                                    fixture_id: match.fixture_id,
+                                    status: "pending",
+                                    date: match.date
+                                  })
+                                }
+                                className={`${getValueColor(
+                                  value
+                                )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
+                              >
+                                {/* 🏷️ LABEL */}
+                                <p className="text-sm uppercase text-gray-300">
+                                  {k} 1.5
+                                </p>
+
+                                {/* 💰 CUOTA REAL */}
+                                <p className="font-bold text-3xl">
+                                  {odd?.odd ?? "-"}
+                                </p>
+
+                                {/* 🏦 BOOKMAKER */}
+                                <p className="text-lg text-gray-300">
+                                  {odd?.bookmaker ?? ""}
+                                </p>
+
+                                {/* 📊 FAIR ODDS + VALUE */}
+                                <p
+                                    className={`text-xs ${
+                                      value !== null && value !== undefined && value < 0
+                                        ? "text-red-400"
+                                        : "text-gray-300"
+                                    }`}
+                                  >
+                                    {fairOdd ? Number(fairOdd.toFixed(2)) : "-"}{" "}
+                                    {value !== null && value !== undefined &&
+                                      `(${formatValue(value)})`}
+                                  </p>
+                              </div>
+                            );
+                          })}
+                        </div>
+                    )}                    
                     {/* OU25 */}
                     {(marketFilter === "ALL" || marketFilter === "OU25") &&
                       match.markets?.OU25 && (
@@ -599,6 +694,79 @@ export default function Home() {
                                 {/* 🏷️ LABEL */}
                                 <p className="text-sm uppercase text-gray-300">
                                   {k} 2.5
+                                </p>
+
+                                {/* 💰 CUOTA REAL */}
+                                <p className="font-bold text-3xl">
+                                  {odd?.odd ?? "-"}
+                                </p>
+
+                                {/* 🏦 BOOKMAKER */}
+                                <p className="text-lg text-gray-300">
+                                  {odd?.bookmaker ?? ""}
+                                </p>
+
+                                {/* 📊 FAIR ODDS + VALUE */}
+                                <p
+                                    className={`text-xs ${
+                                      value !== null && value !== undefined && value < 0
+                                        ? "text-red-400"
+                                        : "text-gray-300"
+                                    }`}
+                                  >
+                                    {fairOdd ? Number(fairOdd.toFixed(2)) : "-"}{" "}
+                                    {value !== null && value !== undefined &&
+                                      `(${formatValue(value)})`}
+                                  </p>
+                              </div>
+                            );
+                          })}
+                        </div>
+                    )}                    
+                    {/* OU35 */}
+                    {(marketFilter === "ALL" || marketFilter === "OU35") &&
+                      match.markets?.OU35 && (
+                        <div className="grid grid-cols-2 gap-2 mb-3">
+                          {(["over", "under"] as const).map((k) => {
+                            const odd = match.markets?.OU35?.[k];
+                            const value =
+                              k === "over"
+                                ? match.market_values?.OU35?.over_value
+                                : match.market_values?.OU35?.under_value;
+
+                            // 👉 FAIR ODDS (IMPORTANTE)
+                            const fairOdd =
+                              k === "over"
+                                ? match.extra_probabilities?.over35_prob
+                                  ? 1 / match.extra_probabilities.over35_prob
+                                  : null
+                                : match.extra_probabilities?.under35_prob
+                                ? 1 / match.extra_probabilities.under35_prob
+                                : null;
+
+                            return (
+                              <div
+                                key={k}
+                                onClick={() =>
+                                  setPendingBet({
+                                    match: `${match.home_team} vs ${match.away_team}`,
+                                    market: "OU35",
+                                    selection: k,
+                                    odd: odd?.odd,
+                                    bookmaker: odd?.bookmaker,
+                                    value,
+                                    fixture_id: match.fixture_id,
+                                    status: "pending",
+                                    date: match.date
+                                  })
+                                }
+                                className={`${getValueColor(
+                                  value
+                                )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
+                              >
+                                {/* 🏷️ LABEL */}
+                                <p className="text-sm uppercase text-gray-300">
+                                  {k} 3.5
                                 </p>
 
                                 {/* 💰 CUOTA REAL */}

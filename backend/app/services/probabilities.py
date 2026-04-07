@@ -1,4 +1,5 @@
 import random
+import math
 from app.services.stats import get_team_stats, get_team_stats_split, get_recent_stats
 from app.services.injuries import get_team_injuries_impact
 
@@ -144,20 +145,73 @@ def add_bookmaker_odds(probabilities: dict):
         "away_odds_book": safe_odds(probabilities.get("away_odds")),
     }
 
+# def calculate_extra_markets(home_stats, away_stats):
+#     avg_goals = home_stats["avg_goals_scored"] + away_stats["avg_goals_scored"]
+
+#     # Over 2.5 simple
+#     over25_prob = min(avg_goals / 3, 0.9)
+#     under25_prob = 1 - over25_prob
+
+#     # BTTS simple
+#     btts_prob = (home_stats["btts_percentage"] + away_stats["btts_percentage"]) / 200
+#     no_btts_prob = 1 - btts_prob
+
+#     return {
+#         "over25_prob": round(over25_prob, 2),
+#         "under25_prob": round(under25_prob, 2),
+#         "btts_yes_prob": round(btts_prob, 2),
+#         "btts_no_prob": round(no_btts_prob, 2),
+#     }
+
+def poisson_prob(lmbda, k):
+    return (lmbda ** k * math.exp(-lmbda)) / math.factorial(k)
+
+
 def calculate_extra_markets(home_stats, away_stats):
-    avg_goals = home_stats["avg_goals_scored"] + away_stats["avg_goals_scored"]
+    # goles esperados totales
+    total_xg = home_stats["avg_goals_scored"] + away_stats["avg_goals_scored"]
 
-    # Over 2.5 simple
-    over25_prob = min(avg_goals / 3, 0.9)
-    under25_prob = 1 - over25_prob
+    # -------------------------
+    # PROBABILIDADES POISSON
+    # -------------------------
+    probs = [poisson_prob(total_xg, k) for k in range(6)]
 
-    # BTTS simple
-    btts_prob = (home_stats["btts_percentage"] + away_stats["btts_percentage"]) / 200
-    no_btts_prob = 1 - btts_prob
+    # acumuladas
+    p0 = probs[0]
+    p1 = probs[1]
+    p2 = probs[2]
+    p3 = probs[3]
+
+    # -------------------------
+    # OVER / UNDER
+    # -------------------------
+    over15 = 1 - (p0 + p1)
+    over25 = 1 - (p0 + p1 + p2)
+    over35 = 1 - (p0 + p1 + p2 + p3)
+
+    under15 = 1 - over15
+    under25 = 1 - over25
+    under35 = 1 - over35
+
+    # -------------------------
+    # BTTS (mejor aproximación)
+    # -------------------------
+    btts = min(
+        (home_stats["btts_percentage"] + away_stats["btts_percentage"]) / 200,
+        0.9
+    )
+    no_btts = 1 - btts
 
     return {
-        "over25_prob": round(over25_prob, 2),
-        "under25_prob": round(under25_prob, 2),
-        "btts_yes_prob": round(btts_prob, 2),
-        "btts_no_prob": round(no_btts_prob, 2),
+        "over15_prob": round(over15, 2),
+        "under15_prob": round(under15, 2),
+
+        "over25_prob": round(over25, 2),
+        "under25_prob": round(under25, 2),
+
+        "over35_prob": round(over35, 2),
+        "under35_prob": round(under35, 2),
+
+        "btts_yes_prob": round(btts, 2),
+        "btts_no_prob": round(no_btts, 2),
     }
