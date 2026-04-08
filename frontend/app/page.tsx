@@ -166,6 +166,48 @@ export default function Home() {
   // const [loadedLeagues, setLoadedLeagues] = useState<string[]>([]);
   const [progress, setProgress] = useState(0);
 
+  // FUNCION PARA FECHA PARTIDOS
+  const formatMatchDate = (date: string) => {
+    if (!date) return "-";
+
+    const d = new Date(date + "Z");
+    const now = new Date();
+
+    // 🔥 NORMALIZAR DÍAS
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
+    const matchDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
+    const time = d.toLocaleTimeString("es-ES", {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: "Europe/Madrid",
+    });
+
+    // HOY
+    if (matchDay.getTime() === today.getTime()) {
+      return `Hoy • ${time}`;
+    }
+
+    // MAÑANA
+    if (matchDay.getTime() === tomorrow.getTime()) {
+      return `Mañana • ${time}`;
+    }
+
+    // FORMATO NORMAL
+    const day = d.toLocaleDateString("es-ES", {
+      day: "2-digit",
+    });
+
+    const month = d
+      .toLocaleDateString("es-ES", { month: "short" })
+      .replace(".", "");
+
+    return `${day} ${month} • ${time}`;
+  };
+
   // --------- SINCRO REF --------
   useEffect(() => {
     betsRef.current = bets;
@@ -810,7 +852,8 @@ export default function Home() {
                     {/* FECHA */}
                     <p className="text-xm text-gray-300 text-center mb-2">
                       {/* {match.league} • {formattedDate} • {formattedTime} */}
-                      {formattedDate} • {formattedTime}
+                      {/* {formattedDate} • {formattedTime} */}
+                      {formatMatchDate(match.date)}
                     </p>
 
                     {/* 1X2 */}
