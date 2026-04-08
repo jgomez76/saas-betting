@@ -162,6 +162,10 @@ export default function Home() {
     return Array.from(map.values());
   };
 
+  const [loadingMessage, setLoadingMessage] = useState("");
+  // const [loadedLeagues, setLoadedLeagues] = useState<string[]>([]);
+  const [progress, setProgress] = useState(0);
+
   // --------- SINCRO REF --------
   useEffect(() => {
     betsRef.current = bets;
@@ -172,6 +176,9 @@ export default function Home() {
   useEffect(() => {
     const load = async () => {
       setLoading(true);
+      setLoadingMessage("Cargando partidos...");
+
+      await new Promise((r) => setTimeout(r, 0));
 
       const res = await fetch(`${API_URL}/value-bets`);
       const data = await res.json();
@@ -179,7 +186,7 @@ export default function Home() {
       // 👇 solo partidos con odds
       const filtered = data.filter((m: Match) => m.markets?.["1X2"]);
 
-      setAllMatches(filtered); // 👈 guardamos TODOS
+      // setAllMatches(filtered); // 👈 guardamos TODOS
 
       // 🔥 ABRIR TODAS LAS LIGAS
       // const leagues = Array.from(new Set(filtered.map((m: Match) => m.league)));
@@ -195,8 +202,46 @@ export default function Home() {
       });
 
       setOpenLeagues(initialState);
+      
+      // setLoading(false);
+      
+      // NUEVO LOADING
+      // 🔥 AGRUPAR POR LIGA
+      const groupedByLeague: Record<string, Match[]> = {};
 
+      filtered.forEach((m: Match) => {
+        if (!groupedByLeague[m.league]) {
+          groupedByLeague[m.league] = [];
+        }
+        groupedByLeague[m.league].push(m);
+      });
+
+      const leagueNames = Object.keys(groupedByLeague);
+
+      // 🔥 RESET INICIAL
+      setAllMatches([]);
+
+      // 🔥 CARGA PROGRESIVA
+      // for (const league of Object.keys(groupedByLeague)) {
+      for (let i = 0; i < leagueNames.length; i++) {
+        const league = leagueNames[i];
+        setLoadingMessage(`Cargando partidos de: ${league}...`);
+
+        setProgress(Math.round(((i + 1) / leagueNames.length) * 100));
+
+        // 👇 pequeña pausa visual (UX)
+        await new Promise((r) => setTimeout(r, 300));
+
+        setAllMatches((prev) => [
+          ...prev,
+          ...groupedByLeague[league],
+        ]);
+      }
+
+      // 🔥 FIN
       setLoading(false);
+      setLoadingMessage("");
+
     };
 
     load();
@@ -520,13 +565,15 @@ export default function Home() {
 
   // ---------------- LOADING ----------------
 
-  if (loading) {
-    return (
-      <main className="p-6 bg-gray-100 min-h-screen">
-        <p className="text-center text-lg">⏳ Cargando partidos...</p>
-      </main>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <main className="p-6 bg-gray-100 min-h-screen">
+  //       <p className="text-center text-lg">⏳ Cargando partidos...</p>
+  //     </main>
+  //   );
+  // }
+
+
 
   // ---------------- RENDER ----------------
   // const handleLeagueChange = (value: string) => {
@@ -573,6 +620,36 @@ export default function Home() {
 
   return (
     <main className="p-6 bg-gray-100 min-h-screen">
+
+      {/* {loading && (
+        <p className="text-center text-sm text-gray-400 mb-4 animate-pulse">
+          ⏳ {loadingMessage}
+        </p>
+      )} */}
+      {loading && (
+        <div className="mb-6">
+
+          {/* TEXTO */}
+          <p className="text-center text-sm text-gray-400 mb-2 animate-pulse">
+            ⏳ {loadingMessage}
+          </p>
+
+          {/* 🔥 BARRA PROGRESO */}
+          <div className="w-full max-w-md mx-auto bg-gray-300 rounded-full h-2 overflow-hidden">
+            <div
+              className="bg-cyan-500 h-2 transition-all duration-500"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+
+          {/* % */}
+          <p className="text-center text-xs text-gray-500 mt-1">
+            {progress}%
+          </p>
+
+        </div>
+      )}
+
       <Navbar
         onOpenTop={() => setShowTopModal(true)}
         onOpenBets={() => setShowBetsModal(true)}
@@ -1074,5 +1151,6 @@ export default function Home() {
         </div>
       )}
     </main>
+
   );
 }
