@@ -488,16 +488,16 @@ export default function Home() {
     setTeamMatches(data);
   };
 
-  const getResultColor = (m: TeamMatch, team: string) => {
-    const isHome = m.home === team;
+  // const getResultColor = (m: TeamMatch, team: string) => {
+  //   const isHome = m.home === team;
 
-    const teamGoals = isHome ? m.home_goals : m.away_goals;
-    const oppGoals = isHome ? m.away_goals : m.home_goals;
+  //   const teamGoals = isHome ? m.home_goals : m.away_goals;
+  //   const oppGoals = isHome ? m.away_goals : m.home_goals;
 
-    if (teamGoals > oppGoals) return "text-green-400";
-    if (teamGoals < oppGoals) return "text-red-400";
-    return "text-yellow-400";
-  };
+  //   if (teamGoals > oppGoals) return "text-green-400";
+  //   if (teamGoals < oppGoals) return "text-red-400";
+  //   return "text-yellow-400";
+  // };
 
   // ---------------- HELPERS ----------------
 
@@ -1114,7 +1114,7 @@ export default function Home() {
       ))}
 
       {/* TEAM MODAL */}
-      {selectedTeam && (
+      {/* {selectedTeam && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center">
           <div className="bg-[#1e1e1e] p-6 rounded-xl w-[90%] md:w-[500px] text-white">
             <div className="flex justify-between mb-4">
@@ -1133,6 +1133,71 @@ export default function Home() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )} */}
+      {selectedTeam && (
+        // <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center">
+          {/* <div className="bg-white p-6 rounded-2xl w-[400px] shadow-xl"> */}
+          <div className="bg-[#1e1e1e] p-6 rounded-xl w-[90%] md:w-[600px] text-white">
+        
+          {/* TITLE */}
+          <h2 className="text-xl font-bold mb-4 text-center">
+          {selectedTeam}
+          </h2>
+        
+          {/* MATCHES */}
+            <div className="space-y-2">
+              {teamMatches.map((m, i) => {
+                const isDraw = m.home_goals === m.away_goals;
+                // const isHomeWin = m.home_goals > m.away_goals;
+
+                const isWin =
+                  (m.home === selectedTeam && m.home_goals > m.away_goals) ||
+                  (m.away === selectedTeam && m.away_goals > m.home_goals);
+
+                const isLoss =
+                  (m.home === selectedTeam && m.home_goals < m.away_goals) ||
+                  (m.away === selectedTeam && m.away_goals < m.home_goals);
+
+                return (
+                  <div
+                    key={i}
+                    className="grid grid-cols-3 items-center text-lg border-b pb-2"
+                  >
+                    {/* HOME */}
+                    <span className="text-center pr-2">{m.home}</span>
+
+                    {/* RESULT */}
+                    <span
+                      className={`text-center font-bold text-2xl ${
+                        isDraw
+                          ? "text-yellow-500"
+                          : isWin
+                          ? "text-green-600"
+                          : isLoss
+                          ? "text-red-500"
+                          : ""
+                      }`}
+                    >
+                      {m.home_goals} - {m.away_goals}
+                    </span>
+
+                    {/* AWAY */}
+                    <span className="text-center pl-2">{m.away}</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* CLOSE */}
+            <button
+              onClick={() => setSelectedTeam(null)}
+              className="mt-4 w-full bg-gray-600 hover:bg-gray-300 p-2 rounded"
+            >
+              Cerrar
+            </button>
           </div>
         </div>
       )}
