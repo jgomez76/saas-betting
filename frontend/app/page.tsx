@@ -563,6 +563,30 @@ export default function Home() {
     </div>
   );
 
+  // SKELETON CARD
+  const SkeletonCard = () => (
+    <div className="bg-[#1e1e1e] p-4 rounded-xl animate-pulse">
+
+      {/* equipos */}
+      <div className="grid mb-3" style={{ gridTemplateColumns: "45% 10% 45%" }}>
+        <div className="h-4 bg-gray-600 rounded w-3/4 mx-auto"></div>
+        <div></div>
+        <div className="h-4 bg-gray-600 rounded w-3/4 mx-auto"></div>
+      </div>
+
+      {/* fecha */}
+      <div className="h-3 bg-gray-700 rounded w-1/2 mx-auto mb-3"></div>
+
+      {/* cuotas */}
+      <div className="grid grid-cols-3 gap-2">
+        <div className="h-12 bg-gray-700 rounded"></div>
+        <div className="h-12 bg-gray-700 rounded"></div>
+        <div className="h-12 bg-gray-700 rounded"></div>
+      </div>
+
+    </div>
+  );
+
   // ---------------- LOADING ----------------
 
   // if (loading) {
@@ -668,8 +692,25 @@ export default function Home() {
         setMinOdd={setMinOdd}
       />
 
-      {Object.entries(grouped).map(([league, leagueMatches]) => (
-        <div key={league}>
+      {loading && Object.keys(grouped).length === 0 && (
+        <div className="grid mt-6 gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
+      )}
+
+      {/* {Object.entries(grouped).map(([league, leagueMatches]) => ( */}
+      {Object.entries(grouped).map(([league, leagueMatches], i) => (
+        // <div 
+        //   key={league}
+        //   className="animate-fadeIn"
+        // >
+        <div
+          key={league}
+          className="animate-fadeIn"
+          style={{ animationDelay: `${i * 0.08}s` }}
+        >
 
           {/* 🏆 NOMBRE LIGA */}
           <div
@@ -688,17 +729,34 @@ export default function Home() {
           </div>
 
           {/* 📦 GRID DE PARTIDOS */}
-          <div
+          {/* <div
             className={`transition-all duration-300 ${
               openLeagues[league]
                 ? "max-h-[2000px] opacity-100"
                 : "max-h-0 opacity-0 overflow-hidden"
             }`}
+          > */}
+          <div
+            className={`transition-all duration-500 ease-out transform ${
+              openLeagues[league]
+                ? "max-h-[2000px] opacity-100 translate-y-0"
+                : "max-h-0 opacity-0 -translate-y-2 overflow-hidden"
+            }`}
           >
             {/* <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3"> */}
             <div className="grid mt-4 gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-              
-              {leagueMatches.map((match, index) => {
+
+              {/* LOADING SKELETON CARD */}
+              {loading && leagueMatches.length === 0 && (
+                <div className="grid mt-4 gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <SkeletonCard key={i} />
+                  ))}
+                </div>
+              )}
+
+              {!loading &&
+                leagueMatches.map((match, index) => {
                 const id = match.home_team + match.away_team;
 
                 // FECHA PARTIDOS
