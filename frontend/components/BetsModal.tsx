@@ -20,12 +20,12 @@ type Props = {
   bets: Bet[];
 };
 
-type ChartPoint = {
-  bet: number;
-  bankroll: number;
-  roi?: number;
-  result: string;
-};
+// type ChartPoint = {
+//   bet: number;
+//   bankroll: number;
+//   roi?: number;
+//   result: string;
+// };
 
 // ---------------- COMPONENT ----------------
 

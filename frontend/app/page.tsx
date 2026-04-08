@@ -107,6 +107,7 @@ export default function Home() {
 
   const [marketFilter, setMarketFilter] = useState("1X2");
   const [leagueFilter, setLeagueFilter] = useState("ALL");
+  const [dateFilter, setDateFilter] = useState("TODAY");
   const [showTopModal, setShowTopModal] = useState(false);
   const [showBetsModal, setShowBetsModal] = useState(false);
 
@@ -244,6 +245,32 @@ export default function Home() {
       });
     }
 
+    // 📅 FECHA
+    if (dateFilter !== "ALL") {
+      const now = new Date();
+
+      filtered = filtered.filter((m) => {
+        const matchDate = new Date(m.date + "Z");
+
+        const diffTime = matchDate.getTime() - now.getTime();
+        const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+        if (dateFilter === "TODAY") {
+          return matchDate.toDateString() === now.toDateString();
+        }
+
+        if (dateFilter === "TODAY_TOMORROW") {
+          return diffDays >= 0 && diffDays <= 2;
+        }
+
+        if (dateFilter === "NEXT_3_DAYS") {
+          return diffDays >= 0 && diffDays <= 3;
+        }
+
+        return true;
+      });
+    }
+
     // 🔥 FILTRO VALUE + ODDS (CLAVE)
     filtered = filtered.filter((m) => {
       const markets = m.markets;
@@ -293,7 +320,7 @@ export default function Home() {
     });
 
     return filtered;
-  }, [allMatches, leagueFilter, marketFilter]);
+  }, [allMatches, leagueFilter, marketFilter, dateFilter]);
 
   // ------------- AUTO RESOLVE BETS -----------
 
@@ -554,6 +581,8 @@ export default function Home() {
         leagueFilter={leagueFilter}
         // setLeagueFilter={setLeagueFilter}
         setLeagueFilter={handleLeagueChange}
+        dateFilter={dateFilter}
+        setDateFilter={setDateFilter}
 
           // 🔥 NUEVO
         minValue={minValue}

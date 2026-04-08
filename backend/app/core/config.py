@@ -19,6 +19,6 @@ CURRENT_SEASON = 2025
 # - 2: Champions League
 # - 3: Europa League
 ### - 848 - Conference League 
-# LEAGUES = [2, 3, 39, 61, 135, 140, 141]
-LEAGUES = [2]
+LEAGUES = [2, 3, 39, 61, 135, 140, 141]
+# LEAGUES = [2]
 

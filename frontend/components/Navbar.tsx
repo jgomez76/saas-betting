@@ -10,6 +10,8 @@ type Props = {
 
   leagueFilter: string;
   setLeagueFilter: (value: string) => void;
+  dateFilter: string;
+  setDateFilter: (value: string) => void;
   minValue: number;
   setMinValue: (v: number) => void;
   minOdd: number;
@@ -23,6 +25,8 @@ export default function Navbar({
   setMarketFilter,
   leagueFilter,
   setLeagueFilter,
+  dateFilter,
+  setDateFilter,
   minValue,
   setMinValue,
   minOdd,
@@ -143,6 +147,20 @@ export default function Navbar({
 
               </div>
             )}
+          </div>
+
+          {/* 📅 FILTRO FECHA */}
+          <div className="relative">
+            <select
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+              className="px-3 py-1 rounded text-sm bg-[#2a2a2a] hover:bg-[#3a3a3a]"
+            >
+              <option value="TODAY">📅 Hoy</option>
+              <option value="TODAY_TOMORROW">📅 Hoy + mañana</option>
+              <option value="NEXT_3_DAYS">📅 Próx. 3 días</option>
+              <option value="ALL">🌍 Todas</option>
+            </select>
           </div>
 
           {/* 🎯 FILTROS VALUE PRO */}
