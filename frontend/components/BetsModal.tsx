@@ -186,7 +186,7 @@ export default function BetsModal({ open, onClose, bets }: Props) {
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-      <div className="bg-[#1e1e1e] text-white rounded-2xl p-6 w-[95%] md:w-[80%] lg:w-[60%] max-h-[90vh] overflow-y-auto">
+      <div className="bg-[#1e1e1e] text-white rounded-2xl p-6 w-[95%] md:w-[80%] lg:w-[60%] max-h-[100vh] overflow-y-auto flex flex-col">
 
         {/* HEADER */}
         <div className="flex justify-between items-center mb-6">
@@ -291,8 +291,8 @@ export default function BetsModal({ open, onClose, bets }: Props) {
           </p>
         )}
         {chartReady && stats.evolution.length > 0 && (
-          <div className="w-full h-[250px] mb-6">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="w-full h-[250px] min-h-[200px] flex">
+            <ResponsiveContainer width="100%" height={200}>
               <LineChart data={stats.evolution}>
                 <XAxis dataKey="bet" />
                 <YAxis />
