@@ -38,6 +38,26 @@ export default function Navbar({
   const marketsRef = useRef<HTMLDivElement>(null);
   const leaguesRef = useRef<HTMLDivElement>(null);
 
+  const marketLabels: Record<string, string> = {
+    ALL: "Todos",
+    "1X2": "1X2",
+    OU25: "Over 2.5",
+    OU35: "Over 3.5",
+    BTTS: "BTTS",
+  };
+
+  const leagueLabels: Record<string, string> = {
+    ALL: "Todas",
+    "140": "La Liga EA Sports",
+    "141": "La Liga hypermotion",
+    "39": "Premier League",
+    "135": "Serie A",
+    "78": "Bundesliga",
+    "61": "Ligue 1",
+    "2": "Champions League",
+    "3": "Europa League",
+  };
+
   // 🔥 cerrar dropdowns al hacer click fuera
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -76,7 +96,8 @@ export default function Navbar({
               onClick={() => setOpenLeagues(!openLeagues)}
               className="px-3 py-1 rounded text-sm bg-[#2a2a2a] hover:bg-[#3a3a3a]"
             >
-              🌍 Ligas {openLeagues ? "▲" : "▼"}
+              {/* 🌍 Ligas {openLeagues ? "▲" : "▼"} */}
+              🌍 {leagueLabels[leagueFilter] || "Ligas"} {openLeagues ? "▲" : "▼"}
             </button>
 
             {openLeagues && (
@@ -117,7 +138,8 @@ export default function Navbar({
               onClick={() => setOpenMarkets(!openMarkets)}
               className="px-3 py-1 rounded text-sm bg-[#2a2a2a] hover:bg-[#3a3a3a]"
             >
-              🎯 Mercados {openMarkets ? "▲" : "▼"}
+              {/* 🎯 Mercados {openMarkets ? "▲" : "▼"} */}
+              🎯 {marketLabels[marketFilter] || "Mercados"} {openMarkets ? "▲" : "▼"}
             </button>
 
             {openMarkets && (
