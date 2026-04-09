@@ -4,6 +4,8 @@ import { useEffect, useState, useRef, useMemo } from "react";
 import Navbar from "@/components/Navbar";
 import TopValueModal from "@/components/TopValueModal";
 import BetsModal from "@/components/BetsModal";
+import LoginModal from "@/components/LoginModal";
+import AnalysisModal from "@/components/AnalysisModal";
 import { API_URL } from "@/lib/api";
 import { Bet } from "@/types/bet";
 
@@ -103,6 +105,9 @@ type Match = {
 // ---------------- COMPONENT ----------------
 
 export default function Home() {
+  // const [isAdmin, setIsAdmin] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
   const [loading, setLoading] = useState(true);
 
   const [marketFilter, setMarketFilter] = useState("1X2");
@@ -110,12 +115,12 @@ export default function Home() {
   const [dateFilter, setDateFilter] = useState("TODAY");
   const [showTopModal, setShowTopModal] = useState(false);
   const [showBetsModal, setShowBetsModal] = useState(false);
+  const [showAnalysisModal, setShowAnalysisModal] = useState(false);
 
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [teamMatches, setTeamMatches] = useState<TeamMatch[]>([]);
   const [allMatches, setAllMatches] = useState<Match[]>([]);
 
-  // const [pendingBet, setPendingBet] = useState<Omit<Bet, "id" | "date" | "status"> | null>(null);
   type PendingBet = Omit<Bet, "id">;
   const [pendingBet, setPendingBet] = useState<PendingBet | null>(null);
 
@@ -163,7 +168,6 @@ export default function Home() {
   };
 
   const [loadingMessage, setLoadingMessage] = useState("");
-  // const [loadedLeagues, setLoadedLeagues] = useState<string[]>([]);
   const [progress, setProgress] = useState(0);
 
   // FUNCION PARA FECHA PARTIDOS
@@ -206,6 +210,31 @@ export default function Home() {
       .replace(".", "");
 
     return `${day} ${month} • ${time}`;
+  };
+
+  // LOGIN
+  const [isAdmin, setIsAdmin] = useState(() => {
+    if (typeof window === "undefined") return false;
+
+    return localStorage.getItem("is_admin") === "true";
+  });
+
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    const id = requestAnimationFrame(() => {
+      setMounted(true);
+    });
+
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  //LOGOUT
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("is_admin");
+
+    setIsAdmin(false);
   };
 
   // --------- SINCRO REF --------
@@ -716,23 +745,30 @@ export default function Home() {
         </div>
       )}
 
-      <Navbar
-        onOpenTop={() => setShowTopModal(true)}
-        onOpenBets={() => setShowBetsModal(true)}
-        marketFilter={marketFilter}
-        setMarketFilter={setMarketFilter}
-        leagueFilter={leagueFilter}
-        // setLeagueFilter={setLeagueFilter}
-        setLeagueFilter={handleLeagueChange}
-        dateFilter={dateFilter}
-        setDateFilter={setDateFilter}
+      {mounted && (
+        <Navbar
+          onOpenTop={() => setShowTopModal(true)}
+          onOpenBets={() => setShowBetsModal(true)}
+          onOpenLogin={() => setShowLoginModal(true)}
+          onLogout={handleLogout}
+          onOpenAnalysis={() => setShowAnalysisModal(true)}
 
-          // 🔥 NUEVO
-        minValue={minValue}
-        setMinValue={setMinValue}
-        minOdd={minOdd}
-        setMinOdd={setMinOdd}
-      />
+          marketFilter={marketFilter}
+          setMarketFilter={setMarketFilter}
+          leagueFilter={leagueFilter}
+          // setLeagueFilter={setLeagueFilter}
+          setLeagueFilter={handleLeagueChange}
+          dateFilter={dateFilter}
+          setDateFilter={setDateFilter}
+
+            // 🔥 NUEVO
+          minValue={minValue}
+          setMinValue={setMinValue}
+          minOdd={minOdd}
+          setMinOdd={setMinOdd}
+          isAdmin={isAdmin}
+        />
+      )}
 
       {loading && Object.keys(grouped).length === 0 && (
         <div className="grid mt-6 gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
@@ -771,13 +807,6 @@ export default function Home() {
           </div>
 
           {/* 📦 GRID DE PARTIDOS */}
-          {/* <div
-            className={`transition-all duration-300 ${
-              openLeagues[league]
-                ? "max-h-[2000px] opacity-100"
-                : "max-h-0 opacity-0 overflow-hidden"
-            }`}
-          > */}
           <div
             className={`transition-all duration-500 ease-out transform ${
               openLeagues[league]
@@ -802,21 +831,6 @@ export default function Home() {
                 const id = match.home_team + match.away_team;
 
                 // FECHA PARTIDOS
-                const dateObj = new Date(match.date + "Z");
-
-                const formattedDate = dateObj.toLocaleDateString("es-ES", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                  timeZone: "Europe/Madrid",
-                });
-
-                const formattedTime = dateObj.toLocaleTimeString("es-ES", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  timeZone: "Europe/Madrid",
-                });
-
                 return (
                   <div
                     key={index}
@@ -1157,28 +1171,6 @@ export default function Home() {
       ))}
 
       {/* TEAM MODAL */}
-      {/* {selectedTeam && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center">
-          <div className="bg-[#1e1e1e] p-6 rounded-xl w-[90%] md:w-[500px] text-white">
-            <div className="flex justify-between mb-4">
-              <h2>{selectedTeam}</h2>
-              <button onClick={() => setSelectedTeam(null)}>✖</button>
-            </div>
-
-            {teamMatches.map((m, i) => (
-              <div key={i} className="bg-[#2a2a2a] p-3 rounded mb-2">
-                <div className="flex justify-between">
-                  <span>{m.home}</span>
-                  <span className={getResultColor(m, selectedTeam)}>
-                    {m.home_goals} - {m.away_goals}
-                  </span>
-                  <span>{m.away}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )} */}
       {selectedTeam && (
         // <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center">
@@ -1254,6 +1246,25 @@ export default function Home() {
         onClose={() => setShowBetsModal(false)}
         bets={bets}
       />
+
+      {showLoginModal && (
+      <LoginModal
+        onClose={() => setShowLoginModal(false)}
+        onLogin={(data) => {
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("is_admin", String(data.is_admin));
+          setIsAdmin(data.is_admin);
+          setShowLoginModal(false);
+        }}
+      />
+      )}
+
+      {showAnalysisModal && (
+        <AnalysisModal
+          onClose={() => setShowAnalysisModal(false)}
+        />
+      )}
+
 
       {pendingBet && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">

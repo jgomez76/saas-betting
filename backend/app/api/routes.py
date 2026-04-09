@@ -5,8 +5,13 @@ from datetime import datetime, timedelta
 
 from app.core.database import SessionLocal
 from app.core.config import CURRENT_SEASON, LEAGUES
+from app.core.auth import create_token
 
 from app.models.fixture import Fixture
+from app.models.user import User
+from app.models.analysis import Analysis
+
+from app.schemas.auth import LoginRequest
 
 from app.services.api_football import get_fixtures, save_fixtures, get_odds_by_date, get_odds_by_league
 from app.services.export import export_to_csv, export_to_excel
@@ -15,6 +20,7 @@ from app.services.injuries import fetch_injuries
 from app.services.notifications import send_email, send_telegram
 from app.services.odds import save_odds
 from app.services.value import get_value_bets, get_top_value_bets
+
 
 import io
 import csv
@@ -220,3 +226,26 @@ def get_fixture_result(fixture_id: int, db: Session = Depends(get_db)):
         "away_goals": match.away_goals,
         "status": match.status
     }
+
+
+
+@router.post("/login")
+def login(data: LoginRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == data.email).first()
+
+    if not user or user.password != data.password:
+        return {"error": "Invalid credentials"}
+
+    token = create_token({
+        "user_id": user.id,
+        "is_admin": user.is_admin
+    })
+
+    return {
+        "token": token,
+        "is_admin": user.is_admin
+    }
+
+@router.get("/analysis")
+def get_analysis(db: Session = Depends(get_db)):
+    return db.query(Analysis).all()

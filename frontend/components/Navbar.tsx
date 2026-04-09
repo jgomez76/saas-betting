@@ -5,22 +5,34 @@ import { useState, useEffect, useRef } from "react";
 type Props = {
   onOpenTop: () => void;
   onOpenBets: () => void;
+  onOpenLogin: () => void;
+  onLogout: () => void;
+  onOpenAnalysis: () => void;
+
   marketFilter: string;
   setMarketFilter: (value: string) => void;
 
   leagueFilter: string;
   setLeagueFilter: (value: string) => void;
+
   dateFilter: string;
   setDateFilter: (value: string) => void;
+
   minValue: number;
   setMinValue: (v: number) => void;
   minOdd: number;
   setMinOdd: (v: number) => void;
+
+  isAdmin: boolean;
 };
 
 export default function Navbar({
   onOpenTop,
   onOpenBets,
+  onOpenLogin,
+  onLogout,
+  onOpenAnalysis,
+  isAdmin,
   marketFilter,
   setMarketFilter,
   leagueFilter,
@@ -89,6 +101,22 @@ export default function Navbar({
         <h1 className="text-xl font-bold text-cyan-400">⚡ BetSaaS</h1>
 
         <div className="flex gap-3 items-center flex-wrap">
+          {/* 🔐 ADMIN / LOGIN */}
+          {isAdmin ? (
+            <button
+              onClick={onLogout}
+              className="px-4 py-2 bg-green-700 rounded text-sm hover:bg-green-600"
+            >
+              🛠 Admin (Logout)
+            </button>
+          ) : (
+            <button
+              onClick={onOpenLogin}
+              className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600"
+            >
+              🔐 Login
+            </button>
+          )}
 
           {/* 🌍 LIGAS DROPDOWN */}
           <div className="relative" ref={leaguesRef}>
@@ -259,6 +287,15 @@ export default function Navbar({
         >
           🔥 Top Value
         </button>
+
+        {isAdmin && (
+          <button
+            onClick={onOpenAnalysis}
+            className="px-4 py-2 bg-purple-600 rounded hover:bg-purple-500"
+          >
+            📊 Análisis
+          </button>
+        )}
       </div>
     </div>
   );
