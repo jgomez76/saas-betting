@@ -20,19 +20,36 @@ type Props = {
   bets: Bet[];
 };
 
-// type ChartPoint = {
-//   bet: number;
-//   bankroll: number;
-//   roi?: number;
-//   result: string;
-// };
-
 // ---------------- COMPONENT ----------------
 
 export default function BetsModal({ open, onClose, bets }: Props) {
   
   const [chartReady, setChartReady] = useState(false);
   const stake = 10;
+
+  // const sortedBets = [...bets].sort(
+  //   (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  // );
+  const sortedBets = useMemo(() => {
+    return [...bets].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+  }, [bets]);
+
+  const [statusFilter, setStatusFilter] = useState("ALL");
+
+  // const filteredBets = sortedBets.filter((b) => {
+  //   if (statusFilter === "pending") return b.status === "pending";
+  //   if (statusFilter === "finished") return b.status !== "pending";
+  //   return true;
+  // });
+  const filteredBets = useMemo(() => {
+    return sortedBets.filter((b) => {
+      if (statusFilter === "pending") return b.status === "pending";
+      if (statusFilter === "finished") return b.status !== "pending";
+      return true;
+    });
+  }, [sortedBets, statusFilter]);
 
   const formatDate = (date: string) => {
     if (!date) return "-";
@@ -77,19 +94,23 @@ export default function BetsModal({ open, onClose, bets }: Props) {
 
   // ---------------- STATS ----------------
   const stats = useMemo(() => {
-    const totalBets = bets.length;
+    // const totalBets = bets.length;
+    const totalBets = filteredBets.length;
 
     const totalStake = totalBets * stake;
 
-    const totalReturn = bets.reduce((acc, b) => {
+    // const totalReturn = bets.reduce((acc, b) => {
+    const totalReturn = filteredBets.reduce((acc, b) => {
       if (b.status === "won" && b.odd) {
         return acc + b.odd * stake;
       }
       return acc;
     }, 0);
 
-    const wins = bets.filter((b) => b.status === "won").length;
-    const losses = bets.filter((b) => b.status === "lost").length;
+    // const wins = bets.filter((b) => b.status === "won").length;
+    const wins = filteredBets.filter((b) => b.status === "won").length;
+    // const losses = bets.filter((b) => b.status === "lost").length;
+    const losses = filteredBets.filter((b) => b.status === "lost").length;
 
     const profit = totalReturn - totalStake;
     const roi = totalStake ? (profit / totalStake) * 100 : 0;
@@ -104,7 +125,8 @@ export default function BetsModal({ open, onClose, bets }: Props) {
 
     // GRAFICO
     let bankroll = 0;
-    const evolution = bets
+    // const evolution = bets
+    const evolution = filteredBets
       .filter((b) => b.status !== "pending")
       .map((b, i) => {
         if (b.status === "won" && b.odd) {
@@ -120,7 +142,8 @@ export default function BetsModal({ open, onClose, bets }: Props) {
         };
       });
 
-    bets.forEach((b) => {
+    // bets.forEach((b) => {
+    filteredBets.forEach((b) => {
       if (b.status === "won") {
         currentStreak++;
         bestStreak = Math.max(bestStreak, currentStreak);
@@ -144,7 +167,8 @@ export default function BetsModal({ open, onClose, bets }: Props) {
       bestStreak,
       evolution,
     };
-  }, [bets]);
+  // }, [bets]);
+  }, [filteredBets]);
 
   useEffect(() => {
     if (!open) {
@@ -194,6 +218,19 @@ export default function BetsModal({ open, onClose, bets }: Props) {
           <button onClick={onClose} className="text-gray-400 hover:text-white">
             ✖
           </button>
+        </div>
+
+        {/* FILTRO STATUS */}
+        <div className="mb-4 flex gap-2">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="p-2 bg-[#2a2a2a] rounded"
+          >
+            <option value="ALL">Todas</option>
+            <option value="pending">Pendientes</option>
+            <option value="finished">Finalizadas</option>
+          </select>
         </div>
 
         {/* STATS */}
@@ -335,7 +372,8 @@ export default function BetsModal({ open, onClose, bets }: Props) {
             </thead>
 
             <tbody>
-              {bets.map((b) => (
+              {/* {bets.map((b) => ( */}
+              {filteredBets.map((b) => (
                 <tr key={b.id} className={`${getRowColor(b.status)} border-b border-[#333]`}>
                   <td className="p-2 text-left">{b.match}</td>
 
@@ -351,7 +389,14 @@ export default function BetsModal({ open, onClose, bets }: Props) {
 
                   <td className="p-2 text-center">{b.odd ?? "-"}</td>
 
-                  <td className="p-2 text-center">
+                  {/* <td className="p-2 text-center">
+                    {formatValue(b.value)}
+                  </td> */}
+                  <td
+                    className={`p-2 text-center ${
+                      b.value && b.value >= 0 ? "text-green-400" : "text-red-400"
+                    }`}
+                  >
                     {formatValue(b.value)}
                   </td>
 
