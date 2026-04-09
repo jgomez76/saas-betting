@@ -1,5 +1,6 @@
 export type Bet = {
-    id: string;
+    // id: string;
+    id: number;
     match: string;
     market: string;
     selection: string;

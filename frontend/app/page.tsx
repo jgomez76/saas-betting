@@ -130,6 +130,17 @@ export default function Home() {
     return stored ? JSON.parse(stored) : [];
   });
 
+  const handleDeleteBet = (id: number) => {
+  // 1. eliminar de array
+    const updatedBets = bets.filter((b) => b.id !== id);
+
+    // 2. actualizar estado React
+    setBets(updatedBets);
+
+    // 3. actualizar localStorage
+    localStorage.setItem("bets", JSON.stringify(updatedBets));
+  };
+
   const [favorites, setFavorites] = useState<string[]>(() => {
     if (typeof window === "undefined") return [];
     const stored = localStorage.getItem("favorites");
@@ -529,7 +540,8 @@ export default function Home() {
   const addBet = (bet: PendingBet) => {
     const newBet: Bet = {
       ...bet,
-      id: crypto.randomUUID(),
+      // id: crypto.randomUUID(),
+      id: Date.now(),
     };
 
     const updated = [...bets, newBet];
@@ -1245,6 +1257,7 @@ export default function Home() {
         open={showBetsModal}
         onClose={() => setShowBetsModal(false)}
         bets={bets}
+        onDelete={handleDeleteBet}
       />
 
       {showLoginModal && (

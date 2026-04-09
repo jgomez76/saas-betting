@@ -11,7 +11,7 @@ pending = db.query(Analysis).filter(
 for bet in pending:
 
     f = db.query(Fixture).filter(
-        Fixture.fixture_id == bet.fixture_id
+        Fixture.api_id == bet.fixture_id
     ).first()
 
     if not f or f.status != "FT":

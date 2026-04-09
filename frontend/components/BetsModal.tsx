@@ -18,14 +18,17 @@ type Props = {
   open: boolean;
   onClose: () => void;
   bets: Bet[];
+  onDelete: (id: number) => void;
 };
 
 // ---------------- COMPONENT ----------------
 
-export default function BetsModal({ open, onClose, bets }: Props) {
+export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
   
   const [chartReady, setChartReady] = useState(false);
   const stake = 10;
+
+  const [betToDelete, setBetToDelete] = useState<number | null>(null);
 
   // const sortedBets = [...bets].sort(
   //   (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
@@ -368,6 +371,7 @@ export default function BetsModal({ open, onClose, bets }: Props) {
                 <th className="p-2">Value</th>
                 <th className="p-2">Result</th>
                 <th className="p-2">Status</th>
+                <th className="p-2">Acciones</th>
               </tr>
             </thead>
 
@@ -409,6 +413,21 @@ export default function BetsModal({ open, onClose, bets }: Props) {
                       {b.status}
                     </span>
                   </td>
+
+                  <td className="p-2 text-center">
+                    <button
+                      // onClick={() => {
+                      //   if (confirm("¿Eliminar apuesta?")) {
+                      //     onDelete(b.id);
+                      //   }
+                      // }}
+                      onClick={() => setBetToDelete(b.id)}
+                      className="text-red-400 hover:text-red-300"
+                    >
+                      🗑
+                    </button>
+                  </td>
+
                 </tr>
               ))}
             </tbody>
@@ -420,6 +439,44 @@ export default function BetsModal({ open, onClose, bets }: Props) {
           Stake fijo: {stake}€
         </div>
       </div>
+
+      {betToDelete !== null && (
+      <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+        <div className="bg-[#1e1e1e] p-6 rounded-xl w-[90%] max-w-sm text-center">
+
+          <h3 className="text-lg font-bold mb-4 text-gray-400">
+            🗑 Eliminar apuesta
+          </h3>
+
+          <p className="text-gray-400 mb-6">
+            ¿Estás seguro de que quieres eliminar esta apuesta?
+          </p>
+
+          <div className="flex justify-center gap-4">
+
+            {/* CANCELAR */}
+            <button
+              onClick={() => setBetToDelete(null)}
+              className="px-4 py-2 bg-gray-600 rounded hover:bg-gray-500"
+            >
+              Cancelar
+            </button>
+
+            {/* CONFIRMAR */}
+            <button
+              onClick={() => {
+                onDelete(betToDelete);
+                setBetToDelete(null);
+              }}
+              className="px-4 py-2 bg-red-600 rounded hover:bg-red-500"
+            >
+              Eliminar
+            </button>
+
+          </div>
+        </div>
+      </div>
+    )}
     </div>
   );
 }
