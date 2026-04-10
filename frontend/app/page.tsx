@@ -112,7 +112,7 @@ export default function Home() {
 
   const [marketFilter, setMarketFilter] = useState("1X2");
   const [leagueFilter, setLeagueFilter] = useState("ALL");
-  const [dateFilter, setDateFilter] = useState("TODAY");
+  const [dateFilter, setDateFilter] = useState("TODAY_TOMORROW");
   const [showTopModal, setShowTopModal] = useState(false);
   const [showBetsModal, setShowBetsModal] = useState(false);
   const [showAnalysisModal, setShowAnalysisModal] = useState(false);

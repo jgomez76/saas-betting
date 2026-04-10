@@ -10,6 +10,7 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  DotProps,
 } from "recharts";
 
 // ---------------- TYPES ----------------
@@ -19,6 +20,13 @@ type Props = {
   onClose: () => void;
   bets: Bet[];
   onDelete: (id: number) => void;
+};
+
+type ChartPoint = {
+  bet: number;
+  bankroll: number;
+  bankrollUp: number | null;
+  bankrollDown: number | null;
 };
 
 // ---------------- COMPONENT ----------------
@@ -96,13 +104,100 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
 
 
   // ---------------- STATS ----------------
-  const stats = useMemo(() => {
-    // const totalBets = bets.length;
-    const totalBets = filteredBets.length;
+  // const stats = useMemo(() => {
+  //   // const totalBets = bets.length;
+  //   const totalBets = filteredBets.length;
 
+  //   const totalStake = totalBets * stake;
+
+  //   // const totalReturn = bets.reduce((acc, b) => {
+  //   const totalReturn = filteredBets.reduce((acc, b) => {
+  //     if (b.status === "won" && b.odd) {
+  //       return acc + b.odd * stake;
+  //     }
+  //     return acc;
+  //   }, 0);
+
+  //   // const wins = bets.filter((b) => b.status === "won").length;
+  //   const wins = filteredBets.filter((b) => b.status === "won").length;
+  //   // const losses = bets.filter((b) => b.status === "lost").length;
+  //   const losses = filteredBets.filter((b) => b.status === "lost").length;
+
+  //   const profit = totalReturn - totalStake;
+  //   const roi = totalStake ? (profit / totalStake) * 100 : 0;
+  //   const yieldValue = totalStake ? totalReturn / totalStake : 0;
+
+  //   const settled = wins + losses;
+  //   const winrate = settled ? (wins / settled) * 100 : 0;
+
+  //   // 🔥 STREAK (racha actual y mejor)
+  //   let currentStreak = 0;
+  //   let bestStreak = 0;
+
+  //   // GRAFICO
+  //   let bankroll = 0;
+  //   // const evolution = bets
+  //   const evolution: ChartPoint[] = [];
+
+  //   filteredBets
+  //     // .filter((b) => b.status !== "pending")
+  //     .filter((b) => b.status !== "pending")
+  //     .map((b, i) => {
+  //       if (b.status === "won" && b.odd) {
+  //         bankroll += b.odd * stake - stake;
+  //       } else if (b.status === "lost") {
+  //         bankroll -= stake;
+  //       }
+
+  //       // return {
+  //       //   bet: i + 1,
+  //       //   bankroll: Number(bankroll.toFixed(2)),
+  //       //   result: b.status,
+  //       // };
+  //       const prev: number = i === 0 ? 0 : evolution[i - 1]?.bankroll ?? 0;
+
+  //       const isUp: boolean = bankroll >= prev;
+
+  //       return {
+  //         bet: i + 1,
+  //         bankroll: Number(bankroll.toFixed(2)),
+  //         bankrollUp: isUp ? bankroll : null,
+  //         bankrollDown: !isUp ? bankroll : null,
+  //       };
+  //     });
+
+  //   // bets.forEach((b) => {
+  //   filteredBets.forEach((b) => {
+  //     if (b.status === "won") {
+  //       currentStreak++;
+  //       bestStreak = Math.max(bestStreak, currentStreak);
+  //     } else if (b.status === "lost") {
+  //       currentStreak = 0;
+  //     }
+  //   });
+
+
+  //   return {
+  //     totalBets,
+  //     wins,
+  //     losses,
+  //     totalStake,
+  //     totalReturn,
+  //     profit,
+  //     roi,
+  //     yieldValue,
+  //     winrate,
+  //     currentStreak,
+  //     bestStreak,
+  //     evolution,
+  //   };
+  // // }, [bets]);
+  // }, [filteredBets]);
+
+  const stats = useMemo(() => {
+    const totalBets = filteredBets.length;
     const totalStake = totalBets * stake;
 
-    // const totalReturn = bets.reduce((acc, b) => {
     const totalReturn = filteredBets.reduce((acc, b) => {
       if (b.status === "won" && b.odd) {
         return acc + b.odd * stake;
@@ -110,9 +205,7 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
       return acc;
     }, 0);
 
-    // const wins = bets.filter((b) => b.status === "won").length;
     const wins = filteredBets.filter((b) => b.status === "won").length;
-    // const losses = bets.filter((b) => b.status === "lost").length;
     const losses = filteredBets.filter((b) => b.status === "lost").length;
 
     const profit = totalReturn - totalStake;
@@ -122,30 +215,10 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
     const settled = wins + losses;
     const winrate = settled ? (wins / settled) * 100 : 0;
 
-    // 🔥 STREAK (racha actual y mejor)
+    // 🔥 STREAK
     let currentStreak = 0;
     let bestStreak = 0;
 
-    // GRAFICO
-    let bankroll = 0;
-    // const evolution = bets
-    const evolution = filteredBets
-      .filter((b) => b.status !== "pending")
-      .map((b, i) => {
-        if (b.status === "won" && b.odd) {
-          bankroll += b.odd * stake - stake;
-        } else if (b.status === "lost") {
-          bankroll -= stake;
-        }
-
-        return {
-          bet: i + 1,
-          bankroll: Number(bankroll.toFixed(2)),
-          result: b.status,
-        };
-      });
-
-    // bets.forEach((b) => {
     filteredBets.forEach((b) => {
       if (b.status === "won") {
         currentStreak++;
@@ -155,6 +228,62 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
       }
     });
 
+    // ---------------- GRAFICO ----------------
+
+    const settledBets = filteredBets.filter(
+      (b) => b.status === "won" || b.status === "lost"
+    );
+
+    let bankroll = 0;
+    // let prevBankroll = 0;
+
+    // const evolution: ChartPoint[] = settledBets.map((b, i) => {
+    //   const previous = bankroll;
+
+    //   if (b.status === "won" && b.odd) {
+    //     bankroll += b.odd * stake - stake;
+    //   } else if (b.status === "lost") {
+    //     bankroll -= stake;
+    //   }
+
+    //   const isUp = bankroll >= previous;
+
+    //   // const point: ChartPoint = {
+    //   //   bet: i + 1,
+    //   //   bankroll: Number(bankroll.toFixed(2)),
+    //   //   bankrollUp: isUp ? Number(bankroll.toFixed(2)) : null,
+    //   //   bankrollDown: !isUp ? Number(bankroll.toFixed(2)) : null,
+    //   // };
+
+    //   const current = Number(bankroll.toFixed(2));
+    //   const prev = Number(previous.toFixed(2));
+
+    //   return {
+    //     bet: i + 1,
+    //     bankroll: current,
+
+    //     // 🔥 CLAVE: duplicar punto de unión
+    //     bankrollUp: isUp ? current : prev,
+    //     bankrollDown: !isUp ? current : prev,
+    //   };
+
+
+    //   // return point;
+    // });
+
+    const evolution = settledBets.map((b, i) => {
+      if (b.status === "won" && b.odd) {
+        bankroll += b.odd * stake - stake;
+      } else if (b.status === "lost") {
+        bankroll -= stake;
+      }
+
+      return {
+        bet: i + 1,
+        bankroll: Number(bankroll.toFixed(2)),
+        result: b.status,
+      };
+    });
 
     return {
       totalBets,
@@ -170,7 +299,6 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
       bestStreak,
       evolution,
     };
-  // }, [bets]);
   }, [filteredBets]);
 
   useEffect(() => {
@@ -295,36 +423,6 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
         </div>
 
         {/* 📈 BANKROLL CHART */}
-        {/* <div className="w-full h-[250px] mb-6">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={stats.evolution}>
-              <XAxis dataKey="bet" stroke="#aaa" />
-              <YAxis stroke="#aaa" />
-              <Tooltip />
-
-              <Line
-                type="monotone"
-                dataKey="bankroll"
-                strokeWidth={2}
-                stroke="#22c55e"
-                // dot={(props: any) => {
-                dot={(props: {
-                  cx?: number;
-                  cy?: number;
-                  payload?: ChartPoint;
-                }) => {
-                  // const { cx, cy, payload } = props;
-                  if (!props.cx || !props.cy || !props.payload) return null;
-                  const color =
-                    props.payload.result === "won" ? "#22c55e" : "#ef4444";
-
-                  return <circle cx={props.cx} cy={props.cy} r={4} fill={color} />;
-                }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div> */}
-
         {stats.evolution.length === 0 && (
           <p className="text-center text-gray-400 mb-4">
             No hay apuestas resueltas aún
@@ -339,11 +437,51 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
                 <Tooltip />
 
                 {/* 💰 BANKROLL */}
-                <Line
+                {/* <Line
                   type="monotone"
                   dataKey="bankroll"
                   stroke="#22c55e"
                   strokeWidth={2}
+                /> */}
+                {/* 🟢 SUBIDAS */}
+                {/* <Line
+                  type="monotone"
+                  dataKey="bankrollUp"
+                  stroke="#22c55e"
+                  strokeWidth={2}
+                  dot={false}
+                  connectNulls
+                />
+
+                {/* 🔴 BAJADAS */}
+                {/* <Line
+                  type="monotone"
+                  dataKey="bankrollDown"
+                  stroke="#ef4444"
+                  strokeWidth={2}
+                  dot={false}
+                  connectNulls
+                /> */}
+
+                <Line
+                  type="monotone"
+                  dataKey="bankroll"
+                  stroke="#200a9b"
+                  strokeWidth={2}
+                  dot={(props: {
+                    cx?: number;
+                    cy?: number;
+                    payload?: { result: "won" | "lost" };
+                  }) => {
+                    const { cx, cy, payload } = props;
+
+                    if (cx === undefined || cy === undefined || !payload) return null;
+
+                    const color =
+                      payload.result === "won" ? "#22c55e" : "#ef4444";
+
+                    return <circle cx={cx} cy={cy} r={4} fill={color} />;
+                  }}
                 />
 
                 {/* 📊 ROI */}
