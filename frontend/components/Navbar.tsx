@@ -28,10 +28,10 @@ type Props = {
 
 export default function Navbar({
   onOpenTop,
-  onOpenBets,
+  // onOpenBets,
   onOpenLogin,
   onLogout,
-  onOpenAnalysis,
+  // onOpenAnalysis,
   isAdmin,
   marketFilter,
   setMarketFilter,
@@ -94,11 +94,11 @@ export default function Navbar({
   }, []);
 
   return (
-    <div className="w-full bg-[#111] text-white p-4 mb-6 rounded-xl shadow flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-
+    <div className="w-full bg-[#111827] border-b border-[#1f2937] text-white p-4 mb-6 rounded-xl shadow flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    {/* // <div className="w-full bg-[#111827] border-b border-[#1f2937] p-4"> */}
       {/* LEFT */}
       <div className="flex items-center gap-6 flex-wrap">
-        <h1 className="text-xl font-bold text-cyan-400">⚡ BetSaaS</h1>
+        {/* <h1 className="text-xl font-bold text-cyan-400">⚡ BetSaaS</h1> */}
 
         <div className="flex gap-3 items-center flex-wrap">
           {/* 🔐 ADMIN / LOGIN */}
@@ -274,12 +274,12 @@ export default function Navbar({
 
       {/* RIGHT */}
       <div className="flex gap-3">
-        <button
+        {/* <button
           onClick={onOpenBets}
           className="px-4 py-2 bg-yellow-600 rounded hover:bg-yellow-500"
         >
           💰 Mis apuestas
-        </button>
+        </button> */}
 
         <button
           onClick={onOpenTop}
@@ -288,14 +288,14 @@ export default function Navbar({
           🔥 Top Value
         </button>
 
-        {isAdmin && (
+        {/* {isAdmin && (
           <button
             onClick={onOpenAnalysis}
             className="px-4 py-2 bg-purple-600 rounded hover:bg-purple-500"
           >
             📊 Análisis
           </button>
-        )}
+        )} */}
       </div>
     </div>
   );

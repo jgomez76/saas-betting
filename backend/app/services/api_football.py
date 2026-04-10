@@ -38,7 +38,8 @@ def save_fixtures(db: Session, data: dict):
             status=fixture_data["status"]["short"],
             date=datetime.fromisoformat(fixture_data["date"].replace("Z", "+00:00")),
             
-            season=league["season"]
+            season=league["season"],
+            round=league["round"]
         )
 
         db.add(new_fixture)

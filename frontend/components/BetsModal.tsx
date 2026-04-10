@@ -10,7 +10,6 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  DotProps,
 } from "recharts";
 
 // ---------------- TYPES ----------------
@@ -20,13 +19,6 @@ type Props = {
   onClose: () => void;
   bets: Bet[];
   onDelete: (id: number) => void;
-};
-
-type ChartPoint = {
-  bet: number;
-  bankroll: number;
-  bankrollUp: number | null;
-  bankrollDown: number | null;
 };
 
 // ---------------- COMPONENT ----------------
@@ -341,7 +333,8 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-      <div className="bg-[#1e1e1e] text-white rounded-2xl p-6 w-[95%] md:w-[80%] lg:w-[60%] max-h-[100vh] overflow-y-auto flex flex-col">
+      {/* <div className="bg-[#1e1e1e] text-white rounded-2xl p-6 w-[95%] md:w-[80%] lg:w-[60%] max-h-[100vh] overflow-y-auto flex flex-col"> */}
+      <div className="bg-[#1F3537] text-white rounded-2xl p-6 w-[95%] md:w-[80%] lg:w-[90%] max-h-[100vh] overflow-y-auto flex flex-col">
 
         {/* HEADER */}
         <div className="flex justify-between items-center mb-6">
@@ -437,32 +430,6 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
                 <Tooltip />
 
                 {/* 💰 BANKROLL */}
-                {/* <Line
-                  type="monotone"
-                  dataKey="bankroll"
-                  stroke="#22c55e"
-                  strokeWidth={2}
-                /> */}
-                {/* 🟢 SUBIDAS */}
-                {/* <Line
-                  type="monotone"
-                  dataKey="bankrollUp"
-                  stroke="#22c55e"
-                  strokeWidth={2}
-                  dot={false}
-                  connectNulls
-                />
-
-                {/* 🔴 BAJADAS */}
-                {/* <Line
-                  type="monotone"
-                  dataKey="bankrollDown"
-                  stroke="#ef4444"
-                  strokeWidth={2}
-                  dot={false}
-                  connectNulls
-                /> */}
-
                 <Line
                   type="monotone"
                   dataKey="bankroll"

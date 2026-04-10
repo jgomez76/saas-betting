@@ -19,5 +19,6 @@ class Fixture(Base):
     status = Column(String)  # FT, NS, etc
     
     date = Column(DateTime)
-
     season = Column(Integer)
+
+    round = Column(String)

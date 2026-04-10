@@ -2,10 +2,12 @@
 
 import { useEffect, useState, useRef, useMemo } from "react";
 import Navbar from "@/components/Navbar";
+import Sidebar from "@/components/Sidebar";
 import TopValueModal from "@/components/TopValueModal";
 import BetsModal from "@/components/BetsModal";
 import LoginModal from "@/components/LoginModal";
 import AnalysisModal from "@/components/AnalysisModal";
+import ResultsView from "@/components/ResultsView";
 import { API_URL } from "@/lib/api";
 import { Bet } from "@/types/bet";
 
@@ -106,6 +108,7 @@ type Match = {
 
 export default function Home() {
   // const [isAdmin, setIsAdmin] = useState(false);
+  const [view, setView] = useState("dashboard");
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   const [loading, setLoading] = useState(true);
@@ -114,7 +117,6 @@ export default function Home() {
   const [leagueFilter, setLeagueFilter] = useState("ALL");
   const [dateFilter, setDateFilter] = useState("TODAY_TOMORROW");
   const [showTopModal, setShowTopModal] = useState(false);
-  const [showBetsModal, setShowBetsModal] = useState(false);
   const [showAnalysisModal, setShowAnalysisModal] = useState(false);
 
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
@@ -223,12 +225,9 @@ export default function Home() {
     return `${day} ${month} • ${time}`;
   };
 
-  // LOGIN
-  const [isAdmin, setIsAdmin] = useState(() => {
-    if (typeof window === "undefined") return false;
-
-    return localStorage.getItem("is_admin") === "true";
-  });
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [user, setUser] = useState<string | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
   const [mounted, setMounted] = useState(false);
   
@@ -240,13 +239,35 @@ export default function Home() {
     return () => cancelAnimationFrame(id);
   }, []);
 
-  //LOGOUT
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("is_admin");
+  const handleLogout = async () => {
+    await fetch(`${API_URL}/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
 
     setIsAdmin(false);
+    setUser(null);
   };
+
+ 
+  // NEW LOGIN WITH JWT
+  useEffect(() => {
+    fetch(`${API_URL}/me`, {
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setIsAdmin(data.is_admin);
+        setUser(data.email);
+      })
+      .catch(() => {
+        setIsAdmin(false);
+        setUser(null);
+      })
+      .finally(() => {
+        setAuthLoading(false);
+      });
+  }, []);
 
   // --------- SINCRO REF --------
   useEffect(() => {
@@ -670,37 +691,8 @@ export default function Home() {
     </div>
   );
 
-  // ---------------- LOADING ----------------
-
-  // if (loading) {
-  //   return (
-  //     <main className="p-6 bg-gray-100 min-h-screen">
-  //       <p className="text-center text-lg">⏳ Cargando partidos...</p>
-  //     </main>
-  //   );
-  // }
-
-
-
   // ---------------- RENDER ----------------
-  // const handleLeagueChange = (value: string) => {
-  //   setLeagueFilter(value);
 
-  //   if (value === "ALL") {
-  //     // 🔥 abrir todas
-  //     const leagues = Array.from(
-  //       new Set(allMatches.map((m) => m.league))
-  //     ) as string[];
-
-  //     const state: Record<string, boolean> = {};
-  //     leagues.forEach((l) => (state[l] = true));
-
-  //     setOpenLeagues(state);
-  //   } else {
-  //     // 🔥 abrir solo una
-  //     setOpenLeagues({ [value]: true });
-  //   }
-  // };
   const handleLeagueChange = (value: string) => {
     setLeagueFilter(value);
 
@@ -726,621 +718,656 @@ export default function Home() {
   };
 
   return (
-    <main className="p-6 bg-gray-100 min-h-screen">
+    // <main className="p-6 bg-gray-100 min-h-screen">
+    <div className="flex">
 
-      {/* {loading && (
-        <p className="text-center text-sm text-gray-400 mb-4 animate-pulse">
-          ⏳ {loadingMessage}
-        </p>
+      {/* {!authLoading && (
+        <Sidebar view={view} setView={setView} isAdmin={isAdmin} />
       )} */}
-      {loading && (
-        <div className="mb-6">
+      <Sidebar view={view} setView={setView} isAdmin={isAdmin} />
+      {/* <Sidebar view={view} setView={setView} /> */}
 
-          {/* TEXTO */}
-          <p className="text-center text-sm text-gray-400 mb-2 animate-pulse">
-            ⏳ {loadingMessage}
-          </p>
+      {/* <main className="flex-1 p-6 bg-gray-100 min-h-screen"> */}
+      {/* <main className="flex-1 p-6 bg-[#18181b] min-h-screen text-white"> */}
+      <main className="flex-1 p-6 bg-[#F0B071] min-h-screen text-white">
 
-          {/* 🔥 BARRA PROGRESO */}
-          <div className="w-full max-w-md mx-auto bg-gray-300 rounded-full h-2 overflow-hidden">
-            <div
-              className="bg-cyan-500 h-2 transition-all duration-500"
-              style={{ width: `${progress}%` }}
+        {/* DASHBOARD */}
+        {view === "dashboard" && (
+        <>
+          {loading && (
+            <div className="mb-6">
+
+              {/* TEXTO */}
+              <p className="text-center text-sm text-gray-400 mb-2 animate-pulse">
+                ⏳ {loadingMessage}
+              </p>
+
+              {/* 🔥 BARRA PROGRESO */}
+              <div className="w-full max-w-md mx-auto bg-gray-300 rounded-full h-2 overflow-hidden">
+                <div
+                  className="bg-cyan-500 h-2 transition-all duration-500"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+
+              {/* % */}
+              <p className="text-center text-xs text-gray-500 mt-1">
+                {progress}%
+              </p>
+
+            </div>
+          )}
+
+          {mounted && (
+            <Navbar
+              onOpenTop={() => setShowTopModal(true)}
+              // onOpenBets={() => setShowBetsModal(true)}
+              onOpenBets={() => setView("bets")}
+              onOpenLogin={() => setShowLoginModal(true)}
+              onLogout={handleLogout}
+              onOpenAnalysis={() => setShowAnalysisModal(true)}
+
+              marketFilter={marketFilter}
+              setMarketFilter={setMarketFilter}
+              leagueFilter={leagueFilter}
+              // setLeagueFilter={setLeagueFilter}
+              setLeagueFilter={handleLeagueChange}
+              dateFilter={dateFilter}
+              setDateFilter={setDateFilter}
+
+                // 🔥 NUEVO
+              minValue={minValue}
+              setMinValue={setMinValue}
+              minOdd={minOdd}
+              setMinOdd={setMinOdd}
+              isAdmin={isAdmin}
             />
-          </div>
+          )}
 
-          {/* % */}
-          <p className="text-center text-xs text-gray-500 mt-1">
-            {progress}%
-          </p>
-
-        </div>
-      )}
-
-      {mounted && (
-        <Navbar
-          onOpenTop={() => setShowTopModal(true)}
-          onOpenBets={() => setShowBetsModal(true)}
-          onOpenLogin={() => setShowLoginModal(true)}
-          onLogout={handleLogout}
-          onOpenAnalysis={() => setShowAnalysisModal(true)}
-
-          marketFilter={marketFilter}
-          setMarketFilter={setMarketFilter}
-          leagueFilter={leagueFilter}
-          // setLeagueFilter={setLeagueFilter}
-          setLeagueFilter={handleLeagueChange}
-          dateFilter={dateFilter}
-          setDateFilter={setDateFilter}
-
-            // 🔥 NUEVO
-          minValue={minValue}
-          setMinValue={setMinValue}
-          minOdd={minOdd}
-          setMinOdd={setMinOdd}
-          isAdmin={isAdmin}
-        />
-      )}
-
-      {loading && Object.keys(grouped).length === 0 && (
-        <div className="grid mt-6 gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <SkeletonCard key={i} />
-          ))}
-        </div>
-      )}
-
-      {/* {Object.entries(grouped).map(([league, leagueMatches]) => ( */}
-      {Object.entries(grouped).map(([league, leagueMatches], i) => (
-        // <div 
-        //   key={league}
-        //   className="animate-fadeIn"
-        // >
-        <div
-          key={league}
-          className="animate-fadeIn"
-          style={{ animationDelay: `${i * 0.08}s` }}
-        >
-
-          {/* 🏆 NOMBRE LIGA */}
-          <div
-            onClick={() => toggleLeague(league)}
-            // className="flex justify-between items-center bg-[#2a2a2a] text-white px-4 py-3 rounded-lg cursor-pointer hover:bg-[#3a3a3a] transition mt-6"
-            className="flex justify-between items-center bg-[#2a2a2a] text-white px-4 py-3 rounded-lg cursor-pointer hover:bg-[#3a3a3a] transition mt-8 border border-[#333]"
-          >
-            <div className="flex items-center gap-2">
-              <span>{openLeagues[league] ? "▼" : "▶"}</span>
-              <span className="font-semibold text-lg">{league}</span>
+          {loading && Object.keys(grouped).length === 0 && (
+            <div className="grid mt-6 gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <SkeletonCard key={i} />
+              ))}
             </div>
+          )}
 
-            <span className="text-sm text-gray-400">
-              {leagueMatches.length} partidos
-            </span>
-          </div>
-
-          {/* 📦 GRID DE PARTIDOS */}
-          <div
-            className={`transition-all duration-500 ease-out transform ${
-              openLeagues[league]
-                ? "max-h-[2000px] opacity-100 translate-y-0"
-                : "max-h-0 opacity-0 -translate-y-2 overflow-hidden"
-            }`}
-          >
-            {/* <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3"> */}
-            <div className="grid mt-4 gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-
-              {/* LOADING SKELETON CARD */}
-              {loading && leagueMatches.length === 0 && (
-                <div className="grid mt-4 gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-                  {Array.from({ length: 6 }).map((_, i) => (
-                    <SkeletonCard key={i} />
-                  ))}
-                </div>
-              )}
-
-              {!loading &&
-                leagueMatches.map((match, index) => {
-                const id = match.home_team + match.away_team;
-
-                // FECHA PARTIDOS
-                return (
-                  <div
-                    key={index}
-                    className="bg-[#1e1e1e] text-white p-4 rounded-xl relative"
-                    // className="bg-[#0D0D0D] text-white p-4 rounded-xl relative"
-                  >
-                    {/* ⭐ FAVORITO */}
-                    <button
-                      onClick={() => toggleFavorite(id)}
-                      className="absolute top-2 right-2"
-                    >
-                      {favorites.includes(id) ? "⭐" : "☆"}
-                    </button>
-
-                    {/* EQUIPOS */}
-                    <div
-                      className="grid text-center mb-3"
-                      style={{ gridTemplateColumns: "45% 10% 45%" }}
-                    >
-                      <div onClick={() => openTeamModal(match.home_team)}>
-                        <p>{match.home_team}</p>
-                        {renderForm(match.home_form || "")}
-                      </div>
-
-                      <div className="text-gray-400 text-xs">vs</div>
-
-                      <div onClick={() => openTeamModal(match.away_team)}>
-                        <p>{match.away_team}</p>
-                        {renderForm(match.away_form || "")}
-                      </div>
-                    </div>
-
-                    {/* FECHA */}
-                    <p className="text-xm text-gray-300 text-center mb-2">
-                      {/* {match.league} • {formattedDate} • {formattedTime} */}
-                      {/* {formattedDate} • {formattedTime} */}
-                      {formatMatchDate(match.date)}
-                    </p>
-
-                    {/* 1X2 */}
-                    {(marketFilter === "ALL" || marketFilter === "1X2") &&
-                      match.markets?.["1X2"] && (
-                        <div className="grid grid-cols-3 gap-2 mb-3">
-                          {(["home", "draw", "away"] as const).map((k) => {
-                            const odd = match.markets?.["1X2"]?.[k];
-                            const value =
-                              match.value?.[`${k}_value` as keyof typeof match.value];
-
-                            const fairOdd =
-                              k === "home"
-                                ? match.probabilities?.home_odds
-                                : k === "draw"
-                                ? match.probabilities?.draw_odds
-                                : match.probabilities?.away_odds;
-
-                            return (
-                              <div
-                                key={k}
-                                onClick={() =>
-                                  setPendingBet({
-                                    match: `${match.home_team} vs ${match.away_team}`,
-                                    market: "1X2",
-                                    selection: k,
-                                    odd: odd?.odd,
-                                    bookmaker: odd?.bookmaker,
-                                    value,
-                                    fixture_id: match.fixture_id,
-                                    status: "pending",
-                                    date: match.date
-                                  })
-                                }
-                                className={`${getValueColor(
-                                  value,
-                                  odd?.odd
-                                )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
-                              >
-                                {/* 🏷️ LABEL */}
-                                <p className="text-sm uppercase text-gray-300">{k}</p>
-
-                                {/* 💰 CUOTA REAL */}
-                                <p className="font-bold text-3xl">{odd?.odd ?? "-"}</p>
-
-                                {/* 🏦 BOOKMAKER */}
-                                <p className="text-lg text-gray-300">
-                                  {odd?.bookmaker ?? ""}
-                                </p>
-
-                                {/* 📊 FAIR ODDS + VALUE */}
-                                <p
-                                  className={`text-xs ${
-                                    value !== null && value !== undefined && value < 0
-                                      ? "text-red-400"
-                                      : "text-gray-300"
-                                  }`}
-                                >
-                                  {fairOdd ? Number(fairOdd.toFixed(2)) : "-"}{" "}
-                                  {value !== null && value !== undefined &&
-                                    `(${formatValue(value)})`}
-                                </p>
-                              </div>
-                            );
-                          })}
-                        </div>
-                    )}
-
-                  
-                    {/* OU25 */}
-                    {(marketFilter === "ALL" || marketFilter === "OU25") &&
-                      match.markets?.OU25 && (
-                        <div className="grid grid-cols-2 gap-2 mb-3">
-                          {(["over", "under"] as const).map((k) => {
-                            const odd = match.markets?.OU25?.[k];
-                            const value =
-                              k === "over"
-                                ? match.market_values?.OU25?.over_value
-                                : match.market_values?.OU25?.under_value;
-
-                            // 👉 FAIR ODDS (IMPORTANTE)
-                            const fairOdd =
-                              k === "over"
-                                ? match.extra_probabilities?.over25_prob
-                                  ? 1 / match.extra_probabilities.over25_prob
-                                  : null
-                                : match.extra_probabilities?.under25_prob
-                                ? 1 / match.extra_probabilities.under25_prob
-                                : null;
-
-                            return (
-                              <div
-                                key={k}
-                                onClick={() =>
-                                  setPendingBet({
-                                    match: `${match.home_team} vs ${match.away_team}`,
-                                    market: "OU25",
-                                    selection: k,
-                                    odd: odd?.odd,
-                                    bookmaker: odd?.bookmaker,
-                                    value,
-                                    fixture_id: match.fixture_id,
-                                    status: "pending",
-                                    date: match.date
-                                  })
-                                }
-                                className={`${getValueColor(
-                                  value,
-                                  odd?.odd
-                                )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
-                              >
-                                {/* 🏷️ LABEL */}
-                                <p className="text-sm uppercase text-gray-300">
-                                  {k} 2.5
-                                </p>
-
-                                {/* 💰 CUOTA REAL */}
-                                <p className="font-bold text-3xl">
-                                  {odd?.odd ?? "-"}
-                                </p>
-
-                                {/* 🏦 BOOKMAKER */}
-                                <p className="text-lg text-gray-300">
-                                  {odd?.bookmaker ?? ""}
-                                </p>
-
-                                {/* 📊 FAIR ODDS + VALUE */}
-                                <p
-                                    className={`text-xs ${
-                                      value !== null && value !== undefined && value < 0
-                                        ? "text-red-400"
-                                        : "text-gray-300"
-                                    }`}
-                                  >
-                                    {fairOdd ? Number(fairOdd.toFixed(2)) : "-"}{" "}
-                                    {value !== null && value !== undefined &&
-                                      `(${formatValue(value)})`}
-                                  </p>
-                              </div>
-                            );
-                          })}
-                        </div>
-                    )}                    
-                    {/* OU35 */}
-                    {(marketFilter === "ALL" || marketFilter === "OU35") &&
-                      match.markets?.OU35 && (
-                        <div className="grid grid-cols-2 gap-2 mb-3">
-                          {(["over", "under"] as const).map((k) => {
-                            const odd = match.markets?.OU35?.[k];
-                            const value =
-                              k === "over"
-                                ? match.market_values?.OU35?.over_value
-                                : match.market_values?.OU35?.under_value;
-
-                            // 👉 FAIR ODDS (IMPORTANTE)
-                            const fairOdd =
-                              k === "over"
-                                ? match.extra_probabilities?.over35_prob
-                                  ? 1 / match.extra_probabilities.over35_prob
-                                  : null
-                                : match.extra_probabilities?.under35_prob
-                                ? 1 / match.extra_probabilities.under35_prob
-                                : null;
-
-                            return (
-                              <div
-                                key={k}
-                                onClick={() =>
-                                  setPendingBet({
-                                    match: `${match.home_team} vs ${match.away_team}`,
-                                    market: "OU35",
-                                    selection: k,
-                                    odd: odd?.odd,
-                                    bookmaker: odd?.bookmaker,
-                                    value,
-                                    fixture_id: match.fixture_id,
-                                    status: "pending",
-                                    date: match.date
-                                  })
-                                }
-                                className={`${getValueColor(
-                                  value,
-                                  odd?.odd
-                                )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
-                              >
-                                {/* 🏷️ LABEL */}
-                                <p className="text-sm uppercase text-gray-300">
-                                  {k} 3.5
-                                </p>
-
-                                {/* 💰 CUOTA REAL */}
-                                <p className="font-bold text-3xl">
-                                  {odd?.odd ?? "-"}
-                                </p>
-
-                                {/* 🏦 BOOKMAKER */}
-                                <p className="text-lg text-gray-300">
-                                  {odd?.bookmaker ?? ""}
-                                </p>
-
-                                {/* 📊 FAIR ODDS + VALUE */}
-                                <p
-                                    className={`text-xs ${
-                                      value !== null && value !== undefined && value < 0
-                                        ? "text-red-400"
-                                        : "text-gray-300"
-                                    }`}
-                                  >
-                                    {fairOdd ? Number(fairOdd.toFixed(2)) : "-"}{" "}
-                                    {value !== null && value !== undefined &&
-                                      `(${formatValue(value)})`}
-                                  </p>
-                              </div>
-                            );
-                          })}
-                        </div>
-                    )}                    
-
-                    {/* BTTS */}
-                    {(marketFilter === "ALL" || marketFilter === "BTTS") &&
-                      match.markets?.BTTS && (
-                        <div className="grid grid-cols-2 gap-2">
-                          {(["yes", "no"] as const).map((k) => {
-                            const odd = match.markets?.BTTS?.[k];
-
-                            const value =
-                              k === "yes"
-                                ? match.market_values?.BTTS?.yes_value
-                                : match.market_values?.BTTS?.no_value;
-
-                            // 👉 FAIR ODDS
-                            const fairOdd =
-                              k === "yes"
-                                ? match.extra_probabilities?.btts_yes_prob
-                                  ? 1 / match.extra_probabilities.btts_yes_prob
-                                  : null
-                                : match.extra_probabilities?.btts_no_prob
-                                ? 1 / match.extra_probabilities.btts_no_prob
-                                : null;
-
-                            return (
-                              <div
-                                key={k}
-                                onClick={() =>
-                                  setPendingBet({
-                                    match: `${match.home_team} vs ${match.away_team}`,
-                                    market: "BTTS",
-                                    selection: k,
-                                    odd: odd?.odd,
-                                    bookmaker: odd?.bookmaker,
-                                    value,
-                                    fixture_id: match.fixture_id,
-                                    status: "pending",
-                                    date: match.date
-                                  })
-                                }
-                                className={`${getValueColor(
-                                  value,
-                                  odd?.odd
-                                )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
-                              >
-                                {/* 🏷️ LABEL */}
-                                <p className="text-sm uppercase text-gray-300">
-                                  BTTS {k}
-                                </p>
-
-                                {/* 💰 CUOTA REAL */}
-                                <p className="font-bold text-3xl">
-                                  {odd?.odd ?? "-"}
-                                </p>
-
-                                {/* 🏦 BOOKMAKER */}
-                                <p className="text-lg text-gray-300">
-                                  {odd?.bookmaker ?? ""}
-                                </p>
-
-                                {/* 📊 FAIR + VALUE */}
-                                <p
-                                    className={`text-xs ${
-                                      value !== null && value !== undefined && value < 0
-                                        ? "text-red-400"
-                                        : "text-gray-300"
-                                    }`}
-                                  >
-                                    {fairOdd ? Number(fairOdd.toFixed(2)) : "-"}{" "}
-                                    {value !== null && value !== undefined &&
-                                      `(${formatValue(value)})`}
-                                  </p>
-                              </div>
-                            );
-                          })}
-                        </div>
-                    )}                    
-                  </div>
-                );
-              })}
-
-            </div>
-          </div>
-        </div>
-      ))}
-
-      {/* TEAM MODAL */}
-      {selectedTeam && (
-        // <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center">
-          {/* <div className="bg-white p-6 rounded-2xl w-[400px] shadow-xl"> */}
-          <div className="bg-[#1e1e1e] p-6 rounded-xl w-[90%] md:w-[600px] text-white">
-        
-          {/* TITLE */}
-          <h2 className="text-xl font-bold mb-4 text-center">
-          {selectedTeam}
-          </h2>
-        
-          {/* MATCHES */}
-            <div className="space-y-2">
-              {teamMatches.map((m, i) => {
-                const isDraw = m.home_goals === m.away_goals;
-                // const isHomeWin = m.home_goals > m.away_goals;
-
-                const isWin =
-                  (m.home === selectedTeam && m.home_goals > m.away_goals) ||
-                  (m.away === selectedTeam && m.away_goals > m.home_goals);
-
-                const isLoss =
-                  (m.home === selectedTeam && m.home_goals < m.away_goals) ||
-                  (m.away === selectedTeam && m.away_goals < m.home_goals);
-
-                return (
-                  <div
-                    key={i}
-                    className="grid grid-cols-3 items-center text-lg border-b pb-2"
-                  >
-                    {/* HOME */}
-                    <span className="text-center pr-2">{m.home}</span>
-
-                    {/* RESULT */}
-                    <span
-                      className={`text-center font-bold text-2xl ${
-                        isDraw
-                          ? "text-yellow-500"
-                          : isWin
-                          ? "text-green-600"
-                          : isLoss
-                          ? "text-red-500"
-                          : ""
-                      }`}
-                    >
-                      {m.home_goals} - {m.away_goals}
-                    </span>
-
-                    {/* AWAY */}
-                    <span className="text-center pl-2">{m.away}</span>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* CLOSE */}
-            <button
-              onClick={() => setSelectedTeam(null)}
-              className="mt-4 w-full bg-gray-600 hover:bg-gray-300 p-2 rounded"
+          {/* {Object.entries(grouped).map(([league, leagueMatches]) => ( */}
+          {Object.entries(grouped).map(([league, leagueMatches], i) => (
+            // <div 
+            //   key={league}
+            //   className="animate-fadeIn"
+            // >
+            <div
+              key={league}
+              className="animate-fadeIn"
+              style={{ animationDelay: `${i * 0.08}s` }}
             >
-              Cerrar
-            </button>
-          </div>
-        </div>
-      )}
 
-      <TopValueModal
-        open={showTopModal}
-        onClose={() => setShowTopModal(false)}
-      />
-      <BetsModal
-        open={showBetsModal}
-        onClose={() => setShowBetsModal(false)}
-        bets={bets}
-        onDelete={handleDeleteBet}
-      />
+              {/* 🏆 NOMBRE LIGA */}
+              <div
+                onClick={() => toggleLeague(league)}
+                // className="flex justify-between items-center bg-[#2a2a2a] text-white px-4 py-3 rounded-lg cursor-pointer hover:bg-[#3a3a3a] transition mt-6"
+                className="flex justify-between items-center bg-[#2a2a2a] text-white px-4 py-3 rounded-lg cursor-pointer hover:bg-[#3a3a3a] transition mt-8 border border-[#333]"
+              >
+                <div className="flex items-center gap-2">
+                  <span>{openLeagues[league] ? "▼" : "▶"}</span>
+                  <span className="font-semibold text-lg">{league}</span>
+                </div>
 
-      {showLoginModal && (
-      <LoginModal
-        onClose={() => setShowLoginModal(false)}
-        onLogin={(data) => {
-          localStorage.setItem("token", data.token);
-          localStorage.setItem("is_admin", String(data.is_admin));
-          setIsAdmin(data.is_admin);
-          setShowLoginModal(false);
-        }}
-      />
-      )}
+                <span className="text-sm text-gray-400">
+                  {leagueMatches.length} partidos
+                </span>
+              </div>
 
-      {showAnalysisModal && (
-        <AnalysisModal
-          onClose={() => setShowAnalysisModal(false)}
-        />
-      )}
+              {/* 📦 GRID DE PARTIDOS */}
+              <div
+                className={`transition-all duration-500 ease-out transform ${
+                  openLeagues[league]
+                    ? "max-h-[2000px] opacity-100 translate-y-0"
+                    : "max-h-0 opacity-0 -translate-y-2 overflow-hidden"
+                }`}
+              >
+                {/* <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3"> */}
+                <div className="grid mt-4 gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
 
+                  {/* LOADING SKELETON CARD */}
+                  {loading && leagueMatches.length === 0 && (
+                    <div className="grid mt-4 gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <SkeletonCard key={i} />
+                      ))}
+                    </div>
+                  )}
 
-      {pendingBet && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-          <div className="bg-[#1e1e1e] text-white p-6 rounded-xl w-[90%] md:w-[420px] shadow-lg">
+                  {!loading &&
+                    leagueMatches.map((match, index) => {
+                    const id = match.home_team + match.away_team;
 
+                    // FECHA PARTIDOS
+                    return (
+                      <div
+                        key={index}
+                        // className="bg-[#1e1e1e] text-white p-4 rounded-xl relative"
+                        className="bg-[#1f2937] text-white p-4 rounded-xl relative"
+                        // className="bg-[#0D0D0D] text-white p-4 rounded-xl relative"
+                      >
+                        {/* ⭐ FAVORITO */}
+                        <button
+                          onClick={() => toggleFavorite(id)}
+                          className="absolute top-2 right-2"
+                        >
+                          {favorites.includes(id) ? "⭐" : "☆"}
+                        </button>
+
+                        {/* EQUIPOS */}
+                        <div
+                          className="grid text-center mb-3"
+                          style={{ gridTemplateColumns: "45% 10% 45%" }}
+                        >
+                          <div onClick={() => openTeamModal(match.home_team)}>
+                            <p>{match.home_team}</p>
+                            {renderForm(match.home_form || "")}
+                          </div>
+
+                          <div className="text-gray-400 text-xs">vs</div>
+
+                          <div onClick={() => openTeamModal(match.away_team)}>
+                            <p>{match.away_team}</p>
+                            {renderForm(match.away_form || "")}
+                          </div>
+                        </div>
+
+                        {/* FECHA */}
+                        <p className="text-xm text-gray-300 text-center mb-2">
+                          {/* {match.league} • {formattedDate} • {formattedTime} */}
+                          {/* {formattedDate} • {formattedTime} */}
+                          {formatMatchDate(match.date)}
+                        </p>
+
+                        {/* 1X2 */}
+                        {(marketFilter === "ALL" || marketFilter === "1X2") &&
+                          match.markets?.["1X2"] && (
+                            <div className="grid grid-cols-3 gap-2 mb-3">
+                              {(["home", "draw", "away"] as const).map((k) => {
+                                const odd = match.markets?.["1X2"]?.[k];
+                                const value =
+                                  match.value?.[`${k}_value` as keyof typeof match.value];
+
+                                const fairOdd =
+                                  k === "home"
+                                    ? match.probabilities?.home_odds
+                                    : k === "draw"
+                                    ? match.probabilities?.draw_odds
+                                    : match.probabilities?.away_odds;
+
+                                return (
+                                  <div
+                                    key={k}
+                                    onClick={() =>
+                                      setPendingBet({
+                                        match: `${match.home_team} vs ${match.away_team}`,
+                                        market: "1X2",
+                                        selection: k,
+                                        odd: odd?.odd,
+                                        bookmaker: odd?.bookmaker,
+                                        value,
+                                        fixture_id: match.fixture_id,
+                                        status: "pending",
+                                        date: match.date
+                                      })
+                                    }
+                                    className={`${getValueColor(
+                                      value,
+                                      odd?.odd
+                                    )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
+                                  >
+                                    {/* 🏷️ LABEL */}
+                                    <p className="text-sm uppercase text-gray-300">{k}</p>
+
+                                    {/* 💰 CUOTA REAL */}
+                                    <p className="font-bold text-3xl">{odd?.odd ?? "-"}</p>
+
+                                    {/* 🏦 BOOKMAKER */}
+                                    <p className="text-lg text-gray-300">
+                                      {odd?.bookmaker ?? ""}
+                                    </p>
+
+                                    {/* 📊 FAIR ODDS + VALUE */}
+                                    <p
+                                      className={`text-xs ${
+                                        value !== null && value !== undefined && value < 0
+                                          ? "text-red-400"
+                                          : "text-gray-300"
+                                      }`}
+                                    >
+                                      {fairOdd ? Number(fairOdd.toFixed(2)) : "-"}{" "}
+                                      {value !== null && value !== undefined &&
+                                        `(${formatValue(value)})`}
+                                    </p>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                        )}
+
+                      
+                        {/* OU25 */}
+                        {(marketFilter === "ALL" || marketFilter === "OU25") &&
+                          match.markets?.OU25 && (
+                            <div className="grid grid-cols-2 gap-2 mb-3">
+                              {(["over", "under"] as const).map((k) => {
+                                const odd = match.markets?.OU25?.[k];
+                                const value =
+                                  k === "over"
+                                    ? match.market_values?.OU25?.over_value
+                                    : match.market_values?.OU25?.under_value;
+
+                                // 👉 FAIR ODDS (IMPORTANTE)
+                                const fairOdd =
+                                  k === "over"
+                                    ? match.extra_probabilities?.over25_prob
+                                      ? 1 / match.extra_probabilities.over25_prob
+                                      : null
+                                    : match.extra_probabilities?.under25_prob
+                                    ? 1 / match.extra_probabilities.under25_prob
+                                    : null;
+
+                                return (
+                                  <div
+                                    key={k}
+                                    onClick={() =>
+                                      setPendingBet({
+                                        match: `${match.home_team} vs ${match.away_team}`,
+                                        market: "OU25",
+                                        selection: k,
+                                        odd: odd?.odd,
+                                        bookmaker: odd?.bookmaker,
+                                        value,
+                                        fixture_id: match.fixture_id,
+                                        status: "pending",
+                                        date: match.date
+                                      })
+                                    }
+                                    className={`${getValueColor(
+                                      value,
+                                      odd?.odd
+                                    )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
+                                  >
+                                    {/* 🏷️ LABEL */}
+                                    <p className="text-sm uppercase text-gray-300">
+                                      {k} 2.5
+                                    </p>
+
+                                    {/* 💰 CUOTA REAL */}
+                                    <p className="font-bold text-3xl">
+                                      {odd?.odd ?? "-"}
+                                    </p>
+
+                                    {/* 🏦 BOOKMAKER */}
+                                    <p className="text-lg text-gray-300">
+                                      {odd?.bookmaker ?? ""}
+                                    </p>
+
+                                    {/* 📊 FAIR ODDS + VALUE */}
+                                    <p
+                                        className={`text-xs ${
+                                          value !== null && value !== undefined && value < 0
+                                            ? "text-red-400"
+                                            : "text-gray-300"
+                                        }`}
+                                      >
+                                        {fairOdd ? Number(fairOdd.toFixed(2)) : "-"}{" "}
+                                        {value !== null && value !== undefined &&
+                                          `(${formatValue(value)})`}
+                                      </p>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                        )}                    
+                        {/* OU35 */}
+                        {(marketFilter === "ALL" || marketFilter === "OU35") &&
+                          match.markets?.OU35 && (
+                            <div className="grid grid-cols-2 gap-2 mb-3">
+                              {(["over", "under"] as const).map((k) => {
+                                const odd = match.markets?.OU35?.[k];
+                                const value =
+                                  k === "over"
+                                    ? match.market_values?.OU35?.over_value
+                                    : match.market_values?.OU35?.under_value;
+
+                                // 👉 FAIR ODDS (IMPORTANTE)
+                                const fairOdd =
+                                  k === "over"
+                                    ? match.extra_probabilities?.over35_prob
+                                      ? 1 / match.extra_probabilities.over35_prob
+                                      : null
+                                    : match.extra_probabilities?.under35_prob
+                                    ? 1 / match.extra_probabilities.under35_prob
+                                    : null;
+
+                                return (
+                                  <div
+                                    key={k}
+                                    onClick={() =>
+                                      setPendingBet({
+                                        match: `${match.home_team} vs ${match.away_team}`,
+                                        market: "OU35",
+                                        selection: k,
+                                        odd: odd?.odd,
+                                        bookmaker: odd?.bookmaker,
+                                        value,
+                                        fixture_id: match.fixture_id,
+                                        status: "pending",
+                                        date: match.date
+                                      })
+                                    }
+                                    className={`${getValueColor(
+                                      value,
+                                      odd?.odd
+                                    )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
+                                  >
+                                    {/* 🏷️ LABEL */}
+                                    <p className="text-sm uppercase text-gray-300">
+                                      {k} 3.5
+                                    </p>
+
+                                    {/* 💰 CUOTA REAL */}
+                                    <p className="font-bold text-3xl">
+                                      {odd?.odd ?? "-"}
+                                    </p>
+
+                                    {/* 🏦 BOOKMAKER */}
+                                    <p className="text-lg text-gray-300">
+                                      {odd?.bookmaker ?? ""}
+                                    </p>
+
+                                    {/* 📊 FAIR ODDS + VALUE */}
+                                    <p
+                                        className={`text-xs ${
+                                          value !== null && value !== undefined && value < 0
+                                            ? "text-red-400"
+                                            : "text-gray-300"
+                                        }`}
+                                      >
+                                        {fairOdd ? Number(fairOdd.toFixed(2)) : "-"}{" "}
+                                        {value !== null && value !== undefined &&
+                                          `(${formatValue(value)})`}
+                                      </p>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                        )}                    
+
+                        {/* BTTS */}
+                        {(marketFilter === "ALL" || marketFilter === "BTTS") &&
+                          match.markets?.BTTS && (
+                            <div className="grid grid-cols-2 gap-2">
+                              {(["yes", "no"] as const).map((k) => {
+                                const odd = match.markets?.BTTS?.[k];
+
+                                const value =
+                                  k === "yes"
+                                    ? match.market_values?.BTTS?.yes_value
+                                    : match.market_values?.BTTS?.no_value;
+
+                                // 👉 FAIR ODDS
+                                const fairOdd =
+                                  k === "yes"
+                                    ? match.extra_probabilities?.btts_yes_prob
+                                      ? 1 / match.extra_probabilities.btts_yes_prob
+                                      : null
+                                    : match.extra_probabilities?.btts_no_prob
+                                    ? 1 / match.extra_probabilities.btts_no_prob
+                                    : null;
+
+                                return (
+                                  <div
+                                    key={k}
+                                    onClick={() =>
+                                      setPendingBet({
+                                        match: `${match.home_team} vs ${match.away_team}`,
+                                        market: "BTTS",
+                                        selection: k,
+                                        odd: odd?.odd,
+                                        bookmaker: odd?.bookmaker,
+                                        value,
+                                        fixture_id: match.fixture_id,
+                                        status: "pending",
+                                        date: match.date
+                                      })
+                                    }
+                                    className={`${getValueColor(
+                                      value,
+                                      odd?.odd
+                                    )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
+                                  >
+                                    {/* 🏷️ LABEL */}
+                                    <p className="text-sm uppercase text-gray-300">
+                                      BTTS {k}
+                                    </p>
+
+                                    {/* 💰 CUOTA REAL */}
+                                    <p className="font-bold text-3xl">
+                                      {odd?.odd ?? "-"}
+                                    </p>
+
+                                    {/* 🏦 BOOKMAKER */}
+                                    <p className="text-lg text-gray-300">
+                                      {odd?.bookmaker ?? ""}
+                                    </p>
+
+                                    {/* 📊 FAIR + VALUE */}
+                                    <p
+                                        className={`text-xs ${
+                                          value !== null && value !== undefined && value < 0
+                                            ? "text-red-400"
+                                            : "text-gray-300"
+                                        }`}
+                                      >
+                                        {fairOdd ? Number(fairOdd.toFixed(2)) : "-"}{" "}
+                                        {value !== null && value !== undefined &&
+                                          `(${formatValue(value)})`}
+                                      </p>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                        )}                    
+                      </div>
+                    );
+                  })}
+
+                </div>
+              </div>
+            </div>
+          ))}
+          </>
+        )}
+
+        {/* RESULTS */}
+        {view === "results" && (
+          <ResultsView />
+        )}
+        
+
+        {/* TEAM MODAL */}
+        {selectedTeam && (
+          // <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center">
+            {/* <div className="bg-white p-6 rounded-2xl w-[400px] shadow-xl"> */}
+            {/* <div className="bg-[#1e1e1e] p-6 rounded-xl w-[90%] md:w-[600px] text-white"> */}
+            <div className="bg-[#1f2937] p-6 rounded-xl w-[90%] md:w-[600px] text-white">
+          
             {/* TITLE */}
-            <h2 className="text-xl font-bold text-center mb-4">
-              Confirmar apuesta
+            <h2 className="text-xl font-bold mb-4 text-center">
+            {selectedTeam}
             </h2>
+          
+            {/* MATCHES */}
+              <div className="space-y-2">
+                {teamMatches.map((m, i) => {
+                  const isDraw = m.home_goals === m.away_goals;
+                  // const isHomeWin = m.home_goals > m.away_goals;
 
-            {/* INFO */}
-            <div className="bg-[#2a2a2a] p-4 rounded-lg text-center space-y-2">
+                  const isWin =
+                    (m.home === selectedTeam && m.home_goals > m.away_goals) ||
+                    (m.away === selectedTeam && m.away_goals > m.home_goals);
 
-              <p className="text-lg font-semibold">
-                {pendingBet.match}
-              </p>
+                  const isLoss =
+                    (m.home === selectedTeam && m.home_goals < m.away_goals) ||
+                    (m.away === selectedTeam && m.away_goals < m.home_goals);
 
-              <p className="text-sm text-gray-400">
-                {pendingBet.market} — {pendingBet.selection.toUpperCase()}
-              </p>
+                  return (
+                    <div
+                      key={i}
+                      className="grid grid-cols-3 items-center text-lg border-b pb-2"
+                    >
+                      {/* HOME */}
+                      <span className="text-center pr-2">{m.home}</span>
 
-              <p className="text-3xl font-bold">
-                {pendingBet.odd ?? "-"}
-              </p>
+                      {/* RESULT */}
+                      <span
+                        className={`text-center font-bold text-2xl ${
+                          isDraw
+                            ? "text-yellow-500"
+                            : isWin
+                            ? "text-green-600"
+                            : isLoss
+                            ? "text-red-500"
+                            : ""
+                        }`}
+                      >
+                        {m.home_goals} - {m.away_goals}
+                      </span>
 
-              {pendingBet.bookmaker && (
-                <p className="text-sm text-gray-400">
-                  {pendingBet.bookmaker}
-                </p>
-              )}
+                      {/* AWAY */}
+                      <span className="text-center pl-2">{m.away}</span>
+                    </div>
+                  );
+                })}
+              </div>
 
-              {pendingBet.value !== null && pendingBet.value !== undefined && (
-                <p className="text-green-400 font-bold">
-                  {formatValue(pendingBet.value)}
-                </p>
-              )}
-            </div>
-
-            {/* ACTIONS */}
-            <div className="flex gap-3 mt-5">
-
+              {/* CLOSE */}
               <button
-                onClick={() => setPendingBet(null)}
-                className="flex-1 bg-gray-600 py-2 rounded-lg"
+                onClick={() => setSelectedTeam(null)}
+                className="mt-4 w-full bg-gray-600 hover:bg-gray-300 p-2 rounded"
               >
-                Cancelar
+                Cerrar
               </button>
-
-              <button
-                onClick={() => {
-                  addBet(pendingBet);
-                  setPendingBet(null);
-                }}
-                className="flex-1 bg-green-600 py-2 rounded-lg font-bold"
-              >
-                Confirmar
-              </button>
-
             </div>
           </div>
-        </div>
-      )}
-    </main>
+        )}
+
+        <TopValueModal
+          open={showTopModal}
+          onClose={() => setShowTopModal(false)}
+        />
+
+        {/* BETS */}
+        {view === "bets" && (
+          <BetsModal
+            // open={showBetsModal}
+            open={true}
+            // onClose={() => setShowBetsModal(false)}
+            onClose={() => setView("dashboard")}
+            bets={bets}
+            onDelete={handleDeleteBet}
+          />
+        )}
+
+        {showLoginModal && (
+        <LoginModal
+          onClose={() => setShowLoginModal(false)}
+          onLogin={() => {
+            // 🔥 volver a pedir usuario real
+            fetch(`${API_URL}/me`, {
+              credentials: "include",
+            })
+              .then((res) => res.json())
+              .then((data) => {
+                setIsAdmin(data.is_admin);
+                setUser(data.email);
+              });
+
+            setShowLoginModal(false);
+          }}
+        />
+        )}
+
+        {/* ANALISIS */}
+        {view === "analysis" && !authLoading && isAdmin && (
+          <AnalysisModal
+            onClose={() => setView("dashboard")}
+          />
+        )}
+
+
+        {pendingBet && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+            <div className="bg-[#1e1e1e] text-white p-6 rounded-xl w-[90%] md:w-[420px] shadow-lg">
+
+              {/* TITLE */}
+              <h2 className="text-xl font-bold text-center mb-4">
+                Confirmar apuesta
+              </h2>
+
+              {/* INFO */}
+              <div className="bg-[#2a2a2a] p-4 rounded-lg text-center space-y-2">
+
+                <p className="text-lg font-semibold">
+                  {pendingBet.match}
+                </p>
+
+                <p className="text-sm text-gray-400">
+                  {pendingBet.market} — {pendingBet.selection.toUpperCase()}
+                </p>
+
+                <p className="text-3xl font-bold">
+                  {pendingBet.odd ?? "-"}
+                </p>
+
+                {pendingBet.bookmaker && (
+                  <p className="text-sm text-gray-400">
+                    {pendingBet.bookmaker}
+                  </p>
+                )}
+
+                {pendingBet.value !== null && pendingBet.value !== undefined && (
+                  <p className="text-green-400 font-bold">
+                    {formatValue(pendingBet.value)}
+                  </p>
+                )}
+              </div>
+
+              {/* ACTIONS */}
+              <div className="flex gap-3 mt-5">
+
+                <button
+                  onClick={() => setPendingBet(null)}
+                  className="flex-1 bg-gray-600 py-2 rounded-lg"
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  onClick={() => {
+                    addBet(pendingBet);
+                    setPendingBet(null);
+                  }}
+                  className="flex-1 bg-green-600 py-2 rounded-lg font-bold"
+                >
+                  Confirmar
+                </button>
+
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+    </div>
 
   );
 }

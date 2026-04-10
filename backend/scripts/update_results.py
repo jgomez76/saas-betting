@@ -54,10 +54,7 @@ def update_results():
                 Fixture.api_id == fixture_id
             ).first()
 
-            if match:
-                # print(home_goals)
-                # print(away_goals)
-                # print(status)              
+            if match:            
                 match.status = status
                 match.home_goals = home_goals
                 match.away_goals = away_goals

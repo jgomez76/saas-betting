@@ -1,11 +1,13 @@
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import Response, APIRouter, Depends, Query, Request, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
+from jose import jwt, JWTError
 
 from app.core.database import SessionLocal
 from app.core.config import CURRENT_SEASON, LEAGUES
 from app.core.auth import create_token
+from app.core.security import SECRET_KEY, ALGORITHM, create_access_token
 
 from app.models.fixture import Fixture
 from app.models.user import User
@@ -229,23 +231,130 @@ def get_fixture_result(fixture_id: int, db: Session = Depends(get_db)):
 
 
 
+# @router.post("/login")
+# def login(data: LoginRequest, db: Session = Depends(get_db)):
+#     user = db.query(User).filter(User.email == data.email).first()
+
+#     if not user or user.password != data.password:
+#         return {"error": "Invalid credentials"}
+
+#     token = create_token({
+#         "user_id": user.id,
+#         "is_admin": user.is_admin
+#     })
+
+#     return {
+#         "token": token,
+#         "is_admin": user.is_admin
+#     }
+
+
+# ### LOGIN ###
+from fastapi.responses import JSONResponse
+
 @router.post("/login")
 def login(data: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == data.email).first()
 
     if not user or user.password != data.password:
-        return {"error": "Invalid credentials"}
+        raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    token = create_token({
-        "user_id": user.id,
-        "is_admin": user.is_admin
+    token = create_access_token({
+        "sub": user.email,
+        "is_admin": user.is_admin,
     })
 
+    response = JSONResponse(content={"message": "ok"})
+
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        samesite="lax",
+        secure=False,
+        path="/",
+    )
+
+    return response
+
+# def get_current_user(request: Request):
+#     token = request.cookies.get("access_token")
+
+#     if not token:
+#         return None
+
+#     try:
+#         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+#         return payload
+#     except:
+#         return None  # 🔥 CLAVE (NO exception)
+def get_current_user(request: Request):
+    # 🔍 DEBUG
+    print("---- DEBUG AUTH ----")
+    print("Cookies recibidas:", request.cookies)
+
+    token = request.cookies.get("access_token")
+
+    if not token:
+        print("❌ No hay token en cookies")
+        return None
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        print("✅ Payload decodificado:", payload)
+        return payload
+
+    except JWTError as e:
+        print("❌ Error decodificando token:", str(e))
+        return None
+    
+# @router.get("/me")
+# def get_me(user=Depends(get_current_user)):
+    
+#     if not user:
+#         return {"is_admin": False}
+
+#     return {
+#         "email": user["sub"],
+#         "is_admin": user.get("is_admin", False),
+#     }
+
+#     print("COOKIES:", request.cookies)
+    
+@router.get("/me")
+def get_me(user=Depends(get_current_user)):
+    print("User en /me:", user)
+
+    if not user:
+        return {
+            "email": None,
+            "is_admin": False
+        }
+
     return {
-        "token": token,
-        "is_admin": user.is_admin
+        "email": user.get("sub"),
+        "is_admin": user.get("is_admin", False),
     }
+
+@router.post("/logout")
+def logout(response: Response):
+    response.delete_cookie("access_token")
+    return {"message": "logged out"}
+
+# ### LOGIN ###
 
 @router.get("/analysis")
 def get_analysis(db: Session = Depends(get_db)):
     return db.query(Analysis).all()
+
+@router.get("/leagues")
+def get_leagues(db: Session = Depends(get_db)):
+    leagues = db.query(Fixture.league).distinct().all()
+    return [l[0] for l in leagues]
+
+@router.get("/results/{league}")
+def get_results(league: str, db: Session = Depends(get_db)):
+    return db.query(Fixture).filter(
+        Fixture.league == league,
+        Fixture.status == "FT"
+    ).order_by(Fixture.date.desc()).all()

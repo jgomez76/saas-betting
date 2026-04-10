@@ -204,7 +204,7 @@ export default function AnalysisModal({ onClose }: Props) {
   // ---------------- UI ----------------
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-      <div className="bg-[#1e1e1e] text-white p-6 rounded-xl w-[95%] max-h-[90vh] overflow-y-auto">
+      <div className="bg-[#1F3537] text-white p-6 rounded-xl w-[95%] max-h-[90vh] overflow-y-auto">
 
         {/* HEADER */}
         <div className="flex justify-between mb-6">
