@@ -408,7 +408,7 @@ export default function Home() {
         }
 
         if (dateFilter === "TODAY_TOMORROW") {
-          return diffDays >= 0 && diffDays <= 2;
+          return diffDays >= 0 && diffDays <= 1;
         }
 
         if (dateFilter === "NEXT_3_DAYS") {

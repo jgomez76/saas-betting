@@ -22,7 +22,6 @@ export default function ResultsView() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [selectedLeague, setSelectedLeague] = useState<string | null>(null);
   const [leagues, setLeagues] = useState<string[]>([]);
-  const [openRounds, setOpenRounds] = useState<Record<string, boolean>>({});
 
   // ---------------- FETCH LIGAS ----------------
 
@@ -41,38 +40,23 @@ export default function ResultsView() {
       .then((res) => res.json())
       .then((data: Match[]) => {
         setMatches(data);
-
-        // 🔥 abrir todas las jornadas por defecto
-        // const rounds = Array.from(new Set(data.map((m: Match) => m.round)));
-        const rounds: string[] = Array.from(
-            new Set(
-                data
-                .map((m: Match) => m.round)
-                .filter((r): r is string => Boolean(r))
-            )
-        );
-        const initial: Record<string, boolean> = {};
-        rounds.forEach((r) => (initial[r] = true));
-        setOpenRounds(initial);
       });
   }, [selectedLeague]);
 
   // ---------------- HELPERS ----------------
 
-  const toggleRound = (round: string) => {
-    setOpenRounds((prev) => ({
-      ...prev,
-      [round]: !prev[round],
-    }));
-  };
+  const getRoundNumber = (round: string) =>
+    parseInt(round.match(/\d+/)?.[0] || "0");
 
-  const formatDate = (date: string) => {
+  const isToday = (date: string) => {
     const d = new Date(date);
+    const now = new Date();
 
-    return d.toLocaleDateString("es-ES", {
-      day: "2-digit",
-      month: "short",
-    });
+    return (
+      d.getDate() === now.getDate() &&
+      d.getMonth() === now.getMonth() &&
+      d.getFullYear() === now.getFullYear()
+    );
   };
 
   // ---------------- AGRUPAR ----------------
@@ -90,25 +74,30 @@ export default function ResultsView() {
   // ---------------- ORDENAR ----------------
 
   const sortedRounds = Object.keys(groupedByRound).sort((a, b) => {
-    const numA = parseInt(a.match(/\d+/)?.[0] || "0");
-    const numB = parseInt(b.match(/\d+/)?.[0] || "0");
-    return numA - numB;
+    return getRoundNumber(b) - getRoundNumber(a); // 🔥 inverso
   });
+
+  // ---------------- JORNADA ACTUAL ----------------
+
+  const currentRound =
+    matches.length > 0
+      ? Math.max(...matches.map((m) => getRoundNumber(m.round)))
+      : 0;
 
   // ---------------- UI ----------------
 
   return (
     <div className="flex gap-6">
 
-      {/* 🏆 SIDEBAR LIGAS */}
-      <div className="w-60 bg-[#1f2937] p-4 rounded-xl h-fit">
-        <h2 className="mb-4 font-bold text-cyan-400">🏆 Ligas</h2>
+      {/* 🏆 SIDEBAR */}
+      <div className="w-52 bg-[#1f2937] p-3 rounded-lg h-fit border border-[#333]">
+        <h2 className="mb-3 font-bold text-cyan-400 text-sm">🏆 Ligas</h2>
 
         {leagues.map((l) => (
           <div
             key={l}
             onClick={() => setSelectedLeague(l)}
-            className={`p-2 rounded cursor-pointer ${
+            className={`p-2 text-sm rounded cursor-pointer transition ${
               selectedLeague === l
                 ? "bg-cyan-600"
                 : "hover:bg-[#2a2a2a]"
@@ -123,37 +112,30 @@ export default function ResultsView() {
       <div className="flex-1">
 
         {/* {!selectedLeague && (
-          <p className="text-gray-400">Selecciona una liga</p>
+          <p className="text-gray-400 text-sm">
+            Selecciona una liga
+          </p>
         )} */}
 
-        {sortedRounds.map((round) => (
-          <div
-            key={round}
-            className="bg-[#1f2937] rounded-xl p-4 mb-6 border border-[#333]"
-          >
+        {/* 🔥 GRID DE JORNADAS */}
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
 
-            {/* 🏆 HEADER */}
+          {sortedRounds.map((round) => (
             <div
-              onClick={() => toggleRound(round)}
-              className="flex justify-between items-center cursor-pointer"
-            >
-              <h3 className="text-lg font-bold text-cyan-400">
-                {openRounds[round] ? "▼" : "▶"} {round}
-              </h3>
-
-              <span className="text-sm text-gray-400">
-                {groupedByRound[round].length} partidos
-              </span>
-            </div>
-
-            {/* 📦 PARTIDOS */}
-            <div
-              className={`transition-all duration-500 ease-in-out overflow-hidden ${
-                openRounds[round]
-                  ? "max-h-[2000px] opacity-100 mt-4"
-                  : "max-h-0 opacity-0"
+              key={round}
+              className={`rounded-lg p-3 border ${
+                getRoundNumber(round) === currentRound
+                  ? "bg-cyan-900 border-cyan-500"
+                  : "bg-cyan-900 border-cyan-500"
               }`}
             >
+
+              {/* 🏆 HEADER */}
+              <h3 className="text-xs font-semibold text-cyan-400 mb-2">
+                Jornada {getRoundNumber(round)}
+              </h3>
+
+              {/* 📦 PARTIDOS */}
               <div className="flex flex-col gap-2">
 
                 {groupedByRound[round]
@@ -170,53 +152,60 @@ export default function ResultsView() {
                     return (
                       <div
                         key={m.id}
-                        className="bg-[#2a2a2a] p-3 rounded-lg flex justify-between items-center"
+                        className={`px-3 py-2 rounded-md text-xs relative ${
+                          isToday(m.date)
+                            ? "bg-yellow-900 border border-yellow-500"
+                            : "bg-[#2a2a2a]"
+                        }`}
                       >
+                        {/* 🔥 HOY */}
+                        {/* {isToday(m.date) && (
+                          <span className="absolute left-2 top-1 text-[10px] text-yellow-400">
+                            HOY
+                          </span>
+                        )} */}
 
-                        {/* HOME */}
-                        <span
-                          className={`w-1/3 text-left ${
-                            isHomeWin ? "text-green-400 font-bold" : ""
-                          }`}
-                        >
-                          {m.home_team}
-                        </span>
+                        <div className="flex items-center w-full">
 
-                        {/* RESULT */}
-                        <span
-                          className={`w-1/3 text-center font-bold text-lg ${
-                            isDraw
-                              ? "text-yellow-400"
-                              : isHomeWin
-                              ? "text-green-400"
-                              : "text-red-400"
-                          }`}
-                        >
-                          {m.home_goals} - {m.away_goals}
-                        </span>
+                          {/* HOME */}
+                          <span
+                            className={`w-2/5 truncate ${
+                              isHomeWin ? "text-white-400 font-semibold" : ""
+                            }`}
+                          >
+                            {m.home_team}
+                          </span>
 
-                        {/* AWAY */}
-                        <span
-                          className={`w-1/3 text-right ${
-                            isAwayWin ? "text-green-400 font-bold" : ""
-                          }`}
-                        >
-                          {m.away_team}
-                        </span>
+                          {/* RESULT */}
+                          <span
+                            className={`w-1/5 text-center font-bold ${
+                              isDraw
+                                ? "text-white-400"
+                                : isHomeWin
+                                ? "text-white-400"
+                                : "text-white-400"
+                            }`}
+                          >
+                            {m.home_goals}-{m.away_goals}
+                          </span>
 
-                        {/* 📅 FECHA */}
-                        <span className="absolute right-4 text-xs text-gray-400">
-                          {formatDate(m.date)}
-                        </span>
-
+                          {/* AWAY */}
+                          <span
+                            className={`w-2/5 text-right truncate ${
+                              isAwayWin ? "text-white-400 font-semibold" : ""
+                            }`}
+                          >
+                            {m.away_team}
+                          </span>
+                        </div>
                       </div>
                     );
                   })}
 
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );

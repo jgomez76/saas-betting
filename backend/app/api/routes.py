@@ -356,5 +356,6 @@ def get_leagues(db: Session = Depends(get_db)):
 def get_results(league: str, db: Session = Depends(get_db)):
     return db.query(Fixture).filter(
         Fixture.league == league,
-        Fixture.status == "FT"
+        Fixture.status == "FT",
+        Fixture.season == CURRENT_SEASON
     ).order_by(Fixture.date.desc()).all()
