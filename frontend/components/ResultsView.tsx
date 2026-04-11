@@ -26,7 +26,7 @@ export default function ResultsView() {
   // ---------------- FETCH LIGAS ----------------
 
   useEffect(() => {
-    fetch(`${API_URL}/leagues`)
+    fetch(`${API_URL}/leagues-selected`)
       .then((res) => res.json())
       .then(setLeagues);
   }, []);

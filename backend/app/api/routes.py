@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from jose import jwt, JWTError
 
 from app.core.database import SessionLocal
-from app.core.config import CURRENT_SEASON, LEAGUES
+from app.core.config import CURRENT_SEASON, LEAGUES, SELECTED_LEAGUES
 from app.core.auth import create_token
 from app.core.security import SECRET_KEY, ALGORITHM, create_access_token
 
@@ -23,6 +23,7 @@ from app.services.notifications import send_email, send_telegram
 from app.services.odds import save_odds
 from app.services.value import get_value_bets, get_top_value_bets
 
+from collections import defaultdict
 
 import io
 import csv
@@ -359,3 +360,82 @@ def get_results(league: str, db: Session = Depends(get_db)):
         Fixture.status == "FT",
         Fixture.season == CURRENT_SEASON
     ).order_by(Fixture.date.desc()).all()
+
+
+@router.get("/standings/{league}")
+def get_standings(league: str, db: Session = Depends(get_db)):
+    CURRENT_SEASON = 2025
+
+    fixtures = (
+        db.query(Fixture)
+        .filter(Fixture.league == league)
+        .filter(Fixture.season == CURRENT_SEASON)
+        .all()
+    )
+
+    table = defaultdict(lambda: {
+        "team": "",
+        "played": 0,
+        "wins": 0,
+        "draws": 0,
+        "losses": 0,
+        "gf": 0,
+        "ga": 0,
+        "points": 0,
+    })
+
+    for f in fixtures:
+        if f.home_goals is None or f.away_goals is None:
+            continue
+
+        home = table[f.home_team]
+        away = table[f.away_team]
+
+        home["team"] = f.home_team
+        away["team"] = f.away_team
+
+        home["played"] += 1
+        away["played"] += 1
+
+        home["gf"] += f.home_goals
+        home["ga"] += f.away_goals
+
+        away["gf"] += f.away_goals
+        away["ga"] += f.home_goals
+
+        if f.home_goals > f.away_goals:
+            home["wins"] += 1
+            home["points"] += 3
+            away["losses"] += 1
+        elif f.home_goals < f.away_goals:
+            away["wins"] += 1
+            away["points"] += 3
+            home["losses"] += 1
+        else:
+            home["draws"] += 1
+            away["draws"] += 1
+            home["points"] += 1
+            away["points"] += 1
+
+    standings = list(table.values())
+
+    standings.sort(
+        key=lambda x: (
+            -x["points"],
+            -(x["gf"] - x["ga"]),
+            -x["gf"],
+        )
+    )
+
+    return standings
+
+@router.get("/leagues-selected")
+def get_selected_leagues(db: Session = Depends(get_db)):
+    leagues = (
+        db.query(Fixture.league)
+        .filter(Fixture.league_id.in_(SELECTED_LEAGUES))
+        .distinct()
+        .all()
+    )
+
+    return [l[0] for l in leagues]

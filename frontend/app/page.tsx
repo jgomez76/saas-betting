@@ -8,6 +8,7 @@ import BetsModal from "@/components/BetsModal";
 import LoginModal from "@/components/LoginModal";
 import AnalysisModal from "@/components/AnalysisModal";
 import ResultsView from "@/components/ResultsView";
+import StandingsView from "@/components/StandingsView";
 import { API_URL } from "@/lib/api";
 import { Bet } from "@/types/bet";
 
@@ -1190,6 +1191,11 @@ export default function Home() {
         {/* RESULTS */}
         {view === "results" && (
           <ResultsView />
+        )}
+        
+        {/* STANDINGS */}
+        {view === "standings" && (
+          <StandingsView />
         )}
         
 

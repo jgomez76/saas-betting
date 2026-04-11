@@ -57,6 +57,18 @@ export default function Sidebar({ view, setView, isAdmin }: Props) {
         🏆 Resultados
       </button>
 
+      {/* CLASIFICACIONES */}
+      <button
+        onClick={() => setView("standings")}
+        className={`p-2 rounded text-left ${
+          view === "standings" ? "bg-green-600" : "hover:bg-[#2a2a2a]"
+        }`}
+      >
+        📋 Clasificaciones
+      </button>
+
     </div>
+
+    
   );
 }

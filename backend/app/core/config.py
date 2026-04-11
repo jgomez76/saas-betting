@@ -18,7 +18,8 @@ CURRENT_SEASON = 2025
 # - 141: La Liga Hypermotion
 # - 2: Champions League
 # - 3: Europa League
-### - 848 - Conference League 
-LEAGUES = [2, 3, 39, 61, 78, 135, 140, 141]
+# - 848 - Conference League 
+LEAGUES = [2, 3, 39, 61, 78, 135, 140, 141, 848]
 # LEAGUES = [78]
+SELECTED_LEAGUES = [39, 61, 78, 135, 140, 141]
 
