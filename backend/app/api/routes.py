@@ -1,13 +1,16 @@
-from fastapi import Response, APIRouter, Depends, Query, Request, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi import Response, APIRouter, Depends, Query, Request, HTTPException, BackgroundTasks
+from fastapi.responses import StreamingResponse, JSONResponse
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from jose import jwt, JWTError
+from collections import defaultdict
+from pydantic import BaseModel
 
 from app.core.database import SessionLocal
 from app.core.config import CURRENT_SEASON, LEAGUES, SELECTED_LEAGUES
 from app.core.auth import create_token
-from app.core.security import SECRET_KEY, ALGORITHM, create_access_token
+from app.core.security import SECRET_KEY, ALGORITHM, create_access_token, hash_password, verify_password
+from app.core.email import send_verification_email, send_reset_email
 
 from app.models.fixture import Fixture
 from app.models.user import User
@@ -23,12 +26,15 @@ from app.services.notifications import send_email, send_telegram
 from app.services.odds import save_odds
 from app.services.value import get_value_bets, get_top_value_bets
 
-from collections import defaultdict
-
 import io
 import csv
+import secrets, datetime
 
 router = APIRouter()
+
+class RegisterRequest(BaseModel):
+    email: str
+    password: str
 
 def get_db():
     db = SessionLocal()
@@ -230,120 +236,6 @@ def get_fixture_result(fixture_id: int, db: Session = Depends(get_db)):
         "status": match.status
     }
 
-
-
-# @router.post("/login")
-# def login(data: LoginRequest, db: Session = Depends(get_db)):
-#     user = db.query(User).filter(User.email == data.email).first()
-
-#     if not user or user.password != data.password:
-#         return {"error": "Invalid credentials"}
-
-#     token = create_token({
-#         "user_id": user.id,
-#         "is_admin": user.is_admin
-#     })
-
-#     return {
-#         "token": token,
-#         "is_admin": user.is_admin
-#     }
-
-
-# ### LOGIN ###
-from fastapi.responses import JSONResponse
-
-@router.post("/login")
-def login(data: LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == data.email).first()
-
-    if not user or user.password != data.password:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-
-    token = create_access_token({
-        "sub": user.email,
-        "is_admin": user.is_admin,
-    })
-
-    response = JSONResponse(content={"message": "ok"})
-
-    response.set_cookie(
-        key="access_token",
-        value=token,
-        httponly=True,
-        samesite="lax",
-        secure=False,
-        path="/",
-    )
-
-    return response
-
-# def get_current_user(request: Request):
-#     token = request.cookies.get("access_token")
-
-#     if not token:
-#         return None
-
-#     try:
-#         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-#         return payload
-#     except:
-#         return None  # 🔥 CLAVE (NO exception)
-def get_current_user(request: Request):
-    # 🔍 DEBUG
-    print("---- DEBUG AUTH ----")
-    print("Cookies recibidas:", request.cookies)
-
-    token = request.cookies.get("access_token")
-
-    if not token:
-        print("❌ No hay token en cookies")
-        return None
-
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        print("✅ Payload decodificado:", payload)
-        return payload
-
-    except JWTError as e:
-        print("❌ Error decodificando token:", str(e))
-        return None
-    
-# @router.get("/me")
-# def get_me(user=Depends(get_current_user)):
-    
-#     if not user:
-#         return {"is_admin": False}
-
-#     return {
-#         "email": user["sub"],
-#         "is_admin": user.get("is_admin", False),
-#     }
-
-#     print("COOKIES:", request.cookies)
-    
-@router.get("/me")
-def get_me(user=Depends(get_current_user)):
-    print("User en /me:", user)
-
-    if not user:
-        return {
-            "email": None,
-            "is_admin": False
-        }
-
-    return {
-        "email": user.get("sub"),
-        "is_admin": user.get("is_admin", False),
-    }
-
-@router.post("/logout")
-def logout(response: Response):
-    response.delete_cookie("access_token")
-    return {"message": "logged out"}
-
-# ### LOGIN ###
-
 @router.get("/analysis")
 def get_analysis(db: Session = Depends(get_db)):
     return db.query(Analysis).all()
@@ -439,3 +331,270 @@ def get_selected_leagues(db: Session = Depends(get_db)):
     )
 
     return [l[0] for l in leagues]
+
+###################################
+############ LOGIN ################
+###################################
+
+@router.post("/login")
+def login(data: LoginRequest, response: Response, db: Session = Depends(get_db)):
+    try:
+        print("🔥 LOGIN HIT")
+        print("DATA:", data)
+
+        user = db.query(User).filter(User.email == data.email).first()
+        print("USER:", user)
+
+        if not user:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+
+        # 🔥 proteger verify_password
+        try:
+            valid = verify_password(data.password, user.password)
+        except Exception as e:
+            print("💥 PASSWORD ERROR:", e)
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+
+        if not valid:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+
+        if not user.is_verified:
+            raise HTTPException(status_code=403, detail="Email not verified")
+
+        token = create_access_token({
+            "sub": user.email,
+            "is_admin": user.is_admin,
+        })
+
+        response.set_cookie(
+            key="access_token",
+            value=token,
+            httponly=True,
+            samesite="lax",
+            secure=False, #En Local SIEMPRE!!
+            path="/",
+        )
+
+        return {"message": "ok"}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print("💥 LOGIN ERROR:", str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+def get_current_user(request: Request):
+    token = request.cookies.get("access_token")
+
+    if not token:
+        return None
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except:
+        return None
+    
+@router.get("/me")
+def get_me(request: Request, user=Depends(get_current_user)):
+    if not user:
+        return JSONResponse(
+            status_code=200,  # 👈 CLAVE
+            content={
+                "email": None,
+                "is_admin": False,
+                "subscription": "free",
+            },
+        )
+
+    return {
+        "email": user.get("sub"),
+        "is_admin": user.get("is_admin", False),
+        "subscription": user.get("subscription", "free"),
+    }
+
+
+# # REGISTER
+# @router.post("/register")
+# def register(data: RegisterRequest, db: Session = Depends(get_db)):
+#     # 🔍 comprobar si existe
+#     existing = db.query(User).filter(User.email == data.email).first()
+
+#     if existing:
+#         raise HTTPException(status_code=400, detail="User already exists")
+
+#     token = secrets.token_urlsafe(32)
+    
+#     # 👤 crear usuario
+#     user = User(
+#         email=data.email,
+#         # password=data.password,  # luego lo mejoramos (hash)
+#         password=hash_password(data.password),  # 🔥
+#         is_admin=False,
+#         subscription="free",
+#         is_verified=False,
+#         verification_token=token,
+#     )
+
+#     db.add(user)
+#     db.commit()
+
+#     print(f"http://localhost:3000/verify?token={token}")
+
+#     return {"message": "user created"}
+
+# @router.post("/register")
+# def register(data: RegisterRequest, db: Session = Depends(get_db)):
+    try:
+        print("🔥 REGISTER HIT", data.email)
+
+        existing = db.query(User).filter(User.email == data.email).first()
+
+        if existing:
+            print("❌ USER EXISTS")
+            raise HTTPException(400, "User already exists")
+
+        # import secrets
+        token = secrets.token_urlsafe(32)
+
+        user = User(
+            email=data.email,
+            password=hash_password(data.password),
+            is_verified=False,
+            verification_token=token,
+        )
+
+        db.add(user)
+        db.commit()
+
+        print("✅ USER CREATED")
+        # print(f"http://localhost:3000/verify?token={token}")
+        
+
+        send_verification_email(user.email, token)
+
+        return {"message": "user created"}
+
+    except Exception as e:
+        print("💥 REGISTER ERROR:", str(e))
+        raise HTTPException(500, str(e))
+
+@router.post("/register")
+def register(
+    data: RegisterRequest,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+):
+    print("🔥 REGISTER HIT:", data.email)
+
+    # 🔍 comprobar si ya existe
+    existing = db.query(User).filter(User.email == data.email).first()
+    if existing:
+        print("❌ USER EXISTS")
+        raise HTTPException(status_code=400, detail="User already exists")
+
+    # 🔐 generar token
+    token = secrets.token_urlsafe(32)
+
+    # 👤 crear usuario
+    user = User(
+        email=data.email,
+        password=hash_password(data.password),
+        is_verified=False,
+        verification_token=token,
+    )
+    # print(user)
+
+
+    db.add(user)
+    db.commit()
+
+    print("✅ USER CREATED")
+
+    # 📧 enviar email en background (NO bloquea request)
+    background_tasks.add_task(
+        send_verification_email,
+        user.email,
+        token
+    )
+
+    return {"message": "user created"}
+
+
+# LOGOUT
+@router.post("/logout")
+def logout(response: Response):
+    response.delete_cookie("access_token")
+    return {"message": "logged out"}
+
+# VERIFY
+@router.get("/verify")
+def verify_email(token: str, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.verification_token == token).first()
+
+    if not user:
+        raise HTTPException(400, "Invalid token")
+
+    user.is_verified = True
+    user.verification_token = None
+    db.commit()
+
+    return {"message": "verified"}
+
+@router.post("/forgot-password")
+def forgot_password(data: dict, db: Session = Depends(get_db)):
+    background_tasks: BackgroundTasks
+    email = data.get("email")
+
+    user = db.query(User).filter(User.email == email).first()
+
+    # 🔥 IMPORTANTE: NO revelar si existe o no
+    if not user:
+        return {"message": "ok"}
+
+    import secrets
+    from datetime import datetime, timedelta
+
+    token = secrets.token_urlsafe(32)
+
+    user.reset_token = token
+    user.reset_token_expiry = datetime.utcnow() + timedelta(hours=1)
+
+    db.commit()
+
+    # 🔥 enviar email
+    try:
+        send_reset_email(user.email, token)
+    except Exception as e:
+        print("💥 EMAIL ERROR:", e)
+        # 📧 enviar email en background (NO bloquea request)
+
+    return {"message": "ok"}
+
+
+@router.post("/reset-password")
+def reset_password(data: dict, db: Session = Depends(get_db)):
+    token = data.get("token")
+    password = data.get("password")
+
+    print("🔥 RESET HIT")
+    print("TOKEN:", token)
+    print("PASSWORD:", password)
+
+    user = db.query(User).filter(User.reset_token == token).first()
+
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid token")
+
+    from datetime import datetime
+
+    if user.reset_token_expiry < datetime.utcnow():
+        raise HTTPException(status_code=400, detail="Token expired")
+
+    user.password = hash_password(password)
+    user.reset_token = None
+    user.reset_token_expiry = None
+
+    db.commit()
+
+    return {"message": "ok"}

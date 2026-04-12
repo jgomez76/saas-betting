@@ -24,6 +24,7 @@ type Props = {
   setMinOdd: (v: number) => void;
 
   isAdmin: boolean;
+  email: string;
 };
 
 export default function Navbar({
@@ -43,6 +44,7 @@ export default function Navbar({
   setMinValue,
   minOdd,
   setMinOdd,
+  email,
 }: Props) {
   const [openMarkets, setOpenMarkets] = useState(false);
   const [openLeagues, setOpenLeagues] = useState(false);
@@ -102,7 +104,7 @@ export default function Navbar({
 
         <div className="flex gap-3 items-center flex-wrap">
           {/* 🔐 ADMIN / LOGIN */}
-          {isAdmin ? (
+          {/* {isAdmin ? (
             <button
               onClick={onLogout}
               className="px-4 py-2 bg-green-700 rounded text-sm hover:bg-green-600"
@@ -116,7 +118,44 @@ export default function Navbar({
             >
               🔐 Login
             </button>
+          )} */}
+          {email ? (
+            <div className="flex items-center gap-3">
+
+              {/* 👤 USUARIO */}
+              <span className="text-sm text-gray-300">
+                👤 {email}
+              </span>
+
+              {/* 🛠 ADMIN */}
+              {isAdmin && (
+                <span className="text-xs bg-green-700 px-2 py-1 rounded">
+                  ADMIN
+                </span>
+              )}
+
+              {/* LOGOUT */}
+              <button
+                onClick={onLogout}
+                className="px-3 py-1 bg-red-600 rounded text-sm hover:bg-red-500"
+              >
+                Logout
+              </button>
+
+            </div>
+          ) : (
+            <button
+              onClick={onOpenLogin}
+              className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600"
+            >
+              🔐 Login
+            </button>
           )}
+          {/* {subscription === "premium" && (
+            <span className="text-xs bg-yellow-600 px-2 py-1 rounded">
+              PREMIUM
+            </span>
+          )} */}
 
           {/* 🌍 LIGAS DROPDOWN */}
           <div className="relative" ref={leaguesRef}>

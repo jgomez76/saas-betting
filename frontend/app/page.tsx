@@ -108,6 +108,12 @@ type Match = {
 // ---------------- COMPONENT ----------------
 
 export default function Home() {
+
+  // ###########
+  // CONSTANTES
+  // ###########
+
+
   // const [isAdmin, setIsAdmin] = useState(false);
   const [view, setView] = useState("dashboard");
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -227,19 +233,12 @@ export default function Home() {
   };
 
   const [isAdmin, setIsAdmin] = useState(false);
-  const [user, setUser] = useState<string | null>(null);
+  const [isPremium, setIsPremium] = useState(false);
+  const [email, setEmail] = useState("");
   const [authLoading, setAuthLoading] = useState(true);
 
   const [mounted, setMounted] = useState(false);
   
-  useEffect(() => {
-    const id = requestAnimationFrame(() => {
-      setMounted(true);
-    });
-
-    return () => cancelAnimationFrame(id);
-  }, []);
-
   const handleLogout = async () => {
     await fetch(`${API_URL}/logout`, {
       method: "POST",
@@ -247,8 +246,42 @@ export default function Home() {
     });
 
     setIsAdmin(false);
-    setUser(null);
+    setEmail("");
   };
+
+  const refreshUser = () => {
+    fetch(`${API_URL}/me`, {
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setIsAdmin(data.is_admin);
+        setEmail(data.email || "");
+        setIsPremium(data.subscription === "premium");
+      })
+      .catch(() => {
+        setIsAdmin(false);
+        setEmail("");
+        setIsPremium(false);
+      });
+  };
+
+
+  // ###########
+  // USE EFFECTS
+  // ###########
+
+  useEffect(() => {
+    refreshUser();
+  }, []);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => {
+      setMounted(true);
+    });
+
+    return () => cancelAnimationFrame(id);
+  }, []);
 
  
   // NEW LOGIN WITH JWT
@@ -259,11 +292,13 @@ export default function Home() {
       .then((res) => res.json())
       .then((data) => {
         setIsAdmin(data.is_admin);
-        setUser(data.email);
+        setEmail(data.email || "");
+        setIsPremium(data.subscription === "premium");
       })
       .catch(() => {
         setIsAdmin(false);
-        setUser(null);
+        setEmail("");
+        setIsPremium(false);
       })
       .finally(() => {
         setAuthLoading(false);
@@ -593,16 +628,6 @@ export default function Home() {
     setTeamMatches(data);
   };
 
-  // const getResultColor = (m: TeamMatch, team: string) => {
-  //   const isHome = m.home === team;
-
-  //   const teamGoals = isHome ? m.home_goals : m.away_goals;
-  //   const oppGoals = isHome ? m.away_goals : m.home_goals;
-
-  //   if (teamGoals > oppGoals) return "text-green-400";
-  //   if (teamGoals < oppGoals) return "text-red-400";
-  //   return "text-yellow-400";
-  // };
 
   // ---------------- HELPERS ----------------
 
@@ -611,12 +636,6 @@ export default function Home() {
     return `${v > 0 ? "+" : ""}${(v * 100).toFixed(1)}%`;
   };
 
-  // const getValueColor = (v?: number | null) => {
-  //   if (v === null || v === undefined) return "bg-[#2a2a2a]";
-  //   if (v > 0.15) return "bg-green-700";
-  //   if (v > 0) return "bg-green-600";
-  //   return "bg-[#2a2a2a]";
-  // };
   const getValueColor = (v?: number | null, odd?: number) => {
     if (v === null || v === undefined) return "bg-[#2a2a2a]";
 
@@ -782,6 +801,7 @@ export default function Home() {
               minOdd={minOdd}
               setMinOdd={setMinOdd}
               isAdmin={isAdmin}
+              email={email}
             />
           )}
 
@@ -1288,16 +1308,7 @@ export default function Home() {
         <LoginModal
           onClose={() => setShowLoginModal(false)}
           onLogin={() => {
-            // 🔥 volver a pedir usuario real
-            fetch(`${API_URL}/me`, {
-              credentials: "include",
-            })
-              .then((res) => res.json())
-              .then((data) => {
-                setIsAdmin(data.is_admin);
-                setUser(data.email);
-              });
-
+            refreshUser(); // 🔥 CLAVE
             setShowLoginModal(false);
           }}
         />
