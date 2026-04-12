@@ -357,9 +357,13 @@ def login(data: LoginRequest, response: Response, db: Session = Depends(get_db))
 
         if not valid:
             raise HTTPException(status_code=401, detail="Invalid credentials")
+        
+        if not user.is_active:
+            raise HTTPException(status_code=403, detail="User deactivated") 
 
         if not user.is_verified:
             raise HTTPException(status_code=403, detail="Email not verified")
+        
 
         token = create_access_token({
             "sub": user.email,
@@ -520,7 +524,6 @@ def register(
 
     return {"message": "user created"}
 
-
 # LOGOUT
 @router.post("/logout")
 def logout(response: Response):
@@ -598,3 +601,26 @@ def reset_password(data: dict, db: Session = Depends(get_db)):
     db.commit()
 
     return {"message": "ok"}
+
+@router.post("/deactivate-account")
+def deactivate_account(
+    response: Response,
+    user=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    db_user = db.query(User).filter(User.email == user["sub"]).first()
+
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # 🔥 desactivar usuario
+    db_user.is_active = False
+    db.commit()
+
+    # 🔥 LOGOUT AUTOMÁTICO (CLAVE)
+    response.delete_cookie(
+        key="access_token",
+        path="/",
+    )
+
+    return {"message": "account deactivated"}

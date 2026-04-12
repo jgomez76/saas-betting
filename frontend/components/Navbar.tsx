@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 
 type Props = {
   onOpenTop: () => void;
@@ -46,6 +47,7 @@ export default function Navbar({
   setMinOdd,
   email,
 }: Props) {
+  const router = useRouter();
   const [openMarkets, setOpenMarkets] = useState(false);
   const [openLeagues, setOpenLeagues] = useState(false);
 
@@ -335,6 +337,19 @@ export default function Navbar({
             📊 Análisis
           </button>
         )} */}
+        {/* <button
+          onClick={() => router.push("/account")}
+          className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600"
+        >
+          👤 Cuenta
+        </button> */}
+        {email && (
+          <button onClick={() => router.push("/account")}
+            className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600"
+          >
+            👤 Cuenta
+          </button>
+        )}
       </div>
     </div>
   );

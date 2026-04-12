@@ -15,6 +15,8 @@ class User(Base):
     reset_token = Column(String, nullable=True)
     reset_token_expiry = Column(DateTime, nullable=True)
 
+    is_active = Column(Boolean, default=True)
+
     # Para mas tarde
     # subscription_status = Column(String, default="inactive")
     # subscription_end = Column(DateTime, nullable=True)
