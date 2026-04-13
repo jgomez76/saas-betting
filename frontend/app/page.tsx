@@ -11,6 +11,7 @@ import ResultsView from "@/components/ResultsView";
 import StandingsView from "@/components/StandingsView";
 import { API_URL } from "@/lib/api";
 import { Bet } from "@/types/bet";
+import { useSession } from "next-auth/react";
 
 // ---------------- TYPES ----------------
 
@@ -113,6 +114,8 @@ export default function Home() {
   // CONSTANTES
   // ###########
 
+  const { data: session } = useSession();
+  const oauthDone = useRef(false);
 
   // const [isAdmin, setIsAdmin] = useState(false);
   const [view, setView] = useState("dashboard");
@@ -283,6 +286,37 @@ export default function Home() {
     return () => cancelAnimationFrame(id);
   }, []);
 
+
+  // LOGIN GOOGLE/GITHUB
+  useEffect(() => {
+    if (session?.user?.email && !oauthDone.current) {
+      console.log("🔐 OAuth user:", session.user.email);
+
+      oauthDone.current = true;
+
+      fetch(`${API_URL}/oauth-login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: session.user.email,
+        }),
+        credentials: "include",
+      })
+        .then((res) => res.json())
+        .then(() => {
+          console.log("✅ OAuth login OK");
+
+          // 🔥 recargar para sincronizar con tu backend
+          // window.location.reload();
+           refreshUser();
+        })
+        .catch((err) => {
+          console.error("💥 OAuth backend error:", err);
+        });
+    }
+  }, [session, oauthDone]);
  
   // NEW LOGIN WITH JWT
   useEffect(() => {
@@ -319,8 +353,30 @@ export default function Home() {
 
       await new Promise((r) => setTimeout(r, 0));
 
-      const res = await fetch(`${API_URL}/value-bets`);
-      const data = await res.json();
+      // const res = await fetch(`${API_URL}/value-bets`);
+      // const data = await res.json();
+
+      let data = [];
+
+      try {
+        const res = await fetch(`${API_URL}/value-bets`, {
+          credentials: "include",
+        });
+
+        // 🔐 si no está logueado o backend no responde bien
+        if (!res.ok) {
+          console.warn("⚠️ value-bets no disponible (modo público)");
+          setLoading(false);
+          return;
+        }
+
+        data = await res.json();
+
+      } catch (err) {
+        console.error("💥 ERROR cargando value-bets:", err);
+        setLoading(false);
+        return;
+      }
 
       // 👇 solo partidos con odds
       const filtered = data.filter((m: Match) => m.markets?.["1X2"]);
@@ -388,8 +444,16 @@ export default function Home() {
 
   useEffect(() => {
     const interval = setInterval(async () => {
+      // try {
+        // const res = await fetch(`${API_URL}/value-bets`);
+        // const data = await res.json();
       try {
-        const res = await fetch(`${API_URL}/value-bets`);
+        const res = await fetch(`${API_URL}/value-bets`, {
+          credentials: "include",
+        });
+
+        if (!res.ok) return;
+
         const data = await res.json();
 
         const filtered = data.filter((m: Match) => m.markets?.["1X2"]);

@@ -658,3 +658,27 @@ def resend_verification(data: dict, db: Session = Depends(get_db)):
     except Exception as e:
         print("❌ RESEND ERROR:", e)
         return {"message": "failed"}
+
+# LOGIN GOOGLE/GITHUB
+@router.post("/oauth-login")
+def oauth_login(data: dict, db: Session = Depends(get_db)):
+    email = data.get("email")
+
+    user = db.query(User).filter(User.email == email).first()
+
+    if not user:
+        user = User(
+            email=email,
+            password="",  # 👈 sin password
+            is_verified=True,
+        )
+        db.add(user)
+        db.commit()
+
+    # 🔐 generar JWT igual que login normal
+    token = create_access_token({"sub": user.email})
+
+    response = JSONResponse({"message": "ok"})
+    response.set_cookie("access_token", token)
+
+    return response

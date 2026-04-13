@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { API_URL } from "@/lib/api";
+import { signIn } from "next-auth/react";
 
 // ---------------- TYPES ----------------
 
@@ -212,13 +213,13 @@ export default function LoginModal({ onClose, onLogin }: Props) {
 
   return (
     // <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-    <div className="fixed inset-0 bg-black/95 backdrop-blur-sm flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
       {/* <div className="bg-[#1e1e1e] text-white p-6 rounded-xl w-[320px]"> */}
       {/* <div className="bg-[#1e293b] text-white p-6 rounded-2xl w-[320px] shadow-xl border border-[#334155]"> */}
-      <div className="bg-[#0f172a] text-white p-6 rounded-2xl w-[320px] shadow-2xl border border-[#334155] animate-in fade-in zoom-in duration-200">
+      <div className="bg-[#0f172a] p-6 rounded-2xl w-[320px] shadow-2xl border border-[#334155] animate-in fade-in zoom-in duration-200">
 
         {/* TITLE */}
-        <h2 className="text-lg font-bold mb-4 text-center">
+        <h2 className="text-lg font-bold mb-4 text-center text-white">
           {/* {mode === "login" ? "🔐 Iniciar sesión" : "📝 Crear cuenta"} */}
           {mode === "login"
             ? "🔐 Iniciar sesión"
@@ -232,7 +233,7 @@ export default function LoginModal({ onClose, onLogin }: Props) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
-          className="w-full mb-3 p-2 rounded bg-[#2a2a2a]"
+          className="w-full mb-3 p-2 rounded bg-[#2a2a2a] text-white"
         />
 
         {/* PASSWORD */}
@@ -242,9 +243,23 @@ export default function LoginModal({ onClose, onLogin }: Props) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
-            className="w-full mb-4 p-2 rounded bg-[#334155]"
+            className="w-full mb-4 p-2 rounded bg-[#334155] text-white"
           />
         )}
+
+        <button
+          onClick={() => signIn("google")}
+          className="w-full bg-white text-black py-2 rounded mb-2"
+        >
+          🔵 Continuar con Google
+        </button>
+
+        <button
+          onClick={() => signIn("github")}
+          className="w-full bg-black text-white py-2 rounded"
+        >
+          ⚫ Continuar con GitHub
+        </button>
 
         {/* OLVIDASTE TU CONTRASEÑA */}
         <button
