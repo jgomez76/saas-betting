@@ -22,62 +22,9 @@ export default function LoginModal({ onClose, onLogin }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
+  const [showResend, setShowResend] = useState(false);
 
   // ---------------- LOGIN ----------------
-
-  // const handleLogin = async () => {
-  //   setError("");
-
-  //   if (!email || !password) {
-  //     setError("Completa todos los campos");
-  //     return;
-  //   }
-
-  //   try {
-  //     setLoading(true);
-
-  //     const res = await fetch(`${API_URL}/login`, {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       credentials: "include",
-  //       body: JSON.stringify({
-  //         email,
-  //         password,
-  //       }),
-  //     });
-
-  //     if (!res.ok) {
-  //       const text = await res.text();
-  //       console.error("Login error:", text);
-
-  //       if (text.includes("Email not verified")) {
-  //         setError("Debes verificar tu email antes de iniciar sesión");
-  //       } else {
-  //         setError("Credenciales incorrectas");
-  //       }
-
-  //       return;
-  //     }
-
-  //     const data: LoginResponse = await res.json();
-
-  //     if (data.message === "ok") {
-  //       onLogin();
-  //       onClose();
-  //     } else {
-  //       setError("Credenciales incorrectas");
-  //     }
-  //   } catch (err) {
-  //     console.error(err);
-  //     if (!error) {
-  //       setError("Error de conexión con el servidor");
-  //     }
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const handleLogin = async () => {
     setError("");
@@ -106,10 +53,13 @@ export default function LoginModal({ onClose, onLogin }: Props) {
       if (!res.ok) {
         if (res.status === 403) {
           setError("Debes verificar tu email antes de iniciar sesión");
+          setShowResend(true);
         } else if (res.status === 401) {
           setError("Credenciales incorrectas");
+          setShowResend(false);
         } else {
           setError("Error inesperado");
+          setShowResend(false);
         }
 
         return;
@@ -183,15 +133,15 @@ export default function LoginModal({ onClose, onLogin }: Props) {
   // ------------------ FORGOT PASSWORD -----------
   const handleForgotPassword = async () => {
     setError("");
-
+    
     if (!email) {
       setError("Introduce tu email");
       return;
     }
-
+    
     try {
       setLoading(true);
-
+      
       const res = await fetch(`${API_URL}/forgot-password`, {
         method: "POST",
         headers: {
@@ -199,23 +149,65 @@ export default function LoginModal({ onClose, onLogin }: Props) {
         },
         body: JSON.stringify({ email }),
       });
-
+      
       if (!res.ok) {
         setError("Error enviando email");
         return;
       }
-
+      
       setError("📧 Te hemos enviado un email para recuperar tu contraseña");
-
+      
       setMode("login");
-
+      
     } catch {
       setError("Error de conexión");
     } finally {
       setLoading(false);
     }
   };
+  
+  
+  // ----------- RESEND VERIFICATION EMAIL -----------
+  const handleResend = async () => {
+    if (!email) {
+      setError("Introduce tu email");
+      return;
+    }
 
+    try {
+      setLoading(true);
+      setError("");
+
+      const res = await fetch(`${API_URL}/resend-verification`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+
+      // 🔐 comportamiento seguro (no revelar existencia)
+      if (data.message === "sent") {
+        setError("📧 Si el email existe, recibirás el enlace de verificación");
+      } 
+      else if (data.message === "already_verified") {
+        setError("✅ Tu cuenta ya está verificada");
+      } 
+      else {
+        setError("📧 Si el email existe, recibirás el enlace de verificación");
+      }
+
+    } catch (err) {
+      console.error("💥 RESEND ERROR:", err);
+
+      // 🔥 error real de red (como tu caso sin internet)
+      setError("❌ Problema de conexión. Revisa tu internet e inténtalo de nuevo");
+    } finally {
+      setLoading(false);
+    }
+  };
   // ---------------- UI ----------------
 
   return (
@@ -260,7 +252,7 @@ export default function LoginModal({ onClose, onLogin }: Props) {
             setMode("forgot");
             setError("");
           }}
-          className="text-xs text-cyan-400 hover:underline mb-3"
+          className="w-full text-xs text-cyan-400 hover:underline mb-3"
         >
           ¿Olvidaste tu contraseña?
         </button>
@@ -272,27 +264,38 @@ export default function LoginModal({ onClose, onLogin }: Props) {
           </p>
         )}
 
-        {/* BUTTON */}
+        {showResend && (
         <button
-          // onClick={mode === "login" ? handleLogin : handleRegister}
-          onClick={
-            mode === "login"
-              ? handleLogin
-              : mode === "register"
-              ? handleRegister
-              : handleForgotPassword
-          }
-          disabled={loading}
-          className="w-full bg-cyan-600 py-2 rounded font-bold hover:bg-cyan-500 disabled:opacity-50"
-        >
-        {loading
-          ? "Cargando..."
-          : mode === "login"
-          ? "Entrar"
-          : mode === "register"
-          ? "Crear cuenta"
-          : "Enviar email"}
-        </button>
+            onClick={handleResend}
+            className="w-full text-cyan-400 text-sm mb-3 hover:underline"
+          >
+            Reenviar email de verificación
+          </button>
+        )}
+
+        {/* BUTTON */}
+
+          <button
+            // onClick={mode === "login" ? handleLogin : handleRegister}
+            onClick={
+              mode === "login"
+                ? handleLogin
+                : mode === "register"
+                ? handleRegister
+                : handleForgotPassword
+            }
+            disabled={loading}
+            className="w-full bg-cyan-600 py-2 rounded font-bold hover:bg-cyan-500 disabled:opacity-50"
+          >
+          {loading
+            ? "Cargando..."
+            : mode === "login"
+            ? "Entrar"
+            : mode === "register"
+            ? "Crear cuenta"
+            : "Enviar email"}
+          </button>
+
 
         {/* TOGGLE */}
         <div className="text-center mt-4 text-sm text-gray-400">

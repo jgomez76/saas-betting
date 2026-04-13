@@ -340,10 +340,10 @@ def get_selected_leagues(db: Session = Depends(get_db)):
 def login(data: LoginRequest, response: Response, db: Session = Depends(get_db)):
     try:
         print("🔥 LOGIN HIT")
-        print("DATA:", data)
+        # print("DATA:", data)
 
         user = db.query(User).filter(User.email == data.email).first()
-        print("USER:", user)
+        # print("USER:", user)
 
         if not user:
             raise HTTPException(status_code=401, detail="Invalid credentials")
@@ -624,3 +624,37 @@ def deactivate_account(
     )
 
     return {"message": "account deactivated"}
+
+
+# REENVIO DE VERIFICACION
+@router.post("/resend-verification")
+def resend_verification(data: dict, db: Session = Depends(get_db)):
+    email = data.get("email")
+
+    if not email:
+        raise HTTPException(status_code=400, detail="Email required")
+
+    user = db.query(User).filter(User.email == email).first()
+
+    # 🔐 seguridad: no revelar si existe o no
+    if not user:
+        return {"message": "ok"}
+
+    # ✅ ya verificado
+    if user.is_verified:
+        return {"message": "already_verified"}
+
+    try:
+        # 🔐 nuevo token
+        token = secrets.token_urlsafe(32)
+        user.verification_token = token
+        db.commit()
+
+        # 📧 enviar email
+        send_verification_email(user.email, token)
+
+        return {"message": "sent"}
+
+    except Exception as e:
+        print("❌ RESEND ERROR:", e)
+        return {"message": "failed"}
