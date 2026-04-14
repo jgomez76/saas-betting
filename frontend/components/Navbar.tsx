@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 type Props = {
   onOpenTop: () => void;
@@ -9,6 +10,7 @@ type Props = {
   onOpenLogin: () => void;
   onLogout: () => void;
   onOpenAnalysis: () => void;
+  onOpenProfile: () => void;
 
   marketFilter: string;
   setMarketFilter: (value: string) => void;
@@ -26,6 +28,8 @@ type Props = {
 
   isAdmin: boolean;
   email: string;
+  name: string;
+  avatar: string;
 };
 
 export default function Navbar({
@@ -33,6 +37,7 @@ export default function Navbar({
   // onOpenBets,
   onOpenLogin,
   onLogout,
+  onOpenProfile,
   // onOpenAnalysis,
   isAdmin,
   marketFilter,
@@ -46,10 +51,13 @@ export default function Navbar({
   minOdd,
   setMinOdd,
   email,
+  name,
+  avatar,
 }: Props) {
   const router = useRouter();
   const [openMarkets, setOpenMarkets] = useState(false);
   const [openLeagues, setOpenLeagues] = useState(false);
+  const [openMenu, setOpenMenu] = useState(false);
 
   const marketsRef = useRef<HTMLDivElement>(null);
   const leaguesRef = useRef<HTMLDivElement>(null);
@@ -97,6 +105,14 @@ export default function Navbar({
       document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    const handleClick = () => setOpenMenu(false);
+    window.addEventListener("click", handleClick);
+
+    return () => window.removeEventListener("click", handleClick);
+  }, []);
+
+
   return (
     <div className="w-full bg-[#111827] border-b border-[#1f2937] text-white p-4 mb-6 rounded-xl shadow flex flex-col md:flex-row md:items-center md:justify-between gap-4">
     {/* // <div className="w-full bg-[#111827] border-b border-[#1f2937] p-4"> */}
@@ -106,44 +122,76 @@ export default function Navbar({
 
         <div className="flex gap-3 items-center flex-wrap">
           {/* 🔐 ADMIN / LOGIN */}
-          {/* {isAdmin ? (
-            <button
-              onClick={onLogout}
-              className="px-4 py-2 bg-green-700 rounded text-sm hover:bg-green-600"
-            >
-              🛠 Admin (Logout)
-            </button>
-          ) : (
-            <button
-              onClick={onOpenLogin}
-              className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600"
-            >
-              🔐 Login
-            </button>
-          )} */}
           {email ? (
-            <div className="flex items-center gap-3">
+            <div className="relative">
 
-              {/* 👤 USUARIO */}
-              <span className="text-sm text-gray-300">
-                👤 {email}
-              </span>
-
-              {/* 🛠 ADMIN */}
-              {isAdmin && (
-                <span className="text-xs bg-green-700 px-2 py-1 rounded">
-                  ADMIN
-                </span>
-              )}
-
-              {/* LOGOUT */}
-              <button
-                onClick={onLogout}
-                className="px-3 py-1 bg-red-600 rounded text-sm hover:bg-red-500"
+              {/* BOTÓN USUARIO */}
+              <div
+                onClick={(e) => {
+                  e.stopPropagation(); // 🔥 evita cierre inmediato
+                  setOpenMenu(!openMenu);
+                }}
+                className="flex items-center gap-3 cursor-pointer"
               >
-                Logout
-              </button>
+                {avatar ? (
+                  <Image
+                    src={avatar}
+                    className="rounded-full"
+                    alt="avatar"
+                    width={32}
+                    height={32}
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-xs">
+                    {email[0]?.toUpperCase()}
+                  </div>
+                )}
 
+                <span className="text-sm text-gray-200 hidden md:block">
+                  {name || email}
+                </span>
+
+                <span className="text-gray-400 text-xs">▼</span>
+              </div>
+
+              {/* DROPDOWN */}
+              {openMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-[#1e293b] border border-gray-700 rounded-xl shadow-lg z-50">
+
+                  <div className="p-3 border-b border-gray-700">
+                    <p className="text-sm text-white">{name || "Usuario"}</p>
+                    <p className="text-xs text-gray-400">{email}</p>
+                  </div>
+
+                  {isAdmin && (
+                    <div className="px-3 py-2 text-xs text-green-400">
+                      🛠 Admin
+                    </div>
+                  )}
+
+                  <button
+                    onClick={() => {
+                      setOpenMenu(false);
+                      onOpenProfile();
+                      // window.location.href = "/profile";
+                    }}
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-gray-700"
+                  >
+                    👤 Perfil
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setOpenMenu(false);
+                      onLogout();
+                    }}
+                    className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-gray-700"
+                  >
+                    🚪 Cerrar sesión
+                  </button>
+
+                </div>
+              )}
             </div>
           ) : (
             <button
@@ -153,11 +201,6 @@ export default function Navbar({
               🔐 Login
             </button>
           )}
-          {/* {subscription === "premium" && (
-            <span className="text-xs bg-yellow-600 px-2 py-1 rounded">
-              PREMIUM
-            </span>
-          )} */}
 
           {/* 🌍 LIGAS DROPDOWN */}
           <div className="relative" ref={leaguesRef}>

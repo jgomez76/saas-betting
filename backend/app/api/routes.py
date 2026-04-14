@@ -16,7 +16,7 @@ from app.models.fixture import Fixture
 from app.models.user import User
 from app.models.analysis import Analysis
 
-from app.schemas.auth import LoginRequest
+from app.schemas.auth import LoginRequest, ForgotRequest
 
 from app.services.api_football import get_fixtures, save_fixtures, get_odds_by_date, get_odds_by_league
 from app.services.export import export_to_csv, export_to_excel
@@ -364,9 +364,14 @@ def login(data: LoginRequest, response: Response, db: Session = Depends(get_db))
         if not user.is_verified:
             raise HTTPException(status_code=403, detail="Email not verified")
         
+        if user.provider != "email":
+            raise HTTPException(
+                status_code=400,
+                detail="Usa Google o GitHub para iniciar sesión"
+            )
 
         token = create_access_token({
-            "sub": user.email,
+            "sub": str(user.id),   # 🔥 CLAVE
             "is_admin": user.is_admin,
         })
 
@@ -387,102 +392,85 @@ def login(data: LoginRequest, response: Response, db: Session = Depends(get_db))
         print("💥 LOGIN ERROR:", str(e))
         raise HTTPException(status_code=500, detail="Internal server error")
 
-def get_current_user(request: Request):
-    token = request.cookies.get("access_token")
+# def get_current_user(
+#     request: Request,
+#     db: Session = Depends(get_db),
+# ):
+#     token = request.cookies.get("access_token")
 
-    if not token:
+#     if not token:
+#         return None
+
+#     try:
+#         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+
+#         user_id = payload.get("sub")
+
+#         if not user_id:
+#             return None
+
+#         # 🔥 buscar usuario real
+#         user = db.query(User).filter(User.id == user_id).first()
+
+#         if not user:
+#             return None
+
+#         # 🔥 usuario desactivado
+#         if not user.is_active:
+#             return None
+
+#         return user
+
+#     except Exception:
+#         return None
+    
+
+from fastapi import Cookie
+
+def get_current_user(
+    access_token: str = Cookie(None),
+    db: Session = Depends(get_db),
+):
+    if not access_token:
         return None
 
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return payload
-    except:
+        payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
+
+        user_id = payload.get("sub")
+
+        if not user_id:
+            return None
+
+        user = db.query(User).filter(User.id == user_id).first()
+
+        if not user or not user.is_active:
+            return None
+
+        return user
+
+    except Exception:
         return None
     
+
+
 @router.get("/me")
-def get_me(request: Request, user=Depends(get_current_user)):
+def get_me(user: User = Depends(get_current_user)):
     if not user:
-        return JSONResponse(
-            status_code=200,  # 👈 CLAVE
-            content={
-                "email": None,
-                "is_admin": False,
-                "subscription": "free",
-            },
-        )
+        return {
+            "email": None,
+            "is_admin": False
+        }
 
     return {
-        "email": user.get("sub"),
-        "is_admin": user.get("is_admin", False),
-        "subscription": user.get("subscription", "free"),
+        "email": user.email,
+        "is_admin": user.is_admin,
+        "subscription": user.subscription,
+        "name": user.name,
+        "avatar": user.avatar,
     }
 
-
 # # REGISTER
-# @router.post("/register")
-# def register(data: RegisterRequest, db: Session = Depends(get_db)):
-#     # 🔍 comprobar si existe
-#     existing = db.query(User).filter(User.email == data.email).first()
-
-#     if existing:
-#         raise HTTPException(status_code=400, detail="User already exists")
-
-#     token = secrets.token_urlsafe(32)
-    
-#     # 👤 crear usuario
-#     user = User(
-#         email=data.email,
-#         # password=data.password,  # luego lo mejoramos (hash)
-#         password=hash_password(data.password),  # 🔥
-#         is_admin=False,
-#         subscription="free",
-#         is_verified=False,
-#         verification_token=token,
-#     )
-
-#     db.add(user)
-#     db.commit()
-
-#     print(f"http://localhost:3000/verify?token={token}")
-
-#     return {"message": "user created"}
-
-# @router.post("/register")
-# def register(data: RegisterRequest, db: Session = Depends(get_db)):
-    try:
-        print("🔥 REGISTER HIT", data.email)
-
-        existing = db.query(User).filter(User.email == data.email).first()
-
-        if existing:
-            print("❌ USER EXISTS")
-            raise HTTPException(400, "User already exists")
-
-        # import secrets
-        token = secrets.token_urlsafe(32)
-
-        user = User(
-            email=data.email,
-            password=hash_password(data.password),
-            is_verified=False,
-            verification_token=token,
-        )
-
-        db.add(user)
-        db.commit()
-
-        print("✅ USER CREATED")
-        # print(f"http://localhost:3000/verify?token={token}")
-        
-
-        send_verification_email(user.email, token)
-
-        return {"message": "user created"}
-
-    except Exception as e:
-        print("💥 REGISTER ERROR:", str(e))
-        raise HTTPException(500, str(e))
-
 @router.post("/register")
 def register(
     data: RegisterRequest,
@@ -527,8 +515,9 @@ def register(
 # LOGOUT
 @router.post("/logout")
 def logout(response: Response):
+    response = JSONResponse({"message": "logout ok"})
     response.delete_cookie("access_token")
-    return {"message": "logged out"}
+    return response
 
 # VERIFY
 @router.get("/verify")
@@ -545,34 +534,29 @@ def verify_email(token: str, db: Session = Depends(get_db)):
     return {"message": "verified"}
 
 @router.post("/forgot-password")
-def forgot_password(data: dict, db: Session = Depends(get_db)):
-    background_tasks: BackgroundTasks
-    email = data.get("email")
+def forgot_password(data: ForgotRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    
+    user = db.query(User).filter(User.email == data.email).first()
 
-    user = db.query(User).filter(User.email == email).first()
+    # 🔥 SI existe → generar token + enviar email
+    if user:
+        token = secrets.token_urlsafe(32)
 
-    # 🔥 IMPORTANTE: NO revelar si existe o no
-    if not user:
-        return {"message": "ok"}
+        user.reset_token = token
+        user.reset_token_expiry = datetime.utcnow() + timedelta(hours=1)
 
-    import secrets
-    from datetime import datetime, timedelta
+        db.commit()
 
-    token = secrets.token_urlsafe(32)
+        background_tasks.add_task(
+            send_reset_email,
+            user.email,
+            token
+        )
 
-    user.reset_token = token
-    user.reset_token_expiry = datetime.utcnow() + timedelta(hours=1)
-
-    db.commit()
-
-    # 🔥 enviar email
-    try:
-        send_reset_email(user.email, token)
-    except Exception as e:
-        print("💥 EMAIL ERROR:", e)
-        # 📧 enviar email en background (NO bloquea request)
-
-    return {"message": "ok"}
+    # 🔥 SIEMPRE misma respuesta (seguridad)
+    return {
+        "message": "📧 Si el email existe, te hemos enviado instrucciones"
+    }
 
 
 @router.post("/reset-password")
@@ -663,22 +647,40 @@ def resend_verification(data: dict, db: Session = Depends(get_db)):
 @router.post("/oauth-login")
 def oauth_login(data: dict, db: Session = Depends(get_db)):
     email = data.get("email")
+    name = data.get("name")
+    avatar = data.get("avatar")
+    provider = data.get("provider")
 
     user = db.query(User).filter(User.email == email).first()
 
     if not user:
         user = User(
             email=email,
-            password="",  # 👈 sin password
+            password="",
             is_verified=True,
+            provider=provider,
+            name=name,
+            avatar=avatar,
         )
         db.add(user)
         db.commit()
 
-    # 🔐 generar JWT igual que login normal
-    token = create_access_token({"sub": user.email})
+    # 🔥 actualizar datos siempre
+    user.name = name
+    user.avatar = avatar
+    db.commit()
+
+    token = create_access_token({"sub": str(user.id)})
 
     response = JSONResponse({"message": "ok"})
-    response.set_cookie("access_token", token)
+    # response.set_cookie("access_token", token)
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        samesite="lax",
+        secure=False, #En Local SIEMPRE!!
+        path="/",
+    )
 
     return response

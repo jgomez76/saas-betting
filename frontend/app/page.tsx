@@ -9,6 +9,7 @@ import LoginModal from "@/components/LoginModal";
 import AnalysisModal from "@/components/AnalysisModal";
 import ResultsView from "@/components/ResultsView";
 import StandingsView from "@/components/StandingsView";
+import ProfileModal from "@/components/ProfileModal";
 import { API_URL } from "@/lib/api";
 import { Bet } from "@/types/bet";
 import { useSession } from "next-auth/react";
@@ -241,6 +242,11 @@ export default function Home() {
   const [authLoading, setAuthLoading] = useState(true);
 
   const [mounted, setMounted] = useState(false);
+
+  const [name, setName] = useState("");
+  const [avatar, setAvatar] = useState("");
+
+  const [showProfile, setShowProfile] = useState(false);
   
   const handleLogout = async () => {
     await fetch(`${API_URL}/logout`, {
@@ -261,6 +267,9 @@ export default function Home() {
         setIsAdmin(data.is_admin);
         setEmail(data.email || "");
         setIsPremium(data.subscription === "premium");
+        // 🔥 NUEVO
+        setName(data.name || "");
+        setAvatar(data.avatar || "");
       })
       .catch(() => {
         setIsAdmin(false);
@@ -268,6 +277,29 @@ export default function Home() {
         setIsPremium(false);
       });
   };
+  // const refreshUser = async () => {
+  //   try {
+  //     const res = await fetch(`${API_URL}/me`, {
+  //       credentials: "include", // 🔥 clave
+  //     });
+
+  //     const data = await res.json();
+
+  //     console.log("USER:", data); // 👈 debug
+
+  //     setIsAdmin(data.is_admin);
+  //     setEmail(data.email || "");
+  //     setIsPremium(data.subscription === "premium");
+  //     setName(data.name || "");
+  //     setAvatar(data.avatar || "");
+
+  //   } catch (err) {
+  //     console.error("refreshUser error", err);
+  //     setIsAdmin(false);
+  //     setEmail("");
+  //     setIsPremium(false);
+  //   }
+  // };
 
 
   // ###########
@@ -288,36 +320,47 @@ export default function Home() {
 
 
   // LOGIN GOOGLE/GITHUB
-  useEffect(() => {
+    useEffect(() => {
     if (session?.user?.email && !oauthDone.current) {
-      console.log("🔐 OAuth user:", session.user.email);
-
       oauthDone.current = true;
 
-      fetch(`${API_URL}/oauth-login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: session.user.email,
-        }),
-        credentials: "include",
-      })
-        .then((res) => res.json())
-        .then(() => {
-          console.log("✅ OAuth login OK");
+      (async () => {
+        console.log("🔐 OAuth user:", session?.user?.email);
 
-          // 🔥 recargar para sincronizar con tu backend
-          // window.location.reload();
-           refreshUser();
-        })
-        .catch((err) => {
-          console.error("💥 OAuth backend error:", err);
+        await fetch(`${API_URL}/oauth-login`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: session?.user?.email,
+            name: session?.user?.name,
+            avatar: session?.user?.image,
+            provider: "google",
+          }),
+          credentials: "include",
         });
+
+        console.log("✅ OAuth login OK");
+
+        // 🔥 AÑADE ESTO (CLAVE)
+        const res = await fetch(`${API_URL}/me`, {
+          credentials: "include",
+        });
+
+        const data = await res.json();
+
+        console.log("🔥 USER AFTER LOGIN:", data);
+
+        setIsAdmin(data.is_admin);
+        setEmail(data.email || "");
+        setIsPremium(data.subscription === "premium");
+        setName(data.name || "");
+        setAvatar(data.avatar || "");
+      })();
     }
-  }, [session, oauthDone]);
- 
+  }, [session]);
+  
   // NEW LOGIN WITH JWT
   useEffect(() => {
     fetch(`${API_URL}/me`, {
@@ -850,6 +893,7 @@ export default function Home() {
               onOpenLogin={() => setShowLoginModal(true)}
               onLogout={handleLogout}
               onOpenAnalysis={() => setShowAnalysisModal(true)}
+              onOpenProfile={() => setShowProfile(true)}
 
               marketFilter={marketFilter}
               setMarketFilter={setMarketFilter}
@@ -866,6 +910,9 @@ export default function Home() {
               setMinOdd={setMinOdd}
               isAdmin={isAdmin}
               email={email}
+              name={name}
+              avatar={avatar}
+              
             />
           )}
 
@@ -1446,6 +1493,19 @@ export default function Home() {
               </div>
             </div>
           </div>
+        )}
+
+        {showProfile && (
+          <ProfileModal
+            user={{
+              email,
+              name,
+              avatar,
+              subscription: isPremium ? "premium" : "free",
+              provider: "oauth",
+            }}
+            onClose={() => setShowProfile(false)}
+          />
         )}
       </main>
     </div>

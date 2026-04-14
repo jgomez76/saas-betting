@@ -4,19 +4,33 @@ from app.core.database import Base
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True)
-    email = Column(String, unique=True)
-    password = Column(String)
-    is_admin = Column(Boolean, default=False)
+    # 🔥 ID REAL
+    id = Column(Integer, primary_key=True, index=True)
 
-    subscription = Column(String, default="free")
+    # 👤 IDENTIDAD
+    email = Column(String, unique=True, index=True, nullable=False)
+    password = Column(String, nullable=True)
+
+    # 🔐 AUTH CLÁSICA
     is_verified = Column(Boolean, default=False)
     verification_token = Column(String, nullable=True)
+
     reset_token = Column(String, nullable=True)
     reset_token_expiry = Column(DateTime, nullable=True)
 
+    # 🔥 CONTROL
     is_active = Column(Boolean, default=True)
 
+    # 🔥 OAUTH
+    provider = Column(String, default="email")
+    name = Column(String, nullable=True)
+    avatar = Column(String, nullable=True)
+
+    # 🔥 NEGOCIO
+    is_admin = Column(Boolean, default=False)
+    subscription = Column(String, default="free")
+
+    
     # Para mas tarde
     # subscription_status = Column(String, default="inactive")
     # subscription_end = Column(DateTime, nullable=True)
