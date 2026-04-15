@@ -28,7 +28,7 @@ from app.services.value import get_value_bets, get_top_value_bets
 
 import io
 import csv
-import secrets, datetime
+import secrets
 
 router = APIRouter()
 
@@ -364,7 +364,7 @@ def login(data: LoginRequest, response: Response, db: Session = Depends(get_db))
         if not user.is_verified:
             raise HTTPException(status_code=403, detail="Email not verified")
         
-        if user.provider != "email":
+        if user.provider != "email" and not user.password:
             raise HTTPException(
                 status_code=400,
                 detail="Usa Google o GitHub para iniciar sesión"
@@ -468,6 +468,7 @@ def get_me(user: User = Depends(get_current_user)):
         "subscription": user.subscription,
         "name": user.name,
         "avatar": user.avatar,
+        "provider": user.provider,
     }
 
 # # REGISTER
@@ -492,6 +493,7 @@ def register(
     user = User(
         email=data.email,
         password=hash_password(data.password),
+        name=data.email.split("@")[0],
         is_verified=False,
         verification_token=token,
     )
@@ -659,15 +661,17 @@ def oauth_login(data: dict, db: Session = Depends(get_db)):
             password="",
             is_verified=True,
             provider=provider,
-            name=name,
+            name=name or email.split("@")[0],
             avatar=avatar,
         )
         db.add(user)
         db.commit()
 
     # 🔥 actualizar datos siempre
-    user.name = name
-    user.avatar = avatar
+    user.name = name or user.name
+    user.avatar = avatar or user.avatar
+    print(user.provider)
+    user.provider = provider
     db.commit()
 
     token = create_access_token({"sub": str(user.id)})

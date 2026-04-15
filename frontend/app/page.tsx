@@ -245,6 +245,7 @@ export default function Home() {
 
   const [name, setName] = useState("");
   const [avatar, setAvatar] = useState("");
+  const [provider, setProvider] = useState("");
 
   const [showProfile, setShowProfile] = useState(false);
   
@@ -270,6 +271,8 @@ export default function Home() {
         // 🔥 NUEVO
         setName(data.name || "");
         setAvatar(data.avatar || "");
+        setProvider(data.provider ?? "email");
+        console.log("PROVIDER STATE:", data.provider)
       })
       .catch(() => {
         setIsAdmin(false);
@@ -336,7 +339,10 @@ export default function Home() {
             email: session?.user?.email,
             name: session?.user?.name,
             avatar: session?.user?.image,
-            provider: "google",
+            provider: session?.user?.image?.includes("googleusercontent")
+            ? "google"
+            : "github"
+            // provider: "google",
           }),
           credentials: "include",
         });
@@ -357,6 +363,7 @@ export default function Home() {
         setIsPremium(data.subscription === "premium");
         setName(data.name || "");
         setAvatar(data.avatar || "");
+        setProvider(data.provider ?? "email");
       })();
     }
   }, [session]);
@@ -1502,9 +1509,11 @@ export default function Home() {
               name,
               avatar,
               subscription: isPremium ? "premium" : "free",
-              provider: "oauth",
+              // provider: "oauth",
+              provider,
             }}
             onClose={() => setShowProfile(false)}
+            onLogout={handleLogout}
           />
         )}
       </main>

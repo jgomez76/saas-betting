@@ -11,9 +11,10 @@ type Props = {
     provider?: string;
   };
   onClose: () => void;
+  onLogout: () => void;
 };
 
-export default function ProfileModal({ user, onClose }: Props) {
+export default function ProfileModal({ user, onClose, onLogout }: Props) {
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
 
@@ -59,7 +60,7 @@ export default function ProfileModal({ user, onClose }: Props) {
           <div className="flex justify-between">
             <span className="text-gray-400">Provider</span>
             <span className="font-semibold">
-              {user.provider || "email"}
+              {user.provider ?? "email"}
             </span>
           </div>
 
@@ -76,9 +77,19 @@ export default function ProfileModal({ user, onClose }: Props) {
             🔑 Cambiar contraseña
           </button>
 
-          <button className="w-full bg-red-600 py-2 rounded hover:bg-red-500">
-            🗑 Eliminar cuenta
+          <button
+            onClick={() => {
+              onLogout();
+              onClose();
+          }}
+            className="w-full bg-red-600 py-2 rounded mt-3"
+          >
+            🚪 Cerrar sesión
           </button>
+
+          {/* <button className="w-full bg-red-600 py-2 rounded hover:bg-red-500">
+            🗑 Eliminar Cuenta
+          </button> */}
 
         </div>
 
