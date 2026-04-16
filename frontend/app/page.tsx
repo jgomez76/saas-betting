@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import TopValueModal from "@/components/TopValueModal";
@@ -10,7 +10,7 @@ import AnalysisModal from "@/components/AnalysisModal";
 import ResultsView from "@/components/ResultsView";
 import StandingsView from "@/components/StandingsView";
 import ProfileModal from "@/components/ProfileModal";
-import { API_URL } from "@/lib/api";
+// import { API_URL } from "@/lib/api";
 import { Bet } from "@/types/bet";
 import { useSession } from "next-auth/react";
 
@@ -114,13 +114,15 @@ export default function Home() {
   // ###########
   // CONSTANTES
   // ###########
-
+  // const getApiUrl = API_URL();
+  // const [apiUrl, setApiUrl] = useState("");
   const { data: session } = useSession();
   const oauthDone = useRef(false);
 
   // const [isAdmin, setIsAdmin] = useState(false);
   const [view, setView] = useState("dashboard");
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
   const [loading, setLoading] = useState(true);
 
@@ -242,6 +244,7 @@ export default function Home() {
   const [authLoading, setAuthLoading] = useState(true);
 
   const [mounted, setMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const [name, setName] = useState("");
   const [avatar, setAvatar] = useState("");
@@ -249,8 +252,17 @@ export default function Home() {
 
   const [showProfile, setShowProfile] = useState(false);
   
+
+  const apiUrl =
+    typeof window !== "undefined"
+      ? window.location.hostname === "localhost"
+        ? "http://localhost:8000"
+        : `http://${window.location.hostname}:8000`
+      : "";
+
+
   const handleLogout = async () => {
-    await fetch(`${API_URL}/logout`, {
+    await fetch(`${apiUrl}/logout`, {
       method: "POST",
       credentials: "include",
     });
@@ -259,8 +271,8 @@ export default function Home() {
     setEmail("");
   };
 
-  const refreshUser = () => {
-    fetch(`${API_URL}/me`, {
+  const refreshUser = useCallback(() => {
+    fetch(`${apiUrl}/me`, {
       credentials: "include",
     })
       .then((res) => res.json())
@@ -279,7 +291,7 @@ export default function Home() {
         setEmail("");
         setIsPremium(false);
       });
-  };
+  }, [apiUrl]);
   // const refreshUser = async () => {
   //   try {
   //     const res = await fetch(`${API_URL}/me`, {
@@ -310,12 +322,14 @@ export default function Home() {
   // ###########
 
   useEffect(() => {
+    if (!apiUrl) return;
     refreshUser();
-  }, []);
+  }, [apiUrl, refreshUser]);
 
   useEffect(() => {
     const id = requestAnimationFrame(() => {
       setMounted(true);
+      setIsMobile(window.innerWidth < 768);
     });
 
     return () => cancelAnimationFrame(id);
@@ -323,54 +337,59 @@ export default function Home() {
 
 
   // LOGIN GOOGLE/GITHUB
-    useEffect(() => {
-    if (session?.user?.email && !oauthDone.current) {
-      oauthDone.current = true;
+  useEffect(() => {
+    // 1️⃣ esperar a tener apiUrl
+    if (!apiUrl) return;
 
-      (async () => {
-        console.log("🔐 OAuth user:", session?.user?.email);
+    // 2️⃣ evitar doble ejecución
+    if (!session?.user?.email || oauthDone.current) return;
 
-        await fetch(`${API_URL}/oauth-login`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: session?.user?.email,
-            name: session?.user?.name,
-            avatar: session?.user?.image,
-            provider: session?.user?.image?.includes("googleusercontent")
+    oauthDone.current = true;
+
+    const runOAuth = async () => {
+      console.log("🔐 OAuth user:", session.user?.email);
+
+      await fetch(`${apiUrl}/oauth-login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: session.user?.email,
+          name: session.user?.name,
+          avatar: session.user?.image,
+          provider: session.user?.image?.includes("googleusercontent")
             ? "google"
-            : "github"
-            // provider: "google",
-          }),
-          credentials: "include",
-        });
+            : "github",
+        }),
+        credentials: "include",
+      });
 
-        console.log("✅ OAuth login OK");
+      console.log("✅ OAuth login OK");
 
-        // 🔥 AÑADE ESTO (CLAVE)
-        const res = await fetch(`${API_URL}/me`, {
-          credentials: "include",
-        });
+      const res = await fetch(`${apiUrl}/me`, {
+        credentials: "include",
+      });
 
-        const data = await res.json();
+      const data = await res.json();
 
-        console.log("🔥 USER AFTER LOGIN:", data);
+      console.log("🔥 USER AFTER LOGIN:", data);
 
-        setIsAdmin(data.is_admin);
-        setEmail(data.email || "");
-        setIsPremium(data.subscription === "premium");
-        setName(data.name || "");
-        setAvatar(data.avatar || "");
-        setProvider(data.provider ?? "email");
-      })();
-    }
-  }, [session]);
+      setIsAdmin(data.is_admin);
+      setEmail(data.email || "");
+      setIsPremium(data.subscription === "premium");
+      setName(data.name || "");
+      setAvatar(data.avatar || "");
+      setProvider(data.provider ?? "email");
+    };
+
+    runOAuth();
+  }, [session, apiUrl]);
   
   // NEW LOGIN WITH JWT
   useEffect(() => {
-    fetch(`${API_URL}/me`, {
+    if (!apiUrl) return;
+    fetch(`${apiUrl}/me`, {
       credentials: "include",
     })
       .then((res) => res.json())
@@ -387,7 +406,7 @@ export default function Home() {
       .finally(() => {
         setAuthLoading(false);
       });
-  }, []);
+  }, [apiUrl]);
 
   // --------- SINCRO REF --------
   useEffect(() => {
@@ -397,19 +416,17 @@ export default function Home() {
   // ---------------- LOAD DATA ----------------
 
   useEffect(() => {
+    if (!apiUrl) return;
     const load = async () => {
       setLoading(true);
       setLoadingMessage("Cargando partidos...");
 
       await new Promise((r) => setTimeout(r, 0));
 
-      // const res = await fetch(`${API_URL}/value-bets`);
-      // const data = await res.json();
-
       let data = [];
 
       try {
-        const res = await fetch(`${API_URL}/value-bets`, {
+        const res = await fetch(`${apiUrl}/value-bets`, {
           credentials: "include",
         });
 
@@ -490,15 +507,13 @@ export default function Home() {
     };
 
     load();
-  }, []);
+  }, [apiUrl]);
 
   useEffect(() => {
+    if (!apiUrl) return;
     const interval = setInterval(async () => {
-      // try {
-        // const res = await fetch(`${API_URL}/value-bets`);
-        // const data = await res.json();
       try {
-        const res = await fetch(`${API_URL}/value-bets`, {
+        const res = await fetch(`${apiUrl}/value-bets`, {
           credentials: "include",
         });
 
@@ -518,7 +533,7 @@ export default function Home() {
     }, 5 * 60 * 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [apiUrl]);
 
   const matches = useMemo(() => {
     let filtered: Match[] = [...allMatches];
@@ -623,6 +638,7 @@ export default function Home() {
   // ------------- AUTO RESOLVE BETS -----------
 
   useEffect(() => {
+    if (!apiUrl) return;
     const resolveBets = async () => {
       if (!betsRef.current.length) return;
 
@@ -632,7 +648,7 @@ export default function Home() {
 
           try {
             const res = await fetch(
-              `${API_URL}/fixture/${bet.fixture_id}/result`
+              `${apiUrl}/fixture/${bet.fixture_id}/result`
             );
             const data = await res.json();
 
@@ -705,7 +721,7 @@ export default function Home() {
     };
 
     resolveBets();
-  }, []);
+  }, [apiUrl]);
 
   // ---------------- BET SYSTEM ----------------
   const addBet = (bet: PendingBet) => {
@@ -736,7 +752,7 @@ export default function Home() {
   const openTeamModal = async (team: string) => {
     setSelectedTeam(team);
 
-    const res = await fetch(`${API_URL}/team/${team}/matches`);
+    const res = await fetch(`${apiUrl}/team/${team}/matches`);
     const data = await res.json();
 
     setTeamMatches(data);
@@ -855,14 +871,10 @@ export default function Home() {
     // <main className="p-6 bg-gray-100 min-h-screen">
     <div className="flex">
 
-      {/* {!authLoading && (
+      {/* <Sidebar view={view} setView={setView} isAdmin={isAdmin} /> */}
+      {!isMobile && (
         <Sidebar view={view} setView={setView} isAdmin={isAdmin} />
-      )} */}
-      <Sidebar view={view} setView={setView} isAdmin={isAdmin} />
-      {/* <Sidebar view={view} setView={setView} /> */}
-
-      {/* <main className="flex-1 p-6 bg-gray-100 min-h-screen"> */}
-      {/* <main className="flex-1 p-6 bg-[#18181b] min-h-screen text-white"> */}
+      )}
       <main className="flex-1 p-6 bg-[#F0B071] min-h-screen text-white">
 
         {/* DASHBOARD */}
@@ -892,6 +904,14 @@ export default function Home() {
             </div>
           )}
 
+          {isMobile && (
+            <button
+              onClick={() => setShowMenu(true)}
+              className="mb-4 px-3 py-2 bg-gray-800 text-white rounded"
+            >
+              ☰ Menú
+            </button>
+          )}
           {mounted && (
             <Navbar
               onOpenTop={() => setShowTopModal(true)}
@@ -1515,6 +1535,29 @@ export default function Home() {
             onClose={() => setShowProfile(false)}
             onLogout={handleLogout}
           />
+        )}
+
+        {showMenu && (
+          <div className="fixed inset-0 bg-black/60 z-50 flex">
+
+            {/* PANEL */}
+            <div className="w-64 bg-[#111827] h-full p-4">
+              <Sidebar
+                view={view}
+                setView={(v) => {
+                  setView(v);
+                  setShowMenu(false); // cerrar al clicar
+                }}
+                isAdmin={isAdmin}
+              />
+            </div>
+
+            {/* CLICK FUERA */}
+            <div
+              className="flex-1"
+              onClick={() => setShowMenu(false)}
+            />
+          </div>
         )}
       </main>
     </div>

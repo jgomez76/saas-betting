@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { API_URL } from "@/lib/api";
+// import { API_URL } from "@/lib/api";
 import { signIn } from "next-auth/react";
 
 // ---------------- TYPES ----------------
@@ -15,6 +15,12 @@ type Props = {
   onLogin: () => void;
 };
 
+const apiUrl =
+  typeof window !== "undefined"
+    ? window.location.hostname === "localhost"
+      ? "http://localhost:8000"
+      : `http://${window.location.hostname}:8000`
+    : "";
 // ---------------- COMPONENT ----------------
 
 export default function LoginModal({ onClose, onLogin }: Props) {
@@ -38,7 +44,7 @@ export default function LoginModal({ onClose, onLogin }: Props) {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_URL}/login`, {
+      const res = await fetch(`${apiUrl}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -99,7 +105,7 @@ export default function LoginModal({ onClose, onLogin }: Props) {
       setLoading(true);
       console.log("⏳ LOADING TRUE");
 
-      const res = await fetch(`${API_URL}/register`, {
+      const res = await fetch(`${apiUrl}/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -143,7 +149,7 @@ export default function LoginModal({ onClose, onLogin }: Props) {
     try {
       setLoading(true);
       
-      const res = await fetch(`${API_URL}/forgot-password`, {
+      const res = await fetch(`${apiUrl}/forgot-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -179,7 +185,7 @@ export default function LoginModal({ onClose, onLogin }: Props) {
       setLoading(true);
       setError("");
 
-      const res = await fetch(`${API_URL}/resend-verification`, {
+      const res = await fetch(`${apiUrl}/resend-verification`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
