@@ -1,5 +1,6 @@
-from fastapi import Response, APIRouter, Depends, Query, Request, HTTPException, BackgroundTasks
+from fastapi import Response, APIRouter, Depends, Query, Request, HTTPException, BackgroundTasks, Body, UploadFile, File
 from fastapi.responses import StreamingResponse, JSONResponse
+
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from jose import jwt, JWTError
@@ -26,9 +27,13 @@ from app.services.notifications import send_email, send_telegram
 from app.services.odds import save_odds
 from app.services.value import get_value_bets, get_top_value_bets
 
+from uuid import uuid4
+
 import io
 import csv
+import os
 import secrets
+import shutil
 
 router = APIRouter()
 
@@ -369,6 +374,11 @@ def login(data: LoginRequest, response: Response, db: Session = Depends(get_db))
                 status_code=400,
                 detail="Usa Google o GitHub para iniciar sesión"
             )
+        
+        # 🔥 FORZAR provider a email en login normal
+        if user.provider != "email":
+            user.provider = "email"
+            db.commit()
 
         token = create_access_token({
             "sub": str(user.id),   # 🔥 CLAVE
@@ -669,8 +679,10 @@ def oauth_login(data: dict, db: Session = Depends(get_db)):
 
     # 🔥 actualizar datos siempre
     user.name = name or user.name
-    user.avatar = avatar or user.avatar
-    print(user.provider)
+    # user.avatar = avatar or user.avatar
+    if not user.avatar or user.avatar.startswith("http"):
+       user.avatar = avatar
+    # print(user.provider)
     user.provider = provider
     db.commit()
 
@@ -688,3 +700,94 @@ def oauth_login(data: dict, db: Session = Depends(get_db)):
     )
 
     return response
+
+@router.put("/update-profile")
+def update_profile(
+    data: dict = Body(...),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    name = data.get("name")
+    avatar = data.get("avatar")
+
+    if name is not None:
+        user.name = name
+
+    if avatar is not None:
+        user.avatar = avatar
+
+
+    db.commit()
+
+    return {"message": "Profile updated"}
+
+@router.put("/change-password")
+def change_password(
+    data: dict = Body(...),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    # 🚫 bloquear OAuth
+    if user.provider != "email":
+        raise HTTPException(
+            status_code=400,
+            detail="Usa Google o GitHub para iniciar sesión"
+        )
+
+    current_password = data.get("current_password")
+    new_password = data.get("new_password")
+
+    if not current_password or not new_password:
+        raise HTTPException(status_code=400, detail="Missing fields")
+
+    # 🔐 comprobar password actual
+    if not verify_password(current_password, user.password):
+        raise HTTPException(status_code=401, detail="Incorrect password")
+
+    # 🔐 nueva password
+    user.password = hash_password(new_password)
+
+    db.commit()
+
+    return {"message": "Password updated"}
+
+@router.post("/upload-avatar")
+def upload_avatar(
+    file: UploadFile = File(...),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    # 📁 carpeta uploads
+    upload_dir = "uploads"
+    os.makedirs(upload_dir, exist_ok=True)
+
+    # 🧠 nombre único
+    # filename = f"user_{user.id}.png"
+    
+
+    filename = f"user_{user.id}_{uuid4().hex}.png"
+    file_path = os.path.join(upload_dir, filename)
+
+    # 💾 guardar archivo
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    # 🌐 URL accesible
+    # avatar_url = f"http://localhost:8000/uploads/{filename}"
+    avatar_url = f"/uploads/{filename}"
+
+    user.avatar = avatar_url
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    return {"avatar": avatar_url}

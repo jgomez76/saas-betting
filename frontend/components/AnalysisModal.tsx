@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { API_URL } from "@/lib/api";
+// import { API_URL } from "@/lib/api";
 import {
   LineChart,
   Line,
@@ -36,6 +36,13 @@ type EvolutionPoint = {
   roi: number;
 };
 
+const apiUrl =
+  typeof window !== "undefined"
+    ? window.location.hostname === "localhost"
+      ? "http://localhost:8000"
+      : `http://${window.location.hostname}:8000`
+    : "";
+
 export default function AnalysisModal({ onClose }: Props) {
   const [data, setData] = useState<Analysis[]>([]);
 
@@ -48,7 +55,8 @@ export default function AnalysisModal({ onClose }: Props) {
   const [statusFilter, setStatusFilter] = useState("ALL");
 
   useEffect(() => {
-    fetch(`${API_URL}/analysis`)
+    if (!apiUrl) return;
+    fetch(`${apiUrl}/analysis`)
       .then((res) => res.json())
       .then(setData);
   }, []);

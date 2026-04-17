@@ -868,6 +868,7 @@ export default function Home() {
   };
 
   return (
+    
     // <main className="p-6 bg-gray-100 min-h-screen">
     <div className="flex">
 
@@ -1523,17 +1524,29 @@ export default function Home() {
         )}
 
         {showProfile && (
+          // <ProfileModal
+          //   user={{
+          //     email,
+          //     name,
+          //     avatar,
+          //     subscription: isPremium ? "premium" : "free",
+          //     // provider: "oauth",
+          //     provider,
+          //   }}
+          //   onClose={() => setShowProfile(false)}
+          //   onLogout={handleLogout}
+          // />
           <ProfileModal
             user={{
               email,
               name,
               avatar,
               subscription: isPremium ? "premium" : "free",
-              // provider: "oauth",
               provider,
             }}
             onClose={() => setShowProfile(false)}
             onLogout={handleLogout}
+            onRefreshUser={refreshUser} // 🔥 CLAVE
           />
         )}
 

@@ -2,6 +2,7 @@ import requests
 from sqlalchemy.orm import Session
 from app.models.fixture import Fixture
 from app.core.config import API_FOOTBALL_KEY
+from datetime import datetime
 
 
 def fetch_fixtures(db: Session, league: int, season: int):
@@ -28,7 +29,15 @@ def fetch_fixtures(db: Session, league: int, season: int):
         league_data = item.get("league", {})
 
         fixture_id = fixture_data.get("id")
-        date = fixture_data.get("date")
+        # date = fixture_data.get("date")
+        date_str = fixture_data.get("date")
+
+        try:
+            date = datetime.fromisoformat(date_str.replace("Z", "+00:00")) if date_str else None
+        except Exception:
+            print("⚠️ Error parsing date:", date_str)
+            date = None
+            
         status = fixture_data.get("status", {}).get("short")
 
         home_team = teams_data.get("home", {}).get("name")

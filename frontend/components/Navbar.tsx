@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
+
 type Props = {
   onOpenTop: () => void;
   onOpenBets: () => void;
@@ -81,6 +82,21 @@ export default function Navbar({
     "2": "Champions League",
     "3": "Europa League",
   };
+  
+  const apiUrl =
+  typeof window !== "undefined"
+    ? window.location.hostname === "localhost"
+      ? "http://localhost:8000"
+      : `http://${window.location.hostname}:8000`
+    : "";
+
+  const avatarSrc = avatar;
+  const fullAvatar =
+    avatarSrc?.startsWith("http")
+    ? avatarSrc
+    : avatarSrc
+    ? `${apiUrl}${avatarSrc}`
+    : null;
 
   // 🔥 cerrar dropdowns al hacer click fuera
   useEffect(() => {
@@ -112,6 +128,7 @@ export default function Navbar({
     return () => window.removeEventListener("click", handleClick);
   }, []);
 
+ 
 
   return (
     <div className="w-full bg-[#111827] border-b border-[#1f2937] text-white p-4 mb-6 rounded-xl shadow flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -134,13 +151,22 @@ export default function Navbar({
                 className="flex items-center gap-3 cursor-pointer"
               >
                 {avatar ? (
+                  // <Image
+                  //   src={avatar}
+                  //   className="rounded-full"
+                  //   alt="avatar"
+                  //   width={32}
+                  //   height={32}
+                  // />
                   <Image
-                    src={avatar}
-                    className="rounded-full"
+                    src={fullAvatar || "/default-avatar.png"}
                     alt="avatar"
                     width={32}
                     height={32}
+                    className="rounded-full"
+                    unoptimized
                   />
+                    
                 ) : (
                   <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-xs">
                     {email[0]?.toUpperCase()}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { API_URL } from "@/lib/api";
+// import { API_URL } from "@/lib/api";
 
 // ---------------- TYPES ----------------
 
@@ -16,6 +16,12 @@ type Match = {
   round: string;
 };
 
+const apiUrl =
+  typeof window !== "undefined"
+    ? window.location.hostname === "localhost"
+      ? "http://localhost:8000"
+      : `http://${window.location.hostname}:8000`
+    : "";
 // ---------------- COMPONENT ----------------
 
 export default function ResultsView() {
@@ -26,7 +32,8 @@ export default function ResultsView() {
   // ---------------- FETCH LIGAS ----------------
 
   useEffect(() => {
-    fetch(`${API_URL}/leagues-selected`)
+    if (!apiUrl) return;
+    fetch(`${apiUrl}/leagues-selected`)
       .then((res) => res.json())
       .then(setLeagues);
   }, []);
@@ -34,9 +41,10 @@ export default function ResultsView() {
   // ---------------- FETCH PARTIDOS ----------------
 
   useEffect(() => {
+    if (!apiUrl) return;
     if (!selectedLeague) return;
 
-    fetch(`${API_URL}/results/${selectedLeague}`)
+    fetch(`${apiUrl}/results/${selectedLeague}`)
       .then((res) => res.json())
       .then((data: Match[]) => {
         setMatches(data);
