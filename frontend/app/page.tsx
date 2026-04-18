@@ -868,9 +868,9 @@ export default function Home() {
   };
 
   return (
-    
-    // <main className="p-6 bg-gray-100 min-h-screen">
-    <div className="flex">
+    <>
+  
+    <div className="flex relative">
 
       {/* <Sidebar view={view} setView={setView} isAdmin={isAdmin} /> */}
       {!isMobile && (
@@ -1523,32 +1523,7 @@ export default function Home() {
           </div>
         )}
 
-        {showProfile && (
-          // <ProfileModal
-          //   user={{
-          //     email,
-          //     name,
-          //     avatar,
-          //     subscription: isPremium ? "premium" : "free",
-          //     // provider: "oauth",
-          //     provider,
-          //   }}
-          //   onClose={() => setShowProfile(false)}
-          //   onLogout={handleLogout}
-          // />
-          <ProfileModal
-            user={{
-              email,
-              name,
-              avatar,
-              subscription: isPremium ? "premium" : "free",
-              provider,
-            }}
-            onClose={() => setShowProfile(false)}
-            onLogout={handleLogout}
-            onRefreshUser={refreshUser} // 🔥 CLAVE
-          />
-        )}
+
 
         {showMenu && (
           <div className="fixed inset-0 bg-black/60 z-50 flex">
@@ -1574,6 +1549,22 @@ export default function Home() {
         )}
       </main>
     </div>
+
+    {showProfile && (
+      <ProfileModal
+        user={{
+          email,
+          name,
+          avatar,
+          subscription: isPremium ? "premium" : "free",
+          provider,
+        }}
+        onClose={() => setShowProfile(false)}
+        onLogout={handleLogout}
+        onRefreshUser={refreshUser} // 🔥 CLAVE
+      />
+    )}
+    </>
 
   );
 }

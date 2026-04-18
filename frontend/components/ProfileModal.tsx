@@ -1,5 +1,6 @@
 "use client";
 
+import { createPortal } from "react-dom";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 
@@ -38,6 +39,7 @@ export default function ProfileModal({
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [mounted, setMounted] = useState(false);
 
 
   const apiUrl =
@@ -47,36 +49,6 @@ export default function ProfileModal({
         : `http://${window.location.hostname}:8000`
       : "";
 
-  // const handleSave = async () => {
-  //   if (!apiUrl) return;
-
-  //   setSaving(true);
-
-  //   try {
-  //     const res = await fetch(`${apiUrl}/update-profile`, {
-  //       method: "PUT",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       credentials: "include",
-  //       body: JSON.stringify({
-  //         name: editName,
-  //         avatar: editAvatar,
-  //       }),
-  //     });
-
-  //     if (!res.ok) throw new Error();
-
-  //     onRefreshUser(); // 🔥 refresca datos
-  //     setIsEditing(false);
-
-  //   } catch (err) {
-  //     alert("❌ Error al guardar perfil");
-  //     console.log(err);
-  //   } finally {
-  //     setSaving(false);
-  //   }
-  // };
 
   const handleSave = async () => {
     setSaving(true);
@@ -176,40 +148,6 @@ export default function ProfileModal({
     }
   };
 
-  // const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   if (!apiUrl) return;
-
-  //   const file = e.target.files?.[0];
-  //   if (!file) return;
-
-  //   const formData = new FormData();
-  //   formData.append("file", file);
-
-  //   try {
-  //     const res = await fetch(`${apiUrl}/upload-avatar`, {
-  //       method: "POST",
-  //       credentials: "include",
-  //       body: formData,
-  //     });
-
-  //     const data = await res.json();
-
-  //     setEditAvatar(data.avatar); // 🔥 actualiza preview
-  //     onRefreshUser(); // 🔥 sync global
-
-  //   } catch {
-  //     setError("Error subiendo imagen");
-  //   }
-  // ;}
-
-  const avatarSrc = isEditing ? editAvatar : user.avatar;
-
-  const fullAvatar =
-    avatarSrc?.startsWith("http")
-    ? avatarSrc
-    : avatarSrc
-    ? `${apiUrl}${avatarSrc}`
-    : null;
 
   useEffect(() => {
     if (success) {
@@ -221,16 +159,17 @@ export default function ProfileModal({
     }
   }, [success]);
 
-  
-  // console.log("USER AVATAR:", user.avatar);
-  // console.log("EDIT AVATAR:", editAvatar);
-  // console.log("API URL:", apiUrl); 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+  if (!mounted) return null;
 
-      <div className="bg-[#0f172a] text-white p-6 rounded-2xl w-[90%] max-w-md shadow-xl border border-[#334155]">
 
+  return createPortal(
+    <div className="fixed inset-0 bg-black/80 flex justify-center z-[9999]">
+
+      <div className="mt-4 w-[95%] max-w-md max-h-[90vh] overflow-y-auto bg-[#0f172a] text-white p-6 rounded-2xl shadow-xl border border-[#334155]">
         {/* HEADER */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-bold">👤 Perfil</h2>
@@ -455,6 +394,7 @@ export default function ProfileModal({
         </div>
 
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

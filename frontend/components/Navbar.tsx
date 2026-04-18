@@ -98,6 +98,14 @@ export default function Navbar({
     ? `${apiUrl}${avatarSrc}`
     : null;
 
+  useEffect(() => {
+    if (openMenu) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+  }, [openMenu]);
+
   // 🔥 cerrar dropdowns al hacer click fuera
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -151,13 +159,6 @@ export default function Navbar({
                 className="flex items-center gap-3 cursor-pointer"
               >
                 {avatar ? (
-                  // <Image
-                  //   src={avatar}
-                  //   className="rounded-full"
-                  //   alt="avatar"
-                  //   width={32}
-                  //   height={32}
-                  // />
                   <Image
                     src={fullAvatar || "/default-avatar.png"}
                     alt="avatar"
@@ -182,8 +183,8 @@ export default function Navbar({
 
               {/* DROPDOWN */}
               {openMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-[#1e293b] border border-gray-700 rounded-xl shadow-lg z-50">
-
+                // <div className="absolute right-0 mt-2 w-48 bg-[#1e293b] border border-gray-700 rounded-xl shadow-lg z-50">
+                <div className="absolute top-full left-0 mt-2 w-56 bg-[#1e293b] border border-gray-700 rounded-xl shadow-lg z-50">
                   <div className="p-3 border-b border-gray-700">
                     <p className="text-sm text-white">{name || "Usuario"}</p>
                     <p className="text-xs text-gray-400">{email}</p>
@@ -198,8 +199,9 @@ export default function Navbar({
                   <button
                     onClick={() => {
                       setOpenMenu(false);
-                      onOpenProfile();
-                      // window.location.href = "/profile";
+                      setTimeout(() => {
+                        onOpenProfile();
+                      }, 0);
                     }}
                     className="w-full text-left px-3 py-2 text-sm hover:bg-gray-700"
                   >
@@ -239,7 +241,8 @@ export default function Navbar({
             </button>
 
             {openLeagues && (
-              <div className="absolute left-0 mt-2 w-44 bg-[#1e1e1e] border border-[#333] rounded shadow-lg z-50 overflow-hidden">
+              // <div className="absolute left-0 mt-2 w-44 bg-[#1e1e1e] border border-[#333] rounded shadow-lg z-50 overflow-hidden">
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-[#1e1e1e] border border-[#333] rounded shadow-lg z-50 overflow-hidden">  
                 {[
                   { label: "🌍 Todas", value: "ALL" },
 
@@ -281,8 +284,8 @@ export default function Navbar({
             </button>
 
             {openMarkets && (
-              <div className="absolute left-0 mt-2 w-44 bg-[#1e1e1e] border border-[#333] rounded shadow-lg z-50 overflow-hidden">
-
+              // <div className="absolute left-0 mt-2 w-44 bg-[#1e1e1e] border border-[#333] rounded shadow-lg z-50 overflow-hidden">
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-[#1e1e1e] border border-[#333] rounded shadow-lg z-50 overflow-hidden">
                 {[
                   { label: "Todos", value: "ALL" },
                   { label: "1X2", value: "1X2" },
