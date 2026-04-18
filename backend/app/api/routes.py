@@ -1,4 +1,4 @@
-from fastapi import Response, APIRouter, Depends, Query, Request, HTTPException, BackgroundTasks, Body, UploadFile, File
+from fastapi import Response, APIRouter, Depends, Query, Request, HTTPException, BackgroundTasks, Body, UploadFile, File, Cookie
 from fastapi.responses import StreamingResponse, JSONResponse
 
 from sqlalchemy.orm import Session
@@ -402,41 +402,6 @@ def login(data: LoginRequest, response: Response, db: Session = Depends(get_db))
         print("💥 LOGIN ERROR:", str(e))
         raise HTTPException(status_code=500, detail="Internal server error")
 
-# def get_current_user(
-#     request: Request,
-#     db: Session = Depends(get_db),
-# ):
-#     token = request.cookies.get("access_token")
-
-#     if not token:
-#         return None
-
-#     try:
-#         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-
-#         user_id = payload.get("sub")
-
-#         if not user_id:
-#             return None
-
-#         # 🔥 buscar usuario real
-#         user = db.query(User).filter(User.id == user_id).first()
-
-#         if not user:
-#             return None
-
-#         # 🔥 usuario desactivado
-#         if not user.is_active:
-#             return None
-
-#         return user
-
-#     except Exception:
-#         return None
-    
-
-from fastapi import Cookie
-
 def get_current_user(
     access_token: str = Cookie(None),
     db: Session = Depends(get_db),
@@ -462,7 +427,6 @@ def get_current_user(
     except Exception:
         return None
     
-
 
 @router.get("/me")
 def get_me(user: User = Depends(get_current_user)):
@@ -570,7 +534,6 @@ def forgot_password(data: ForgotRequest, background_tasks: BackgroundTasks, db: 
         "message": "📧 Si el email existe, te hemos enviado instrucciones"
     }
 
-
 @router.post("/reset-password")
 def reset_password(data: dict, db: Session = Depends(get_db)):
     token = data.get("token")
@@ -677,12 +640,13 @@ def oauth_login(data: dict, db: Session = Depends(get_db)):
         db.add(user)
         db.commit()
 
-    # 🔥 actualizar datos siempre
-    user.name = name or user.name
-    # user.avatar = avatar or user.avatar
+
+    if not user.name or user.name == "" or user.name == user.email:
+        user.name = data.name
+
     if not user.avatar or user.avatar.startswith("http"):
        user.avatar = avatar
-    # print(user.provider)
+       
     user.provider = provider
     db.commit()
 

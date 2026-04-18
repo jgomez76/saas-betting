@@ -37,6 +37,8 @@ export default function ProfileModal({
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
 
   const apiUrl =
     typeof window !== "undefined"
@@ -45,32 +47,88 @@ export default function ProfileModal({
         : `http://${window.location.hostname}:8000`
       : "";
 
-  const handleSave = async () => {
-    if (!apiUrl) return;
+  // const handleSave = async () => {
+  //   if (!apiUrl) return;
 
+  //   setSaving(true);
+
+  //   try {
+  //     const res = await fetch(`${apiUrl}/update-profile`, {
+  //       method: "PUT",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       credentials: "include",
+  //       body: JSON.stringify({
+  //         name: editName,
+  //         avatar: editAvatar,
+  //       }),
+  //     });
+
+  //     if (!res.ok) throw new Error();
+
+  //     onRefreshUser(); // 🔥 refresca datos
+  //     setIsEditing(false);
+
+  //   } catch (err) {
+  //     alert("❌ Error al guardar perfil");
+  //     console.log(err);
+  //   } finally {
+  //     setSaving(false);
+  //   }
+  // };
+
+  const handleSave = async () => {
     setSaving(true);
+    setError("");
+    setSuccess("");
 
     try {
-      const res = await fetch(`${apiUrl}/update-profile`, {
+      let newAvatar = user.avatar;
+
+      // 🖼️ 1. subir avatar SOLO si hay archivo nuevo
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+
+        const res = await fetch(`${apiUrl}/upload-avatar`, {
+          method: "POST",
+          body: formData,
+          credentials: "include",
+        });
+
+        if (!res.ok) throw new Error("Error subiendo avatar");
+
+        const data = await res.json();
+
+        newAvatar = data.avatar; // 🔥 guardamos nueva ruta
+      }
+
+      // 👤 2. actualizar perfil (nombre + avatar)
+      const resProfile = await fetch(`${apiUrl}/update-profile`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         credentials: "include",
         body: JSON.stringify({
-          name: editName,
-          avatar: editAvatar,
+          name: editName?.trim() || user.name,
+          avatar: newAvatar,
         }),
       });
 
-      if (!res.ok) throw new Error();
+      if (!resProfile.ok) throw new Error("Error actualizando perfil");
 
-      onRefreshUser(); // 🔥 refresca datos
-      setIsEditing(false);
+      setSuccess("Perfil actualizado correctamente");
 
-    } catch (err) {
-      alert("❌ Error al guardar perfil");
-      console.log(err);
+      // 🔥 3. refrescar usuario (CLAVE para navbar)
+      onRefreshUser();
+      onClose();          // opcional: cerrar modal
+      // window.location.reload(); // 🔥 solución simple (luego mejoramos)
+
+    } catch (err: unknown) {
+      setError("Error al guardar cambios");
+      console.log(err)
     } finally {
       setSaving(false);
     }
@@ -118,31 +176,31 @@ export default function ProfileModal({
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!apiUrl) return;
+  // const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (!apiUrl) return;
 
-    const file = e.target.files?.[0];
-    if (!file) return;
+  //   const file = e.target.files?.[0];
+  //   if (!file) return;
 
-    const formData = new FormData();
-    formData.append("file", file);
+  //   const formData = new FormData();
+  //   formData.append("file", file);
 
-    try {
-      const res = await fetch(`${apiUrl}/upload-avatar`, {
-        method: "POST",
-        credentials: "include",
-        body: formData,
-      });
+  //   try {
+  //     const res = await fetch(`${apiUrl}/upload-avatar`, {
+  //       method: "POST",
+  //       credentials: "include",
+  //       body: formData,
+  //     });
 
-      const data = await res.json();
+  //     const data = await res.json();
 
-      setEditAvatar(data.avatar); // 🔥 actualiza preview
-      onRefreshUser(); // 🔥 sync global
+  //     setEditAvatar(data.avatar); // 🔥 actualiza preview
+  //     onRefreshUser(); // 🔥 sync global
 
-    } catch {
-      setError("Error subiendo imagen");
-    }
-  };
+  //   } catch {
+  //     setError("Error subiendo imagen");
+  //   }
+  // ;}
 
   const avatarSrc = isEditing ? editAvatar : user.avatar;
 
@@ -181,72 +239,78 @@ export default function ProfileModal({
 
         {/* AVATAR */}
         <div className="flex flex-col items-center mb-4">
-{/* 
-          {(isEditing ? editAvatar : user.avatar) && (
-            <Image
-              src={isEditing ? editAvatar : user.avatar!}
-              alt="avatar"
-              width={80}
-              height={80}
-              className="rounded-full mb-2"
-            />
-          )} */}        
 
-          {fullAvatar && (
+          {(isEditing ? editAvatar : user.avatar) ? (
             <Image
-              src={fullAvatar}
+              src={
+                (isEditing ? editAvatar : user.avatar)?.startsWith("http") ||
+                (isEditing ? editAvatar : user.avatar)?.startsWith("data:")
+                  ? (isEditing ? editAvatar : user.avatar)!
+                  : `${apiUrl}${isEditing ? editAvatar : user.avatar}`
+              }
               alt="avatar"
               width={80}
               height={80}
               className="rounded-full mb-2"
               unoptimized
             />
-          )}
-          {!fullAvatar && (
+          ) : (
             <div className="w-20 h-20 rounded-full bg-gray-600 flex items-center justify-center text-xl">
               {user.email?.[0]?.toUpperCase()}
             </div>
           )}
 
-          {/* EDIT MODE */}
           {isEditing ? (
-            <>
-              <input
-                value={editName}
-                onChange={(e) => setEditName(e.target.value)}
-                className="w-full p-2 rounded bg-[#1e293b] text-white mb-2"
-                placeholder="Nombre"
-              />
-
-              <input
-                value={editAvatar}
-                onChange={(e) => setEditAvatar(e.target.value)}
-                className="w-full p-2 rounded bg-[#1e293b] text-white"
-                placeholder="URL avatar"
-              />
-            </>
+            <input
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              className="w-full p-2 rounded bg-[#1e293b] text-white mb-2"
+              placeholder="Nombre"
+            />
           ) : (
             <>
               <p className="text-lg font-semibold">
                 {user.name || "Usuario"}
               </p>
-
               <p className="text-sm text-gray-400">
                 {user.email}
               </p>
             </>
           )}
+
         </div>
 
-        <label className="cursor-pointer text-sm text-cyan-400">
-          Cambiar avatar
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileUpload}
-            className="hidden"
-          />
-        </label>
+        {isEditing && (
+          <label className="cursor-pointer text-sm text-cyan-400 mb-2">
+            📸 Cambiar avatar
+            <input
+              type="file"
+              accept="image/*"
+              // onChange={(e) => {
+              //   const file = e.target.files?.[0];
+              //   if (!file) return;
+
+              //   setSelectedFile(file);
+              //   setEditAvatar(URL.createObjectURL(file));
+              // }}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+
+                setSelectedFile(file);
+
+                const reader = new FileReader();
+
+                reader.onloadend = () => {
+                  setEditAvatar(reader.result as string); // 🔥 base64
+                };
+
+                reader.readAsDataURL(file);
+              }}
+              className="hidden"
+            />
+          </label>
+        )}
 
         {/* INFO */}
         {!isEditing && (
@@ -275,11 +339,6 @@ export default function ProfileModal({
           </div>
         )}
 
-        {/* {success && (
-          <div className="bg-green-500/20 text-green-400 p-2 rounded text-sm mb-2">
-            {success}
-          </div>
-        )} */}
         {success && (
           <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/30 text-green-400 p-3 rounded-lg text-sm mb-3">
             <span>✅</span>
@@ -349,7 +408,12 @@ export default function ProfileModal({
               </button>
 
               <button
-                onClick={() => setIsEditing(false)}
+                // onClick={() => setIsEditing(false)}
+                onClick={() => {
+                  setIsEditing(false);
+                  setSelectedFile(null);
+                  setEditAvatar(user.avatar || "");
+                }}
                 className="w-full bg-gray-600 py-2 rounded"
               >
                 Cancelar
