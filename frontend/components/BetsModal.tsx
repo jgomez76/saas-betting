@@ -21,31 +21,46 @@ type Props = {
   onDelete: (id: number) => void;
 };
 
+type StatProps = {
+  label: string;
+  value: string | number;
+  color?: boolean;
+};
+
+  const Stat = ({ label, value, color }: StatProps) => (
+    <div className="bg-[#2a2a2a] p-2 rounded text-center">
+      <p className="text-xs text-gray-400">{label}</p>
+      <p
+        className={`font-bold ${
+          color === false
+            ? "text-red-400"
+            : color
+            ? "text-green-400"
+            : ""
+        }`}
+      >
+        {value}
+      </p>
+    </div>
+  );
+
+
 // ---------------- COMPONENT ----------------
 
 export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
-  
   const [chartReady, setChartReady] = useState(false);
+  const [betToDelete, setBetToDelete] = useState<number | null>(null);
+  const [statusFilter, setStatusFilter] = useState("ALL");
+
   const stake = 10;
 
-  const [betToDelete, setBetToDelete] = useState<number | null>(null);
-
-  // const sortedBets = [...bets].sort(
-  //   (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-  // );
+  // ---------------- SORT ----------------
   const sortedBets = useMemo(() => {
     return [...bets].sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
   }, [bets]);
 
-  const [statusFilter, setStatusFilter] = useState("ALL");
-
-  // const filteredBets = sortedBets.filter((b) => {
-  //   if (statusFilter === "pending") return b.status === "pending";
-  //   if (statusFilter === "finished") return b.status !== "pending";
-  //   return true;
-  // });
   const filteredBets = useMemo(() => {
     return sortedBets.filter((b) => {
       if (statusFilter === "pending") return b.status === "pending";
@@ -54,39 +69,17 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
     });
   }, [sortedBets, statusFilter]);
 
+  // ---------------- FORMAT ----------------
   const formatDate = (date: string) => {
     if (!date) return "-";
 
     const d = new Date(date + "Z");
-    const now = new Date();
-
-    // 👉 NORMALIZAR (quitar horas para comparar días)
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
-
-    const matchDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-
     const time = d.toLocaleTimeString("es-ES", {
       hour: "2-digit",
       minute: "2-digit",
     });
 
-    // 🔥 HOY
-    if (matchDay.getTime() === today.getTime()) {
-      return `Hoy ${time}`;
-    }
-
-    // 🔥 MAÑANA
-    if (matchDay.getTime() === tomorrow.getTime()) {
-      return `Mañana ${time}`;
-    }
-
-    // 🔥 FORMATO NORMAL
-    const day = d.toLocaleDateString("es-ES", {
-      day: "2-digit",
-    });
-
+    const day = d.toLocaleDateString("es-ES", { day: "2-digit" });
     const month = d
       .toLocaleDateString("es-ES", { month: "short" })
       .replace(".", "");
@@ -94,98 +87,44 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
     return `${day} ${month} ${time}`;
   };
 
+  // const formatValue = (v?: number | null) => {
+  //   if (v === null || v === undefined) return "-";
+  //   return `${v > 0 ? "+" : ""}${(v * 100).toFixed(1)}%`;
+  // };
+
+  // 🔥 LABEL BONITO
+  const getBetLabel = (b: Bet) => {
+    if (b.market === "OU25") {
+      return b.selection === "over" ? "Over 2.5" : "Under 2.5";
+    }
+
+    if (b.market === "OU35") {
+      return b.selection === "over" ? "Over 3.5" : "Under 3.5";
+    }
+
+    if (b.market === "BTTS") {
+      return b.selection === "yes" ? "BTTS Sí" : "BTTS No";
+    }
+
+    if (b.market === "1X2") {
+      return b.selection.toUpperCase();
+    }
+
+    return b.selection;
+  };
+
+  // 💰 PROFIT POR APUESTA
+  const getProfit = (b: Bet) => {
+    if (b.status === "won" && b.odd) {
+      return (b.odd - 1) * stake;
+    }
+    if (b.status === "lost") {
+      return -stake;
+    }
+    return 0;
+  };
 
   // ---------------- STATS ----------------
-  // const stats = useMemo(() => {
-  //   // const totalBets = bets.length;
-  //   const totalBets = filteredBets.length;
-
-  //   const totalStake = totalBets * stake;
-
-  //   // const totalReturn = bets.reduce((acc, b) => {
-  //   const totalReturn = filteredBets.reduce((acc, b) => {
-  //     if (b.status === "won" && b.odd) {
-  //       return acc + b.odd * stake;
-  //     }
-  //     return acc;
-  //   }, 0);
-
-  //   // const wins = bets.filter((b) => b.status === "won").length;
-  //   const wins = filteredBets.filter((b) => b.status === "won").length;
-  //   // const losses = bets.filter((b) => b.status === "lost").length;
-  //   const losses = filteredBets.filter((b) => b.status === "lost").length;
-
-  //   const profit = totalReturn - totalStake;
-  //   const roi = totalStake ? (profit / totalStake) * 100 : 0;
-  //   const yieldValue = totalStake ? totalReturn / totalStake : 0;
-
-  //   const settled = wins + losses;
-  //   const winrate = settled ? (wins / settled) * 100 : 0;
-
-  //   // 🔥 STREAK (racha actual y mejor)
-  //   let currentStreak = 0;
-  //   let bestStreak = 0;
-
-  //   // GRAFICO
-  //   let bankroll = 0;
-  //   // const evolution = bets
-  //   const evolution: ChartPoint[] = [];
-
-  //   filteredBets
-  //     // .filter((b) => b.status !== "pending")
-  //     .filter((b) => b.status !== "pending")
-  //     .map((b, i) => {
-  //       if (b.status === "won" && b.odd) {
-  //         bankroll += b.odd * stake - stake;
-  //       } else if (b.status === "lost") {
-  //         bankroll -= stake;
-  //       }
-
-  //       // return {
-  //       //   bet: i + 1,
-  //       //   bankroll: Number(bankroll.toFixed(2)),
-  //       //   result: b.status,
-  //       // };
-  //       const prev: number = i === 0 ? 0 : evolution[i - 1]?.bankroll ?? 0;
-
-  //       const isUp: boolean = bankroll >= prev;
-
-  //       return {
-  //         bet: i + 1,
-  //         bankroll: Number(bankroll.toFixed(2)),
-  //         bankrollUp: isUp ? bankroll : null,
-  //         bankrollDown: !isUp ? bankroll : null,
-  //       };
-  //     });
-
-  //   // bets.forEach((b) => {
-  //   filteredBets.forEach((b) => {
-  //     if (b.status === "won") {
-  //       currentStreak++;
-  //       bestStreak = Math.max(bestStreak, currentStreak);
-  //     } else if (b.status === "lost") {
-  //       currentStreak = 0;
-  //     }
-  //   });
-
-
-  //   return {
-  //     totalBets,
-  //     wins,
-  //     losses,
-  //     totalStake,
-  //     totalReturn,
-  //     profit,
-  //     roi,
-  //     yieldValue,
-  //     winrate,
-  //     currentStreak,
-  //     bestStreak,
-  //     evolution,
-  //   };
-  // // }, [bets]);
-  // }, [filteredBets]);
-
   const stats = useMemo(() => {
     const totalBets = filteredBets.length;
     const totalStake = totalBets * stake;
@@ -197,391 +136,209 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
       return acc;
     }, 0);
 
-    const wins = filteredBets.filter((b) => b.status === "won").length;
-    const losses = filteredBets.filter((b) => b.status === "lost").length;
-
     const profit = totalReturn - totalStake;
     const roi = totalStake ? (profit / totalStake) * 100 : 0;
-    const yieldValue = totalStake ? totalReturn / totalStake : 0;
 
-    const settled = wins + losses;
-    const winrate = settled ? (wins / settled) * 100 : 0;
+    const evolution = filteredBets
+      .filter((b) => b.status !== "pending")
+      .reduce((acc: { bet: number; bankroll: number }[], b, i) => {
+        const prev = acc.length > 0 ? acc[acc.length - 1].bankroll : 0;
 
-    // 🔥 STREAK
-    let currentStreak = 0;
-    let bestStreak = 0;
+        let next = prev;
 
-    filteredBets.forEach((b) => {
-      if (b.status === "won") {
-        currentStreak++;
-        bestStreak = Math.max(bestStreak, currentStreak);
-      } else if (b.status === "lost") {
-        currentStreak = 0;
-      }
-    });
+        if (b.status === "won" && b.odd) {
+          next = prev + (b.odd - 1) * stake;
+        } else if (b.status === "lost") {
+          next = prev - stake;
+        }
 
-    // ---------------- GRAFICO ----------------
+        acc.push({
+          bet: i + 1,
+          bankroll: Number(next.toFixed(2)),
+        });
 
-    const settledBets = filteredBets.filter(
-      (b) => b.status === "won" || b.status === "lost"
-    );
-
-    let bankroll = 0;
-    // let prevBankroll = 0;
-
-    // const evolution: ChartPoint[] = settledBets.map((b, i) => {
-    //   const previous = bankroll;
-
-    //   if (b.status === "won" && b.odd) {
-    //     bankroll += b.odd * stake - stake;
-    //   } else if (b.status === "lost") {
-    //     bankroll -= stake;
-    //   }
-
-    //   const isUp = bankroll >= previous;
-
-    //   // const point: ChartPoint = {
-    //   //   bet: i + 1,
-    //   //   bankroll: Number(bankroll.toFixed(2)),
-    //   //   bankrollUp: isUp ? Number(bankroll.toFixed(2)) : null,
-    //   //   bankrollDown: !isUp ? Number(bankroll.toFixed(2)) : null,
-    //   // };
-
-    //   const current = Number(bankroll.toFixed(2));
-    //   const prev = Number(previous.toFixed(2));
-
-    //   return {
-    //     bet: i + 1,
-    //     bankroll: current,
-
-    //     // 🔥 CLAVE: duplicar punto de unión
-    //     bankrollUp: isUp ? current : prev,
-    //     bankrollDown: !isUp ? current : prev,
-    //   };
-
-
-    //   // return point;
-    // });
-
-    const evolution = settledBets.map((b, i) => {
-      if (b.status === "won" && b.odd) {
-        bankroll += b.odd * stake - stake;
-      } else if (b.status === "lost") {
-        bankroll -= stake;
-      }
-
-      return {
-        bet: i + 1,
-        bankroll: Number(bankroll.toFixed(2)),
-        result: b.status,
-      };
-    });
+        return acc;
+      }, []);
 
     return {
       totalBets,
-      wins,
-      losses,
-      totalStake,
-      totalReturn,
       profit,
       roi,
-      yieldValue,
-      winrate,
-      currentStreak,
-      bestStreak,
       evolution,
     };
   }, [filteredBets]);
 
   useEffect(() => {
-    if (!open) {
-      setChartReady(false);
-      return;
-    }
-
-    const id = requestAnimationFrame(() => {
-      setChartReady(true);
-    });
-
-    return () => cancelAnimationFrame(id);
+    if (!open) return;
+    requestAnimationFrame(() => setChartReady(true));
   }, [open]);
 
   if (!open) return null;
 
-  // ---------------- HELPERS ----------------
+  // ---------------- STAT ----------------
 
-  const formatValue = (v?: number | null) => {
-    if (v === null || v === undefined) return "-";
-    return `${v > 0 ? "+" : ""}${(v * 100).toFixed(1)}%`;
-  };
-
-  const getRowColor = (status: string) => {
-    if (status === "won") return "bg-green-900/40";
-    if (status === "lost") return "bg-red-900/40";
-    return "bg-[#2a2a2a]";
-  };
-
-  const getStatusBadge = (status: string) => {
-    if (status === "won")
-      return "bg-green-600 text-white px-2 py-1 rounded text-xs";
-    if (status === "lost")
-      return "bg-red-600 text-white px-2 py-1 rounded text-xs";
-    return "bg-gray-500 text-white px-2 py-1 rounded text-xs";
-  };
-
-  // ---------------- RENDER ----------------
-
+  // ---------------- UI ----------------
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-      {/* <div className="bg-[#1e1e1e] text-white rounded-2xl p-6 w-[95%] md:w-[80%] lg:w-[60%] max-h-[100vh] overflow-y-auto flex flex-col"> */}
-      <div className="bg-[#1F3537] text-white rounded-2xl p-6 w-[95%] md:w-[80%] lg:w-[90%] max-h-[100vh] overflow-y-auto flex flex-col">
+    <div className="fixed inset-0 bg-black/80 z-50 flex">
+      <div className="w-full h-full bg-[#1F3537] text-white flex flex-col">
 
         {/* HEADER */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold">📊 Mis Apuestas</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white">
-            ✖
-          </button>
+        <div className="flex justify-between items-center p-4 border-b border-[#333]">
+          <h2 className="text-lg font-bold">📊 Mis Apuestas</h2>
+          <button onClick={onClose}>✖</button>
         </div>
 
-        {/* FILTRO STATUS */}
-        <div className="mb-4 flex gap-2">
+        {/* CONTENIDO */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+
+          {/* FILTRO */}
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="p-2 bg-[#2a2a2a] rounded"
+            className="p-2 bg-[#2a2a2a] rounded w-full"
           >
             <option value="ALL">Todas</option>
             <option value="pending">Pendientes</option>
             <option value="finished">Finalizadas</option>
           </select>
-        </div>
 
-        {/* STATS */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-center">
-          <div className="bg-[#2a2a2a] p-3 rounded">
-            <p className="text-xs text-gray-400">Bets</p>
-            <p className="text-lg font-bold">{stats.totalBets}</p>
+          {/* STATS */}
+          <div className="grid grid-cols-2 gap-2">
+            <Stat label="Bets" value={stats.totalBets} />
+            <Stat label="Profit" value={stats.profit.toFixed(2)} color={stats.profit >= 0} />
+            <Stat label="ROI" value={`${stats.roi.toFixed(1)}%`} color={stats.roi >= 0} />
           </div>
 
-          <div className="bg-[#2a2a2a] p-3 rounded">
-            <p className="text-xs text-gray-400">Profit</p>
-            <p
-              className={`text-lg font-bold ${
-                stats.profit >= 0 ? "text-green-400" : "text-red-400"
-              }`}
-            >
-              {stats.profit.toFixed(2)}
-            </p>
-          </div>
+          {/* CHART */}
+          {chartReady && stats.evolution.length > 0 && (
+            <div className="w-full h-[180px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={stats.evolution}>
+                  <XAxis dataKey="bet" hide />
+                  <YAxis hide />
+                  <Tooltip />
+                  <Line
+                    type="monotone"
+                    dataKey="bankroll"
+                    stroke="#22c55e"
+                    strokeWidth={2}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          )}
 
-          <div className="bg-[#2a2a2a] p-3 rounded">
-            <p className="text-xs text-gray-400">ROI</p>
-            <p
-              className={`text-lg font-bold ${
-                stats.roi >= 0 ? "text-green-400" : "text-red-400"
-              }`}
-            >
-              {stats.roi.toFixed(1)}%
-            </p>
-          </div>
+          {/* BETS */}
+          <div className="flex flex-col gap-3">
 
-          <div className="bg-[#2a2a2a] p-3 rounded">
-            <p className="text-xs text-gray-400">Yield</p>
-            <p className="text-lg font-bold">
-              {stats.yieldValue.toFixed(2)}
-            </p>
-          </div>
+            {filteredBets.map((b) => {
+              const profit = getProfit(b);
 
-          <div className="bg-[#2a2a2a] p-3 rounded">
-            <p className="text-xs text-gray-400">Winrate</p>
-            <p className="text-lg font-bold">
-              {stats.winrate.toFixed(1)}%
-            </p>
-          </div>
+              return (
+                <div
+                  key={b.id}
+                  className="bg-[#2a2a2a] rounded-xl p-3 flex flex-col gap-2"
+                >
+                  {/* HEADER */}
+                  <div className="flex justify-between text-xs text-gray-400">
+                    <span className="truncate">{b.match}</span>
+                    <span>{formatDate(b.date)}</span>
+                  </div>
 
-          <div className="bg-[#2a2a2a] p-3 rounded">
-            <p className="text-xs text-gray-400">Racha actual</p>
-            <p className="text-lg font-bold text-green-400">
-              {stats.currentStreak}
-            </p>
-          </div>
+                  {/* APUESTA */}
+                  <div className="flex justify-between items-center">
+                    <div className="flex flex-col">
+                      <span className="font-semibold">
+                        🎯 {getBetLabel(b)}
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        @ {b.odd ?? "-"}
+                      </span>
+                    </div>
 
-          <div className="bg-[#2a2a2a] p-3 rounded">
-            <p className="text-xs text-gray-400">Mejor racha</p>
-            <p className="text-lg font-bold">
-              {stats.bestStreak}
-            </p>
-          </div>
-        </div>
+                    <span className="text-sm text-gray-300">
+                      {b.result ?? "-"}
+                    </span>
+                  </div>
 
-        {/* 📈 BANKROLL CHART */}
-        {stats.evolution.length === 0 && (
-          <p className="text-center text-gray-400 mb-4">
-            No hay apuestas resueltas aún
-          </p>
-        )}
-        {chartReady && stats.evolution.length > 0 && (
-          <div className="w-full h-[250px] min-h-[200px] flex">
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={stats.evolution}>
-                <XAxis dataKey="bet" />
-                <YAxis />
-                <Tooltip />
+                  {/* FOOTER */}
+                  <div className="flex justify-between items-center">
 
-                {/* 💰 BANKROLL */}
-                <Line
-                  type="monotone"
-                  dataKey="bankroll"
-                  stroke="#200a9b"
-                  strokeWidth={2}
-                  dot={(props: {
-                    cx?: number;
-                    cy?: number;
-                    payload?: { result: "won" | "lost" };
-                  }) => {
-                    const { cx, cy, payload } = props;
-
-                    if (cx === undefined || cy === undefined || !payload) return null;
-
-                    const color =
-                      payload.result === "won" ? "#22c55e" : "#ef4444";
-
-                    return <circle cx={cx} cy={cy} r={4} fill={color} />;
-                  }}
-                />
-
-                {/* 📊 ROI */}
-                <Line
-                  type="monotone"
-                  dataKey="roi"
-                  stroke="#3b82f6"
-                  strokeWidth={2}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        )}
-
-        {/* TABLE */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border-collapse">
-            <thead>
-              <tr className="bg-[#2a2a2a] text-gray-300">
-                <th className="p-2 text-left">Match</th>
-                <th className="p-2 text-center">Date</th>
-                <th className="p-2">Market</th>
-                <th className="p-2">Pick</th>
-                <th className="p-2">Odd</th>
-                <th className="p-2">Value</th>
-                <th className="p-2">Result</th>
-                <th className="p-2">Status</th>
-                <th className="p-2">Acciones</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {/* {bets.map((b) => ( */}
-              {filteredBets.map((b) => (
-                <tr key={b.id} className={`${getRowColor(b.status)} border-b border-[#333]`}>
-                  <td className="p-2 text-left">{b.match}</td>
-
-                  <td className="p-2 text-center text-xs text-gray-400">
-                    {formatDate(b.date)}
-                  </td>
-
-                  <td className="p-2 text-center">{b.market}</td>
-
-                  <td className="p-2 text-center font-semibold">
-                    {b.selection}
-                  </td>
-
-                  <td className="p-2 text-center">{b.odd ?? "-"}</td>
-
-                  {/* <td className="p-2 text-center">
-                    {formatValue(b.value)}
-                  </td> */}
-                  <td
-                    className={`p-2 text-center ${
-                      b.value && b.value >= 0 ? "text-green-400" : "text-red-400"
-                    }`}
-                  >
-                    {formatValue(b.value)}
-                  </td>
-
-                  <td className="p-2 text-center">
-                    {b.result ?? "-"}
-                  </td>
-
-                  <td className="p-2 text-center">
-                    <span className={getStatusBadge(b.status)}>
+                    <span
+                      className={`text-xs px-2 py-1 rounded ${
+                        b.status === "won"
+                          ? "bg-green-600"
+                          : b.status === "lost"
+                          ? "bg-red-600"
+                          : "bg-gray-500"
+                      }`}
+                    >
                       {b.status}
                     </span>
-                  </td>
 
-                  <td className="p-2 text-center">
-                    <button
-                      // onClick={() => {
-                      //   if (confirm("¿Eliminar apuesta?")) {
-                      //     onDelete(b.id);
-                      //   }
-                      // }}
-                      onClick={() => setBetToDelete(b.id)}
-                      className="text-red-400 hover:text-red-300"
-                    >
-                      🗑
-                    </button>
-                  </td>
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={`font-bold ${
+                          profit > 0
+                            ? "text-green-400"
+                            : profit < 0
+                            ? "text-red-400"
+                            : ""
+                        }`}
+                      >
+                        {profit > 0 ? "+" : ""}
+                        {profit.toFixed(2)}€
+                      </span>
 
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                      <button
+                        onClick={() => setBetToDelete(b.id)}
+                        className="text-red-400"
+                      >
+                        🗑
+                      </button>
+                    </div>
 
-        {/* FOOTER */}
-        <div className="mt-4 text-xs text-gray-400 text-center">
-          Stake fijo: {stake}€
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* FOOTER */}
+          <div className="text-center text-xs text-gray-400">
+            Stake fijo: {stake}€
+          </div>
+
         </div>
       </div>
 
+      {/* DELETE MODAL */}
       {betToDelete !== null && (
-      <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-        <div className="bg-[#1e1e1e] p-6 rounded-xl w-[90%] max-w-sm text-center">
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center">
+          <div className="bg-[#1e1e1e] p-6 rounded-xl w-[90%] max-w-sm text-center">
+            <h3 className="text-lg font-bold mb-4">Eliminar apuesta</h3>
 
-          <h3 className="text-lg font-bold mb-4 text-gray-400">
-            🗑 Eliminar apuesta
-          </h3>
+            <div className="flex gap-4 justify-center">
+              <button
+                onClick={() => setBetToDelete(null)}
+                className="px-4 py-2 bg-gray-600 rounded"
+              >
+                Cancelar
+              </button>
 
-          <p className="text-gray-400 mb-6">
-            ¿Estás seguro de que quieres eliminar esta apuesta?
-          </p>
-
-          <div className="flex justify-center gap-4">
-
-            {/* CANCELAR */}
-            <button
-              onClick={() => setBetToDelete(null)}
-              className="px-4 py-2 bg-gray-600 rounded hover:bg-gray-500"
-            >
-              Cancelar
-            </button>
-
-            {/* CONFIRMAR */}
-            <button
-              onClick={() => {
-                onDelete(betToDelete);
-                setBetToDelete(null);
-              }}
-              className="px-4 py-2 bg-red-600 rounded hover:bg-red-500"
-            >
-              Eliminar
-            </button>
-
+              <button
+                onClick={() => {
+                  onDelete(betToDelete);
+                  setBetToDelete(null);
+                }}
+                className="px-4 py-2 bg-red-600 rounded"
+              >
+                Eliminar
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    )}
+      )}
     </div>
   );
 }

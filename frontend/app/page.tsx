@@ -877,6 +877,18 @@ export default function Home() {
         <Sidebar view={view} setView={setView} isAdmin={isAdmin} />
       )}
       <main className="flex-1 p-6 bg-[#F0B071] min-h-screen text-white">
+        {isMobile && (
+        <div className="flex items-center justify-between mb-4">
+
+          <button
+            onClick={() => setShowMenu(true)}
+            className="flex items-center gap-2 px-3 py-2 bg-[#1f2937] rounded-lg shadow"
+          >
+            ☰ <span className="text-sm">Menú</span>
+          </button>
+
+        </div>
+        )}
 
         {/* DASHBOARD */}
         {view === "dashboard" && (
@@ -905,14 +917,7 @@ export default function Home() {
             </div>
           )}
 
-          {isMobile && (
-            <button
-              onClick={() => setShowMenu(true)}
-              className="mb-4 px-3 py-2 bg-gray-800 text-white rounded"
-            >
-              ☰ Menú
-            </button>
-          )}
+
           {mounted && (
             <Navbar
               onOpenTop={() => setShowTopModal(true)}

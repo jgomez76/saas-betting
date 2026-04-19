@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-// import { API_URL } from "@/lib/api";
 import {
   LineChart,
   Line,
@@ -12,6 +11,8 @@ import {
   BarChart,
   Bar,
 } from "recharts";
+
+// ---------------- TYPES ----------------
 
 type Analysis = {
   id: number;
@@ -43,51 +44,60 @@ const apiUrl =
       : `http://${window.location.hostname}:8000`
     : "";
 
+// ---------------- COMPONENT ----------------
+
 export default function AnalysisModal({ onClose }: Props) {
   const [data, setData] = useState<Analysis[]>([]);
 
   // 🔥 FILTROS
   const [selectedMarkets, setSelectedMarkets] = useState<string[]>([]);
+  const [leagueFilter, setLeagueFilter] = useState("ALL");
+
   const [minOdd, setMinOdd] = useState<number | null>(null);
   const [maxOdd, setMaxOdd] = useState<number | null>(null);
   const [minValue, setMinValue] = useState<number | null>(null);
   const [maxValue, setMaxValue] = useState<number | null>(null);
   const [statusFilter, setStatusFilter] = useState("ALL");
 
+  const stake = 10;
+
+  // ---------------- FETCH ----------------
+
   useEffect(() => {
     if (!apiUrl) return;
+
     fetch(`${apiUrl}/analysis`)
       .then((res) => res.json())
       .then(setData);
   }, []);
 
-  // 🔥 MARKET KEY CORRECTO
+  // ---------------- HELPERS ----------------
+
   const getMarketKey = (b: Analysis) => {
     const m = b.market.toUpperCase();
     const s = b.selection.toLowerCase();
 
-    if (m === "BTTS") {
-      if (s === "yes") return "btts_yes";
-      if (s === "no") return "btts_no";
-    }
-
-    if (m === "OU25") {
-      if (s === "over") return "over_2_5";
-      if (s === "under") return "under_2_5";
-    }
-
-    if (m === "OU35") {
-      if (s === "over") return "over_3_5";
-      if (s === "under") return "under_3_5";
-    }
-
-    if (m === "1X2") {
-      if (s === "home") return "home";
-      if (s === "draw") return "draw";
-      if (s === "away") return "away";
-    }
+    if (m === "BTTS") return s === "yes" ? "btts_yes" : "btts_no";
+    if (m === "OU25") return s === "over" ? "over_2_5" : "under_2_5";
+    if (m === "OU35") return s === "over" ? "over_3_5" : "under_3_5";
+    if (m === "1X2") return s;
 
     return "";
+  };
+
+  const getBetLabel = (b: Analysis) => {
+    if (b.market === "OU25")
+      return b.selection === "over" ? "Over 2.5" : "Under 2.5";
+
+    if (b.market === "OU35")
+      return b.selection === "over" ? "Over 3.5" : "Under 3.5";
+
+    if (b.market === "BTTS")
+      return b.selection === "yes" ? "BTTS Sí" : "BTTS No";
+
+    if (b.market === "1X2") return b.selection.toUpperCase();
+
+    return `${b.market} ${b.selection}`;
   };
 
   const toggleMarket = (key: string) => {
@@ -98,335 +108,413 @@ export default function AnalysisModal({ onClose }: Props) {
     );
   };
 
-  // 🔥 FILTRADO
+  // ---------------- LIGAS ----------------
+
+  const leagues = useMemo(() => {
+    const set = new Set(data.map((b) => b.league));
+    return ["ALL", ...Array.from(set)];
+  }, [data]);
+
+  // ---------------- FILTRADO ----------------
+
   const filtered = useMemo(() => {
     return data.filter((b) => {
       const key = getMarketKey(b);
 
+      // 🔥 LIGA
+      if (leagueFilter !== "ALL" && b.league !== leagueFilter) return false;
+
+      // 🔥 MARKET
       if (selectedMarkets.length > 0 && !selectedMarkets.includes(key))
         return false;
 
-      if (minOdd && b.odd < minOdd) return false;
-      if (maxOdd && b.odd > maxOdd) return false;
+      // 🔥 ODDS
+      if (minOdd !== null && b.odd < minOdd) return false;
+      if (maxOdd !== null && b.odd > maxOdd) return false;
 
+      // 🔥 VALUE
       const valuePercent = b.value * 100;
 
-      if (minValue && valuePercent < minValue) return false;
-      if (maxValue && valuePercent > maxValue) return false;
+      if (minValue !== null && valuePercent < minValue) return false;
+      if (maxValue !== null && valuePercent > maxValue) return false;
 
+      // 🔥 STATUS
       if (statusFilter === "pending" && b.status !== "pending") return false;
       if (statusFilter === "finished" && b.status === "pending") return false;
 
       return true;
     });
-  }, [data, selectedMarkets, minOdd, maxOdd, minValue, maxValue, statusFilter]);
+  }, [
+    data,
+    selectedMarkets,
+    minOdd,
+    maxOdd,
+    minValue,
+    maxValue,
+    statusFilter,
+    leagueFilter,
+  ]);
+  // ---------------- STATS ----------------
 
-  // 🔥 KPI + EVOLUCIÓN
   const stats = useMemo(() => {
-    const stake = 10;
-    let runningBankroll = 0;
+    let bankroll = 0;
 
     const evolution: EvolutionPoint[] = [];
 
     filtered.forEach((b, i) => {
-      if (b.status === "won") {
-        runningBankroll += b.odd * stake - stake;
-      } else if (b.status === "lost") {
-        runningBankroll -= stake;
-      }
+      if (b.status === "won") bankroll += b.odd * stake - stake;
+      else if (b.status === "lost") bankroll -= stake;
 
       evolution.push({
         bet: i + 1,
-        bankroll: runningBankroll,
-        roi: (runningBankroll / ((i + 1) * stake)) * 100,
+        bankroll,
+        roi: (bankroll / ((i + 1) * stake)) * 100,
       });
     });
 
     return {
       total: filtered.length,
       wins: filtered.filter((b) => b.status === "won").length,
-      bankroll: runningBankroll,
+      bankroll,
       roi: filtered.length
-        ? (runningBankroll / (filtered.length * stake)) * 100
+        ? (bankroll / (filtered.length * stake)) * 100
         : 0,
       evolution,
     };
   }, [filtered]);
 
-  // 🔥 ROI POR MERCADO
+  // ---------------- ROI MARKET ----------------
+
   const roiByMarket = useMemo(() => {
-    const stake = 10;
     const map: Record<string, { profit: number; bets: number }> = {};
 
     filtered.forEach((b) => {
-      if (!map[b.market]) {
-        map[b.market] = { profit: 0, bets: 0 };
-      }
+      if (!map[b.market]) map[b.market] = { profit: 0, bets: 0 };
 
       map[b.market].bets++;
 
-      if (b.status === "won") {
-        map[b.market].profit += b.odd * stake - stake;
-      } else if (b.status === "lost") {
-        map[b.market].profit -= stake;
-      }
+      if (b.status === "won") map[b.market].profit += b.odd * stake - stake;
+      else if (b.status === "lost") map[b.market].profit -= stake;
     });
 
     return Object.entries(map).map(([market, v]) => ({
       market,
       roi: (v.profit / (v.bets * stake)) * 100,
+      bets: v.bets,
     }));
   }, [filtered]);
 
-  // 🔥 ROI POR LIGA
+  // ---------------- ROI LEAGUE ----------------
+
   const roiByLeague = useMemo(() => {
-    const stake = 10;
     const map: Record<string, { profit: number; bets: number }> = {};
 
     filtered.forEach((b) => {
-      if (!map[b.league]) {
-        map[b.league] = { profit: 0, bets: 0 };
-      }
+      if (!map[b.league]) map[b.league] = { profit: 0, bets: 0 };
 
       map[b.league].bets++;
 
-      if (b.status === "won") {
-        map[b.league].profit += b.odd * stake - stake;
-      } else if (b.status === "lost") {
-        map[b.league].profit -= stake;
-      }
+      if (b.status === "won") map[b.league].profit += b.odd * stake - stake;
+      else if (b.status === "lost") map[b.league].profit -= stake;
     });
 
     return Object.entries(map).map(([league, v]) => ({
       league,
       roi: (v.profit / (v.bets * stake)) * 100,
+      bets: v.bets,
     }));
   }, [filtered]);
 
-  // 🔥 TOP PICKS
-  const profitablePicks = useMemo(() => {
-    const stake = 10;
-    const map: Record<string, { profit: number; bets: number }> = {};
+  // ---------------- INTELIGENCIA ----------------
 
-    data.forEach((b) => {
-      const key = `${b.market}_${b.selection}`;
+  const bestMarket = [...roiByMarket].sort((a, b) => b.roi - a.roi)[0];
+  const worstLeague = [...roiByLeague].sort((a, b) => a.roi - b.roi)[0];
 
-      if (!map[key]) map[key] = { profit: 0, bets: 0 };
-
-      map[key].bets++;
-
-      if (b.status === "won") {
-        map[key].profit += b.odd * stake - stake;
-      } else if (b.status === "lost") {
-        map[key].profit -= stake;
-      }
-    });
-
-    return Object.entries(map)
-      .map(([key, v]) => ({
-        key,
-        roi: (v.profit / (v.bets * stake)) * 100,
-        bets: v.bets,
-      }))
-      .filter((p) => p.roi > 0 && p.bets >= 5);
-  }, [data]);
-
-  const badMarkets = roiByMarket.filter((m) => m.roi < 0);
+  const getProfit = (b: Analysis) => {
+    if (b.status === "won" && b.odd) {
+      return (b.odd - 1) * stake;
+    }
+    if (b.status === "lost") {
+      return -stake;
+    }
+    return 0;
+  };
 
   // ---------------- UI ----------------
-  return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-      <div className="bg-[#1F3537] text-white p-6 rounded-xl w-[95%] max-h-[90vh] overflow-y-auto">
 
-        <div className="flex justify-between mb-6">
-          <h2 className="text-xl font-bold">📊 Analysis</h2>
+  return (
+    <div className="fixed inset-0 bg-black/80 z-50 flex">
+      <div className="w-full h-full bg-[#1F3537] text-white flex flex-col">
+
+        {/* HEADER */}
+        <div className="flex justify-between p-4 border-b border-[#333]">
+          <h2 className="font-bold text-lg">📊 Analysis</h2>
           <button onClick={onClose}>✖</button>
         </div>
 
-        {/* 🔥 TOP PICKS */}
-        <div className="mb-6">
-          <h3 className="font-bold mb-2">🔥 TOP PICKS</h3>
-          <div className="flex flex-wrap gap-2">
-            {profitablePicks.map((p) => (
-              <span key={p.key} className="bg-green-700 px-3 py-1 rounded text-sm">
-                {p.key} ({p.roi.toFixed(1)}%)
-              </span>
-            ))}
-          </div>
-        </div>
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
 
-        {/* 🔥 FILTROS */}
-        <div className="mb-6 space-y-4">
-
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              ["btts_yes", "BTTS Yes"],
-              ["btts_no", "BTTS No"],
-              ["over_2_5", "Over 2.5"],
-              ["under_2_5", "Under 2.5"],
-              ["over_3_5", "Over 3.5"],
-              ["under_3_5", "Under 3.5"],
-              ["home", "Home"],
-              ["draw", "Draw"],
-              ["away", "Away"],
-            ].map(([key, label]) => (
+          {/* 🔥 LIGAS */}
+          <div className="flex gap-2 overflow-x-auto">
+            {leagues.map((l) => (
               <button
-                key={key}
-                onClick={() => toggleMarket(key)}
-                className={`p-2 rounded ${
-                  selectedMarkets.includes(key)
+                key={l}
+                onClick={() => setLeagueFilter(l)}
+                className={`px-3 py-1 rounded text-sm whitespace-nowrap ${
+                  leagueFilter === l
                     ? "bg-cyan-600"
                     : "bg-[#2a2a2a]"
                 }`}
               >
-                {label}
+                {l}
               </button>
             ))}
           </div>
 
-          <div className="flex gap-2">
-            <input type="number" placeholder="Odd min" onChange={(e) => setMinOdd(Number(e.target.value))} />
-            <input type="number" placeholder="Odd max" onChange={(e) => setMaxOdd(Number(e.target.value))} />
+          {/* 🔥 FILTROS */}
+          <div className="space-y-3">
+
+            {/* MARKETS */}
+            <div className="grid grid-cols-3 gap-2 text-xs">
+              {[
+                ["btts_yes", "BTTS Sí"],
+                ["btts_no", "BTTS No"],
+                ["over_2_5", "Over 2.5"],
+                ["under_2_5", "Under 2.5"],
+                ["over_3_5", "Over 3.5"],
+                ["under_3_5", "Under 3.5"],
+                ["home", "Home"],
+                ["draw", "Draw"],
+                ["away", "Away"],
+              ].map(([key, label]) => (
+                <button
+                  key={key}
+                  onClick={() => toggleMarket(key)}
+                  className={`p-2 rounded ${
+                    selectedMarkets.includes(key)
+                      ? "bg-cyan-600"
+                      : "bg-[#2a2a2a]"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {/* ODDS */}
+            <div className="flex gap-2">
+              <input
+                type="number"
+                placeholder="Odd min"
+                className="w-full p-2 rounded bg-[#2a2a2a]"
+                onChange={(e) =>
+                  setMinOdd(e.target.value ? Number(e.target.value) : null)
+                }
+              />
+              <input
+                type="number"
+                placeholder="Odd max"
+                className="w-full p-2 rounded bg-[#2a2a2a]"
+                onChange={(e) =>
+                  setMaxOdd(e.target.value ? Number(e.target.value) : null)
+                }
+              />
+            </div>
+
+            {/* VALUE */}
+            <div className="flex gap-2">
+              <input
+                type="number"
+                placeholder="Value min %"
+                className="w-full p-2 rounded bg-[#2a2a2a]"
+                onChange={(e) =>
+                  setMinValue(e.target.value ? Number(e.target.value) : null)
+                }
+              />
+              <input
+                type="number"
+                placeholder="Value max %"
+                className="w-full p-2 rounded bg-[#2a2a2a]"
+                onChange={(e) =>
+                  setMaxValue(e.target.value ? Number(e.target.value) : null)
+                }
+              />
+            </div>
+
+            {/* STATUS */}
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full p-2 rounded bg-[#2a2a2a]"
+            >
+              <option value="ALL">Todos</option>
+              <option value="pending">Pendientes</option>
+              <option value="finished">Finalizados</option>
+            </select>
+
           </div>
 
-          <div className="flex gap-2">
-            <input type="number" placeholder="Value min %" onChange={(e) => setMinValue(Number(e.target.value))} />
-            <input type="number" placeholder="Value max %" onChange={(e) => setMaxValue(Number(e.target.value))} />
+          {/* KPIs */}
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            <div>Bets: {stats.total}</div>
+            <div>Wins: {stats.wins}</div>
+            <div>Profit: {stats.bankroll.toFixed(2)}€</div>
+            <div>ROI: {stats.roi.toFixed(1)}%</div>
           </div>
 
-          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-            <option value="ALL">Todos</option>
-            <option value="pending">Pendientes</option>
-            <option value="finished">Finalizados</option>
-          </select>
+          {/* 🔥 RECOMENDACIONES */}
+          {bestMarket && (
+            <div className="bg-green-900/30 p-3 rounded">
+              ✅ Mejor mercado: {bestMarket.market} ({bestMarket.roi.toFixed(1)}%)
+            </div>
+          )}
 
-        </div>
+          {worstLeague && (
+            <div className="bg-red-900/30 p-3 rounded">
+              ⚠️ Evita {worstLeague.league} ({worstLeague.roi.toFixed(1)}%)
+            </div>
+          )}
 
-        {/* KPI */}
-        <div className="grid grid-cols-4 gap-4 mb-6 text-center">
-          <div>Bets: {stats.total}</div>
-          <div>Wins: {stats.wins}</div>
-          <div>Profit: {stats.bankroll.toFixed(2)}</div>
-          <div>ROI: {stats.roi.toFixed(1)}%</div>
-        </div>
+          {/* CHART */}
+          <div className="w-full h-[200px]">
+            <ResponsiveContainer>
+              <LineChart data={stats.evolution}>
+                <XAxis dataKey="bet" />
+                <YAxis />
+                <Tooltip />
+                <Line dataKey="bankroll" stroke="#22c55e" />
+                <Line dataKey="roi" stroke="#3b82f6" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
 
-        {/* CHART */}
-        <div className="w-full h-[250px] mb-8">
-          <ResponsiveContainer>
-            <LineChart data={stats.evolution}>
-              <XAxis dataKey="bet" />
+          {/* ROI MERCADO */}
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={roiByMarket}>
+              <XAxis dataKey="market" />
               <YAxis />
               <Tooltip />
-              <Line dataKey="bankroll" stroke="#22c55e" />
-              <Line dataKey="roi" stroke="#3b82f6" />
-            </LineChart>
+              <Bar dataKey="roi" fill="#3b82f6" />
+            </BarChart>
           </ResponsiveContainer>
-        </div>
 
-        {/* ROI MERCADO */}
-        <ResponsiveContainer width="100%" height={200}>
-          <BarChart data={roiByMarket}>
-            <XAxis dataKey="market" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="roi" fill="#8884d8" />
-          </BarChart>
-        </ResponsiveContainer>
-
-        {/* ROI LIGA */}
-        <div className="flex flex-wrap gap-2 mt-4">
-          {roiByLeague.map((l) => (
-            <span key={l.league}>
-              {l.league} ({l.roi.toFixed(1)}%)
-            </span>
-          ))}
-        </div>
-
-        {/* ALERTA */}
-        {badMarkets.length > 0 && (
-          <div className="bg-red-900 p-4 mt-4 rounded">
-            ⚠️ Mercados a eliminar:
-            {badMarkets.map((m) => (
-              <div key={m.market}>
-                {m.market} ({m.roi.toFixed(1)}%)
+          {/* ROI LIGA */}
+          <div className="flex flex-col gap-2">
+            {roiByLeague.map((l) => (
+              <div key={l.league} className="flex justify-between bg-[#2a2a2a] p-2 rounded">
+                <span>{l.league}</span>
+                <span className={l.roi >= 0 ? "text-green-400" : "text-red-400"}>
+                  {l.roi.toFixed(1)}%
+                </span>
               </div>
             ))}
           </div>
-        )}
 
-        {/* 🧾 TABLA DE PARTIDOS */}
-        <div className="mt-6">
-          <h3 className="mb-2 font-semibold">Bets</h3>
+          {/* 🔥 BETS PRO */}
+          <div className="flex flex-col gap-3">
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-[#2a2a2a]">
-                  <th className="p-2">Fecha</th>
-                  <th className="p-2">Match</th>
-                  <th className="p-2">Pick</th>
-                  <th className="p-2">Odd</th>
-                  <th className="p-2">Value</th>
-                  <th className="p-2">Resultado</th>
-                </tr>
-              </thead>
+            {filtered.map((b, index) => {
+              const profit = getProfit(b);
 
-              <tbody>
-                {filtered.map((b) => (
-                  <tr key={b.id} className="border-b border-[#333]">
+              const bankroll =
+                stats.evolution[index]?.bankroll ?? 0;
 
-                    {/* FECHA */}
-                    <td className="p-2 text-xs text-gray-400">
-                      {new Date(b.date).toLocaleDateString("es-ES", {
-                        day: "2-digit",
-                        month: "2-digit",
-                      })}
-                    </td>
+              return (
+                <div
+                  key={b.id}
+                  className="bg-[#2a2a2a] rounded-xl p-3 text-sm"
+                >
 
-                    {/* MATCH */}
-                    <td className="p-2">
-                      {b.home_team} vs {b.away_team}
-                    </td>
+                  {/* MATCH */}
+                  <div className="font-semibold truncate">
+                    {b.home_team} vs {b.away_team}
+                  </div>
 
-                    {/* PICK */}
-                    <td className="p-2 text-center">
-                      {b.market} {b.selection}
-                    </td>
+                  {/* INFO */}
+                  <div className="flex justify-between text-xs text-gray-400 mt-1">
+                    <span>{b.league}</span>
+                    <span>
+                      {new Date(b.date).toLocaleDateString()}
+                    </span>
+                  </div>
 
-                    {/* ODD */}
-                    <td className="p-2 text-center">
-                      {b.odd}
-                    </td>
+                  {/* MAIN ROW */}
+                  <div className="flex justify-between items-center mt-2">
 
-                    {/* VALUE */}
-                    <td className="p-2 text-center">
-                      {(b.value * 100).toFixed(1)}%
-                    </td>
+                    {/* IZQ */}
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-white">
+                        {getBetLabel(b)}
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        Cuota: {b.odd ?? "-"}
+                      </span>
+                    </div>
 
-                    {/* RESULTADO */}
-                    <td className="p-2 text-center">
+                    {/* STATUS */}
+                    <div>
                       <span
-                        className={
+                        className={`px-2 py-1 rounded text-xs ${
                           b.status === "won"
-                            ? "text-green-400 font-bold"
+                            ? "bg-green-600"
                             : b.status === "lost"
-                            ? "text-red-400 font-bold"
-                            : "text-gray-400"
-                        }
+                            ? "bg-red-600"
+                            : "bg-gray-500"
+                        }`}
                       >
                         {b.status === "won"
-                          ? "✅ Win"
+                          ? "WIN"
                           : b.status === "lost"
-                          ? "❌ Lost"
-                          : "⏳ Pending"}
+                          ? "LOSS"
+                          : "PENDING"}
                       </span>
-                    </td>
+                    </div>
 
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    {/* DERECHA */}
+                    <div className="text-right">
+
+                      {/* PROFIT */}
+                      <div
+                        className={`font-bold ${
+                          profit > 0
+                            ? "text-green-400"
+                            : profit < 0
+                            ? "text-red-400"
+                            : "text-gray-400"
+                        }`}
+                      >
+                        {profit > 0 ? "+" : ""}
+                        {profit.toFixed(2)}€
+                      </div>
+
+                      {/* VALUE */}
+                      <div
+                        className={`text-xs ${
+                          b.value >= 0
+                            ? "text-green-400"
+                            : "text-red-400"
+                        }`}
+                      >
+                        {(b.value * 100).toFixed(1)}%
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                  {/* 🔥 BANKROLL */}
+                  {b.status !== "pending" && (
+                    <div className="text-xs text-gray-400 mt-1 text-right">
+                      Bankroll: {bankroll.toFixed(2)}€
+                    </div>
+                  )}
+
+                </div>
+              );
+            })}
+
           </div>
+
         </div>
       </div>
     </div>

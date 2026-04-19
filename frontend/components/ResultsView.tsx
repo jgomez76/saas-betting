@@ -217,108 +217,109 @@ export default function ResultsView() {
   //     </div>
   //   </div>
   // );
-  return (
-    <div className="flex flex-col md:flex-row gap-4 w-full max-w-full overflow-x-hidden">
+return (
+  <div className="flex flex-col md:flex-row gap-4 w-full">
 
-      {/* 🏆 SIDEBAR */}
-      <div className="w-full md:w-52 bg-[#1f2937] p-3 rounded-lg border border-[#333]">
-        <h2 className="mb-3 font-bold text-cyan-400 text-sm">🏆 Ligas</h2>
+    {/* 🏆 LIGAS */}
+    <div className="w-full md:w-52 bg-[#1f2937] p-3 rounded-lg border border-[#333]">
 
-        {/* 🔥 MOBILE: scroll horizontal */}
-        <div className="flex md:block gap-2 overflow-x-auto max-w-full">
+      <h2 className="mb-3 font-bold text-cyan-400 text-sm">🏆 Ligas</h2>
 
-          {leagues.map((l) => (
-            <div
-              key={l}
-              onClick={() => setSelectedLeague(l)}
-              className={`p-2 px-3 text-sm rounded cursor-pointer whitespace-nowrap flex-shrink-0 transition ${
-                selectedLeague === l
-                  ? "bg-cyan-600"
-                  : "hover:bg-[#2a2a2a]"
-              }`}
-            >
-              {l}
-            </div>
-          ))}
+      {/* 🔥 WRAP en vez de scroll */}
+      <div className="flex flex-wrap gap-2">
 
-        </div>
-      </div>
+        {leagues.map((l) => (
+          <div
+            key={l}
+            onClick={() => setSelectedLeague(l)}
+            className={`p-2 px-3 text-sm rounded cursor-pointer transition ${
+              selectedLeague === l
+                ? "bg-cyan-600"
+                : "bg-[#2a2a2a] hover:bg-[#3a3a3a]"
+            }`}
+          >
+            {l}
+          </div>
+        ))}
 
-      {/* 📊 RESULTADOS */}
-      <div className="flex-1 mt-2 md:mt-0 w-full min-w-0">
-
-        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full">
-
-          {sortedRounds.map((round) => (
-            <div
-              key={round}
-              className="rounded-xl p-3 w-full min-w-0 overflow-hidden bg-[#0f172a] border border-cyan-500 shadow-md"
-            >
-
-              {/* 🏆 HEADER */}
-              <h3 className="text-xs font-semibold text-cyan-400 mb-2">
-                Jornada {getRoundNumber(round)}
-              </h3>
-
-              {/* 📦 PARTIDOS */}
-              <div className="flex flex-col gap-2">
-
-                {groupedByRound[round]
-                  .sort(
-                    (a, b) =>
-                      new Date(a.date).getTime() -
-                      new Date(b.date).getTime()
-                  )
-                  .map((m) => {
-                    const isHomeWin = m.home_goals > m.away_goals;
-                    const isAwayWin = m.away_goals > m.home_goals;
-
-                    return (
-                      <div
-                        key={m.id}
-                        className={`px-3 py-2 rounded-md text-xs ${
-                          isToday(m.date)
-                            ? "bg-yellow-900 border border-yellow-500"
-                            : "bg-[#2a2a2a]"
-                        }`}
-                      >
-
-                        <div className="flex items-center justify-between w-full gap-2 min-w-0">
-
-                          {/* HOME */}
-                          <span
-                            className={`flex-1 truncate ${
-                              isHomeWin ? "font-semibold text-green-400" : ""
-                            }`}
-                          >
-                            {m.home_team}
-                          </span>
-
-                          {/* RESULT */}
-                          <span className="px-2 text-center font-bold text-white">
-                            {m.home_goals}-{m.away_goals}
-                          </span>
-
-                          {/* AWAY */}
-                          <span
-                            className={`flex-1 text-right truncate ${
-                              isAwayWin ? "font-semibold text-green-400" : ""
-                            }`}
-                          >
-                            {m.away_team}
-                          </span>
-
-                        </div>
-                      </div>
-                    );
-                  })}
-
-              </div>
-            </div>
-          ))}
-
-        </div>
       </div>
     </div>
-  );
+
+    {/* 📊 RESULTADOS */}
+    <div className="flex-1 w-full">
+
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+
+        {sortedRounds.map((round) => (
+          <div
+            key={round}
+            className="rounded-xl p-3 bg-[#0f172a] border border-cyan-500 shadow-md"
+          >
+
+            <h3 className="text-sm font-semibold text-cyan-400 mb-2">
+              Jornada {getRoundNumber(round)}
+            </h3>
+
+            <div className="flex flex-col gap-2">
+
+              {groupedByRound[round]
+                .sort(
+                  (a, b) =>
+                    new Date(a.date).getTime() -
+                    new Date(b.date).getTime()
+                )
+                .map((m) => {
+                  const isHomeWin = m.home_goals > m.away_goals;
+                  const isAwayWin = m.away_goals > m.home_goals;
+
+                  return (
+                    <div
+                      key={m.id}
+                      className={`px-3 py-2 rounded-md text-sm ${
+                        isToday(m.date)
+                          ? "bg-yellow-900 border border-yellow-500"
+                          : "bg-[#2a2a2a]"
+                      }`}
+                    >
+
+                      <div className="flex items-center gap-2">
+
+                        {/* HOME */}
+                        <span
+                          className={`flex-1 truncate ${
+                            isHomeWin ? "font-semibold text-green-400" : ""
+                          }`}
+                        >
+                          {m.home_team}
+                        </span>
+
+                        {/* RESULT */}
+                        <span className="flex-shrink-0 px-2 font-bold text-white">
+                          {m.home_goals}-{m.away_goals}
+                        </span>
+
+                        {/* AWAY */}
+                        <span
+                          className={`flex-1 text-right truncate ${
+                            isAwayWin ? "font-semibold text-green-400" : ""
+                          }`}
+                        >
+                          {m.away_team}
+                        </span>
+
+                      </div>
+
+                    </div>
+                  );
+                })}
+
+            </div>
+          </div>
+        ))}
+
+      </div>
+    </div>
+
+  </div>
+);
 }
