@@ -218,15 +218,11 @@ export default function LoginModal({ onClose, onLogin }: Props) {
   // ---------------- UI ----------------
 
   return (
-    // <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-      {/* <div className="bg-[#1e1e1e] text-white p-6 rounded-xl w-[320px]"> */}
-      {/* <div className="bg-[#1e293b] text-white p-6 rounded-2xl w-[320px] shadow-xl border border-[#334155]"> */}
-      <div className="bg-[#0f172a] p-6 rounded-2xl w-[320px] shadow-2xl border border-[#334155] animate-in fade-in zoom-in duration-200">
+      <div className="bg-[var(--card)] p-6 rounded-2xl w-[320px] shadow-2xl border border-[var(--border)] text-[var(--text)] animate-in fade-in zoom-in duration-200">
 
         {/* TITLE */}
         <h2 className="text-lg font-bold mb-4 text-center text-white">
-          {/* {mode === "login" ? "🔐 Iniciar sesión" : "📝 Crear cuenta"} */}
           {mode === "login"
             ? "🔐 Iniciar sesión"
             : mode === "register"
@@ -239,7 +235,7 @@ export default function LoginModal({ onClose, onLogin }: Props) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
-          className="w-full mb-3 p-2 rounded bg-[#2a2a2a] text-white"
+          className="w-full mb-3 p-2 rounded bg-[var(--card)] text-[var(--text)] border border-[var(--border)]"
         />
 
         {/* PASSWORD */}
@@ -249,7 +245,7 @@ export default function LoginModal({ onClose, onLogin }: Props) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
-            className="w-full mb-4 p-2 rounded bg-[#334155] text-white"
+            className="w-full mb-4 p-2 rounded bg-[var(--card)] text-[var(--text)] border border-[var(--border)]"
           />
         )}
 
@@ -280,7 +276,7 @@ export default function LoginModal({ onClose, onLogin }: Props) {
 
         {/* ERROR */}
         {error && (
-          <p className="text-red-400 text-sm mb-3 text-center">
+          <p className="text-[var(--danger)] text-sm mb-3 text-center">
             {error}
           </p>
         )}
@@ -288,7 +284,7 @@ export default function LoginModal({ onClose, onLogin }: Props) {
         {showResend && (
         <button
             onClick={handleResend}
-            className="w-full text-cyan-400 text-sm mb-3 hover:underline"
+            className="w-full text-[var(--primary)] text-sm mb-3 hover:underline"
           >
             Reenviar email de verificación
           </button>
@@ -306,7 +302,7 @@ export default function LoginModal({ onClose, onLogin }: Props) {
                 : handleForgotPassword
             }
             disabled={loading}
-            className="w-full bg-cyan-600 py-2 rounded font-bold hover:bg-cyan-500 disabled:opacity-50"
+            className="w-full bg-[var(--primary)] py-2 rounded font-bold hover:opacity-90 text-white disabled:opacity-50"
           >
           {loading
             ? "Cargando..."
@@ -319,7 +315,7 @@ export default function LoginModal({ onClose, onLogin }: Props) {
 
 
         {/* TOGGLE */}
-        <div className="text-center mt-4 text-sm text-gray-400">
+        <div className="text-center mt-4 text-sm text-[var(--muted)]">
           {mode === "login" ? (
             <>
               ¿No tienes cuenta?{" "}

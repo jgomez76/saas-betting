@@ -96,7 +96,6 @@ export default function ProfileModal({
       // 🔥 3. refrescar usuario (CLAVE para navbar)
       onRefreshUser();
       onClose();          // opcional: cerrar modal
-      // window.location.reload(); // 🔥 solución simple (luego mejoramos)
 
     } catch (err: unknown) {
       setError("Error al guardar cambios");
@@ -169,7 +168,7 @@ export default function ProfileModal({
   return createPortal(
     <div className="fixed inset-0 bg-black/80 flex justify-center z-[9999]">
 
-      <div className="mt-4 w-[95%] max-w-md max-h-[90vh] overflow-y-auto bg-[#0f172a] text-white p-6 rounded-2xl shadow-xl border border-[#334155]">
+      <div className="mt-4 w-[95%] max-w-md max-h-[90vh] overflow-y-auto bg-[var(--card)] text-[var(--text)] p-6 rounded-2xl shadow-xl border border-[var(--border)]">
         {/* HEADER */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-bold">👤 Perfil</h2>
@@ -194,7 +193,7 @@ export default function ProfileModal({
               unoptimized
             />
           ) : (
-            <div className="w-20 h-20 rounded-full bg-gray-600 flex items-center justify-center text-xl">
+            <div className="w-20 h-20 rounded-full bg-[var(--muted)] flex items-center justify-center text-xl">
               {user.email?.[0]?.toUpperCase()}
             </div>
           )}
@@ -203,7 +202,7 @@ export default function ProfileModal({
             <input
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
-              className="w-full p-2 rounded bg-[#1e293b] text-white mb-2"
+              className="w-full p-2 rounded bg-[var(--card)] text-[var(--text)] mb-2"
               placeholder="Nombre"
             />
           ) : (
@@ -211,7 +210,7 @@ export default function ProfileModal({
               <p className="text-lg font-semibold">
                 {user.name || "Usuario"}
               </p>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-[var(--muted)]">
                 {user.email}
               </p>
             </>
@@ -220,18 +219,11 @@ export default function ProfileModal({
         </div>
 
         {isEditing && (
-          <label className="cursor-pointer text-sm text-cyan-400 mb-2">
+          <label className="cursor-pointer text-sm text-[var(--primary)] mb-2">
             📸 Cambiar avatar
             <input
               type="file"
               accept="image/*"
-              // onChange={(e) => {
-              //   const file = e.target.files?.[0];
-              //   if (!file) return;
-
-              //   setSelectedFile(file);
-              //   setEditAvatar(URL.createObjectURL(file));
-              // }}
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (!file) return;
@@ -256,14 +248,14 @@ export default function ProfileModal({
           <div className="space-y-3 text-sm">
 
             <div className="flex justify-between">
-              <span className="text-gray-400">Plan</span>
+              <span className="text-[var(--muted)]">Plan</span>
               <span className="font-semibold">
                 {user.subscription || "free"}
               </span>
             </div>
 
             <div className="flex justify-between">
-              <span className="text-gray-400">Provider</span>
+              <span className="text-[var(--muted)]">Provider</span>
               <span className="font-semibold">
                 {user.provider ?? "email"}
               </span>
@@ -273,13 +265,13 @@ export default function ProfileModal({
         )}
 
         {error && (
-          <div className="bg-red-500/20 text-red-400 p-2 rounded text-sm mb-2">
+          <div className="bg-[var(--danger)]/20 text-[var(--danger)] p-2 rounded text-sm mb-2">
             {error}
           </div>
         )}
 
         {success && (
-          <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/30 text-green-400 p-3 rounded-lg text-sm mb-3">
+          <div className="flex items-center gap-2 bg-[var(--success)]/10 border border-[var(--success)]/30 text-[var(--success)] p-3 rounded-lg text-sm mb-3">
             <span>✅</span>
             <span>{success}</span>
           </div>
@@ -293,7 +285,7 @@ export default function ProfileModal({
               placeholder="Contraseña actual"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full p-2 rounded bg-[#1e293b]"
+              className="w-full p-2 rounded bg-[var(--card)]"
             />
 
             <input
@@ -301,7 +293,7 @@ export default function ProfileModal({
               placeholder="Nueva contraseña"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full p-2 rounded bg-[#1e293b]"
+              className="w-full p-2 rounded bg-[var(--card)]"
             />
 
           </div>
@@ -318,7 +310,7 @@ export default function ProfileModal({
                   setIsPasswordMode(false);
                   setIsEditing(true);
                 }}
-                className="w-full bg-cyan-600 py-2 rounded hover:bg-cyan-500"
+                className="w-full bg-[var(--primary)] py-2 rounded hover:opacity-90"
               >
                 ✏️ Editar perfil
               </button>
@@ -328,7 +320,7 @@ export default function ProfileModal({
                   setIsEditing(false);
                   setIsPasswordMode(true);
                 }}
-                className="w-full bg-gray-700 py-2 rounded hover:bg-gray-600"
+                className="w-full bg-[var(--card)] py-2 rounded hover:bg-[var(--hover)]"
               >
                 🔑 Cambiar contraseña
               </button>
@@ -341,19 +333,18 @@ export default function ProfileModal({
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="w-full bg-green-600 py-2 rounded"
+                className="w-full bg-[var(--success)] py-2 rounded"
               >
                 {saving ? "Guardando..." : "💾 Guardar"}
               </button>
 
               <button
-                // onClick={() => setIsEditing(false)}
                 onClick={() => {
                   setIsEditing(false);
                   setSelectedFile(null);
                   setEditAvatar(user.avatar || "");
                 }}
-                className="w-full bg-gray-600 py-2 rounded"
+                className="w-full bg-[var(--muted)] py-2 rounded"
               >
                 Cancelar
               </button>
@@ -366,14 +357,14 @@ export default function ProfileModal({
               <button
                 onClick={handleChangePassword}
                 disabled={savingPassword}
-                className="w-full bg-green-600 py-2 rounded"
+                className="w-full bg-[var(--success)] py-2 rounded"
               >
                 {savingPassword ? "Guardando..." : "💾 Guardar contraseña"}
               </button>
 
               <button
                 onClick={() => setIsPasswordMode(false)}
-                className="w-full bg-gray-600 py-2 rounded"
+                className="w-full bg-[var(--muted)] py-2 rounded"
               >
                 Cancelar
               </button>
@@ -386,7 +377,7 @@ export default function ProfileModal({
               onLogout();
               onClose();
             }}
-            className="w-full bg-red-600 py-2 rounded mt-3"
+            className="w-full bg-[var(--danger)] py-2 rounded mt-3"
           >
             🚪 Cerrar sesión
           </button>

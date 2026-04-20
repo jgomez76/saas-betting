@@ -243,11 +243,11 @@ export default function AnalysisModal({ onClose }: Props) {
   // ---------------- UI ----------------
 
   return (
-    <div className="fixed inset-0 bg-black/80 z-50 flex">
-      <div className="w-full h-full bg-[#1F3537] text-white flex flex-col">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex">
+      <div className="w-full h-full bg-[var(--bg)] text-[var(--text)] flex flex-col">
 
         {/* HEADER */}
-        <div className="flex justify-between p-4 border-b border-[#333]">
+        <div className="flex justify-between p-4 border-b border-[var(--border)]">
           <h2 className="font-bold text-lg">📊 Analysis</h2>
           <button onClick={onClose}>✖</button>
         </div>
@@ -262,8 +262,8 @@ export default function AnalysisModal({ onClose }: Props) {
                 onClick={() => setLeagueFilter(l)}
                 className={`px-3 py-1 rounded text-sm whitespace-nowrap ${
                   leagueFilter === l
-                    ? "bg-cyan-600"
-                    : "bg-[#2a2a2a]"
+                    ? "bg-[var(--primary)] text-white"
+                    : "bg-[var(--card)] border border-[var(--border)] hover:bg-[var(--hover)]"
                 }`}
               >
                 {l}
@@ -292,8 +292,8 @@ export default function AnalysisModal({ onClose }: Props) {
                   onClick={() => toggleMarket(key)}
                   className={`p-2 rounded ${
                     selectedMarkets.includes(key)
-                      ? "bg-cyan-600"
-                      : "bg-[#2a2a2a]"
+                      ? "bg-[var(--primary)] text-white"
+                      : "bg-[var(--card)] border border-[var(--border)] hover:bg-[var(--hover)]"
                   }`}
                 >
                   {label}
@@ -306,7 +306,7 @@ export default function AnalysisModal({ onClose }: Props) {
               <input
                 type="number"
                 placeholder="Odd min"
-                className="w-full p-2 rounded bg-[#2a2a2a]"
+                className="w-full p-2 rounded bg-[var(--card)] border border-[var(--border)] text-[var(--text)]"
                 onChange={(e) =>
                   setMinOdd(e.target.value ? Number(e.target.value) : null)
                 }
@@ -314,7 +314,7 @@ export default function AnalysisModal({ onClose }: Props) {
               <input
                 type="number"
                 placeholder="Odd max"
-                className="w-full p-2 rounded bg-[#2a2a2a]"
+                className="w-full p-2 rounded bg-[var(--card)] border border-[var(--border)] text-[var(--text)]"
                 onChange={(e) =>
                   setMaxOdd(e.target.value ? Number(e.target.value) : null)
                 }
@@ -326,7 +326,7 @@ export default function AnalysisModal({ onClose }: Props) {
               <input
                 type="number"
                 placeholder="Value min %"
-                className="w-full p-2 rounded bg-[#2a2a2a]"
+                className="w-full p-2 rounded bg-[var(--card)] border border-[var(--border)] text-[var(--text)]"
                 onChange={(e) =>
                   setMinValue(e.target.value ? Number(e.target.value) : null)
                 }
@@ -334,7 +334,7 @@ export default function AnalysisModal({ onClose }: Props) {
               <input
                 type="number"
                 placeholder="Value max %"
-                className="w-full p-2 rounded bg-[#2a2a2a]"
+                className="w-full p-2 rounded bg-[var(--card)] border border-[var(--border)] text-[var(--text)]"
                 onChange={(e) =>
                   setMaxValue(e.target.value ? Number(e.target.value) : null)
                 }
@@ -345,7 +345,7 @@ export default function AnalysisModal({ onClose }: Props) {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full p-2 rounded bg-[#2a2a2a]"
+              className="w-full p-2 rounded bg-[var(--card)] border border-[var(--border)]"
             >
               <option value="ALL">Todos</option>
               <option value="pending">Pendientes</option>
@@ -355,22 +355,34 @@ export default function AnalysisModal({ onClose }: Props) {
           </div>
 
           {/* KPIs */}
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            <div>Bets: {stats.total}</div>
-            <div>Wins: {stats.wins}</div>
-            <div>Profit: {stats.bankroll.toFixed(2)}€</div>
-            <div>ROI: {stats.roi.toFixed(1)}%</div>
+          <div className="grid grid-cols-2 gap-2 text-sm">            
+            <div className="bg-[var(--card)] border border-[var(--border)] p-2 rounded text-center">
+              <p className="text-xs text-[var(--muted)]">Bets</p>
+              <p className="font-bold">{stats.total}</p>
+            </div>
+            <div className="bg-[var(--card)] border border-[var(--border)] p-2 rounded text-center">
+              <p className="text-xs text-[var(--muted)]">Wins</p>
+              <p className="font-bold">{stats.wins}</p>
+            </div>
+            <div className="bg-[var(--card)] border border-[var(--border)] p-2 rounded text-center">
+              <p className="text-xs text-[var(--muted)]">Profit</p>
+              <p className="font-bold">{stats.bankroll.toFixed(2)}€</p>
+            </div>
+            <div className="bg-[var(--card)] border border-[var(--border)] p-2 rounded text-center">
+              <p className="text-xs text-[var(--muted)]">ROI</p>
+              <p className="font-bold">{stats.roi.toFixed(1)}%</p>
+            </div>
           </div>
 
           {/* 🔥 RECOMENDACIONES */}
           {bestMarket && (
-            <div className="bg-green-900/30 p-3 rounded">
+            <div className="bg-[var(--success)] border border-[var(--success)] p-3 rounded">
               ✅ Mejor mercado: {bestMarket.market} ({bestMarket.roi.toFixed(1)}%)
             </div>
           )}
 
           {worstLeague && (
-            <div className="bg-red-900/30 p-3 rounded">
+            <div className="bg-[var(--success)] border border-[var(--danger)] p-3 rounded">
               ⚠️ Evita {worstLeague.league} ({worstLeague.roi.toFixed(1)}%)
             </div>
           )}
@@ -401,9 +413,9 @@ export default function AnalysisModal({ onClose }: Props) {
           {/* ROI LIGA */}
           <div className="flex flex-col gap-2">
             {roiByLeague.map((l) => (
-              <div key={l.league} className="flex justify-between bg-[#2a2a2a] p-2 rounded">
+              <div key={l.league} className="flex justify-between bg-[var(--card)] border border-[var(--border)] p-2 rounded">
                 <span>{l.league}</span>
-                <span className={l.roi >= 0 ? "text-green-400" : "text-red-400"}>
+                <span className={l.roi >= 0 ? "text-[var(--success)]" : "text-[var(--danger)]"}>
                   {l.roi.toFixed(1)}%
                 </span>
               </div>
@@ -422,7 +434,7 @@ export default function AnalysisModal({ onClose }: Props) {
               return (
                 <div
                   key={b.id}
-                  className="bg-[#2a2a2a] rounded-xl p-3 text-sm"
+                  className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3 text-sm"
                 >
 
                   {/* MATCH */}
@@ -431,7 +443,7 @@ export default function AnalysisModal({ onClose }: Props) {
                   </div>
 
                   {/* INFO */}
-                  <div className="flex justify-between text-xs text-gray-400 mt-1">
+                  <div className="flex justify-between text-xs text-[var(--muted)] mt-1">
                     <span>{b.league}</span>
                     <span>
                       {new Date(b.date).toLocaleDateString()}
@@ -443,10 +455,10 @@ export default function AnalysisModal({ onClose }: Props) {
 
                     {/* IZQ */}
                     <div className="flex flex-col">
-                      <span className="font-semibold text-white">
+                      <span className="font-semibold text-[var(--text)]">
                         {getBetLabel(b)}
                       </span>
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-[var(--muted)]">
                         Cuota: {b.odd ?? "-"}
                       </span>
                     </div>
@@ -456,10 +468,10 @@ export default function AnalysisModal({ onClose }: Props) {
                       <span
                         className={`px-2 py-1 rounded text-xs ${
                           b.status === "won"
-                            ? "bg-green-600"
+                            ? "bg-[var(--success)] text-white"
                             : b.status === "lost"
-                            ? "bg-red-600"
-                            : "bg-gray-500"
+                            ? "bg-[var(--danger)] text-white"
+                            : "bg-[var(--muted)] text-black"
                         }`}
                       >
                         {b.status === "won"
@@ -477,10 +489,10 @@ export default function AnalysisModal({ onClose }: Props) {
                       <div
                         className={`font-bold ${
                           profit > 0
-                            ? "text-green-400"
+                            ? "text-[var(--success)]"
                             : profit < 0
-                            ? "text-red-400"
-                            : "text-gray-400"
+                            ? "text-[var(--danger)]"
+                            : "text-[var(--muted)]"
                         }`}
                       >
                         {profit > 0 ? "+" : ""}

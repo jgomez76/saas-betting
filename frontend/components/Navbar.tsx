@@ -84,11 +84,11 @@ export default function Navbar({
   };
   
   const apiUrl =
-  typeof window !== "undefined"
-    ? window.location.hostname === "localhost"
-      ? "http://localhost:8000"
-      : `http://${window.location.hostname}:8000`
-    : "";
+    typeof window !== "undefined"
+      ? window.location.hostname === "localhost"
+        ? "http://localhost:8000"
+        : `http://${window.location.hostname}:8000`
+      : "";
 
   const avatarSrc = avatar;
   const fullAvatar =
@@ -136,14 +136,10 @@ export default function Navbar({
     return () => window.removeEventListener("click", handleClick);
   }, []);
 
- 
-
   return (
-    <div className="w-full bg-[#111827] border-b border-[#1f2937] text-white p-4 mb-6 rounded-xl shadow flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-    {/* // <div className="w-full bg-[#111827] border-b border-[#1f2937] p-4"> */}
+    <div className="w-full bg-[var(--bg)] border-b border-[var(--border)] text-[var(--text)] p-4 mb-6 rounded-xl shadow flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       {/* LEFT */}
       <div className="flex items-center gap-6 flex-wrap">
-        {/* <h1 className="text-xl font-bold text-cyan-400">⚡ BetSaaS</h1> */}
 
         <div className="flex gap-3 items-center flex-wrap">
           {/* 🔐 ADMIN / LOGIN */}
@@ -169,29 +165,28 @@ export default function Navbar({
                   />
                     
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-xs">
+                  <div className="w-8 h-8 rounded-full bg-[var(--card)] border border-[var(--border)] text-[var(--text)] flex items-center justify-center text-xs">
                     {email[0]?.toUpperCase()}
                   </div>
                 )}
 
-                <span className="text-sm text-gray-200 hidden md:block">
+                <span className="text-sm text-[var(--text)] hidden md:block">
                   {name || email}
                 </span>
 
-                <span className="text-gray-400 text-xs">▼</span>
+                <span className="text-[var(--muted)] text-xs">▼</span>
               </div>
 
               {/* DROPDOWN */}
               {openMenu && (
-                // <div className="absolute right-0 mt-2 w-48 bg-[#1e293b] border border-gray-700 rounded-xl shadow-lg z-50">
-                <div className="absolute top-full left-0 mt-2 w-56 bg-[#1e293b] border border-gray-700 rounded-xl shadow-lg z-50">
-                  <div className="p-3 border-b border-gray-700">
-                    <p className="text-sm text-white">{name || "Usuario"}</p>
-                    <p className="text-xs text-gray-400">{email}</p>
+                <div className="absolute top-full left-0 mt-2 w-56 bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-lg z-50">
+                  <div className="p-3 border-b border-[var(--border)]">
+                    <p className="text-sm text-[var(--text)]">{name || "Usuario"}</p>
+                    <p className="text-xs text-[var(--muted)]">{email}</p>
                   </div>
 
                   {isAdmin && (
-                    <div className="px-3 py-2 text-xs text-green-400">
+                    <div className="px-3 py-2 text-xs text-[var(--success)]">
                       🛠 Admin
                     </div>
                   )}
@@ -203,7 +198,7 @@ export default function Navbar({
                         onOpenProfile();
                       }, 0);
                     }}
-                    className="w-full text-left px-3 py-2 text-sm hover:bg-gray-700"
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-[var(--hover)]"
                   >
                     👤 Perfil
                   </button>
@@ -213,7 +208,7 @@ export default function Navbar({
                       setOpenMenu(false);
                       onLogout();
                     }}
-                    className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-gray-700"
+                    className="w-full text-left px-3 py-2 text-sm text-[var(--danger)] hover:bg-[var(--hover)]"
                   >
                     🚪 Cerrar sesión
                   </button>
@@ -224,7 +219,7 @@ export default function Navbar({
           ) : (
             <button
               onClick={onOpenLogin}
-              className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600"
+              className="px-4 py-2 bg-[var(--card)] border border-[var(--border)] rounded hover:bg-[var(--hover)]"
             >
               🔐 Login
             </button>
@@ -234,14 +229,13 @@ export default function Navbar({
           <div className="relative" ref={leaguesRef}>
             <button
               onClick={() => setOpenLeagues(!openLeagues)}
-              className="px-3 py-1 rounded text-sm bg-[#2a2a2a] hover:bg-[#3a3a3a]"
+              className="px-3 py-1 rounded text-sm bg-[var(--card)] hover:bg-[var(--hover)]"
             >
               {/* 🌍 Ligas {openLeagues ? "▲" : "▼"} */}
               🌍 {leagueLabels[leagueFilter] || "Ligas"} {openLeagues ? "▲" : "▼"}
             </button>
 
             {openLeagues && (
-              // <div className="absolute left-0 mt-2 w-44 bg-[#1e1e1e] border border-[#333] rounded shadow-lg z-50 overflow-hidden">
               <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-[#1e1e1e] border border-[#333] rounded shadow-lg z-50 overflow-hidden">  
                 {[
                   { label: "🌍 Todas", value: "ALL" },
@@ -261,7 +255,7 @@ export default function Navbar({
                       setLeagueFilter(l.value);
                       setOpenLeagues(false);
                     }}
-                    className={`px-4 py-2 text-sm cursor-pointer hover:bg-[#2a2a2a] ${
+                    className={`px-4 py-2 text-sm cursor-pointer hover:bg-[var(--card)] ${
                       leagueFilter === l.value ? "bg-[#333]" : ""
                     }`}
                   >
@@ -277,15 +271,14 @@ export default function Navbar({
           <div className="relative" ref={marketsRef}>
             <button
               onClick={() => setOpenMarkets(!openMarkets)}
-              className="px-3 py-1 rounded text-sm bg-[#2a2a2a] hover:bg-[#3a3a3a]"
+              className="px-3 py-1 rounded text-sm bg-[var(--card)] hover:bg-[var(--hover)]"
             >
               {/* 🎯 Mercados {openMarkets ? "▲" : "▼"} */}
               🎯 {marketLabels[marketFilter] || "Mercados"} {openMarkets ? "▲" : "▼"}
             </button>
 
             {openMarkets && (
-              // <div className="absolute left-0 mt-2 w-44 bg-[#1e1e1e] border border-[#333] rounded shadow-lg z-50 overflow-hidden">
-              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-[#1e1e1e] border border-[#333] rounded shadow-lg z-50 overflow-hidden">
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-[var(--card)] border border-[var(--border)] rounded shadow-lg z-50 overflow-hidden">
                 {[
                   { label: "Todos", value: "ALL" },
                   { label: "1X2", value: "1X2" },
@@ -300,8 +293,8 @@ export default function Navbar({
                       setMarketFilter(m.value);
                       setOpenMarkets(false);
                     }}
-                    className={`px-4 py-2 text-sm cursor-pointer hover:bg-[#2a2a2a] ${
-                      marketFilter === m.value ? "bg-[#333]" : ""
+                    className={`px-4 py-2 text-sm cursor-pointer hover:bg-[var(--card)] ${
+                      marketFilter === m.value ? "bg-[var(--primary)] text-white" : ""
                     }`}
                   >
                     {m.label}
@@ -317,7 +310,7 @@ export default function Navbar({
             <select
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
-              className="px-3 py-1 rounded text-sm bg-[#2a2a2a] hover:bg-[#3a3a3a]"
+              className="px-3 py-1 rounded text-sm bg-[var(--card)] hover:bg-[var(--hover)]"
             >
               <option value="TODAY">📅 Hoy</option>
               <option value="TODAY_TOMORROW">📅 Hoy + mañana</option>
@@ -354,9 +347,8 @@ export default function Navbar({
 
               {/* ➖ */}
               <button
-                // onClick={() => setMinOdd((prev) => Math.max(1, +(prev - 0.1).toFixed(2)))}
                 onClick={() => setMinOdd(Math.max(1, +(minOdd - 0.1).toFixed(2)))}
-                className="px-2 bg-[#2a2a2a] rounded"
+                className="px-2 bg-[var(--card)] border border-[var(--border)] hover:bg-[var(--hover)] rounded"
               >
                 -
               </button>
@@ -367,14 +359,13 @@ export default function Navbar({
                 step="0.1"
                 value={minOdd}
                 onChange={(e) => setMinOdd(Number(e.target.value))}
-                className="w-14 px-2 py-1 rounded bg-[#2a2a2a]"
+                className="w-14 px-2 py-1 rounded bg-[var(--card)] border border-[var(--border)] text-[var(--text)]"
               />
 
               {/* ➕ */}
               <button
-                // onClick={() => setMinOdd((prev) => +(prev + 0.1).toFixed(2))}
                 onClick={() => setMinOdd(+(minOdd + 0.1).toFixed(2))}
-                className="px-2 bg-[#2a2a2a] rounded"
+                className="px-2 bg-[var(--card)] border border-[var(--border)] hover:bg-[var(--hover)] rounded"
               >
                 +
               </button>
@@ -387,38 +378,16 @@ export default function Navbar({
 
       {/* RIGHT */}
       <div className="flex gap-3">
-        {/* <button
-          onClick={onOpenBets}
-          className="px-4 py-2 bg-yellow-600 rounded hover:bg-yellow-500"
-        >
-          💰 Mis apuestas
-        </button> */}
-
         <button
           onClick={onOpenTop}
-          className="px-4 py-2 bg-cyan-600 rounded hover:bg-cyan-500"
+          className="px-4 py-2 bg-[var(--primary)] text-white rounded hover:opacity-90"
         >
           🔥 Top Value
         </button>
-
-        {/* {isAdmin && (
-          <button
-            onClick={onOpenAnalysis}
-            className="px-4 py-2 bg-purple-600 rounded hover:bg-purple-500"
-          >
-            📊 Análisis
-          </button>
-        )} */}
-        {/* <button
-          onClick={() => router.push("/account")}
-          className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600"
-        >
-          👤 Cuenta
-        </button> */}
-        {email && (
-          <button onClick={() => router.push("/account")}
-            className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600"
-          >
+          {email && (
+            <button onClick={() => router.push("/account")}
+              className="px-4 py-2 bg-[var(--card)] border border-[var(--border)] rounded hover:bg-[var(--hover)]"
+            >
             👤 Cuenta
           </button>
         )}

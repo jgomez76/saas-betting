@@ -10,6 +10,7 @@ import AnalysisModal from "@/components/AnalysisModal";
 import ResultsView from "@/components/ResultsView";
 import StandingsView from "@/components/StandingsView";
 import ProfileModal from "@/components/ProfileModal";
+import SettingsView from "@/components/SettingsView";
 // import { API_URL } from "@/lib/api";
 import { Bet } from "@/types/bet";
 import { useSession } from "next-auth/react";
@@ -1360,6 +1361,11 @@ export default function Home() {
         {/* STANDINGS */}
         {view === "standings" && (
           <StandingsView />
+        )}
+
+        {/* SETTINGS */}
+        {view === "settings" && (
+          <SettingsView />
         )}
         
 

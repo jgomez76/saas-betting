@@ -12,22 +12,6 @@ export default function ResetPage() {
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState("");
 
-  // const handleReset = async () => {
-  //   const res = await fetch(`${API_URL}/reset-password`, {
-  //     method: "POST",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify({ token, new_password: password }),
-  //   });
-
-  //   if (res.ok) {
-  //     setStatus("ok");
-  //   } else {
-  //     setStatus("error");
-  //   }
-  // };
-
   const handleReset = async () => {
     console.log("🔥 CLICK RESET"); // 👈 1
 
@@ -67,11 +51,6 @@ export default function ResetPage() {
 
       setStatus("success");
 
-      // 🔥 redirigir automáticamente
-      // setTimeout(() => {
-      //   window.location.href = "/";
-      // }, 1500);
-
     } catch (err) {
         console.error("💥 NETWORK ERROR:", err); // 👈 8
       setStatus("error");
@@ -79,8 +58,8 @@ export default function ResetPage() {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-[#0f172a] text-white">
-      <div className="bg-[#1e293b] p-8 rounded-2xl shadow-xl w-[350px] text-center">
+    <div className="flex items-center justify-center h-screen bg-[var(--bg)] text-[var(--text)]">
+      <div className="bg-[var(--card)] border border-[var(--border)] p-8 rounded-2xl shadow-xl w-[350px] text-center">
 
         <h2 className="text-xl font-bold mb-4">
           🔑 Nueva contraseña
@@ -92,24 +71,24 @@ export default function ResetPage() {
               type="password"
               placeholder="Nueva contraseña"
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full mb-4 p-2 rounded bg-[#334155]"
+              className="w-full mb-4 p-2 rounded bg-[var(--card)] border border-[var(--border)] text-[var(--text)]"
             />
 
             <button
               onClick={handleReset}
-              className="w-full bg-cyan-600 py-2 rounded hover:bg-cyan-500"
+              className="w-full bg-[var(--primary)] py-2 rounded hover:opacity-90 text-white"
             >
               Cambiar contraseña
             </button>
           </>
         ) : (
           <>
-            <p className="text-green-400 mb-3">
+            <p className="text-[var(--success)] mb-3">
               ✅ Contraseña actualizada
             </p>
             <Link
               href="/"
-              className="bg-cyan-600 px-4 py-2 rounded hover:bg-cyan-500"
+              className="bg-[var(--primary)] px-4 py-2 rounded hover:opacity-90 text-white"
             >
               Ir al login
             </Link>

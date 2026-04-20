@@ -7,25 +7,12 @@ import Link from "next/link";
 
 export default function VerifyPage() {
   const params = useSearchParams();
-  // const [status, setStatus] = useState<"loading" | "ok" | "error">("loading");
   const token = params.get("token");
 
   const [status, setStatus] = useState<
     "loading" | "ok" | "error"
   >(token ? "loading" : "error");
 
-  // useEffect(() => {
-  //   const token = params.get("token");
-
-  //   if (!token) {
-  //     setStatus("error");
-  //     return;
-  //   }
-
-  //   fetch(`${API_URL}/verify?token=${token}`)
-  //     .then(() => setStatus("ok"))
-  //     .catch(() => setStatus("error"));
-  // }, []);
   useEffect(() => {
     const token = params.get("token");
 
@@ -44,8 +31,8 @@ export default function VerifyPage() {
   }, [params]);
 
   return (
-    <div className="flex items-center justify-center h-screen bg-[#0f172a] text-white">
-      <div className="bg-[#1e293b] p-8 rounded-2xl shadow-xl text-center w-[350px]">
+    <div className="flex items-center justify-center h-screen bg-[var(--bg)] text-[var(--text)]">
+      <div className="bg-[var(--card)] border border-[var(--border)] p-8 rounded-2xl shadow-xl text-center w-[350px]">
 
         {status === "loading" && (
           <>
@@ -55,15 +42,15 @@ export default function VerifyPage() {
 
         {status === "ok" && (
           <>
-            <h2 className="text-2xl font-bold mb-3 text-green-400">
+            <h2 className="text-2xl font-bold mb-3 text-[var(--success)]">
               ✅ Cuenta verificada
             </h2>
-            <p className="text-gray-300 mb-4">
+            <p className="text-[var(--muted)] mb-4">
               Ya puedes iniciar sesión
             </p>
             <Link
               href="/"
-              className="bg-cyan-600 px-4 py-2 rounded hover:bg-cyan-500"
+              className="bg-[var(--primary)] px-4 py-2 rounded hover:opacity-90 text-white"
             >
               Ir al login
             </Link>
@@ -72,10 +59,10 @@ export default function VerifyPage() {
 
         {status === "error" && (
           <>
-            <h2 className="text-2xl font-bold mb-3 text-red-400">
+            <h2 className="text-2xl font-bold mb-3 text-[var(--danger)]">
               ❌ Error de verificación
             </h2>
-            <p className="text-gray-300">
+            <p className="text-[var(--muted)]">
               El enlace no es válido o ha expirado
             </p>
           </>

@@ -59,7 +59,7 @@ export default function AccountPage() {
 
   if (loading) {
     return (
-      <div className="text-white text-center mt-10">
+      <div className="text-[var(--muted)] text-center mt-10">
         Cargando...
       </div>
     );
@@ -67,18 +67,18 @@ export default function AccountPage() {
 
   if (!email) {
     return (
-      <div className="text-white text-center mt-10">
+      <div className="text-[var(--muted)] text-center mt-10">
         No estás logueado
       </div>
     );
   }
 
   return (
-    <div className="flex items-center justify-center h-screen bg-[#0f172a] text-white">
-      <div className="bg-[#1e293b] p-8 rounded-2xl w-[350px] text-center">
+    <div className="flex items-center justify-center h-screen bg-[var(--bg)] text-[var(--text)]">
+      <div className="bg-[var(--card)] border border-[var(--border)] p-8 rounded-2xl w-[350px] text-center">
         <button
             onClick={() => router.push("/")}
-            className="text-sm text-gray-400 mb-4 hover:underline"
+            className="text-sm text-[var(--muted)] mb-4 hover:underline"
             >
             ← Volver
         </button>
@@ -87,14 +87,14 @@ export default function AccountPage() {
           👤 Mi cuenta
         </h2>
 
-        <p className="mb-6 text-gray-300">
+        <p className="mb-6 text-[var(--text)]">
           {email}
         </p>
 
         {/* LOGOUT */}
         <button
           onClick={handleLogout}
-          className="w-full bg-gray-600 py-2 rounded mb-3 hover:bg-gray-500"
+          className="w-full bg-[var(--card)] border border-[var(--border)] py-2 rounded mb-3 hover:bg-[var(--hover)]"
         >
           Cerrar sesión
         </button>
@@ -102,7 +102,7 @@ export default function AccountPage() {
         {/* DELETE */}
         <button
           onClick={handleDeactivate}
-          className="w-full bg-red-600 py-2 rounded hover:bg-red-500"
+          className="w-full bg-[var(--danger)] py-2 rounded hover:opacity-90 text-white"
         >
           ❌ Darse de baja
         </button>

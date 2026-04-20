@@ -23,25 +23,31 @@ export default function ProfilePage() {
       .then(setUser);
   }, []);
 
-  if (!user) return <p>Cargando...</p>;
+  if (!user) return (
+    <div className="p-6 text-[var(--muted)]">Cargando...</div>
+  );
 
   return (
-    <div className="p-6 text-black">
-      <h1 className="text-xl font-bold mb-4">Perfil</h1>
+    <div className="p-6 bg-[var(--bg)] text-[var(--text)] min-h-screen">
+      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] p-6 max-w-md">
+        <h1 className="text-xl font-bold mb-4 text-[var(--text)]">Perfil</h1>
 
-      {user.avatar && (
-        <Image 
-        src={user.avatar} 
-        alt="avatar" 
-        className="rounded-full mb-4"
-        width={64}
-        height={64} />
-      )}
+        {user.avatar && (
+          <Image 
+          src={user.avatar} 
+          alt="avatar" 
+          className="rounded-full mb-4"
+          width={64}
+          height={64} />
+        )}
+        <div className="space-y-2 text-sm">
+          <p className="text-[var(--muted)]">Email: <span className="text-[var(--text)]">{user.email}</span></p>
+          <p className="text-[var(--muted)]">Nombre: <span className="text-[var(--text)]">{user.name}</span></p>
+          <p className="text-[var(--muted)]">Plan: <span className="text-[var(--text)]">{user.subscription}</span></p>
+          <p className="text-[var(--muted)]">Provider: <span className="text-[var(--text)]">{user.provider}</span></p>
+        </div>
 
-      <p>Email: {user.email}</p>
-      <p>Nombre: {user.name}</p>
-      <p>Plan: {user.subscription}</p>
-      <p>Provider: {user.provider}</p>
+      </div>
     </div>
   );
 }

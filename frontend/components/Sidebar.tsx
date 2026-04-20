@@ -8,18 +8,17 @@ type Props = {
 
 export default function Sidebar({ view, setView, isAdmin }: Props) {
   return (
-    // <div className="w-60 bg-[#111] text-white h-screen p-4 flex flex-col gap-2">
-    <div className="w-60 bg-[#0f172a] text-white h-screen p-4 flex flex-col gap-2 border-r border-[#1f2937]">
+    <div className="w-60 bg-[var(--card)] text-[var(--text)] h-screen p-4 flex flex-col gap-2 border-r border-[var(--border)]">
 
-      <h1 className="text-xl font-bold text-cyan-400 mb-6">
+      <h1 className="text-xl font-bold text-[var(--primary)] mb-6">
         ⚡ BetSaaS
       </h1>
 
       {/* DASHBOARD */}
       <button
         onClick={() => setView("dashboard")}
-        className={`p-2 rounded text-left ${
-          view === "dashboard" ? "bg-cyan-600" : "hover:bg-[#2a2a2a]"
+        className={`p-2 rounded text-left transition-colors ${
+          view === "dashboard" ? "bg-[var(--primary)] text-white" : "hover:bg-[var(--hover)]"
         }`}
       >
         🏠 Dashboard
@@ -28,8 +27,8 @@ export default function Sidebar({ view, setView, isAdmin }: Props) {
       {/* APUESTAS */}
       <button
         onClick={() => setView("bets")}
-        className={`p-2 rounded text-left ${
-          view === "bets" ? "bg-yellow-600" : "hover:bg-[#2a2a2a]"
+        className={`p-2 rounded text-left transition-colors ${
+          view === "bets" ? "bg-[var(--primary)] text-white" : "hover:bg-[var(--hover)]"
         }`}
       >
         💰 Mis apuestas
@@ -39,8 +38,8 @@ export default function Sidebar({ view, setView, isAdmin }: Props) {
       {isAdmin && (
         <button
           onClick={() => setView("analysis")}
-          className={`p-2 rounded text-left ${
-            view === "analysis" ? "bg-green-600" : "hover:bg-[#2a2a2a]"
+          className={`p-2 rounded text-left transition-colors ${
+            view === "analysis" ? "bg-[var(--primary)] text-white" : "hover:bg-[var(--hover)]"
           }`}
         >
           📊 Análisis
@@ -50,8 +49,8 @@ export default function Sidebar({ view, setView, isAdmin }: Props) {
       {/* RESULTADOS */}
       <button
         onClick={() => setView("results")}
-        className={`p-2 rounded text-left ${
-          view === "results" ? "bg-purple-600" : "hover:bg-[#2a2a2a]"
+        className={`p-2 rounded text-left transition-colors ${
+          view === "results" ? "bg-[var(--primary)] text-white" : "hover:bg-[var(--hover)]"
         }`}
       >
         🏆 Resultados
@@ -60,13 +59,24 @@ export default function Sidebar({ view, setView, isAdmin }: Props) {
       {/* CLASIFICACIONES */}
       <button
         onClick={() => setView("standings")}
-        className={`p-2 rounded text-left ${
-          view === "standings" ? "bg-green-600" : "hover:bg-[#2a2a2a]"
+        className={`p-2 rounded text-left transition-colors ${
+          view === "standings" ? "bg-[var(--primary)] text-white" : "hover:bg-[var(--hover)]"
         }`}
       >
         📋 Clasificaciones
       </button>
 
+      {/* SETTINGS */}
+      <button
+        onClick={() => setView("settings")}
+        className={`w-full text-left px-3 py-2 rounded transition-colors ${
+          view === "settings"
+            ? "bg-[var(--primary)] text-white"
+            : "hover:bg-[var(--hover)]"
+        }`}
+      >
+        ⚙️ Settings
+      </button>
     </div>
 
     

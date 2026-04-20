@@ -28,14 +28,14 @@ type StatProps = {
 };
 
   const Stat = ({ label, value, color }: StatProps) => (
-    <div className="bg-[#2a2a2a] p-2 rounded text-center">
-      <p className="text-xs text-gray-400">{label}</p>
+    <div className="bg-[var(--card)] p-2 rounded text-center">
+      <p className="text-xs text-[var(--muted)]">{label}</p>
       <p
         className={`font-bold ${
           color === false
-            ? "text-red-400"
+            ? "text-[var(--danger)]"
             : color
-            ? "text-green-400"
+            ? "text-[var(--success)]"
             : ""
         }`}
       >
@@ -86,11 +86,6 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
 
     return `${day} ${month} ${time}`;
   };
-
-  // const formatValue = (v?: number | null) => {
-  //   if (v === null || v === undefined) return "-";
-  //   return `${v > 0 ? "+" : ""}${(v * 100).toFixed(1)}%`;
-  // };
 
   // 🔥 LABEL BONITO
   const getBetLabel = (b: Bet) => {
@@ -180,10 +175,10 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
   // ---------------- UI ----------------
   return (
     <div className="fixed inset-0 bg-black/80 z-50 flex">
-      <div className="w-full h-full bg-[#1F3537] text-white flex flex-col">
+      <div className="w-full h-full bg-[var(--bg)] text-[var(--text)] flex flex-col">
 
         {/* HEADER */}
-        <div className="flex justify-between items-center p-4 border-b border-[#333]">
+        <div className="flex justify-between items-center p-4 border-b border-[var(--border)]">
           <h2 className="text-lg font-bold">📊 Mis Apuestas</h2>
           <button onClick={onClose}>✖</button>
         </div>
@@ -195,7 +190,7 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="p-2 bg-[#2a2a2a] rounded w-full"
+            className="p-2 bg-[var(--card)] rounded w-full"
           >
             <option value="ALL">Todas</option>
             <option value="pending">Pendientes</option>
@@ -220,7 +215,7 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
                   <Line
                     type="monotone"
                     dataKey="bankroll"
-                    stroke="#22c55e"
+                    stroke="var(--success)"
                     strokeWidth={2}
                   />
                 </LineChart>
@@ -237,10 +232,10 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
               return (
                 <div
                   key={b.id}
-                  className="bg-[#2a2a2a] rounded-xl p-3 flex flex-col gap-2"
+                  className="bg-[var(--card)] rounded-xl p-3 flex flex-col gap-2"
                 >
                   {/* HEADER */}
-                  <div className="flex justify-between text-xs text-gray-400">
+                  <div className="flex justify-between text-xs text-[var(--muted)]">
                     <span className="truncate">{b.match}</span>
                     <span>{formatDate(b.date)}</span>
                   </div>
@@ -251,12 +246,12 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
                       <span className="font-semibold">
                         🎯 {getBetLabel(b)}
                       </span>
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-[var(--muted)]">
                         @ {b.odd ?? "-"}
                       </span>
                     </div>
 
-                    <span className="text-sm text-gray-300">
+                    <span className="text-sm text-[var(--muted)]">
                       {b.result ?? "-"}
                     </span>
                   </div>
@@ -267,10 +262,10 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
                     <span
                       className={`text-xs px-2 py-1 rounded ${
                         b.status === "won"
-                          ? "bg-green-600"
+                          ? "bg-[var(--success)]"
                           : b.status === "lost"
-                          ? "bg-red-600"
-                          : "bg-gray-500"
+                          ? "bg-[var(--danger)]"
+                          : "bg-[var(--muted)]"
                       }`}
                     >
                       {b.status}
@@ -280,9 +275,9 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
                       <span
                         className={`font-bold ${
                           profit > 0
-                            ? "text-green-400"
+                            ? "text-[var(--success)]"
                             : profit < 0
-                            ? "text-red-400"
+                            ? "text-[var(--danger)]"
                             : ""
                         }`}
                       >
@@ -292,7 +287,7 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
 
                       <button
                         onClick={() => setBetToDelete(b.id)}
-                        className="text-red-400"
+                        className="text-[var(--danger)]"
                       >
                         🗑
                       </button>
@@ -305,7 +300,7 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
           </div>
 
           {/* FOOTER */}
-          <div className="text-center text-xs text-gray-400">
+          <div className="text-center text-xs text-[var(--muted)]">
             Stake fijo: {stake}€
           </div>
 
@@ -315,13 +310,13 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
       {/* DELETE MODAL */}
       {betToDelete !== null && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center">
-          <div className="bg-[#1e1e1e] p-6 rounded-xl w-[90%] max-w-sm text-center">
+          <div className="bg-[var(--card)] p-6 rounded-xl w-[90%] max-w-sm text-center">
             <h3 className="text-lg font-bold mb-4">Eliminar apuesta</h3>
 
             <div className="flex gap-4 justify-center">
               <button
                 onClick={() => setBetToDelete(null)}
-                className="px-4 py-2 bg-gray-600 rounded"
+                className="px-4 py-2 bg-[var(--muted)] rounded"
               >
                 Cancelar
               </button>
@@ -331,7 +326,7 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
                   onDelete(betToDelete);
                   setBetToDelete(null);
                 }}
-                className="px-4 py-2 bg-red-600 rounded"
+                className="px-4 py-2 bg-[var(--danger)] rounded"
               >
                 Eliminar
               </button>
