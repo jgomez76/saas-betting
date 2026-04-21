@@ -50,10 +50,6 @@ type Match = {
       draw?: Odd;
       away?: Odd;
     };
-    // OU15?: {
-    //   over?: Odd;
-    //   under?: Odd;
-    // };
     OU25?: {
       over?: Odd;
       under?: Odd;
@@ -69,10 +65,6 @@ type Match = {
   };
 
   market_values?: {
-    // OU15?: {
-    //   over_value: number | null;
-    //   under_value: number | null;
-    // };
     OU25?: {
       over_value: number | null;
       under_value: number | null;
@@ -115,12 +107,10 @@ export default function Home() {
   // ###########
   // CONSTANTES
   // ###########
-  // const getApiUrl = API_URL();
-  // const [apiUrl, setApiUrl] = useState("");
+
   const { data: session } = useSession();
   const oauthDone = useRef(false);
 
-  // const [isAdmin, setIsAdmin] = useState(false);
   const [view, setView] = useState("dashboard");
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -131,7 +121,7 @@ export default function Home() {
   const [leagueFilter, setLeagueFilter] = useState("ALL");
   const [dateFilter, setDateFilter] = useState("TODAY_TOMORROW");
   const [showTopModal, setShowTopModal] = useState(false);
-  const [showAnalysisModal, setShowAnalysisModal] = useState(false);
+  // const [showAnalysisModal, setShowAnalysisModal] = useState(false);
 
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [teamMatches, setTeamMatches] = useState<TeamMatch[]>([]);
@@ -293,30 +283,6 @@ export default function Home() {
         setIsPremium(false);
       });
   }, [apiUrl]);
-  // const refreshUser = async () => {
-  //   try {
-  //     const res = await fetch(`${API_URL}/me`, {
-  //       credentials: "include", // 🔥 clave
-  //     });
-
-  //     const data = await res.json();
-
-  //     console.log("USER:", data); // 👈 debug
-
-  //     setIsAdmin(data.is_admin);
-  //     setEmail(data.email || "");
-  //     setIsPremium(data.subscription === "premium");
-  //     setName(data.name || "");
-  //     setAvatar(data.avatar || "");
-
-  //   } catch (err) {
-  //     console.error("refreshUser error", err);
-  //     setIsAdmin(false);
-  //     setEmail("");
-  //     setIsPremium(false);
-  //   }
-  // };
-
 
   // ###########
   // USE EFFECTS
@@ -449,10 +415,8 @@ export default function Home() {
       // 👇 solo partidos con odds
       const filtered = data.filter((m: Match) => m.markets?.["1X2"]);
 
-      // setAllMatches(filtered); // 👈 guardamos TODOS
 
       // 🔥 ABRIR TODAS LAS LIGAS
-      // const leagues = Array.from(new Set(filtered.map((m: Match) => m.league)));
 
       const leagues: string[] = Array.from(
         new Set(filtered.map((m: Match) => m.league))
@@ -465,8 +429,6 @@ export default function Home() {
       });
 
       setOpenLeagues(initialState);
-      
-      // setLoading(false);
       
       // NUEVO LOADING
       // 🔥 AGRUPAR POR LIGA
@@ -485,7 +447,6 @@ export default function Home() {
       setAllMatches([]);
 
       // 🔥 CARGA PROGRESIVA
-      // for (const league of Object.keys(groupedByLeague)) {
       for (let i = 0; i < leagueNames.length; i++) {
         const league = leagueNames[i];
         setLoadingMessage(`Cargando partidos de: ${league}...`);
@@ -728,7 +689,6 @@ export default function Home() {
   const addBet = (bet: PendingBet) => {
     const newBet: Bet = {
       ...bet,
-      // id: crypto.randomUUID(),
       id: Date.now(),
     };
 
@@ -767,15 +727,15 @@ export default function Home() {
     return `${v > 0 ? "+" : ""}${(v * 100).toFixed(1)}%`;
   };
 
-  const getValueColor = (v?: number | null, odd?: number) => {
-    if (v === null || v === undefined) return "bg-[#2a2a2a]";
+  // const getValueColor = (v?: number | null, odd?: number) => {
+  //   if (v === null || v === undefined) return "bg-[var(--card)]";
 
-    if (v >= minValue && (odd ?? 0) >= minOdd) {
-      return "bg-green-700";
-    }
+  //   if (v >= minValue && (odd ?? 0) >= minOdd) {
+  //     return "bg-[var(--accent)]";
+  //   }
 
-    return "bg-[#2a2a2a]";
-  };
+  //   return "bg-[var(--card)]";
+  // };
 
   const grouped = useMemo(() => {
     return matches.reduce((acc, match) => {
@@ -799,44 +759,74 @@ export default function Home() {
     return map;
   }, [allMatches]);
 
-  const renderForm = (form: string) => (
-    <div className="flex justify-center gap-1 mt-1">
-      {form.split("").map((f, i) => {
-        const color =
-          f === "W"
-            ? "bg-green-500"
-            : f === "D"
-            ? "bg-yellow-400"
-            : "bg-red-500";
+  // const renderForm = (form: string) => (
+  //   <div className="flex justify-center gap-1 mt-1">
+  //     {form.split("").map((f, i) => {
+  //       const color =
+  //         f === "W"
+  //           ? "bg-[var(--success)]"
+  //           : f === "D"
+  //           ? "bg-[var(--warning)]"
+  //           : "bg-[var(--danger)]";
 
-        return (
-          <span key={i} className={`text-white text-xs px-1 rounded ${color}`}>
-            {f}
-          </span>
-        );
-      })}
-    </div>
-  );
+  //       return (
+  //         <span key={i} className={`text-white text-xs px-1 rounded ${color}`}>
+  //           {f}
+  //         </span>
+  //       );
+  //     })}
+  //   </div>
+  // );
+
+  const renderForm = (form: string) => {
+    if (!form) return null;
+
+    return (
+      <div className="flex justify-center gap-1 mt-1">
+        {form
+          .toUpperCase()
+          .split("") // aquí sí queremos char a char
+          .map((raw, i) => {
+            const f = raw.trim(); // 🔥 CLAVE
+
+            let color = "bg-[var(--muted)]";
+
+            if (f === "W") color = "bg-[var(--positive)]";
+            else if (f === "D") color = "bg-[var(--warning)]";
+            else if (f === "L") color = "bg-[var(--negative)]";
+
+            return (
+              <span
+                key={i}
+                className={`text-white text-xs px-1.5 py-0.5 rounded font-semibold ${color}`}
+              >
+                {f}
+              </span>
+            );
+          })}
+      </div>
+    );
+  };
 
   // SKELETON CARD
   const SkeletonCard = () => (
-    <div className="bg-[#1e1e1e] p-4 rounded-xl animate-pulse">
+    <div className="bg-[var(--card)] p-4 rounded-xl animate-pulse border border-[var(--border)]">
 
       {/* equipos */}
       <div className="grid mb-3" style={{ gridTemplateColumns: "45% 10% 45%" }}>
-        <div className="h-4 bg-gray-600 rounded w-3/4 mx-auto"></div>
+        <div className="h-4 bg-[var(--border)] rounded w-3/4 mx-auto"></div>
         <div></div>
-        <div className="h-4 bg-gray-600 rounded w-3/4 mx-auto"></div>
+        <div className="h-4 bg-[var(--border)] rounded w-3/4 mx-auto"></div>
       </div>
 
       {/* fecha */}
-      <div className="h-3 bg-gray-700 rounded w-1/2 mx-auto mb-3"></div>
+      <div className="h-3 bg-[var(--border)] rounded w-1/2 mx-auto mb-3"></div>
 
       {/* cuotas */}
       <div className="grid grid-cols-3 gap-2">
-        <div className="h-12 bg-gray-700 rounded"></div>
-        <div className="h-12 bg-gray-700 rounded"></div>
-        <div className="h-12 bg-gray-700 rounded"></div>
+        <div className="h-12 bg-[var(--border)] rounded"></div>
+        <div className="h-12 bg-[var(--border)] rounded"></div>
+        <div className="h-12 bg-[var(--border)] rounded"></div>
       </div>
 
     </div>
@@ -873,17 +863,16 @@ export default function Home() {
   
     <div className="flex relative">
 
-      {/* <Sidebar view={view} setView={setView} isAdmin={isAdmin} /> */}
       {!isMobile && (
         <Sidebar view={view} setView={setView} isAdmin={isAdmin} />
       )}
-      <main className="flex-1 p-6 bg-[#F0B071] min-h-screen text-white">
+      <main className="flex-1 p-6 bg-[var(--bg)] min-h-screen text-[var(--text)]">
         {isMobile && (
         <div className="flex items-center justify-between mb-4">
 
           <button
             onClick={() => setShowMenu(true)}
-            className="flex items-center gap-2 px-3 py-2 bg-[#1f2937] rounded-lg shadow"
+            className="flex items-center gap-2 px-3 py-2 bg-[var(--card)] border border-[var(--border)] rounded-lg shadow"
           >
             ☰ <span className="text-sm">Menú</span>
           </button>
@@ -898,20 +887,20 @@ export default function Home() {
             <div className="mb-6">
 
               {/* TEXTO */}
-              <p className="text-center text-sm text-gray-400 mb-2 animate-pulse">
+              <p className="text-center text-sm text-[var(--muted)] mb-2 animate-pulse">
                 ⏳ {loadingMessage}
               </p>
 
               {/* 🔥 BARRA PROGRESO */}
-              <div className="w-full max-w-md mx-auto bg-gray-300 rounded-full h-2 overflow-hidden">
+              <div className="w-full max-w-md mx-auto bg-[var(--border)] rounded-full h-2 overflow-hidden">
                 <div
-                  className="bg-cyan-500 h-2 transition-all duration-500"
+                  className="bg-[var(--accent)] h-2 transition-all duration-500"
                   style={{ width: `${progress}%` }}
                 />
               </div>
 
               {/* % */}
-              <p className="text-center text-xs text-gray-500 mt-1">
+              <p className="text-center text-xs text-[var(--muted)] mt-1">
                 {progress}%
               </p>
 
@@ -926,7 +915,7 @@ export default function Home() {
               onOpenBets={() => setView("bets")}
               onOpenLogin={() => setShowLoginModal(true)}
               onLogout={handleLogout}
-              onOpenAnalysis={() => setShowAnalysisModal(true)}
+              onOpenAnalysis={() => setView("analysis")}
               onOpenProfile={() => setShowProfile(true)}
 
               marketFilter={marketFilter}
@@ -973,15 +962,14 @@ export default function Home() {
               {/* 🏆 NOMBRE LIGA */}
               <div
                 onClick={() => toggleLeague(league)}
-                // className="flex justify-between items-center bg-[#2a2a2a] text-white px-4 py-3 rounded-lg cursor-pointer hover:bg-[#3a3a3a] transition mt-6"
-                className="flex justify-between items-center bg-[#2a2a2a] text-white px-4 py-3 rounded-lg cursor-pointer hover:bg-[#3a3a3a] transition mt-8 border border-[#333]"
+                className="flex justify-between items-center bg-[var(--card)] text-[var(--text)] px-4 py-3 rounded-lg cursor-pointer hover:opacity-80 transition mt-8 border border-[var(--border)]"
               >
                 <div className="flex items-center gap-2">
                   <span>{openLeagues[league] ? "▼" : "▶"}</span>
                   <span className="font-semibold text-lg">{league}</span>
                 </div>
 
-                <span className="text-sm text-gray-400">
+                <span className="text-sm text-[var(--muted)]">
                   {leagueMatches.length} partidos
                 </span>
               </div>
@@ -1014,9 +1002,7 @@ export default function Home() {
                     return (
                       <div
                         key={index}
-                        // className="bg-[#1e1e1e] text-white p-4 rounded-xl relative"
-                        className="bg-[#1f2937] text-white p-4 rounded-xl relative"
-                        // className="bg-[#0D0D0D] text-white p-4 rounded-xl relative"
+                        className="bg-[var(--card)] text-[var(--text)] p-4 rounded-xl relative border border-[var(--border)] shadow-[0_6px_25px_rgba(0,0,0,0.35)] hover:shadow-[0_10px_35px_rgba(0,0,0,0.5)] hover:scale-[1.015] transition-all duration-200"
                       >
                         {/* ⭐ FAVORITO */}
                         <button
@@ -1030,13 +1016,14 @@ export default function Home() {
                         <div
                           className="grid text-center mb-3"
                           style={{ gridTemplateColumns: "45% 10% 45%" }}
-                        >
+                          // className="flex justify-between items-center mb-3"
+                          >
                           <div onClick={() => openTeamModal(match.home_team)}>
                             <p>{match.home_team}</p>
                             {renderForm(match.home_form || "")}
                           </div>
 
-                          <div className="text-gray-400 text-xs">vs</div>
+                          <div className="text-[var(--muted)] text-xs">vs</div>
 
                           <div onClick={() => openTeamModal(match.away_team)}>
                             <p>{match.away_team}</p>
@@ -1045,9 +1032,8 @@ export default function Home() {
                         </div>
 
                         {/* FECHA */}
-                        <p className="text-xm text-gray-300 text-center mb-2">
-                          {/* {match.league} • {formattedDate} • {formattedTime} */}
-                          {/* {formattedDate} • {formattedTime} */}
+                        {/* <p className="text-xs text-[var(--muted)] text-center mb-2"> */}
+                        <p className="text-xs text-[var(--muted)] text-center mb-3 tracking-wide">
                           {formatMatchDate(match.date)}
                         </p>
 
@@ -1057,6 +1043,7 @@ export default function Home() {
                             <div className="grid grid-cols-3 gap-2 mb-3">
                               {(["home", "draw", "away"] as const).map((k) => {
                                 const odd = match.markets?.["1X2"]?.[k];
+
                                 const value =
                                   match.value?.[`${k}_value` as keyof typeof match.value];
 
@@ -1066,6 +1053,13 @@ export default function Home() {
                                     : k === "draw"
                                     ? match.probabilities?.draw_odds
                                     : match.probabilities?.away_odds;
+
+                                // 🔥 CLAVE → detectar si es VALUE
+                                const isValue =
+                                  value !== null &&
+                                  value !== undefined &&
+                                  value >= minValue &&
+                                  (odd?.odd ?? 0) >= minOdd;
 
                                 return (
                                   <div
@@ -1080,35 +1074,50 @@ export default function Home() {
                                         value,
                                         fixture_id: match.fixture_id,
                                         status: "pending",
-                                        date: match.date
+                                        date: match.date,
                                       })
                                     }
-                                    className={`${getValueColor(
-                                      value,
-                                      odd?.odd
-                                    )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
+                                    className={`
+                                      p-3 rounded-lg text-center cursor-pointer
+                                      border transition-all
+                                      hover:scale-105 hover:shadow-md
+                                      
+                                      ${
+                                        isValue
+                                          ? "bg-[var(--accent)] text-[var(--accent-contrast)] border-transparent"
+                                          : "bg-[var(--card)] text-[var(--text)] border-[var(--border)]"
+                                      }
+                                    `}
                                   >
                                     {/* 🏷️ LABEL */}
-                                    <p className="text-sm uppercase text-gray-300">{k}</p>
+                                    <p className="text-xs uppercase opacity-70">{k}</p>
 
                                     {/* 💰 CUOTA REAL */}
-                                    <p className="font-bold text-3xl">{odd?.odd ?? "-"}</p>
+                                    <p className="font-bold text-2xl tracking-tight">
+                                      {odd?.odd ?? "-"}
+                                    </p>
 
                                     {/* 🏦 BOOKMAKER */}
-                                    <p className="text-lg text-gray-300">
+                                    <p className="text-xs uppercase tracking-wide opacity-70">
                                       {odd?.bookmaker ?? ""}
                                     </p>
 
-                                    {/* 📊 FAIR ODDS + VALUE */}
+                                    {/* 📊 FAIR + VALUE */}
                                     <p
-                                      className={`text-xs ${
-                                        value !== null && value !== undefined && value < 0
-                                          ? "text-red-400"
-                                          : "text-gray-300"
-                                      }`}
+                                      className={`
+                                        text-xs font-medium mt-1
+                                        ${
+                                          value !== null &&
+                                          value !== undefined &&
+                                          value < 0
+                                            ? "text-[var(--negative)]"
+                                            : "opacity-70"
+                                        }
+                                      `}
                                     >
                                       {fairOdd ? Number(fairOdd.toFixed(2)) : "-"}{" "}
-                                      {value !== null && value !== undefined &&
+                                      {value !== null &&
+                                        value !== undefined &&
                                         `(${formatValue(value)})`}
                                     </p>
                                   </div>
@@ -1137,7 +1146,13 @@ export default function Home() {
                                       : null
                                     : match.extra_probabilities?.under25_prob
                                     ? 1 / match.extra_probabilities.under25_prob
-                                    : null;
+                                    : null;                                // 🔥 CLAVE → detectar si es VALUE
+                                
+                                const isValue =
+                                  value !== null &&
+                                  value !== undefined &&
+                                  value >= minValue &&
+                                  (odd?.odd ?? 0) >= minOdd;
 
                                 return (
                                   <div
@@ -1155,32 +1170,49 @@ export default function Home() {
                                         date: match.date
                                       })
                                     }
-                                    className={`${getValueColor(
-                                      value,
-                                      odd?.odd
-                                    )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
+                                    // className={`${getValueColor(
+                                    //   value,
+                                    //   odd?.odd
+                                    // // )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
+                                    // )}
+                                    //   p-3 rounded-lg text-center cursor-pointer
+                                    //   border border-[var(--border)]
+                                    //   hover:scale-105 hover:shadow-md
+                                    //   transition-all
+                                    // `}
+                                    className={`
+                                      p-3 rounded-lg text-center cursor-pointer
+                                      border transition-all
+                                      hover:scale-105 hover:shadow-md
+                                      
+                                      ${
+                                        isValue
+                                          ? "bg-[var(--accent)] text-[var(--accent-contrast)] border-transparent"
+                                          : "bg-[var(--card)] text-[var(--text)] border-[var(--border)]"
+                                      }
+                                    `}
                                   >
                                     {/* 🏷️ LABEL */}
-                                    <p className="text-sm uppercase text-gray-300">
+                                    <p className="text-xs uppercase opacity-70">
                                       {k} 2.5
                                     </p>
 
                                     {/* 💰 CUOTA REAL */}
-                                    <p className="font-bold text-3xl">
+                                    <p className="font-bold text-2xl tracking-tight">
                                       {odd?.odd ?? "-"}
                                     </p>
 
                                     {/* 🏦 BOOKMAKER */}
-                                    <p className="text-lg text-gray-300">
+                                    <p className="text-xs uppercase tracking-wide opacity-70">
                                       {odd?.bookmaker ?? ""}
                                     </p>
 
                                     {/* 📊 FAIR ODDS + VALUE */}
                                     <p
-                                        className={`text-xs ${
+                                        className={`text-xs font-medium mt-1 ${
                                           value !== null && value !== undefined && value < 0
-                                            ? "text-red-400"
-                                            : "text-gray-300"
+                                            ? "text-[var(--negative)]"
+                                            : "opacity-70"
                                         }`}
                                       >
                                         {fairOdd ? Number(fairOdd.toFixed(2)) : "-"}{" "}
@@ -1213,6 +1245,13 @@ export default function Home() {
                                     ? 1 / match.extra_probabilities.under35_prob
                                     : null;
 
+                                // 🔥 CLAVE → detectar si es VALUE
+                                const isValue =
+                                  value !== null &&
+                                  value !== undefined &&
+                                  value >= minValue &&
+                                  (odd?.odd ?? 0) >= minOdd;
+
                                 return (
                                   <div
                                     key={k}
@@ -1229,32 +1268,40 @@ export default function Home() {
                                         date: match.date
                                       })
                                     }
-                                    className={`${getValueColor(
-                                      value,
-                                      odd?.odd
-                                    )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
+
+                                    className={`
+                                      p-3 rounded-lg text-center cursor-pointer
+                                      border transition-all
+                                      hover:scale-105 hover:shadow-md
+                                      
+                                      ${
+                                        isValue
+                                          ? "bg-[var(--accent)] text-[var(--accent-contrast)] border-transparent"
+                                          : "bg-[var(--card)] text-[var(--text)] border-[var(--border)]"
+                                      }
+                                    `}                                    
                                   >
                                     {/* 🏷️ LABEL */}
-                                    <p className="text-sm uppercase text-gray-300">
+                                    <p className="text-xs uppercase opacity-70">
                                       {k} 3.5
                                     </p>
 
                                     {/* 💰 CUOTA REAL */}
-                                    <p className="font-bold text-3xl">
+                                    <p className="font-bold text-2xl tracking-tight">
                                       {odd?.odd ?? "-"}
                                     </p>
 
                                     {/* 🏦 BOOKMAKER */}
-                                    <p className="text-lg text-gray-300">
+                                    <p className="text-xs uppercase tracking-wide opacity-70">
                                       {odd?.bookmaker ?? ""}
                                     </p>
 
                                     {/* 📊 FAIR ODDS + VALUE */}
                                     <p
-                                        className={`text-xs ${
+                                        className={`text-xs font-medium mt-1 ${
                                           value !== null && value !== undefined && value < 0
-                                            ? "text-red-400"
-                                            : "text-gray-300"
+                                            ? "text-[var(--negative)]"
+                                            : "opacity-70"
                                         }`}
                                       >
                                         {fairOdd ? Number(fairOdd.toFixed(2)) : "-"}{" "}
@@ -1289,6 +1336,13 @@ export default function Home() {
                                     ? 1 / match.extra_probabilities.btts_no_prob
                                     : null;
 
+                                // 🔥 CLAVE → detectar si es VALUE
+                                const isValue =
+                                  value !== null &&
+                                  value !== undefined &&
+                                  value >= minValue &&
+                                  (odd?.odd ?? 0) >= minOdd;
+
                                 return (
                                   <div
                                     key={k}
@@ -1305,32 +1359,39 @@ export default function Home() {
                                         date: match.date
                                       })
                                     }
-                                    className={`${getValueColor(
-                                      value,
-                                      odd?.odd
-                                    )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
+                                    className={`
+                                      p-3 rounded-lg text-center cursor-pointer
+                                      border transition-all
+                                      hover:scale-105 hover:shadow-md
+                                      
+                                      ${
+                                        isValue
+                                          ? "bg-[var(--accent)] text-[var(--accent-contrast)] border-transparent"
+                                          : "bg-[var(--card)] text-[var(--text)] border-[var(--border)]"
+                                      }
+                                    `}
                                   >
                                     {/* 🏷️ LABEL */}
-                                    <p className="text-sm uppercase text-gray-300">
+                                    <p className="text-xs uppercase opacity-70">
                                       BTTS {k}
                                     </p>
 
                                     {/* 💰 CUOTA REAL */}
-                                    <p className="font-bold text-3xl">
+                                    <p className="font-bold text-2xl tracking-tight">
                                       {odd?.odd ?? "-"}
                                     </p>
 
                                     {/* 🏦 BOOKMAKER */}
-                                    <p className="text-lg text-gray-300">
+                                    <p className="text-xs uppercase tracking-wide opacity-70">
                                       {odd?.bookmaker ?? ""}
                                     </p>
 
                                     {/* 📊 FAIR + VALUE */}
                                     <p
-                                        className={`text-xs ${
+                                        className={`text-xs font-medium mt-1 ${
                                           value !== null && value !== undefined && value < 0
-                                            ? "text-red-400"
-                                            : "text-gray-300"
+                                            ? "text-[var(--negative)]"
+                                            : "opacity-70"
                                         }`}
                                       >
                                         {fairOdd ? Number(fairOdd.toFixed(2)) : "-"}{" "}
@@ -1371,11 +1432,8 @@ export default function Home() {
 
         {/* TEAM MODAL */}
         {selectedTeam && (
-          // <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center">
-            {/* <div className="bg-white p-6 rounded-2xl w-[400px] shadow-xl"> */}
-            {/* <div className="bg-[#1e1e1e] p-6 rounded-xl w-[90%] md:w-[600px] text-white"> */}
-            <div className="bg-[#1f2937] p-6 rounded-xl w-[90%] md:w-[600px] text-white">
+            <div className="bg-[var(--card)] p-6 rounded-xl border border-[var(--border)] w-[90%] md:w-[600px] text-[var(--text)]">
           
             {/* TITLE */}
             <h2 className="text-xl font-bold mb-4 text-center">
@@ -1386,7 +1444,6 @@ export default function Home() {
               <div className="space-y-2">
                 {teamMatches.map((m, i) => {
                   const isDraw = m.home_goals === m.away_goals;
-                  // const isHomeWin = m.home_goals > m.away_goals;
 
                   const isWin =
                     (m.home === selectedTeam && m.home_goals > m.away_goals) ||
@@ -1408,11 +1465,11 @@ export default function Home() {
                       <span
                         className={`text-center font-bold text-2xl ${
                           isDraw
-                            ? "text-yellow-500"
+                            ? "text-[var(--warning)]"
                             : isWin
-                            ? "text-green-600"
+                            ? "text-[var(--success)]"
                             : isLoss
-                            ? "text-red-500"
+                            ? "text-[var(--danger)]"
                             : ""
                         }`}
                       >
@@ -1429,7 +1486,7 @@ export default function Home() {
               {/* CLOSE */}
               <button
                 onClick={() => setSelectedTeam(null)}
-                className="mt-4 w-full bg-gray-600 hover:bg-gray-300 p-2 rounded"
+                className="mt-4 w-full bg-[var(--card)] hover:opacity-80 p-2 rounded"
               >
                 Cerrar
               </button>
@@ -1474,7 +1531,7 @@ export default function Home() {
 
         {pendingBet && (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-            <div className="bg-[#1e1e1e] text-white p-6 rounded-xl w-[90%] md:w-[420px] shadow-lg">
+            <div className="bg-[var(--card)] text-[var(--text)] p-6 rounded-xl border border-[var(--border)] w-[90%] md:w-[420px] shadow-lg">
 
               {/* TITLE */}
               <h2 className="text-xl font-bold text-center mb-4">
@@ -1482,13 +1539,13 @@ export default function Home() {
               </h2>
 
               {/* INFO */}
-              <div className="bg-[#2a2a2a] p-4 rounded-lg text-center space-y-2">
+              <div className="bg-[var(--bg)] p-4 rounded-lg text-center space-y-2">
 
                 <p className="text-lg font-semibold">
                   {pendingBet.match}
                 </p>
 
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-[var(--muted)]">
                   {pendingBet.market} — {pendingBet.selection.toUpperCase()}
                 </p>
 
@@ -1497,13 +1554,13 @@ export default function Home() {
                 </p>
 
                 {pendingBet.bookmaker && (
-                  <p className="text-sm text-gray-400">
+                  <p className="text-sm text-[var(--muted)]">
                     {pendingBet.bookmaker}
                   </p>
                 )}
 
                 {pendingBet.value !== null && pendingBet.value !== undefined && (
-                  <p className="text-green-400 font-bold">
+                  <p className="text-[var(--accent)] font-bold">
                     {formatValue(pendingBet.value)}
                   </p>
                 )}
@@ -1514,7 +1571,7 @@ export default function Home() {
 
                 <button
                   onClick={() => setPendingBet(null)}
-                  className="flex-1 bg-gray-600 py-2 rounded-lg"
+                  className="flex-1 bg-[var(--card)] border border-[var(--border)] py-2 rounded-lg hover:opacity-80"
                 >
                   Cancelar
                 </button>
@@ -1524,7 +1581,7 @@ export default function Home() {
                     addBet(pendingBet);
                     setPendingBet(null);
                   }}
-                  className="flex-1 bg-green-600 py-2 rounded-lg font-bold"
+                  className="flex-1 bg-[var(--accent)] py-2 rounded-lg font-bold text-white hover:opacity-90"
                 >
                   Confirmar
                 </button>
@@ -1540,7 +1597,7 @@ export default function Home() {
           <div className="fixed inset-0 bg-black/60 z-50 flex">
 
             {/* PANEL */}
-            <div className="w-64 bg-[#111827] h-full p-4">
+            <div className="w-64 bg-[var(--bg)] border-r border-[var(--border)] h-full p-4">
               <Sidebar
                 view={view}
                 setView={(v) => {

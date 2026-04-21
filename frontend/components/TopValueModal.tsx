@@ -102,18 +102,18 @@ export default function TopValueModal({
   };
 
   const btnClass =
-    "bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-lg font-semibold";
+    "bg-[var(--primary)] hover:opacity-90 text-white px-4 py-2 rounded-lg font-semibold";
 
   // -----------------------
   // RENDER
   // -----------------------
   return (
     <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center">
-      <div className="w-[60%] h-[70%] bg-slate-900 text-white rounded-2xl p-6 overflow-auto">
+      <div className="w-[60%] h-[70%] bg-[var(--bg)] text-[var(--text)] rounded-2xl p-6 overflow-auto">
 
         {/* HEADER */}
         <div className="flex justify-between mb-6">
-          <h2 className="text-2xl font-bold text-cyan-400">
+          <h2 className="text-2xl font-bold text-[var(--primary)]">
             🔥 Top Value Bets
           </h2>
           <button onClick={onClose}>✖</button>
@@ -123,8 +123,8 @@ export default function TopValueModal({
         {initialLoading ? (
           <div className="flex flex-col items-center justify-center h-[70%]">
             <p className="mb-4 text-lg">Cargando apuestas top...</p>
-            <div className="w-64 h-2 bg-gray-700 rounded">
-              <div className="h-2 bg-cyan-400 animate-pulse w-full rounded"></div>
+            <div className="w-64 h-2 bg-[var(--border)] rounded">
+              <div className="h-2 bg-[var(--primary)] animate-pulse w-full rounded"></div>
             </div>
           </div>
         ) : (
@@ -147,20 +147,20 @@ export default function TopValueModal({
             <div className="mb-4 flex justify-between items-center">
               <button
                 onClick={toggleSelectAll}
-                className="bg-gray-700 px-4 py-2 rounded hover:bg-gray-600"
+                className="bg-[var(--card)] px-4 py-2 rounded hover:bg-[var(--hover)]"
               >
                 {selectAll ? "Deseleccionar todo" : "Seleccionar todo"}
               </button>
 
-              <span className="text-gray-400">
+              <span className="text-[var(--muted)]">
                 {selected.length} seleccionadas
               </span>
             </div>
 
             {/* TABLA */}
             <div className="hidden lg:block">
-              <table className="w-full border border-gray-700 text-base">
-                <thead className="bg-slate-800">
+              <table className="w-full border border-[var(--border)] text-base">
+                <thead className="bg-[var(--card)]">
                   <tr>
                     <th className="p-3 border">✔</th>
                     <th className="p-3 border">Match</th>
@@ -179,7 +179,7 @@ export default function TopValueModal({
                     return (
                       <tr
                         key={i}
-                        className="text-center border hover:bg-slate-800"
+                        className="text-center border hover:bg-[var(--hover)]"
                       >
                         <td className="border">
                           <input
@@ -204,8 +204,8 @@ export default function TopValueModal({
                         <td className="border">{b.market}</td>
                         <td className="border font-semibold">{b.selection}</td>
                         <td className="border text-lg font-bold">{b.odd}</td>
-                        <td className="border text-gray-400">{b.bookmaker}</td>
-                        <td className="border text-green-400 font-bold">
+                        <td className="border text-[var(--muted)]">{b.bookmaker}</td>
+                        <td className="border text-[var(--success)] font-bold">
                           +{b.value}%
                         </td>
                       </tr>
@@ -215,7 +215,6 @@ export default function TopValueModal({
               </table>
             </div>
             {/* CARDS MOVIL */}
-            {/* <div className="lg:hidden flex flex-col gap-3"> */}
             <div className="lg:hidden grid sm:grid-cols-2 gap-3">
               {bets.map((b, i) => {
                 const [home, away] = b.match.split(" vs ");
@@ -223,7 +222,7 @@ export default function TopValueModal({
                 return (
                   <div
                     key={i}
-                    className="bg-slate-800 p-4 rounded-xl border border-gray-700"
+                    className="bg-[var(--card)] p-4 rounded-xl border border-[var(--border)]"
                   >
                     {/* SELECT + VALUE */}
                     <div className="flex justify-between items-center mb-2">
@@ -232,7 +231,7 @@ export default function TopValueModal({
                         checked={selected.includes(i)}
                         onChange={() => toggleSelect(i)}
                       />
-                      <span className="text-green-400 font-bold text-lg">
+                      <span className="text-[var(--success)] font-bold text-lg">
                         +{b.value}%
                       </span>
                     </div>
@@ -248,7 +247,7 @@ export default function TopValueModal({
                     </div>
 
                     {/* INFO */}
-                    <div className="text-sm text-gray-300 space-y-1">
+                    <div className="text-sm text-[var(--muted)] space-y-1">
                       <p><strong>Market:</strong> {b.market}</p>
                       <p><strong>Pick:</strong> {b.selection}</p>
                       <p><strong>Odd:</strong> {b.odd}</p>

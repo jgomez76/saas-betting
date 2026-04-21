@@ -1,29 +1,18 @@
 @import "tailwindcss";
 
-/* :root {
-  --background: #ffffff;
-  --foreground: #171717;
-} */
-
-/* @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-} */
-
-/* @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-} */
+/* =========================
+   🌍 BASE GLOBAL
+========================= */
 
 body {
-  background: var(--background);
-  /* color: var(--foreground); */
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
 }
+
+/* =========================
+   🎬 ANIMATIONS
+========================= */
 
 @keyframes fadeIn {
   from {
@@ -41,107 +30,176 @@ body {
 }
 
 /* =========================
-   🎨 THEME SYSTEM
-========================= */
-
-/* DEFAULT */
-/* :root {
-  --bg: #0f172a;
-  --card: #1f2937;
-  --text: #ffffff;
-  --primary: #06b6d4;
-  --border: #334155;
-  --radius: 12px;
-  --font: system-ui;
-} */
-
-/* DARK */
-.dark {
-  --bg: #0f172a;
-  --card: #1f2937;
-  --text: #ffffff;
-  --primary: #06b6d4;
-}
-
-/* LIGHT */
-.light {
-  --bg: #ffffff;
-  --card: #f1f5f9;
-  --text: #0f172a;
-  --primary: #2563eb;
-}
-
-/* CLÁSICO */
-.classic {
-  --bg: #fdf6e3;
-  --card: #eee8d5;
-  --text: #073642;
-  --primary: #b58900;
-  --font: Georgia, serif;
-}
-
-/* MODERNO */
-.modern {
-  --bg: #111827;
-  --card: #1f2937;
-  --text: #e5e7eb;
-  --primary: #8b5cf6;
-}
-
-/* FUTURISTA */
-.futuristic {
-  --bg: #020617;
-  --card: #0f172a;
-  --text: #00f0ff;
-  --primary: #00f0ff;
-  --border: #00f0ff;
-  --radius: 6px;
-  --font: "Orbitron", sans-serif;
-}
-
-/* GLOBAL */
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font);
-}
-
-/* =========================
-   🎨 UI TOKENS
+   🎨 DESIGN TOKENS (DEFAULT)
 ========================= */
 
 :root {
   /* BASE */
-  --bg: #0f172a;
-  --card: #1f2937;
-  --text: #ffffff;
-  --border: #334155;
+  --bg: #0a0f1a;
+  --card: #121a2b;
+  --text: #e5e7eb;
+  --border: #263041;
 
-  /* ACTIONS */
-  --primary: #06b6d4;
+  /* BRAND */
+  --accent: #f59e0b;
+  --accent-soft: rgba(245, 158, 11, 0.15);
+  --accent-contrast: #000000; /* 🔥 NUEVO */
+
+  /* STATE */
+  --positive: #22c55e;
   --success: #22c55e;
+  --negative: #ef4444;
   --danger: #ef4444;
+  
   --warning: #facc15;
 
   /* UI */
   --muted: #94a3b8;
-  --hover: rgba(255, 255, 255, 0.05);
+  --hover: rgba(255, 255, 255, 0.06);
 
   --radius: 12px;
   --font: system-ui;
 }
 
-/* DARK */
-.dark {
-  --bg: #0f172a;
-  --card: #1f2937;
+/* =========================
+   🟢 1. TRADER MODE (FREE)
+========================= */
+
+html.trader {
+  --bg: #0b0f14;
+  --card: #141c26;
+  --text: #e5e7eb;
+  --border: #263241;
+
+  --accent: #f59e0b;
+  --accent-soft: rgba(245, 158, 11, 0.18);
+  --accent-contrast: #000000; /* 🔥 clave */
+
+  --positive: #22c55e;
+  --success: #22c55e;
+  --negative: #ef4444;
+  --danger: #ef4444;
+
+  --muted: #94a3b8;
+  --hover: rgba(255, 255, 255, 0.06);
 }
 
-/* LIGHT */
-.light {
-  --bg: #ffffff;
-  --card: #f1f5f9;
+/* =========================
+   🟢 2. SPORTSBOOK (FREE)
+========================= */
+
+html.sportsbook {
+  --bg: #0f1e17;
+  --card: #162a21;
+  --text: #ffffff;
+  --border: #1f3a2c;
+
+  --accent: #16a34a;
+  --accent-soft: rgba(22, 163, 74, 0.25);
+  --accent-contrast: #ffffff;
+
+  --positive: #22c55e;
+  --negative: #ef4444;
+  --success: #22c55e;
+  --danger: #ef4444;
+
+  --muted: #9ca3af;
+  --hover: rgba(255, 255, 255, 0.05);
+}
+
+/* =========================
+   🔵 3. DATA LAB (FREE)
+========================= */
+
+html.datalab {
+  --bg: #f1f5f9;
+  --card: #ffffff;
   --text: #0f172a;
-  --border: #e5e7eb;
+  --border: #d1d5db;
+
+  --accent: #2563eb;
+  --accent-soft: rgba(37, 99, 235, 0.15);
+  --accent-contrast: #ffffff;
+
+  --positive: #16a34a;
+  --negative: #dc2626;
+  --success: #16a34a;
+  --danger: #dc2626;
+
   --muted: #64748b;
+  --hover: rgba(0, 0, 0, 0.04);
+}
+
+/* =========================
+   🟣 4. NEON NIGHT (PREMIUM)
+========================= */
+
+html.neon {
+  --bg: #05010a;
+  --card: #14032a;
+  --text: #e9d5ff;
+  --border: #3b0764;
+
+  --accent: #a855f7;
+  --accent-soft: rgba(168, 85, 247, 0.3);
+  --accent-contrast: #ffffff;
+
+  --positive: #22c55e;
+  --negative: #f43f5e;
+  --success: #22c55e;
+  --danger: #f43f5e;
+
+  --muted: #a78bfa;
+  --hover: rgba(168, 85, 247, 0.12);
+}
+
+/* =========================
+   🧪 5. FUTURISTIC (PREMIUM)
+========================= */
+
+html.futuristic {
+  --bg: #020617;
+  --card: #0f1b2d;
+  --text: #00f0ff;
+  --border: #164e63;
+
+  --accent: #00f0ff;
+  --accent-soft: rgba(0, 240, 255, 0.2);
+  --accent-contrast: #000000; /* 🔥 porque es cyan claro */
+
+  --positive: #00ff9f;
+  --negative: #ff006e;
+  --success: #00ff9f;
+  --danger: #ff006e;
+
+  --muted: #38bdf8;
+  --hover: rgba(0, 240, 255, 0.08);
+
+  --radius: 8px;
+  --font: "Orbitron", sans-serif;
+}
+
+/* =========================
+   🟡 6. CLASSIC (PREMIUM)
+========================= */
+
+html.classic {
+  --bg: #fdf6e3;
+  --card: #eee8d5;
+  --text: #073642;
+  --border: #d6cbb3;
+
+  --accent: #b58900;
+  --accent-soft: rgba(181, 137, 0, 0.2);
+  --accent-contrast: #000000;
+
+  --positive: #859900;
+  --negative: #dc322f;
+  --success: #859900;
+  --danger: #dc322f;
+
+  --muted: #657b83;
+  --hover: rgba(0, 0, 0, 0.05);
+
+  --font: Georgia, serif;
 }

@@ -28,16 +28,16 @@ export default function TopValueTable() {
   }, []);
 
   if (loading) {
-    return <p className="text-center">Loading top bets...</p>;
+    return <p className="text-center text-[var(--muted)]">Loading top bets...</p>;
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow p-4">
-      <h2 className="text-xl font-bold mb-4">🔥 Top Value Bets</h2>
+    <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl shadow p-4">
+      <h2 className="text-xl font-bold mb-4 text-[var(--primary)]">🔥 Top Value Bets</h2>
 
-      <table className="w-full text-sm text-center">
+      <table className="w-full text-sm text-center text-[var(--text)]">
         <thead>
-          <tr className="border-b">
+          <tr className="border-b border-[var(--border)] text-[var(--muted)]">
             <th className="p-2">Match</th>
             <th>Market</th>
             <th>Pick</th>
@@ -55,27 +55,27 @@ export default function TopValueTable() {
             return (
               <tr
                 key={i}
-                className={`border-b ${
+                className={`border-b border-[var(--border)] ${
                   isTop
-                    ? "bg-green-100"
+                    ? "bg-[var(--success)]/20"
                     : isGood
-                    ? "bg-green-50"
-                    : ""
+                    ? "bg-[var(--success)]/10"
+                    : "hover:bg-[var(--hover)]"
                 }`}
               >
-                <td className="p-2 font-semibold">{b.match}</td>
+                <td className="p-2 font-semibold text-[var(--text)]">{b.match}</td>
                 <td>{b.market}</td>
                 <td className="font-bold">{b.selection}</td>
                 <td className="text-lg font-bold">{b.odd}</td>
-                <td className="text-gray-500">{b.bookmaker}</td>
+                <td className="text-[var(--muted)]">{b.bookmaker}</td>
 
                 <td
                   className={`font-bold ${
                     isTop
-                      ? "text-green-700"
+                      ? "text-[var(--success)]"
                       : isGood
-                      ? "text-green-600"
-                      : "text-gray-600"
+                      ? "text-[var(--success)]"
+                      : "text-[var(--muted)]"
                   }`}
                 >
                   +{b.value}%
