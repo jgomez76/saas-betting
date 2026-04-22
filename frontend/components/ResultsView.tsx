@@ -103,7 +103,7 @@ return (
       <h2 className="mb-3 font-bold text-[var(--primary)] text-sm">🏆 Ligas</h2>
 
       {/* 🔥 WRAP en vez de scroll */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap md:block gap-2">
 
         {leagues.map((l) => (
           <div

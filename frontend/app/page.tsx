@@ -17,6 +17,7 @@ import { Match } from "@/types/match";
 // import { API_URL } from "@/lib/api";
 import { Bet } from "@/types/bet";
 import { useSession } from "next-auth/react";
+import { useSubscription } from "@/context/SubscriptionContext"; 
 
 // ---------------- TYPES ----------------
 
@@ -113,6 +114,8 @@ export default function Home() {
 
   const { data: session } = useSession();
   const oauthDone = useRef(false);
+  
+  const { plan, setPlan, isPremium } = useSubscription();
 
   const [view, setView] = useState("dashboard");
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -138,17 +141,6 @@ export default function Home() {
     const stored = localStorage.getItem("bets");
     return stored ? JSON.parse(stored) : [];
   });
-
-  const handleDeleteBet = (id: number) => {
-  // 1. eliminar de array
-    const updatedBets = bets.filter((b) => b.id !== id);
-
-    // 2. actualizar estado React
-    setBets(updatedBets);
-
-    // 3. actualizar localStorage
-    localStorage.setItem("bets", JSON.stringify(updatedBets));
-  };
 
   const handleSelectTopPick = (pick: Pick) => {
     setPendingBet({
@@ -247,7 +239,7 @@ export default function Home() {
   };
 
   const [isAdmin, setIsAdmin] = useState(false);
-  const [isPremium, setIsPremium] = useState(false);
+  // const [isPremium, setIsPremium] = useState(false);
   const [email, setEmail] = useState("");
   const [authLoading, setAuthLoading] = useState(true);
 
@@ -287,7 +279,7 @@ export default function Home() {
       .then((data) => {
         setIsAdmin(data.is_admin);
         setEmail(data.email || "");
-        setIsPremium(data.subscription === "premium");
+        setPlan("premium");
         // 🔥 NUEVO
         setName(data.name || "");
         setAvatar(data.avatar || "");
@@ -297,9 +289,9 @@ export default function Home() {
       .catch(() => {
         setIsAdmin(false);
         setEmail("");
-        setIsPremium(false);
+        setPlan("free");
       });
-  }, [apiUrl]);
+  }, [apiUrl, setPlan]);
 
   // ###########
   // USE EFFECTS
@@ -361,14 +353,14 @@ export default function Home() {
 
       setIsAdmin(data.is_admin);
       setEmail(data.email || "");
-      setIsPremium(data.subscription === "premium");
+      setPlan("premium");
       setName(data.name || "");
       setAvatar(data.avatar || "");
       setProvider(data.provider ?? "email");
     };
 
     runOAuth();
-  }, [session, apiUrl]);
+  }, [session, apiUrl, setPlan]);
   
   // NEW LOGIN WITH JWT
   useEffect(() => {
@@ -380,17 +372,17 @@ export default function Home() {
       .then((data) => {
         setIsAdmin(data.is_admin);
         setEmail(data.email || "");
-        setIsPremium(data.subscription === "premium");
+        setPlan("premium");
       })
       .catch(() => {
         setIsAdmin(false);
         setEmail("");
-        setIsPremium(false);
+        setPlan("free");
       })
       .finally(() => {
         setAuthLoading(false);
       });
-  }, [apiUrl]);
+  }, [apiUrl, setPlan]);
 
   // --------- SINCRO REF --------
   useEffect(() => {
@@ -614,9 +606,27 @@ export default function Home() {
     return filtered;
   }, [allMatches, leagueFilter, marketFilter, dateFilter]);
 
-  const topPicks = useMemo(() => {
-    return getTopPicks(matches, isPremium);
-  }, [matches, isPremium]);
+  const allPicks = getTopPicks(matches);
+
+  const visiblePicks =
+    plan === "premium"
+      ? allPicks.slice(0, 5)
+      : allPicks.slice(0, 1);
+
+  const handleDeleteBet = (id: number) => {
+  // 1. eliminar de array
+    const updatedBets = bets.filter((b) => b.id !== id);
+
+    // 2. actualizar estado React
+    setBets(updatedBets);
+
+    // 3. actualizar localStorage
+    localStorage.setItem("bets", JSON.stringify(updatedBets));
+  };
+
+  // const topPicks = useMemo(() => {
+  //   return getTopPicks(matches);
+  // }, [matches]);
 
   // ------------- AUTO RESOLVE BETS -----------
 
@@ -882,7 +892,24 @@ export default function Home() {
   return (
     <>
   
+    <div className="mb-4 flex gap-2">
+      <button
+        onClick={() => setPlan("free")}
+        className={`px-3 py-1 rounded ${plan === "free" ? "bg-[var(--accent)] text-black" : "bg-[var(--card)]"}`}
+      >
+        FREE
+      </button>
+
+      <button
+        onClick={() => setPlan("premium")}
+        className={`px-3 py-1 rounded ${plan === "premium" ? "bg-[var(--accent)] text-black" : "bg-[var(--card)]"}`}
+      >
+        PREMIUM
+      </button>
+    </div>
+
     <div className="flex relative">
+      
 
       {!isMobile && (
         <Sidebar view={view} setView={setView} isAdmin={isAdmin} />
@@ -961,7 +988,7 @@ export default function Home() {
           )}
 
           <TopPicksCard 
-            picks={topPicks} 
+            picks={visiblePicks} 
             isPremium={isPremium} 
             onSelectPick={handleSelectTopPick}
           />
