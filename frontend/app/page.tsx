@@ -11,16 +11,19 @@ import ResultsView from "@/components/ResultsView";
 import StandingsView from "@/components/StandingsView";
 import ProfileModal from "@/components/ProfileModal";
 import SettingsView from "@/components/SettingsView";
+import TopPicksCard from "@/components/TopPicksCard";
+import { Pick, getTopPicks } from "@/lib/topPicks";
+import { Match } from "@/types/match";
 // import { API_URL } from "@/lib/api";
 import { Bet } from "@/types/bet";
 import { useSession } from "next-auth/react";
 
 // ---------------- TYPES ----------------
 
-type Odd = {
-  odd: number;
-  bookmaker: string;
-};
+// type Odd = {
+//   odd: number;
+//   bookmaker: string;
+// };
 
 type TeamMatch = {
   home: string;
@@ -30,75 +33,75 @@ type TeamMatch = {
   date: string;
 };
 
-type Match = {
-  home_team: string;
-  away_team: string;
-  league: string;
-  league_id: number;
-  date: string;
-  fixture_id: number;
+// type Match = {
+//   home_team: string;
+//   away_team: string;
+//   league: string;
+//   league_id: number;
+//   date: string;
+//   fixture_id: number;
 
-  value?: {
-    home_value: number | null;
-    draw_value: number | null;
-    away_value: number | null;
-  };
+//   value?: {
+//     home_value: number | null;
+//     draw_value: number | null;
+//     away_value: number | null;
+//   };
 
-  markets?: {
-    "1X2"?: {
-      home?: Odd;
-      draw?: Odd;
-      away?: Odd;
-    };
-    OU25?: {
-      over?: Odd;
-      under?: Odd;
-    };
-    OU35?: {
-      over?: Odd;
-      under?: Odd;
-    };
-    BTTS?: {
-      yes?: Odd;
-      no?: Odd;
-    };
-  };
+//   markets?: {
+//     "1X2"?: {
+//       home?: Odd;
+//       draw?: Odd;
+//       away?: Odd;
+//     };
+//     OU25?: {
+//       over?: Odd;
+//       under?: Odd;
+//     };
+//     OU35?: {
+//       over?: Odd;
+//       under?: Odd;
+//     };
+//     BTTS?: {
+//       yes?: Odd;
+//       no?: Odd;
+//     };
+//   };
 
-  market_values?: {
-    OU25?: {
-      over_value: number | null;
-      under_value: number | null;
-    };
-    OU35?: {
-      over_value: number | null;
-      under_value: number | null;
-    };
-    BTTS?: {
-      yes_value: number | null;
-      no_value: number | null;
-    };
-  };
+//   market_values?: {
+//     OU25?: {
+//       over_value: number | null;
+//       under_value: number | null;
+//     };
+//     OU35?: {
+//       over_value: number | null;
+//       under_value: number | null;
+//     };
+//     BTTS?: {
+//       yes_value: number | null;
+//       no_value: number | null;
+//     };
+//   };
 
-  home_form?: string;
-  away_form?: string;
+//   home_form?: string;
+//   away_form?: string;
 
-  probabilities?: {
-    home_odds?: number;
-    draw_odds?: number;
-    away_odds?: number;
-  };
+//   probabilities?: {
+//     home_odds?: number;
+//     draw_odds?: number;
+//     away_odds?: number;
+//   };
 
-  extra_probabilities?: {
-    over15_prob?: number;
-    under15_prob?: number;
-    over25_prob?: number;
-    under25_prob?: number;
-    over35_prob?: number;
-    under35_prob?: number;
-    btts_yes_prob?: number;
-    btts_no_prob?: number;
-  };
-};
+//   extra_probabilities?: {
+//     over15_prob?: number;
+//     under15_prob?: number;
+//     over25_prob?: number;
+//     under25_prob?: number;
+//     over35_prob?: number;
+//     under35_prob?: number;
+//     btts_yes_prob?: number;
+//     btts_no_prob?: number;
+//   };
+// };
 
 // ---------------- COMPONENT ----------------
 
@@ -145,6 +148,20 @@ export default function Home() {
 
     // 3. actualizar localStorage
     localStorage.setItem("bets", JSON.stringify(updatedBets));
+  };
+
+  const handleSelectTopPick = (pick: Pick) => {
+    setPendingBet({
+      match: pick.match,
+      market: pick.market,
+      selection: pick.selection,
+      odd: pick.odd,
+      bookmaker: "TOP PICK", // 👈 puedes mejorar luego
+      value: pick.value,
+      fixture_id: pick.fixture_id, // ⚠️ ahora lo arreglamos abajo
+      status: "pending",
+      date: pick.date,
+    });
   };
 
   const [favorites, setFavorites] = useState<string[]>(() => {
@@ -597,6 +614,10 @@ export default function Home() {
     return filtered;
   }, [allMatches, leagueFilter, marketFilter, dateFilter]);
 
+  const topPicks = useMemo(() => {
+    return getTopPicks(matches, isPremium);
+  }, [matches, isPremium]);
+
   // ------------- AUTO RESOLVE BETS -----------
 
   useEffect(() => {
@@ -938,6 +959,12 @@ export default function Home() {
               
             />
           )}
+
+          <TopPicksCard 
+            picks={topPicks} 
+            isPremium={isPremium} 
+            onSelectPick={handleSelectTopPick}
+          />
 
           {loading && Object.keys(grouped).length === 0 && (
             <div className="grid mt-6 gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">

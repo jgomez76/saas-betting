@@ -755,3 +755,4 @@ def upload_avatar(
     db.refresh(user)
 
     return {"avatar": avatar_url}
+
