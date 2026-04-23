@@ -3,6 +3,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { Bet } from "@/types/bet";
 import { ReferenceLine } from "recharts";
+import { formatBetLabel } from "@/lib/format";
 
 import {
   LineChart,
@@ -407,10 +408,21 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
                             <span>{b.match}</span>
                             <span>{formatDate(b.date)}</span>
                           </div>
-
+{/* 
                           <div className="flex justify-between">
-                            <span>🎯 {b.selection}</span>
+                            <span>🎯 {formatBetLabel(b.market, b.selection)}</span>
                             <span>{b.result ?? "-"}</span>
+                          </div> */}
+
+                          <div className="flex flex-col">
+                             <div className="flex justify-between">
+                                <span>🎯 {formatBetLabel(b.market, b.selection)}</span>
+                                <span>{b.result ?? "-"}</span>
+                              </div>
+
+                            <span className="text-xs text-[var(--muted)]">
+                              @ {b.odd ?? "-"} {b.bookmaker && `• ${b.bookmaker}`}
+                            </span>
                           </div>
 
                           <div className="flex justify-between items-center">

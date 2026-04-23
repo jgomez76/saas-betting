@@ -15,7 +15,8 @@ export type Pick = {
   date: string;
   score: number;
   fixture_id: number;
-  tier: "safe" | "medium" | "risky";
+  tier: "Confianza ALTA" | "Confianza media" | "risky";
+  bookmaker?: string;
 };
 
 /* =========================
@@ -32,7 +33,8 @@ export const getTopPicks = (matches: Match[]): Pick[] => {
     selection: string,
     odd: number,
     value: number,
-    probability: number
+    probability: number,
+    bookmaker?: string,
   ) => {
     // 🎯 filtros de calidad
     if (
@@ -50,10 +52,10 @@ export const getTopPicks = (matches: Match[]): Pick[] => {
       (1 / odd) * 0.2;
 
     // 🏷️ tier
-    let tier: "safe" | "medium" | "risky" = "medium";
+    let tier: "Confianza ALTA" | "Confianza media" | "risky" = "Confianza media";
 
     if (probability >= 0.65 && value <= 0.12) {
-      tier = "safe";
+      tier = "Confianza ALTA";
     } else if (probability < 0.5 || value > 0.18) {
       tier = "risky";
     }
@@ -70,6 +72,7 @@ export const getTopPicks = (matches: Match[]): Pick[] => {
       score,
       fixture_id: m.fixture_id,
       tier,
+      bookmaker,
     });
   };
 
@@ -89,6 +92,7 @@ export const getTopPicks = (matches: Match[]): Pick[] => {
       ] as const;
 
       map.forEach(({ key, prob }) => {
+        const marketdata = m.markets?.["1X2"]?.[key];
         const odd = m.markets?.["1X2"]?.[key]?.odd;
         const value = m.value?.[`${key}_value` as keyof typeof m.value];
 
@@ -96,65 +100,77 @@ export const getTopPicks = (matches: Match[]): Pick[] => {
 
         const probability = 1 / prob;
         if (!probability) return;
+        const bookmaker = marketdata?.bookmaker;
 
-        addPick(m, "1X2", key, odd, value, probability);
+        addPick(m, "1X2", key, odd, value, probability, bookmaker);
       });
     }
 
     /* -------- OU25 -------- */
     if (m.markets?.OU25 && m.market_values?.OU25 && m.extra_probabilities) {
+      const overdata =  m.markets.OU25.over;
       const overOdd = m.markets.OU25.over?.odd;
       const overValue = m.market_values.OU25.over_value;
       const overProb = m.extra_probabilities.over25_prob;
 
       if (overOdd && overValue != null && overProb) {
-        addPick(m, "OU25", "over", overOdd, overValue, overProb);
+        const bookmaker = overdata?.bookmaker;
+        addPick(m, "OU25", "over", overOdd, overValue, overProb, bookmaker);
       }
-
+      const underdata =  m.markets.OU25.under;
       const underOdd = m.markets.OU25.under?.odd;
       const underValue = m.market_values.OU25.under_value;
       const underProb = m.extra_probabilities.under25_prob;
 
       if (underOdd && underValue != null && underProb) {
-        addPick(m, "OU25", "under", underOdd, underValue, underProb);
+        const bookmaker = underdata?.bookmaker;
+        addPick(m, "OU25", "under", underOdd, underValue, underProb, bookmaker);
       }
     }
 
     /* -------- OU35 -------- */
     if (m.markets?.OU35 && m.market_values?.OU35 && m.extra_probabilities) {
+      const overdata =  m.markets.OU35.over;
       const overOdd = m.markets.OU35.over?.odd;
       const overValue = m.market_values.OU35.over_value;
       const overProb = m.extra_probabilities.over35_prob;
 
       if (overOdd && overValue != null && overProb) {
-        addPick(m, "OU35", "over", overOdd, overValue, overProb);
+        const bookmaker = overdata?.bookmaker;
+        addPick(m, "OU35", "over", overOdd, overValue, overProb, bookmaker);
       }
 
+      const underdata =  m.markets.OU35.under;
       const underOdd = m.markets.OU35.under?.odd;
       const underValue = m.market_values.OU35.under_value;
       const underProb = m.extra_probabilities.under35_prob;
 
       if (underOdd && underValue != null && underProb) {
-        addPick(m, "OU35", "under", underOdd, underValue, underProb);
+        const bookmaker = underdata?.bookmaker;
+        addPick(m, "OU35", "under", underOdd, underValue, underProb, bookmaker);
       }
     }
 
     /* -------- BTTS -------- */
     if (m.markets?.BTTS && m.market_values?.BTTS && m.extra_probabilities) {
+      const yesdata =  m.markets.BTTS.yes;
       const yesOdd = m.markets.BTTS.yes?.odd;
       const yesValue = m.market_values.BTTS.yes_value;
       const yesProb = m.extra_probabilities.btts_yes_prob;
 
       if (yesOdd && yesValue != null && yesProb) {
-        addPick(m, "BTTS", "yes", yesOdd, yesValue, yesProb);
+        const bookmaker = yesdata?.bookmaker;
+        addPick(m, "BTTS", "yes", yesOdd, yesValue, yesProb, bookmaker);
       }
 
+      const nodata =  m.markets.BTTS.no;
       const noOdd = m.markets.BTTS.no?.odd;
       const noValue = m.market_values.BTTS.no_value;
       const noProb = m.extra_probabilities.btts_no_prob;
 
       if (noOdd && noValue != null && noProb) {
-        addPick(m, "BTTS", "no", noOdd, noValue, noProb);
+        const bookmaker = nodata?.bookmaker;
+        addPick(m, "BTTS", "no", noOdd, noValue, noProb, bookmaker);
       }
     }
   });

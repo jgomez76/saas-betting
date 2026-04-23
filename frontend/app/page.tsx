@@ -21,11 +21,6 @@ import { useSubscription } from "@/context/SubscriptionContext";
 
 // ---------------- TYPES ----------------
 
-// type Odd = {
-//   odd: number;
-//   bookmaker: string;
-// };
-
 type TeamMatch = {
   home: string;
   away: string;
@@ -33,76 +28,6 @@ type TeamMatch = {
   away_goals: number;
   date: string;
 };
-
-// type Match = {
-//   home_team: string;
-//   away_team: string;
-//   league: string;
-//   league_id: number;
-//   date: string;
-//   fixture_id: number;
-
-//   value?: {
-//     home_value: number | null;
-//     draw_value: number | null;
-//     away_value: number | null;
-//   };
-
-//   markets?: {
-//     "1X2"?: {
-//       home?: Odd;
-//       draw?: Odd;
-//       away?: Odd;
-//     };
-//     OU25?: {
-//       over?: Odd;
-//       under?: Odd;
-//     };
-//     OU35?: {
-//       over?: Odd;
-//       under?: Odd;
-//     };
-//     BTTS?: {
-//       yes?: Odd;
-//       no?: Odd;
-//     };
-//   };
-
-//   market_values?: {
-//     OU25?: {
-//       over_value: number | null;
-//       under_value: number | null;
-//     };
-//     OU35?: {
-//       over_value: number | null;
-//       under_value: number | null;
-//     };
-//     BTTS?: {
-//       yes_value: number | null;
-//       no_value: number | null;
-//     };
-//   };
-
-//   home_form?: string;
-//   away_form?: string;
-
-//   probabilities?: {
-//     home_odds?: number;
-//     draw_odds?: number;
-//     away_odds?: number;
-//   };
-
-//   extra_probabilities?: {
-//     over15_prob?: number;
-//     under15_prob?: number;
-//     over25_prob?: number;
-//     under25_prob?: number;
-//     over35_prob?: number;
-//     under35_prob?: number;
-//     btts_yes_prob?: number;
-//     btts_no_prob?: number;
-//   };
-// };
 
 // ---------------- COMPONENT ----------------
 
@@ -127,7 +52,6 @@ export default function Home() {
   const [leagueFilter, setLeagueFilter] = useState("ALL");
   const [dateFilter, setDateFilter] = useState("TODAY_TOMORROW");
   const [showTopModal, setShowTopModal] = useState(false);
-  // const [showAnalysisModal, setShowAnalysisModal] = useState(false);
 
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [teamMatches, setTeamMatches] = useState<TeamMatch[]>([]);
@@ -251,7 +175,37 @@ export default function Home() {
   const [provider, setProvider] = useState("");
 
   const [showProfile, setShowProfile] = useState(false);
-  
+
+  const getFavLeagues = (): number[] => {
+    if (typeof window === "undefined") return [];
+
+    try {
+      const saved = localStorage.getItem("fav_leagues");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const favLeagues = getFavLeagues();
+
+  const todayMatches = useMemo(() => {
+  const now = new Date();
+
+  return allMatches.filter((m) => {
+      const matchDate = new Date(m.date + "Z");
+
+      const isToday =
+        matchDate.toDateString() === now.toDateString();
+
+      const isFav =
+        favLeagues.length === 0 ||
+        favLeagues.includes(m.league_id);
+
+      return isToday && isFav;
+    });
+  }, [allMatches, favLeagues]);
+    
 
   const apiUrl =
     typeof window !== "undefined"
@@ -509,11 +463,14 @@ export default function Home() {
   const matches = useMemo(() => {
     let filtered: Match[] = [...allMatches];
 
-    // 🏆 LIGA
+    // 🏆 LIGA (manual > favoritas)
     if (leagueFilter !== "ALL") {
-      // filtered = filtered.filter((m) => m.league === leagueFilter);
       filtered = filtered.filter(
         (m) => String(m.league_id) === leagueFilter
+      );
+    } else if (favLeagues.length > 0) {
+      filtered = filtered.filter((m) =>
+        favLeagues.includes(m.league_id)
       );
     }
 
@@ -604,9 +561,9 @@ export default function Home() {
     });
 
     return filtered;
-  }, [allMatches, leagueFilter, marketFilter, dateFilter]);
+  }, [allMatches, leagueFilter, marketFilter, dateFilter, favLeagues]);
 
-  const allPicks = getTopPicks(matches);
+  const allPicks = getTopPicks(todayMatches);
 
   const visiblePicks =
     plan === "premium"

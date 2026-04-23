@@ -36,9 +36,9 @@ export default function TopPicksCard({
           const locked = !isPremium && i > 0;
 
           const tierColor =
-            p.tier === "safe"
+            p.tier === "Confianza ALTA"
               ? "text-[var(--positive)]"
-              : p.tier === "medium"
+              : p.tier === "Confianza media"
               ? "text-[var(--warning)]"
               : "text-[var(--danger)]";
 
@@ -93,9 +93,12 @@ export default function TopPicksCard({
                   </p>
 
                   {/* 💰 CUOTA */}
-                  <p className="text-lg font-semibold">
-                    {p.odd}
+                  <p className="text-xl font-semibold">
+                    <span className="text-xs text-[var(--muted)] uppercase">{p.bookmaker} -- </span>{p.odd} 
                   </p>
+                  {/* <p className="text-xs text-[var(--muted)] uppercase">
+                    {p.bookmaker}
+                  </p> */}
 
                   {/* 📈 VALUE */}
                   <p className="text-sm font-semibold text-[var(--accent)]">

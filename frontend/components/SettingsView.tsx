@@ -2,6 +2,7 @@
 
 import { useTheme } from "@/context/ThemeContext";
 import type { Theme } from "@/context/ThemeContext";
+import FavoriteLeagues from "@/components/FavoriteLeagues";
 
 /* 🔒 simulación (luego lo conectas con backend) */
 // const FREE_THEMES: Theme[] = ["trader", "sportsbook", "datalab"];
@@ -94,10 +95,12 @@ export default function SettingsView() {
             <span className="text-[var(--muted)] text-sm">Próximamente</span>
           </div>
 
-          <div className="flex justify-between items-center">
+          {/* <div className="flex justify-between items-center">
             <span>🏆 Ligas favoritas</span>
+            
             <span className="text-[var(--muted)] text-sm">Próximamente</span>
-          </div>
+          </div> */}
+          <FavoriteLeagues />
 
         </div>
       </section>
