@@ -18,6 +18,7 @@ import { Match } from "@/types/match";
 import { Bet } from "@/types/bet";
 import { useSession } from "next-auth/react";
 import { useSubscription } from "@/context/SubscriptionContext"; 
+import { getStakeFromOdd, getStakeRules } from "@/lib/stake";
 
 // ---------------- TYPES ----------------
 
@@ -59,6 +60,7 @@ export default function Home() {
 
   type PendingBet = Omit<Bet, "id">;
   const [pendingBet, setPendingBet] = useState<PendingBet | null>(null);
+  // const [betPreview, setBetPreview] = useState<Bet | null>(null);
 
   const [bets, setBets] = useState<Bet[]>(() => {
   if (typeof window === "undefined") return [];
@@ -67,6 +69,7 @@ export default function Home() {
   });
 
   const handleSelectTopPick = (pick: Pick) => {
+
     setPendingBet({
       match: pick.match,
       market: pick.market,
@@ -77,6 +80,8 @@ export default function Home() {
       fixture_id: pick.fixture_id, // ⚠️ ahora lo arreglamos abajo
       status: "pending",
       date: pick.date,
+      stake: pick.stake,
+      stakeLevel: pick.stakeLevel,
     });
   };
 
@@ -1075,7 +1080,8 @@ export default function Home() {
                                 return (
                                   <div
                                     key={k}
-                                    onClick={() =>
+                                    onClick={() => {
+                                      const stakeRule = getStakeFromOdd(odd?.odd ?? 0);
                                       setPendingBet({
                                         match: `${match.home_team} vs ${match.away_team}`,
                                         market: "1X2",
@@ -1086,8 +1092,11 @@ export default function Home() {
                                         fixture_id: match.fixture_id,
                                         status: "pending",
                                         date: match.date,
-                                      })
-                                    }
+
+                                        stake: stakeRule.amount,
+                                        stakeLevel: stakeRule.level,
+                                      });
+                                    }}
                                     className={`
                                       p-3 rounded-lg text-center cursor-pointer
                                       border transition-all
@@ -1169,6 +1178,8 @@ export default function Home() {
                                   <div
                                     key={k}
                                     onClick={() =>
+                                    {
+                                      const stakeRule = getStakeFromOdd(odd?.odd ?? 0);
                                       setPendingBet({
                                         match: `${match.home_team} vs ${match.away_team}`,
                                         market: "OU25",
@@ -1178,19 +1189,12 @@ export default function Home() {
                                         value,
                                         fixture_id: match.fixture_id,
                                         status: "pending",
-                                        date: match.date
+                                        date: match.date,
+                                        stake: stakeRule.amount,
+                                        stakeLevel: stakeRule.level,
                                       })
-                                    }
-                                    // className={`${getValueColor(
-                                    //   value,
-                                    //   odd?.odd
-                                    // // )} p-2 rounded text-center cursor-pointer hover:scale-105 transition`}
-                                    // )}
-                                    //   p-3 rounded-lg text-center cursor-pointer
-                                    //   border border-[var(--border)]
-                                    //   hover:scale-105 hover:shadow-md
-                                    //   transition-all
-                                    // `}
+                                    }}
+
                                     className={`
                                       p-3 rounded-lg text-center cursor-pointer
                                       border transition-all
@@ -1266,7 +1270,8 @@ export default function Home() {
                                 return (
                                   <div
                                     key={k}
-                                    onClick={() =>
+                                    onClick={() => {
+                                      const stakeRule = getStakeFromOdd(odd?.odd ?? 0);
                                       setPendingBet({
                                         match: `${match.home_team} vs ${match.away_team}`,
                                         market: "OU35",
@@ -1276,9 +1281,11 @@ export default function Home() {
                                         value,
                                         fixture_id: match.fixture_id,
                                         status: "pending",
-                                        date: match.date
+                                        date: match.date,
+                                        stake: stakeRule.amount,
+                                        stakeLevel: stakeRule.level,
                                       })
-                                    }
+                                    }}
 
                                     className={`
                                       p-3 rounded-lg text-center cursor-pointer
@@ -1357,7 +1364,8 @@ export default function Home() {
                                 return (
                                   <div
                                     key={k}
-                                    onClick={() =>
+                                    onClick={() => {
+                                      const stakeRule = getStakeFromOdd(odd?.odd ?? 0);
                                       setPendingBet({
                                         match: `${match.home_team} vs ${match.away_team}`,
                                         market: "BTTS",
@@ -1367,9 +1375,12 @@ export default function Home() {
                                         value,
                                         fixture_id: match.fixture_id,
                                         status: "pending",
-                                        date: match.date
+                                        date: match.date,
+                                        stake: stakeRule.amount,
+                                        stakeLevel: stakeRule.level,
                                       })
-                                    }
+                                    }}
+
                                     className={`
                                       p-3 rounded-lg text-center cursor-pointer
                                       border transition-all
@@ -1513,9 +1524,7 @@ export default function Home() {
         {/* BETS */}
         {view === "bets" && (
           <BetsModal
-            // open={showBetsModal}
             open={true}
-            // onClose={() => setShowBetsModal(false)}
             onClose={() => setView("dashboard")}
             bets={bets}
             onDelete={handleDeleteBet}
@@ -1575,6 +1584,35 @@ export default function Home() {
                     {formatValue(pendingBet.value)}
                   </p>
                 )}
+                <p className="text-xs text-[var(--muted)] mb-1">
+                  Stake recomendado
+                </p>
+
+                <select
+                  value={pendingBet.stakeLevel}
+                  onChange={(e) => {
+                    const level = Number(e.target.value);
+                    const rule = getStakeRules().find(r => r.level === level);
+
+                    if (!rule) return;
+
+                    setPendingBet({
+                      ...pendingBet,
+                      stakeLevel: level,
+                      stake: rule.amount,
+                    });
+                  }}
+                  className="w-full p-2 mb-4 bg-[var(--bg)] border border-[var(--border)] rounded text-sm"
+                >
+                  {/* <option value={1}>Stake 1 — 10€</option>
+                  <option value={2}>Stake 2 — 20€</option>
+                  <option value={3}>Stake 3 — 30€</option> */}
+                  {getStakeRules().map((r) => (
+                    <option key={r.level} value={r.level}>
+                      Stake {r.level} — {r.amount}€
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* ACTIONS */}

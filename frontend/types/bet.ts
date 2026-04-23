@@ -13,4 +13,7 @@ export type Bet = {
     
     status: "pending" | "won" | "lost";
     result?: string;
+
+    stake?: number;
+    stakeLevel?: number;
 }

@@ -93,7 +93,7 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [dateFilter, setDateFilter] = useState("ALL");
 
-  const stake = 10;
+  // const stake = 10;
 
   // ---------------- SORT (NEW FIRST) ----------------
   const sortedBets = useMemo(() => {
@@ -165,9 +165,23 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
   };
 
   // ---------------- PROFIT ----------------
+  // const getProfit = (b: Bet) => {
+  //   if (b.status === "won" && b.odd) return (b.odd - 1) * stake;
+  //   if (b.status === "lost") return -stake;
+  //   return 0;
+  // };
+
   const getProfit = (b: Bet) => {
-    if (b.status === "won" && b.odd) return (b.odd - 1) * stake;
-    if (b.status === "lost") return -stake;
+    const stake = b.stake ?? 10; // fallback por seguridad
+
+    if (b.status === "won" && b.odd) {
+      return (b.odd - 1) * stake;
+    }
+
+    if (b.status === "lost") {
+      return -stake;
+    }
+
     return 0;
   };
 
@@ -190,10 +204,15 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
     const result: Record<string, { profit: number; roi: number }> = {};
 
     Object.entries(groupedBets).forEach(([date, bets]) => {
-      const totalStake = bets.length * stake;
+      // const totalStake = bets.length * stake;
+      const totalStake = bets.reduce(
+        (acc, b) => acc + (b.stake ?? 10),
+        0
+      );
 
       const totalReturn = bets.reduce((acc, b) => {
         if (b.status === "won" && b.odd) {
+          const stake = b.stake ?? 10;
           return acc + b.odd * stake;
         }
         return acc;
@@ -228,10 +247,15 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
 
   const globalStats = useMemo(() => {
     const calc = (bets: Bet[]) => {
-      const totalStake = bets.length * stake;
+      // const totalStake = bets.length * stake;
+      const totalStake = bets.reduce(
+        (acc, b) => acc + (b.stake ?? 10),
+        0
+      );
 
       const totalReturn = bets.reduce((acc, b) => {
         if (b.status === "won" && b.odd) {
+          const stake = b.stake ?? 10;
           return acc + b.odd * stake;
         }
         return acc;
@@ -260,6 +284,7 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
 
       if (!map[key]) map[key] = 0;
 
+      const stake = b.stake ?? 10;
       if (b.status === "won" && b.odd) {
         map[key] += (b.odd - 1) * stake;
       } else if (b.status === "lost") {
@@ -408,17 +433,17 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
                             <span>{b.match}</span>
                             <span>{formatDate(b.date)}</span>
                           </div>
-{/* 
-                          <div className="flex justify-between">
-                            <span>🎯 {formatBetLabel(b.market, b.selection)}</span>
-                            <span>{b.result ?? "-"}</span>
-                          </div> */}
 
                           <div className="flex flex-col">
                              <div className="flex justify-between">
                                 <span>🎯 {formatBetLabel(b.market, b.selection)}</span>
                                 <span>{b.result ?? "-"}</span>
                               </div>
+
+                                {/* 🔥 NUEVO: STAKE */}
+                            <span className="text-xs text-[var(--muted)]">
+                              Stake {b.stakeLevel ?? "-"} • {b.stake ?? "-"}€
+                            </span>
 
                             <span className="text-xs text-[var(--muted)]">
                               @ {b.odd ?? "-"} {b.bookmaker && `• ${b.bookmaker}`}

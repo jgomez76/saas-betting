@@ -3,6 +3,7 @@
 import { useTheme } from "@/context/ThemeContext";
 import type { Theme } from "@/context/ThemeContext";
 import FavoriteLeagues from "@/components/FavoriteLeagues";
+import StakeSettings from "@/components/StakeSettings";
 
 /* 🔒 simulación (luego lo conectas con backend) */
 // const FREE_THEMES: Theme[] = ["trader", "sportsbook", "datalab"];
@@ -89,18 +90,18 @@ export default function SettingsView() {
         </h2>
 
         <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 space-y-3">
-
           <div className="flex justify-between items-center">
             <span>🌍 Idioma</span>
             <span className="text-[var(--muted)] text-sm">Próximamente</span>
           </div>
+        </div>
 
-          {/* <div className="flex justify-between items-center">
-            <span>🏆 Ligas favoritas</span>
-            
-            <span className="text-[var(--muted)] text-sm">Próximamente</span>
-          </div> */}
+        <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 space-y-3">
+
           <FavoriteLeagues />
+        </div>
+        <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 space-y-3">
+          <StakeSettings />
 
         </div>
       </section>

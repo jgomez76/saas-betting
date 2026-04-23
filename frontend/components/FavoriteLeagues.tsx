@@ -39,7 +39,7 @@ export default function FavoriteLeagues() {
     return (
         <div className="space-y-4">
 
-        <h2 className="text-sm text-[var(--muted)] uppercase">
+        <h2 className="font-bold text-sm text-[var(--muted)] uppercase">
             🏆 Ligas favoritas
         </h2>
 

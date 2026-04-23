@@ -1,4 +1,5 @@
 import { Match } from "@/types/match";
+import { getStakeFromOdd } from "@/lib/stake";
 
 /* =========================
    🎯 PICK TYPE
@@ -17,6 +18,8 @@ export type Pick = {
   fixture_id: number;
   tier: "Confianza ALTA" | "Confianza media" | "risky";
   bookmaker?: string;
+  stake?: number;
+  stakeLevel?: number;
 };
 
 /* =========================
@@ -60,6 +63,8 @@ export const getTopPicks = (matches: Match[]): Pick[] => {
       tier = "risky";
     }
 
+    const stakeRule = getStakeFromOdd(odd);
+
     picks.push({
       match: `${m.home_team} vs ${m.away_team}`,
       market,
@@ -73,6 +78,8 @@ export const getTopPicks = (matches: Match[]): Pick[] => {
       fixture_id: m.fixture_id,
       tier,
       bookmaker,
+      stake: stakeRule.amount,
+      stakeLevel: stakeRule.level,
     });
   };
 
