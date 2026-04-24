@@ -1,19 +1,34 @@
-export const formatBetLabel = (market: string, selection: string) => {
+import { Translation } from "./i18n/translations";
+
+export const formatBetLabel = (
+  market: string,
+  selection: string,
+  t: Translation
+) => {
+  // 1X2
   if (market === "1X2") {
-    return selection.toUpperCase();
+    if (selection === "home") return t.home;
+    if (selection === "draw") return t.draw;
+    if (selection === "away") return t.away;
   }
 
+  // OU25
   if (market === "OU25") {
-    return selection === "over" ? "Over 2.5" : "Under 2.5";
+    if (selection === "over") return t.over25;
+    if (selection === "under") return t.under25;
   }
 
+  // OU35
   if (market === "OU35") {
-    return selection === "over" ? "Over 3.5" : "Under 3.5";
+    if (selection === "over") return t.over35;
+    if (selection === "under") return t.under35;
   }
 
+  // BTTS
   if (market === "BTTS") {
-    return selection === "yes" ? "BTTS Sí" : "BTTS No";
+    if (selection === "yes") return t.bttsYes;
+    if (selection === "no") return t.bttsNo;
   }
 
-  return `${market} - ${selection}`;
+  return `${market} ${selection}`;
 };

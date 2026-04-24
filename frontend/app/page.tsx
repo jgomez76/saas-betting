@@ -570,10 +570,11 @@ export default function Home() {
 
   const allPicks = getTopPicks(todayMatches);
 
-  const visiblePicks =
-    plan === "premium"
-      ? allPicks.slice(0, 5)
-      : allPicks.slice(0, 1);
+  // const visiblePicks =
+  //   plan === "premium"
+  //     ? allPicks.slice(0, 5)
+  //     : allPicks.slice(0, 1);
+  const visiblePicks = allPicks.slice(0, 4);
 
   const handleDeleteBet = (id: number) => {
   // 1. eliminar de array

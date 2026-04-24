@@ -16,7 +16,7 @@ export type Pick = {
   date: string;
   score: number;
   fixture_id: number;
-  tier: "Confianza ALTA" | "Confianza media" | "risky";
+  tier: "high" | "medium" | "low";
   bookmaker?: string;
   stake?: number;
   stakeLevel?: number;
@@ -55,13 +55,16 @@ export const getTopPicks = (matches: Match[]): Pick[] => {
       (1 / odd) * 0.2;
 
     // 🏷️ tier
-    let tier: "Confianza ALTA" | "Confianza media" | "risky" = "Confianza media";
+    let tier: "high" | "medium" | "low" = "medium";
 
-    if (probability >= 0.65 && value <= 0.12) {
-      tier = "Confianza ALTA";
-    } else if (probability < 0.5 || value > 0.18) {
-      tier = "risky";
-    }
+    // if (probability >= 0.65 && value <= 0.12) {
+    //   tier = "high";
+    // } else if (probability < 0.5 || value > 0.18) {
+    //   tier = "low";
+    // }
+    if (probability >= 0.65) tier = "high";
+    else if (probability >= 0.55) tier = "medium";
+    else tier = "low";
 
     const stakeRule = getStakeFromOdd(odd);
 
@@ -186,7 +189,7 @@ export const getTopPicks = (matches: Match[]): Pick[] => {
      🏆 RANKING + UNIQUE
   ========================= */
 
-  const sorted = picks.sort((a, b) => b.score - a.score);
+  const sorted = picks.sort((a, b) => b.probability - a.probability);
 
   const unique = new Map<number, Pick>();
 

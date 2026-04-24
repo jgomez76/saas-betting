@@ -4,6 +4,8 @@ import { useTheme } from "@/context/ThemeContext";
 import type { Theme } from "@/context/ThemeContext";
 import FavoriteLeagues from "@/components/FavoriteLeagues";
 import StakeSettings from "@/components/StakeSettings";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
+import Image from "next/image";
 
 /* 🔒 simulación (luego lo conectas con backend) */
 // const FREE_THEMES: Theme[] = ["trader", "sportsbook", "datalab"];
@@ -12,6 +14,7 @@ const PRO_THEMES: Theme[] = ["neon", "futuristic", "classic"];
 
 export default function SettingsView() {
   const { theme, setTheme } = useTheme();
+  const { lang, changeLang } = useLanguage();
 
   const isPremium = false; // 🔥 luego lo conectas con tu estado real
 
@@ -90,9 +93,54 @@ export default function SettingsView() {
         </h2>
 
         <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 space-y-3">
-          <div className="flex justify-between items-center">
-            <span>🌍 Idioma</span>
-            <span className="text-[var(--muted)] text-sm">Próximamente</span>
+          <div className="space-y-2">
+
+            <p className="text-sm font-semibold">
+              🌐 Language
+            </p>
+
+            <div className="flex gap-3">
+
+              <button
+                onClick={() => changeLang("en")}
+                className={`
+                  flex items-center gap-2 px-3 py-2 rounded-lg border
+                  ${lang === "en"
+                    ? "border-[var(--accent)] bg-[var(--accent)]/10"
+                    : "border-[var(--border)] opacity-70"}
+                `}
+              >
+                          <Image
+                            src="/flags/gb.svg"
+                            alt="English"
+                            width={72}
+                            height={72}
+                            className="rounded-sm"
+                          />
+                <span>English</span>
+              </button>
+
+              <button
+                onClick={() => changeLang("es")}
+                className={`
+                  flex items-center gap-2 px-3 py-2 rounded-lg border
+                  ${lang === "es"
+                    ? "border-[var(--accent)] bg-[var(--accent)]/10"
+                    : "border-[var(--border)] opacity-70"}
+                `}
+              >
+                          <Image
+                            src="/flags/es.svg"
+                            alt="Español"
+                            width={72}
+                            height={72}
+                            className="rounded-sm"
+                          />
+                <span>Español</span>
+              </button>
+
+            </div>
+
           </div>
         </div>
 

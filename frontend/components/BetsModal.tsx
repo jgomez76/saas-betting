@@ -4,6 +4,9 @@ import { useMemo, useState, useEffect } from "react";
 import { Bet } from "@/types/bet";
 import { ReferenceLine } from "recharts";
 import { formatBetLabel } from "@/lib/format";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
+import { Translation } from "@/lib/i18n/translations";
+import { LOCALES } from "@/lib/i18n/config";
 
 import {
   LineChart,
@@ -57,9 +60,10 @@ type TooltipPayloadItem = {
 type CustomTooltipProps = {
   active?: boolean;
   payload?: TooltipPayloadItem[];
+  t: Translation;
 };
 
-const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
+const CustomTooltip = ({ active, payload, t }: CustomTooltipProps) => {
   if (!active || !payload || payload.length === 0) return null;
 
   const item = payload[0];
@@ -74,11 +78,11 @@ const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
       </p>
 
       <p className="text-[var(--muted)]">
-        beneficio acumulado
+        {t.cumulativeProfit}
       </p>
 
       <p className="text-[10px] text-[var(--muted)]">
-        Día {item.payload.day}
+        {t.day} {item.payload.day}
       </p>
     </div>
   );
@@ -92,6 +96,8 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
 
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [dateFilter, setDateFilter] = useState("ALL");
+
+  const { t, lang } = useLanguage();
 
   // const stake = 10;
 
@@ -129,17 +135,22 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
   }, [sortedBets, statusFilter, dateFilter]);
 
   // ---------------- FORMAT ----------------
-  const formatDate = (date: string) => {
+  const formatDate = (date: string, lang: string) => {
     const d = new Date(date + "Z");
-
-    const time = d.toLocaleTimeString("es-ES", {
+    const locale = LOCALES[lang] || "en-GB";
+    // const time = d.toLocaleTimeString("es-ES", {
+    let time = d.toLocaleTimeString(locale, {
       hour: "2-digit",
       minute: "2-digit",
+      hour12: lang === "en",
     });
+    if (lang === "en") {
+      time = time.replace(/\b(am|pm)\b/, (m) => m.toUpperCase());
+    }
 
-    const day = d.toLocaleDateString("es-ES", { day: "2-digit" });
+    const day = d.toLocaleDateString(locale, { day: "2-digit" });
     const month = d
-      .toLocaleDateString("es-ES", { month: "short" })
+      .toLocaleDateString(locale, { month: "short" })
       .replace(".", "");
 
     return `${day} ${month} ${time}`;
@@ -155,21 +166,14 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
 
     const compare = new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
-    if (compare.getTime() === today.getTime()) return "Hoy";
-    if (compare.getTime() === yesterday.getTime()) return "Ayer";
+    if (compare.getTime() === today.getTime()) return t.today;
+    if (compare.getTime() === yesterday.getTime()) return t.yesterday;
 
     return d.toLocaleDateString("es-ES", {
       day: "2-digit",
       month: "short",
     });
   };
-
-  // ---------------- PROFIT ----------------
-  // const getProfit = (b: Bet) => {
-  //   if (b.status === "won" && b.odd) return (b.odd - 1) * stake;
-  //   if (b.status === "lost") return -stake;
-  //   return 0;
-  // };
 
   const getProfit = (b: Bet) => {
     const stake = b.stake ?? 10; // fallback por seguridad
@@ -204,7 +208,6 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
     const result: Record<string, { profit: number; roi: number }> = {};
 
     Object.entries(groupedBets).forEach(([date, bets]) => {
-      // const totalStake = bets.length * stake;
       const totalStake = bets.reduce(
         (acc, b) => acc + (b.stake ?? 10),
         0
@@ -247,7 +250,6 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
 
   const globalStats = useMemo(() => {
     const calc = (bets: Bet[]) => {
-      // const totalStake = bets.length * stake;
       const totalStake = bets.reduce(
         (acc, b) => acc + (b.stake ?? 10),
         0
@@ -329,7 +331,7 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
 
           {/* HEADER */}
           <div className="flex justify-between items-center p-4 border-b border-[var(--border)]">
-            <h2 className="text-lg font-bold">📊 Mis Apuestas</h2>
+            <h2 className="text-lg font-bold">📊 {t.myBets}</h2>
             <button onClick={onClose}>✖</button>
           </div>
 
@@ -341,9 +343,9 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="p-2 bg-[var(--card)] rounded w-full"
             >
-              <option value="ALL">Todas</option>
-              <option value="pending">Pendientes</option>
-              <option value="finished">Finalizadas</option>
+              <option value="ALL">{t.all}</option>
+              <option value="pending">{t.pending}</option>
+              <option value="finished">{t.finished}</option>
             </select>
 
             <select
@@ -351,28 +353,28 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
               onChange={(e) => setDateFilter(e.target.value)}
               className="p-2 bg-[var(--card)] rounded w-full"
             >
-              <option value="ALL">Todas las fechas</option>
-              <option value="TODAY">Hoy</option>
-              <option value="YESTERDAY">Ayer</option>
+              <option value="ALL">{t.allDates}</option>
+              <option value="TODAY">{t.today}</option>
+              <option value="YESTERDAY">{t.yesterday}</option>
             </select>
 
             {/* STATS */}
             <div className="grid grid-cols-2 gap-2">
-              <Stat label="Semana €" value={globalStats.week.profit.toFixed(2)} color={globalStats.week.profit >= 0} />
-              <Stat label="Semana ROI" value={`${globalStats.week.roi.toFixed(1)}%`} color={globalStats.week.roi >= 0} />
-              <Stat label="Mes €" value={globalStats.month.profit.toFixed(2)} color={globalStats.month.profit >= 0} />
-              <Stat label="Mes ROI" value={`${globalStats.month.roi.toFixed(1)}%`} color={globalStats.month.roi >= 0} />
+              <Stat label={t.weekProfit} value={globalStats.week.profit.toFixed(2)} color={globalStats.week.profit >= 0} />
+              <Stat label={t.weekROI} value={`${globalStats.week.roi.toFixed(1)}%`} color={globalStats.week.roi >= 0} />
+              <Stat label={t.monthProfit} value={globalStats.month.profit.toFixed(2)} color={globalStats.month.profit >= 0} />
+              <Stat label={t.monthROI} value={`${globalStats.month.roi.toFixed(1)}%`} color={globalStats.month.roi >= 0} />
             </div>
 
             <div className="mb-2">
-              <p className="text-sm font-semibold">📈 Evolución</p>
+              <p className="text-sm font-semibold">📈 {t.evolution}</p>
               <p className="text-xs text-[var(--muted)]">
-                Beneficio acumulado por día
+                {t.cumulativeProfit}
               </p>
             </div>
 
             <div className="flex justify-between text-sm mb-2">
-              <span className="text-[var(--muted)]">Total</span>
+              <span className="text-[var(--muted)]">{t.total}</span>
               <span
                 className={`font-bold ${
                   globalStats.month.profit >= 0
@@ -392,7 +394,7 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
                   <LineChart data={dailyEvolution}>
                     <XAxis dataKey="day" />
                     <YAxis />
-                    <Tooltip content={<CustomTooltip />} />
+                    <Tooltip content={<CustomTooltip t={t} />} />
                     <Line 
                       type="monotone" 
                       dataKey="profit" 
@@ -431,18 +433,18 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
                         >
                           <div className="flex justify-between text-xs text-[var(--muted)]">
                             <span>{b.match}</span>
-                            <span>{formatDate(b.date)}</span>
+                            <span>{formatDate(b.date, lang)}</span>
                           </div>
 
                           <div className="flex flex-col">
                              <div className="flex justify-between">
-                                <span>🎯 {formatBetLabel(b.market, b.selection)}</span>
+                                <span>🎯 {formatBetLabel(b.market, b.selection, t)}</span>
                                 <span>{b.result ?? "-"}</span>
                               </div>
 
                                 {/* 🔥 NUEVO: STAKE */}
                             <span className="text-xs text-[var(--muted)]">
-                              Stake {b.stakeLevel ?? "-"} • {b.stake ?? "-"}€
+                              {t.stake} {b.stakeLevel ?? "-"} • {b.stake ?? "-"}€
                             </span>
 
                             <span className="text-xs text-[var(--muted)]">
@@ -463,10 +465,10 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
                               }`}
                             >
                               {b.status === "won"
-                                ? "✔ Ganada"
+                                ? <>✔ {t.won}</>
                                 : b.status === "lost"
-                                ? "✖ Perdida"
-                                : "⏳ Pendiente"}
+                                ? <>✖ {t.lost}</>
+                                : <>⏳ {t.pending}</>}
                             </span>
 
                             {/* PROFIT */}
@@ -509,11 +511,11 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
           <div className="bg-[var(--card)] p-6 rounded-xl w-[90%] max-w-sm text-center">
 
             <h3 className="text-lg font-bold mb-4">
-              Eliminar apuesta
+              {t.deleteBet}
             </h3>
 
             <p className="text-sm text-[var(--muted)] mb-6">
-              ¿Seguro que quieres eliminar esta apuesta?
+              {t.confirmDelete}
             </p>
 
             <div className="flex gap-4 justify-center">
@@ -522,7 +524,7 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
                 onClick={() => setBetToDelete(null)}
                 className="px-4 py-2 bg-[var(--muted)] rounded"
               >
-                Cancelar
+                {t.cancel}
               </button>
 
               <button
@@ -532,7 +534,7 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
                 }}
                 className="px-4 py-2 bg-[var(--danger)] rounded text-white"
               >
-                Eliminar
+                {t.delete}
               </button>
 
             </div>

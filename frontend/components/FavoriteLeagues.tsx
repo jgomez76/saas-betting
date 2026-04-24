@@ -1,19 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { LEAGUES } from "@/lib/config/leagues";
 
-type League = {
+export type League = {
   id: number;
   name: string;
 };
 
-const ALL_LEAGUES: League[] = [
-  { id: 39, name: "Premier League" },
-  { id: 140, name: "La Liga" },
-  { id: 135, name: "Serie A" },
-  { id: 78, name: "Bundesliga" },
-  { id: 61, name: "Ligue 1" },
-];
+// const ALL_LEAGUES: League[] = [
+//   { id: 39, name: "Premier League" },
+//   { id: 140, name: "La Liga" },
+//   { id: 135, name: "Serie A" },
+//   { id: 78, name: "Bundesliga" },
+//   { id: 61, name: "Ligue 1" },
+// ];
 
 export default function FavoriteLeagues() {
     const [selected, setSelected] = useState<number[]>(() => {
@@ -44,7 +45,7 @@ export default function FavoriteLeagues() {
         </h2>
 
         <div className="grid grid-cols-2 gap-2">
-            {ALL_LEAGUES.map((league) => {
+            {LEAGUES.map((league) => {
             const active = selected.includes(league.id);
 
             return (

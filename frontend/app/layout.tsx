@@ -4,6 +4,7 @@ import "./globals.css";
 import Providers from "./providers";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { SubscriptionProvider } from "@/context/SubscriptionContext";
+import { LanguageProvider } from "@/lib/i18n/LanguageProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,7 +36,9 @@ export default function RootLayout({
         <Providers>
           <ThemeProvider>
             <SubscriptionProvider>
-              {children}
+              <LanguageProvider>
+                {children}
+              </LanguageProvider>
             </SubscriptionProvider>
           </ThemeProvider>
         </Providers>

@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
+import { LEAGUES } from "@/lib/config/leagues";
 
 type Props = {
   onOpenTop: () => void;
@@ -32,6 +33,7 @@ type Props = {
   name: string;
   avatar: string;
 };
+
 
 export default function Navbar({
   onOpenTop,
@@ -62,27 +64,35 @@ export default function Navbar({
 
   const marketsRef = useRef<HTMLDivElement>(null);
   const leaguesRef = useRef<HTMLDivElement>(null);
-
+ 
+  const { lang, changeLang, t } = useLanguage();
   const marketLabels: Record<string, string> = {
-    ALL: "Todos",
+    ALL: t.all,
     "1X2": "1X2",
     OU25: "Over 2.5",
     OU35: "Over 3.5",
     BTTS: "BTTS",
   };
 
-  const leagueLabels: Record<string, string> = {
-    ALL: "Todas",
-    "140": "La Liga EA Sports",
-    "141": "La Liga hypermotion",
-    "39": "Premier League",
-    "135": "Serie A",
-    "78": "Bundesliga",
-    "61": "Ligue 1",
-    "2": "Champions League",
-    "3": "Europa League",
-  };
+  // const leagueLabels: Record<string, string> = {
+  //   ALL: t.all,
+  //   "140": "La Liga EA Sports",
+  //   "141": "La Liga hypermotion",
+  //   "39": "Premier League",
+  //   "135": "Serie A",
+  //   "78": "Bundesliga",
+  //   "61": "Ligue 1",
+  //   "2": "Champions League",
+  //   "3": "Europa League",
+  // };
+
+  const currentLeague =
+    leagueFilter === "ALL"
+      ? t.all
+      : LEAGUES.find(l => String(l.id) === leagueFilter)?.name;
   
+ 
+
   const apiUrl =
     typeof window !== "undefined"
       ? window.location.hostname === "localhost"
@@ -181,13 +191,13 @@ export default function Navbar({
               {openMenu && (
                 <div className="absolute top-full left-0 mt-2 w-56 bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-lg z-50">
                   <div className="p-3 border-b border-[var(--border)]">
-                    <p className="text-sm text-[var(--text)]">{name || "Usuario"}</p>
+                    <p className="text-sm text-[var(--text)]">{name || t.user}</p>
                     <p className="text-xs text-[var(--muted)]">{email}</p>
                   </div>
 
                   {isAdmin && (
                     <div className="px-3 py-2 text-xs text-[var(--success)]">
-                      🛠 Admin
+                      🛠 {t.admin}
                     </div>
                   )}
 
@@ -200,7 +210,7 @@ export default function Navbar({
                     }}
                     className="w-full text-left px-3 py-2 text-sm hover:bg-[var(--hover)]"
                   >
-                    👤 Perfil
+                    👤 {t.profile}
                   </button>
 
                   <button
@@ -210,7 +220,7 @@ export default function Navbar({
                     }}
                     className="w-full text-left px-3 py-2 text-sm text-[var(--danger)] hover:bg-[var(--hover)]"
                   >
-                    🚪 Cerrar sesión
+                    🚪 {t.logout}
                   </button>
 
                 </div>
@@ -221,7 +231,7 @@ export default function Navbar({
               onClick={onOpenLogin}
               className="px-4 py-2 bg-[var(--card)] border border-[var(--border)] rounded hover:bg-[var(--hover)]"
             >
-              🔐 Login
+              🔐 {t.login}
             </button>
           )}
 
@@ -232,22 +242,17 @@ export default function Navbar({
               className="px-3 py-1 rounded text-sm bg-[var(--card)] hover:bg-[var(--hover)]"
             >
               {/* 🌍 Ligas {openLeagues ? "▲" : "▼"} */}
-              🌍 {leagueLabels[leagueFilter] || "Ligas"} {openLeagues ? "▲" : "▼"}
+              🌍 {currentLeague || t.leagues} {openLeagues ? "▲" : "▼"}
             </button>
 
             {openLeagues && (
               <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-[#1e1e1e] border border-[#333] rounded shadow-lg z-50 overflow-hidden">  
                 {[
-                  { label: "🌍 Todas", value: "ALL" },
-
-                  { label: "La Liga EA Sports", value: "140" },
-                  { label: "La Liga Hypermotion", value: "141" },
-                  { label: "Serie A", value: "135" },
-                  // { label: "Serie A", value: "71" },
-                  { label: "Bundesliga", value: "78" },
-                  { label: "Premier League", value: "39" },
-                  { label: "Champions League", value: "2" },
-                  { label: "Europa League", value: "3" },
+                  { label: `🌍 ${t.all}`, value: "ALL" },
+                  ...LEAGUES.map(l => ({
+                      label: l.name,
+                      value: String(l.id),
+                  }))
                 ].map((l) => (
                   <div
                     key={l.value}
@@ -274,13 +279,13 @@ export default function Navbar({
               className="px-3 py-1 rounded text-sm bg-[var(--card)] hover:bg-[var(--hover)]"
             >
               {/* 🎯 Mercados {openMarkets ? "▲" : "▼"} */}
-              🎯 {marketLabels[marketFilter] || "Mercados"} {openMarkets ? "▲" : "▼"}
+              🎯 {marketLabels[marketFilter] || t.markets} {openMarkets ? "▲" : "▼"}
             </button>
 
             {openMarkets && (
               <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-[var(--card)] border border-[var(--border)] rounded shadow-lg z-50 overflow-hidden">
                 {[
-                  { label: "Todos", value: "ALL" },
+                  { label: t.all, value: "ALL" },
                   { label: "1X2", value: "1X2" },
                   // { label: "Over 1.5", value: "OU15" },
                   { label: "Over 2.5", value: "OU25" },
@@ -312,10 +317,10 @@ export default function Navbar({
               onChange={(e) => setDateFilter(e.target.value)}
               className="px-3 py-1 rounded text-sm bg-[var(--card)] hover:bg-[var(--hover)]"
             >
-              <option value="TODAY">📅 Hoy</option>
-              <option value="TODAY_TOMORROW">📅 Hoy + mañana</option>
-              <option value="NEXT_3_DAYS">📅 Próx. 3 días</option>
-              <option value="ALL">🌍 Todas</option>
+              <option value="TODAY">📅 {t.today}</option>
+              <option value="TODAY_TOMORROW">📅 {t.todayTomorrow}</option>
+              <option value="NEXT_3_DAYS">📅 {t.next3Days}</option>
+              <option value="ALL">🌍 {t.all}</option>
             </select>
           </div>
 
@@ -324,7 +329,7 @@ export default function Navbar({
 
             {/* 📊 VALUE SLIDER */}
             <div className="flex items-center gap-2">
-              <span>Value:</span>
+              <span>{t.value}:</span>
 
               <input
                 type="range"
@@ -343,7 +348,7 @@ export default function Navbar({
 
             {/* 💰 ODD CONTROL */}
             <div className="flex items-center gap-2">
-              <span>Odd:</span>
+              <span>{t.odd}:</span>
 
               {/* ➖ */}
               <button
@@ -377,7 +382,46 @@ export default function Navbar({
       </div>
 
       {/* RIGHT */}
-      <div className="flex gap-3">
+      <div className="flex items-center gap-2">
+
+        <button
+          onClick={() => changeLang("en")}
+          className={`
+            p-1 rounded-md transition-all
+            ${lang === "en" 
+              ? "ring-2 ring-[var(--accent)] scale-105" 
+              : "opacity-40 hover:opacity-70"}
+          `}
+        >
+          <Image
+            src="/flags/gb.svg"
+            alt="English"
+            width={24}
+            height={24}
+            className="rounded-sm"
+          />
+        </button>
+
+        <button
+          onClick={() => changeLang("es")}
+          className={`
+            p-1 rounded-md transition-all
+            ${lang === "es" 
+              ? "ring-2 ring-[var(--accent)] scale-105" 
+              : "opacity-40 hover:opacity-70"}
+          `}
+        >
+          <Image
+            src="/flags/es.svg"
+            alt="Español"
+            width={24}
+            height={24}
+            className="rounded-sm"
+          />
+        </button>
+
+      </div>
+      {/* <div className="flex gap-3">
         <button
           onClick={onOpenTop}
           className="px-4 py-2 bg-[var(--primary)] text-white rounded hover:opacity-90"
@@ -391,7 +435,7 @@ export default function Navbar({
             👤 Cuenta
           </button>
         )}
-      </div>
+      </div> */}
     </div>
   );
 }
