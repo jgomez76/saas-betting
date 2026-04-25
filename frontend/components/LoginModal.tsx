@@ -3,6 +3,7 @@
 import { useState } from "react";
 // import { API_URL } from "@/lib/api";
 import { signIn } from "next-auth/react";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
 
 // ---------------- TYPES ----------------
 
@@ -24,6 +25,7 @@ const apiUrl =
 // ---------------- COMPONENT ----------------
 
 export default function LoginModal({ onClose, onLogin }: Props) {
+  const { t } = useLanguage();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -37,7 +39,7 @@ export default function LoginModal({ onClose, onLogin }: Props) {
     setError("");
 
     if (!email || !password) {
-      setError("Completa todos los campos");
+      setError(t.fillAllFields);
       return;
     }
 
@@ -59,13 +61,13 @@ export default function LoginModal({ onClose, onLogin }: Props) {
       // 🔥 MANEJO POR STATUS CODE (PRO)
       if (!res.ok) {
         if (res.status === 403) {
-          setError("Debes verificar tu email antes de iniciar sesión");
+          setError(t.verifyEmailFirst);
           setShowResend(true);
         } else if (res.status === 401) {
-          setError("Credenciales incorrectas");
+          setError(t.invalidCredentials);
           setShowResend(false);
         } else {
-          setError("Error inesperado");
+          setError(t.unexpectedError);
           setShowResend(false);
         }
 
@@ -78,12 +80,12 @@ export default function LoginModal({ onClose, onLogin }: Props) {
         onLogin();
         onClose();
       } else {
-        setError("Credenciales incorrectas");
+        setError(t.invalidCredentials);
       }
 
     } catch (err) {
       console.error("💥 NETWORK ERROR:", err);
-      setError("Error de conexión con el servidor");
+      setError(t.connectionError);
     } finally {
       setLoading(false); // 🔥 SIEMPRE
     }
@@ -92,18 +94,18 @@ export default function LoginModal({ onClose, onLogin }: Props) {
   // ---------------- REGISTER ----------------
 
     const handleRegister = async () => {
-    console.log("👉 START REGISTER");
+    // console.log("👉 START REGISTER");
 
     setError("");
 
     if (!email || !password) {
-      setError("Completa todos los campos");
+      setError(t.fillAllFields);
       return;
     }
 
     try {
       setLoading(true);
-      console.log("⏳ LOADING TRUE");
+      // console.log("⏳ LOADING TRUE");
 
       const res = await fetch(`${apiUrl}/register`, {
         method: "POST",
@@ -113,26 +115,26 @@ export default function LoginModal({ onClose, onLogin }: Props) {
         body: JSON.stringify({ email, password }),
       });
 
-      console.log("📡 RESPONSE:", res.status);
+      // console.log("📡 RESPONSE:", res.status);
 
       if (!res.ok) {
         const text = await res.text();
         console.log("❌ ERROR TEXT:", text);
 
-        setError("No se pudo crear la cuenta");
+        setError(t.registerError);
         return;
       }
 
-      console.log("✅ REGISTER OK");
+      // console.log("✅ REGISTER OK");
 
-      setError("📧 Revisa tu email para verificar la cuenta");
+      setError(t.accountCreatedCheckEmail);
       setMode("login");
 
     } catch (err) {
       console.error("💥 CATCH:", err);
-      setError("Error de conexión con el servidor");
+      setError(t.connectionError);
     } finally {
-      console.log("🔄 FINALLY → LOADING FALSE");
+      // console.log("🔄 FINALLY → LOADING FALSE");
       setLoading(false);
     }
   };
@@ -142,7 +144,7 @@ export default function LoginModal({ onClose, onLogin }: Props) {
     setError("");
     
     if (!email) {
-      setError("Introduce tu email");
+      setError(t.enterEmail);
       return;
     }
     
@@ -158,16 +160,16 @@ export default function LoginModal({ onClose, onLogin }: Props) {
       });
       
       if (!res.ok) {
-        setError("Error enviando email");
+        setError(t.sendEmailError);
         return;
       }
       
-      setError("📧 Te hemos enviado un email para recuperar tu contraseña");
+      setError(t.emailSentRecovery);
       
       setMode("login");
       
     } catch {
-      setError("Error de conexión");
+      setError(t.connectionError);
     } finally {
       setLoading(false);
     }
@@ -177,7 +179,7 @@ export default function LoginModal({ onClose, onLogin }: Props) {
   // ----------- RESEND VERIFICATION EMAIL -----------
   const handleResend = async () => {
     if (!email) {
-      setError("Introduce tu email");
+      setError(t.enterEmail);
       return;
     }
 
@@ -197,20 +199,20 @@ export default function LoginModal({ onClose, onLogin }: Props) {
 
       // 🔐 comportamiento seguro (no revelar existencia)
       if (data.message === "sent") {
-        setError("📧 Si el email existe, recibirás el enlace de verificación");
+        setError(t.emailSentIfExists);
       } 
       else if (data.message === "already_verified") {
-        setError("✅ Tu cuenta ya está verificada");
+        setError(t.accountAlreadyVerified);
       } 
       else {
-        setError("📧 Si el email existe, recibirás el enlace de verificación");
+        setError(t.emailSentIfExists);
       }
 
     } catch (err) {
       console.error("💥 RESEND ERROR:", err);
 
       // 🔥 error real de red (como tu caso sin internet)
-      setError("❌ Problema de conexión. Revisa tu internet e inténtalo de nuevo");
+      setError(t.networkError);
     } finally {
       setLoading(false);
     }
@@ -224,17 +226,17 @@ export default function LoginModal({ onClose, onLogin }: Props) {
         {/* TITLE */}
         <h2 className="text-lg font-bold mb-4 text-center text-white">
           {mode === "login"
-            ? "🔐 Iniciar sesión"
+            ? `🔐 ${t.login}`
             : mode === "register"
-            ? "📝 Crear cuenta"
-            : "🔑 Recuperar contraseña"}
+            ? `📝 ${t.register}`
+            : `🔑 ${t.forgotPassword}`}
         </h2>
 
         {/* EMAIL */}
         <input
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
+          placeholder={t.email}
           className="w-full mb-3 p-2 rounded bg-[var(--card)] text-[var(--text)] border border-[var(--border)]"
         />
 
@@ -244,7 +246,7 @@ export default function LoginModal({ onClose, onLogin }: Props) {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
+            placeholder={t.password}
             className="w-full mb-4 p-2 rounded bg-[var(--card)] text-[var(--text)] border border-[var(--border)]"
           />
         )}
@@ -253,14 +255,14 @@ export default function LoginModal({ onClose, onLogin }: Props) {
           onClick={() => signIn("google")}
           className="w-full bg-white text-black py-2 rounded mb-2"
         >
-          🔵 Continuar con Google
+          🔵 {t.continueWithGoogle}
         </button>
 
         <button
           onClick={() => signIn("github")}
           className="w-full bg-black text-white py-2 rounded"
         >
-          ⚫ Continuar con GitHub
+          ⚫ {t.continueWithGithub}
         </button>
 
         {/* OLVIDASTE TU CONTRASEÑA */}
@@ -271,7 +273,7 @@ export default function LoginModal({ onClose, onLogin }: Props) {
           }}
           className="w-full text-xs text-cyan-400 hover:underline mb-3"
         >
-          ¿Olvidaste tu contraseña?
+          {t.forgotPasswordQuestion}
         </button>
 
         {/* ERROR */}
@@ -286,14 +288,13 @@ export default function LoginModal({ onClose, onLogin }: Props) {
             onClick={handleResend}
             className="w-full text-[var(--primary)] text-sm mb-3 hover:underline"
           >
-            Reenviar email de verificación
+            {t.resendVerification}
           </button>
         )}
 
         {/* BUTTON */}
 
           <button
-            // onClick={mode === "login" ? handleLogin : handleRegister}
             onClick={
               mode === "login"
                 ? handleLogin
@@ -305,12 +306,12 @@ export default function LoginModal({ onClose, onLogin }: Props) {
             className="w-full bg-[var(--primary)] py-2 rounded font-bold hover:opacity-90 text-white disabled:opacity-50"
           >
           {loading
-            ? "Cargando..."
+            ? t.loading
             : mode === "login"
-            ? "Entrar"
+            ? t.login
             : mode === "register"
-            ? "Crear cuenta"
-            : "Enviar email"}
+            ? t.register
+            : t.sendEmail}
           </button>
 
 
@@ -318,7 +319,7 @@ export default function LoginModal({ onClose, onLogin }: Props) {
         <div className="text-center mt-4 text-sm text-[var(--muted)]">
           {mode === "login" ? (
             <>
-              ¿No tienes cuenta?{" "}
+              {t.noAccount}{" "}
               <button
                 onClick={() => {
                   setMode("register");
@@ -326,12 +327,12 @@ export default function LoginModal({ onClose, onLogin }: Props) {
                 }}
                 className="text-cyan-400 hover:underline"
               >
-                Regístrate
+                {t.signUp}
               </button>
             </>
           ) : (
             <>
-              ¿Ya tienes cuenta?{" "}
+              {t.haveAccount}{" "}
               <button
                 onClick={() => {
                   setMode("login");
@@ -339,7 +340,7 @@ export default function LoginModal({ onClose, onLogin }: Props) {
                 }}
                 className="text-cyan-400 hover:underline"
               >
-                Inicia sesión
+                {t.login}
               </button>
             </>
           )}
@@ -351,7 +352,7 @@ export default function LoginModal({ onClose, onLogin }: Props) {
               }}
               className="text-sm text-gray-400 mt-2"
             >
-              ← Volver al login
+              ← {t.backToLogin}
             </button>
           )}
         </div>
@@ -361,7 +362,7 @@ export default function LoginModal({ onClose, onLogin }: Props) {
           onClick={onClose}
           className="w-full mt-3 text-sm text-gray-400"
         >
-          Cancelar
+          {t.cancel}
         </button>
 
       </div>

@@ -62,6 +62,69 @@ export const translations = {
 
     bttsYes: "Both teams to score - Yes",
     bttsNo: "Both teams to score - No",
+    favoriteLeagues: "Favorite leagues",
+
+    register: "Create account",
+    forgotPassword: "Recover password",
+
+    email: "Email",
+    password: "Password",
+
+    continueWithGoogle: "Continue with Google",
+    continueWithGithub: "Continue with GitHub",
+
+    forgotPasswordQuestion: "Forgot your password?",
+
+    loading: "Loading...",
+    sendEmail: "Send email",
+
+    noAccount: "Don't have an account?",
+    haveAccount: "Already have an account?",
+    signUp: "Sign up",
+
+    backToLogin: "Back to login",
+
+    fillAllFields: "Fill all fields",
+    invalidCredentials: "Invalid credentials",
+    verifyEmailFirst: "You must verify your email before logging in",
+    unexpectedError: "Unexpected error",
+    connectionError: "Connection error",
+    accountCreatedCheckEmail: "📧 Check your email to verify your account",
+    emailSentRecovery: "📧 We sent you a recovery email",
+    emailSentIfExists: "📧 If the email exists, you will receive a link",
+    accountAlreadyVerified: "✅ Your account is already verified",
+    networkError: "❌ Network error. Check your connection",
+    registerError: "Could not create account",
+    enterEmail: "Enter your email",
+    sendEmailError: "Error sending email",
+    resendVerification: "Resend verification email",
+
+    name: "Name",
+    changeAvatar: "Change avatar",
+
+    plan: "Plan",
+    provider: "Provider",
+    free: "Free",
+    emailProvider: "Email",
+
+    currentPassword: "Current password",
+    newPassword: "New password",
+
+    editProfile: "Edit profile",
+    changePassword: "Change password",
+
+    saving: "Saving...",
+    save: "Save",
+    savePassword: "Save password",
+
+    uploadAvatarError: "Error uploading avatar",
+    updateProfileError: "Error updating profile",
+    saveError: "Error saving changes",
+    profileUpdated: "Profile updated successfully",
+
+    passwordUpdated: "Password updated successfully",
+    error: "Error",
+    close: "Close",
   },
 
   es: {
@@ -124,5 +187,68 @@ export const translations = {
 
     bttsYes: "Ambos marcan - Sí",
     bttsNo: "Ambos marcan - No",
+    favoriteLeagues: "Ligas favoritas",
+
+    register: "Crear cuenta",
+    forgotPassword: "Recuperar contraseña",
+
+    email: "Email",
+    password: "Contraseña",
+
+    continueWithGoogle: "Continuar con Google",
+    continueWithGithub: "Continuar con GitHub",
+
+    forgotPasswordQuestion: "¿Olvidaste tu contraseña?",
+
+    loading: "Cargando...",
+    sendEmail: "Enviar email",
+
+    noAccount: "¿No tienes cuenta?",
+    haveAccount: "¿Ya tienes cuenta?",
+    signUp: "Regístrate",
+
+    backToLogin: "Volver al login",
+
+    fillAllFields: "Completa todos los campos",
+    invalidCredentials: "Credenciales incorrectas",
+    verifyEmailFirst: "Debes verificar tu email antes de iniciar sesión",
+    unexpectedError: "Error inesperado",
+    connectionError: "Error de conexión con el servidor",
+    accountCreatedCheckEmail: "📧 Revisa tu email para verificar la cuenta",
+    emailSentRecovery: "📧 Te hemos enviado un email para recuperar tu contraseña",
+    emailSentIfExists: "📧 Si el email existe, recibirás el enlace",
+    accountAlreadyVerified: "✅ Tu cuenta ya está verificada",
+    networkError: "❌ Problema de conexión. Revisa tu internet",
+    registerError: "No se pudo crear la cuenta",
+    enterEmail: "Introduce tu email",
+    sendEmailError: "Error enviando email",
+    resendVerification: "Reenviar email de verificación",
+
+    name: "Nombre",
+    changeAvatar: "Cambiar avatar",
+
+    plan: "Plan",
+    provider: "Proveedor",
+    free: "Free",
+    emailProvider: "Email",
+
+    currentPassword: "Contraseña actual",
+    newPassword: "Nueva contraseña",
+
+    editProfile: "Editar perfil",
+    changePassword: "Cambiar contraseña",
+
+    saving: "Guardando...",
+    save: "Guardar",
+    savePassword: "Guardar contraseña",
+
+    uploadAvatarError: "Error subiendo avatar",
+    updateProfileError: "Error actualizando perfil",
+    saveError: "Error al guardar cambios",
+    profileUpdated: "Perfil actualizado correctamente",
+
+    passwordUpdated: "Contraseña actualizada correctamente",
+    error: "Error",
+    close: "Cerrar",
   },
 }

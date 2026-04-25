@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { LEAGUES } from "@/lib/config/leagues";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
 
 export type League = {
   id: number;
@@ -17,6 +18,7 @@ export type League = {
 // ];
 
 export default function FavoriteLeagues() {
+    const { t } = useLanguage();
     const [selected, setSelected] = useState<number[]>(() => {
     if (typeof window === "undefined") return [];
 
@@ -41,7 +43,7 @@ export default function FavoriteLeagues() {
         <div className="space-y-4">
 
         <h2 className="font-bold text-sm text-[var(--muted)] uppercase">
-            🏆 Ligas favoritas
+            🏆 {t.favoriteLeagues}
         </h2>
 
         <div className="grid grid-cols-2 gap-2">

@@ -1,6 +1,7 @@
 import { Pick } from "@/lib/topPicks";
 import PremiumLock from "@/components/PremiumLock";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
+import { LOCALES } from "@/lib/i18n/config";
 
 type Props = {
   picks: Pick[];
@@ -15,8 +16,21 @@ export default function TopPicksCard({
   onSelectPick,
   onUpgrade,
 }: Props) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  
   if (!picks.length) return null;
+
+  const formatTime = (date: string) => {
+    const d = new Date(date + "Z");
+
+    return d.toLocaleTimeString(LOCALES[lang] || "en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: lang === "en",
+    });
+  };
+
+
 
   return (
     <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 mb-6">
@@ -69,6 +83,9 @@ export default function TopPicksCard({
                   {!locked ? (
                     <>
                       <p className="font-semibold text-sm">{p.match}</p>
+                      <p className="text-xs text-[var(--muted)]">
+                        🕒 {formatTime(p.date)}
+                      </p>
 
                       <p className="text-xs text-[var(--muted)]">
                         {p.market} • {p.selection.toUpperCase()}
@@ -91,9 +108,6 @@ export default function TopPicksCard({
                         {p.league}
                       </p>
 
-                      {/* <p className="text-xs text-[var(--muted)]">
-                        {t.unlockPremium}
-                      </p> */}
                     </>
                   )}
                 </div>

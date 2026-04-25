@@ -90,8 +90,25 @@ export const getTopPicks = (matches: Match[]): Pick[] => {
      🔄 LOOP MATCHES
   ========================= */
 
-  matches.forEach((m) => {
-    if (!m.markets) return;
+const now = new Date();
+
+const startOfDay = new Date(now);
+startOfDay.setHours(0, 0, 0, 0);
+
+const endOfDay = new Date(now);
+endOfDay.setHours(23, 59, 59, 999);
+
+matches.forEach((m) => {
+  const matchDate = new Date(m.date + "Z");
+
+  if (matchDate < startOfDay || matchDate > endOfDay) {
+    return;
+  }
+
+  if (!m.markets) return;
+
+  // matches.forEach((m) => {
+  //   if (!m.markets) return;
 
     /* -------- 1X2 -------- */
     if (m.markets["1X2"] && m.value && m.probabilities) {

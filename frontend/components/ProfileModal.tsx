@@ -3,6 +3,7 @@
 import { createPortal } from "react-dom";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
 
 type Props = {
   user: {
@@ -23,6 +24,7 @@ export default function ProfileModal({
   onLogout,
   onRefreshUser,
 }: Props) {
+  const { t } = useLanguage();
   const [isEditing, setIsEditing] = useState(false);
 
   const [editName, setEditName] = useState(user.name || "");
@@ -69,7 +71,7 @@ export default function ProfileModal({
           credentials: "include",
         });
 
-        if (!res.ok) throw new Error("Error subiendo avatar");
+        if (!res.ok) throw new Error(t.uploadAvatarError);
 
         const data = await res.json();
 
@@ -89,16 +91,16 @@ export default function ProfileModal({
         }),
       });
 
-      if (!resProfile.ok) throw new Error("Error actualizando perfil");
+      if (!resProfile.ok) throw new Error(t.updateProfileError);
 
-      setSuccess("Perfil actualizado correctamente");
+      setSuccess(t.profileUpdated);
 
       // 🔥 3. refrescar usuario (CLAVE para navbar)
       onRefreshUser();
       onClose();          // opcional: cerrar modal
 
     } catch (err: unknown) {
-      setError("Error al guardar cambios");
+      setError(t.saveError);
       console.log(err)
     } finally {
       setSaving(false);
@@ -126,11 +128,11 @@ export default function ProfileModal({
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.detail || "Error");
+        throw new Error(data.detail || t.error);
       }
 
       // alert("✅ Contraseña actualizada");
-      setSuccess("Contraseña actualizada correctamente");
+      setSuccess(t.passwordUpdated);
       setError("");
 
       setIsPasswordMode(false);
@@ -139,7 +141,7 @@ export default function ProfileModal({
 
     } catch (err: unknown) {
         setError(
-          err instanceof Error ? err.message : "Error"
+          err instanceof Error ? err.message : t.error
         );
         setSuccess("");
     } finally {
@@ -171,8 +173,10 @@ export default function ProfileModal({
       <div className="mt-4 w-[95%] max-w-md max-h-[90vh] overflow-y-auto bg-[var(--card)] text-[var(--text)] p-6 rounded-2xl shadow-xl border border-[var(--border)]">
         {/* HEADER */}
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-bold">👤 Perfil</h2>
-          <button onClick={onClose}>✖</button>
+          <h2 className="text-lg font-bold">👤 {t.profile}</h2>
+          <button onClick={onClose} aria-label={t.close}>
+            ✖
+          </button>
         </div>
 
         {/* AVATAR */}
@@ -203,12 +207,12 @@ export default function ProfileModal({
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
               className="w-full p-2 rounded bg-[var(--card)] text-[var(--text)] mb-2"
-              placeholder="Nombre"
+              placeholder={t.name}
             />
           ) : (
             <>
               <p className="text-lg font-semibold">
-                {user.name || "Usuario"}
+                {user.name || t.user}
               </p>
               <p className="text-sm text-[var(--muted)]">
                 {user.email}
@@ -220,7 +224,7 @@ export default function ProfileModal({
 
         {isEditing && (
           <label className="cursor-pointer text-sm text-[var(--primary)] mb-2">
-            📸 Cambiar avatar
+            📸 {t.changeAvatar}
             <input
               type="file"
               accept="image/*"
@@ -248,16 +252,16 @@ export default function ProfileModal({
           <div className="space-y-3 text-sm">
 
             <div className="flex justify-between">
-              <span className="text-[var(--muted)]">Plan</span>
+              <span className="text-[var(--muted)]">{t.plan}</span>
               <span className="font-semibold">
-                {user.subscription || "free"}
+                {user.subscription || t.free}
               </span>
             </div>
 
             <div className="flex justify-between">
-              <span className="text-[var(--muted)]">Provider</span>
+              <span className="text-[var(--muted)]">{t.provider}</span>
               <span className="font-semibold">
-                {user.provider ?? "email"}
+                {user.provider ?? t.emailProvider}
               </span>
             </div>
 
@@ -282,7 +286,7 @@ export default function ProfileModal({
 
             <input
               type="password"
-              placeholder="Contraseña actual"
+              placeholder={t.currentPassword}
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
               className="w-full p-2 rounded bg-[var(--card)]"
@@ -290,7 +294,7 @@ export default function ProfileModal({
 
             <input
               type="password"
-              placeholder="Nueva contraseña"
+              placeholder={t.newPassword}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               className="w-full p-2 rounded bg-[var(--card)]"
@@ -312,7 +316,7 @@ export default function ProfileModal({
                 }}
                 className="w-full bg-[var(--primary)] py-2 rounded hover:opacity-90"
               >
-                ✏️ Editar perfil
+                ✏️ {t.editProfile}
               </button>
 
               <button
@@ -322,7 +326,7 @@ export default function ProfileModal({
                 }}
                 className="w-full bg-[var(--card)] py-2 rounded hover:bg-[var(--hover)]"
               >
-                🔑 Cambiar contraseña
+                🔑 {t.changePassword}
               </button>
             </>
           )}
@@ -335,7 +339,7 @@ export default function ProfileModal({
                 disabled={saving}
                 className="w-full bg-[var(--success)] py-2 rounded"
               >
-                {saving ? "Guardando..." : "💾 Guardar"}
+                {saving ? t.saving : `💾 ${t.save}`}
               </button>
 
               <button
@@ -346,7 +350,7 @@ export default function ProfileModal({
                 }}
                 className="w-full bg-[var(--muted)] py-2 rounded"
               >
-                Cancelar
+                {t.cancel}
               </button>
             </>
           )}
@@ -359,14 +363,14 @@ export default function ProfileModal({
                 disabled={savingPassword}
                 className="w-full bg-[var(--success)] py-2 rounded"
               >
-                {savingPassword ? "Guardando..." : "💾 Guardar contraseña"}
+                {savingPassword ? t.saving : `💾 ${t.savePassword}`}
               </button>
 
               <button
                 onClick={() => setIsPasswordMode(false)}
                 className="w-full bg-[var(--muted)] py-2 rounded"
               >
-                Cancelar
+                {t.cancel}
               </button>
             </>
           )}
@@ -379,7 +383,7 @@ export default function ProfileModal({
             }}
             className="w-full bg-[var(--danger)] py-2 rounded mt-3"
           >
-            🚪 Cerrar sesión
+            🚪 {t.logout}
           </button>
 
         </div>

@@ -68,6 +68,20 @@ export default function Home() {
     return stored ? JSON.parse(stored) : [];
   });
 
+  const getTodayKey = () => {
+    const now = new Date();
+    return now.toISOString().split("T")[0];
+  };
+
+  const getTodayGenerationTime = () => {
+    const now = new Date();
+    const gen = new Date(now);
+
+    gen.setHours(10, 0, 0, 0);
+
+    return gen;
+  };
+
   const handleSelectTopPick = (pick: Pick) => {
 
     setPendingBet({
@@ -194,14 +208,37 @@ export default function Home() {
 
   const favLeagues = getFavLeagues();
 
-  const todayMatches = useMemo(() => {
-  const now = new Date();
+  // const todayMatches = useMemo(() => {
+  //   const now = new Date();
 
-  return allMatches.filter((m) => {
+  //   return allMatches.filter((m) => {
+  //       const matchDate = new Date(m.date + "Z");
+
+  //       const isToday =
+  //         matchDate.toDateString() === now.toDateString();
+
+  //       const isFav =
+  //         favLeagues.length === 0 ||
+  //         favLeagues.includes(m.league_id);
+
+  //       return isToday && isFav;
+  //   });
+  // }, [allMatches, favLeagues]);
+  const todayMatches = useMemo(() => {
+    // const now = new Date();
+
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    return allMatches.filter((m) => {
       const matchDate = new Date(m.date + "Z");
 
       const isToday =
-        matchDate.toDateString() === now.toDateString();
+        matchDate >= startOfDay &&
+        matchDate <= endOfDay;
 
       const isFav =
         favLeagues.length === 0 ||
@@ -568,13 +605,87 @@ export default function Home() {
     return filtered;
   }, [allMatches, leagueFilter, marketFilter, dateFilter, favLeagues]);
 
-  const allPicks = getTopPicks(todayMatches);
+  // const allPicks = getTopPicks(todayMatches);
+  const allPicks = useMemo(() => {
+    if (typeof window === "undefined") return [];
+
+    const key = `topPicks_${getTodayKey()}`;
+    const generatedKey = `topPicks_generatedAt_${getTodayKey()}`;
+
+    const saved = localStorage.getItem(key);
+    const generatedAt = localStorage.getItem(generatedKey);
+
+    const now = new Date();
+    const generationTime = getTodayGenerationTime();
+
+    // ⛔ antes de las 10:00 → NO generar
+    if (now < generationTime) {
+      return [];
+    }
+
+    // ✅ ya generados → usar cache
+    // if (saved && generatedAt) {
+    //   return JSON.parse(saved);
+    // }
+    if (saved && generatedAt) {
+      const parsed = JSON.parse(saved);
+
+      // ❗ si está vacío → regenerar
+      if (parsed.length > 0) {
+        return parsed;
+      }
+    }
+
+    // 🔥 generar picks UNA VEZ
+    const picks = getTopPicks(todayMatches);
+
+    localStorage.setItem(key, JSON.stringify(picks));
+    localStorage.setItem(generatedKey, now.toISOString());
+
+    return picks;
+  }, [todayMatches]);
 
   // const visiblePicks =
   //   plan === "premium"
   //     ? allPicks.slice(0, 5)
   //     : allPicks.slice(0, 1);
-  const visiblePicks = allPicks.slice(0, 4);
+  // const visiblePicks = allPicks.slice(0, 4);
+  // const visiblePicks = allPicks
+  //   .filter((p) => new Date(p.date) > new Date()) // ❗ no empezados
+  //   .slice(0, 4);
+
+  const currentTime = new Date();
+
+  const availablePicks = allPicks.filter(
+    (p: Pick) => new Date(p.date) > currentTime
+  );
+
+  const visiblePicks = availablePicks.slice(0, 4);
+  // const visiblePicks = isPremium
+  //   ? availablePicks.slice(0, 4)
+  //   : availablePicks.slice(0, 1);
+
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNow(new Date());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);  
+
+  const getCountdown = () => {
+    const gen = getTodayGenerationTime();
+    const diff = gen.getTime() - now.getTime();
+
+    if (diff <= 0) return null;
+
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+    return `${hours}h ${minutes}m`;
+  };
 
   const handleDeleteBet = (id: number) => {
   // 1. eliminar de array
@@ -586,10 +697,6 @@ export default function Home() {
     // 3. actualizar localStorage
     localStorage.setItem("bets", JSON.stringify(updatedBets));
   };
-
-  // const topPicks = useMemo(() => {
-  //   return getTopPicks(matches);
-  // }, [matches]);
 
   // ------------- AUTO RESOLVE BETS -----------
 
@@ -852,6 +959,8 @@ export default function Home() {
     setOpenLeagues({ [leagueName]: true });
   };
 
+  const countdown = getCountdown();
+
   return (
     <>
   
@@ -948,6 +1057,16 @@ export default function Home() {
               avatar={avatar}
               
             />
+          )}
+
+          {countdown ? (
+            <div className="mb-4 text-center text-sm text-[var(--muted)]">
+              ⏳ Nuevos picks en {countdown}
+            </div>
+          ) : (
+            <div className="mb-4 text-center text-sm text-[var(--accent)] font-semibold">
+              🔥 Picks disponibles hoy
+            </div>
           )}
 
           <TopPicksCard 
