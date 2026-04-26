@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 // import { API_URL } from "@/lib/api";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
 
 // ---------------- TYPES ----------------
 
@@ -25,6 +26,7 @@ const apiUrl =
 // ---------------- COMPONENT ----------------
 
 export default function ResultsView() {
+  const { t } = useLanguage();
   const [matches, setMatches] = useState<Match[]>([]);
   const [selectedLeague, setSelectedLeague] = useState<string | null>(null);
   const [leagues, setLeagues] = useState<string[]>([]);
@@ -70,7 +72,7 @@ export default function ResultsView() {
   // ---------------- AGRUPAR ----------------
 
   const groupedByRound = matches.reduce((acc, match) => {
-    const round = match.round || "Sin jornada";
+    const round = match.round || t.noRound;
 
     if (!acc[round]) acc[round] = [];
 
@@ -87,11 +89,6 @@ export default function ResultsView() {
 
   // ---------------- JORNADA ACTUAL ----------------
 
-  // const currentRound =
-  //   matches.length > 0
-  //     ? Math.max(...matches.map((m) => getRoundNumber(m.round)))
-  //     : 0;
-
   // ---------------- UI ----------------
 
 return (
@@ -100,7 +97,7 @@ return (
     {/* 🏆 LIGAS */}
     <div className="w-full md:w-52 bg-[var(--card)] p-3 rounded-lg border border-[var(--border)]">
 
-      <h2 className="mb-3 font-bold text-[var(--primary)] text-sm">🏆 Ligas</h2>
+      <h2 className="mb-3 font-bold text-[var(--primary)] text-sm">🏆 {t.leagues}</h2>
 
       {/* 🔥 WRAP en vez de scroll */}
       <div className="flex flex-wrap md:block gap-2">
@@ -125,6 +122,18 @@ return (
     {/* 📊 RESULTADOS */}
     <div className="flex-1 w-full">
 
+      {!selectedLeague && (
+        <div className="text-center text-[var(--muted)] text-sm mt-10">
+          {t.selectLeague}
+        </div>
+      )}
+
+      {selectedLeague && matches.length === 0 && (
+        <div className="text-center text-[var(--muted)] text-sm mt-10">
+          {t.noResults}
+        </div>
+      )}
+
       <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
 
         {sortedRounds.map((round) => (
@@ -134,7 +143,7 @@ return (
           >
 
             <h3 className="text-sm font-semibold text-[var(--primary)] mb-2">
-              Jornada {getRoundNumber(round)}
+              {t.round} {getRoundNumber(round)}
             </h3>
 
             <div className="flex flex-col gap-2">
@@ -174,6 +183,12 @@ return (
                         <span className="flex-shrink-0 px-2 font-bold text-[var(--text)]">
                           {m.home_goals}-{m.away_goals}
                         </span>
+
+                        {isToday(m.date) && (
+                          <span className="text-xs text-[var(--warning)] ml-2">
+                            {t.today}
+                          </span>
+                        )}
 
                         {/* AWAY */}
                         <span

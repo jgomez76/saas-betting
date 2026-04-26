@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { API_URL } from "@/lib/api";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
 
 type Bet = {
   match: string;
@@ -15,6 +16,7 @@ type Bet = {
 };
 
 export default function TopValueTable() {
+  const { t } = useLanguage();
   const [bets, setBets] = useState<Bet[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -28,22 +30,32 @@ export default function TopValueTable() {
   }, []);
 
   if (loading) {
-    return <p className="text-center text-[var(--muted)]">Loading top bets...</p>;
+    return <p className="text-center text-[var(--muted)]">
+      {t.loadingTopBets}
+    </p>;
+  }
+
+  if (bets.length === 0) {
+    return (
+      <p className="text-center text-var[(--muted)]">
+        {t.noResults}
+      </p>
+    );
   }
 
   return (
     <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl shadow p-4">
-      <h2 className="text-xl font-bold mb-4 text-[var(--primary)]">🔥 Top Value Bets</h2>
+      <h2 className="text-xl font-bold mb-4 text-[var(--primary)]">🔥 {t.topValueBets}</h2>
 
       <table className="w-full text-sm text-center text-[var(--text)]">
         <thead>
           <tr className="border-b border-[var(--border)] text-[var(--muted)]">
-            <th className="p-2">Match</th>
-            <th>Market</th>
-            <th>Pick</th>
-            <th>Odd</th>
-            <th>Book</th>
-            <th>Value</th>
+            <th className="p-2">{t.match}</th>
+            <th>{t.market}</th>
+            <th>{t.pick}</th>
+            <th>{t.odd}</th>
+            <th>{t.book}</th>
+            <th>{t.value}</th>
           </tr>
         </thead>
 

@@ -1,5 +1,7 @@
 "use client";
 
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
+
 type Props = {
   view: string;
   setView: (v: string) => void;
@@ -7,6 +9,8 @@ type Props = {
 };
 
 export default function Sidebar({ view, setView, isAdmin }: Props) {
+  const { t } = useLanguage();
+
   return (
     <div className="w-60 bg-[var(--card)] text-[var(--text)] h-screen p-4 flex flex-col gap-2 border-r border-[var(--border)]">
 
@@ -21,7 +25,7 @@ export default function Sidebar({ view, setView, isAdmin }: Props) {
           view === "dashboard" ? "bg-[var(--primary)] text-white" : "hover:bg-[var(--hover)]"
         }`}
       >
-        🏠 Dashboard
+        🏠 {t.dashboard}
       </button>
 
       {/* APUESTAS */}
@@ -31,7 +35,7 @@ export default function Sidebar({ view, setView, isAdmin }: Props) {
           view === "bets" ? "bg-[var(--primary)] text-white" : "hover:bg-[var(--hover)]"
         }`}
       >
-        💰 Mis apuestas
+        💰 {t.myBets}
       </button>
 
       {/* ANALYSIS (ADMIN) */}
@@ -42,7 +46,7 @@ export default function Sidebar({ view, setView, isAdmin }: Props) {
             view === "analysis" ? "bg-[var(--primary)] text-white" : "hover:bg-[var(--hover)]"
           }`}
         >
-          📊 Análisis
+          📊 {t.analysis}
         </button>
       )}
 
@@ -53,7 +57,7 @@ export default function Sidebar({ view, setView, isAdmin }: Props) {
           view === "results" ? "bg-[var(--primary)] text-white" : "hover:bg-[var(--hover)]"
         }`}
       >
-        🏆 Resultados
+        🏆 {t.results}
       </button>
 
       {/* CLASIFICACIONES */}
@@ -63,19 +67,19 @@ export default function Sidebar({ view, setView, isAdmin }: Props) {
           view === "standings" ? "bg-[var(--primary)] text-white" : "hover:bg-[var(--hover)]"
         }`}
       >
-        📋 Clasificaciones
+        📋 {t.standings}
       </button>
 
       {/* SETTINGS */}
       <button
         onClick={() => setView("settings")}
-        className={`w-full text-left px-3 py-2 rounded transition-colors ${
+        className={`p-2 rounded text-left transition-colors ${
           view === "settings"
             ? "bg-[var(--primary)] text-white"
             : "hover:bg-[var(--hover)]"
         }`}
       >
-        ⚙️ Settings
+        ⚙️ {t.settings}
       </button>
     </div>
 

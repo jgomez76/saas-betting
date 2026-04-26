@@ -99,7 +99,7 @@ const endOfDay = new Date(now);
 endOfDay.setHours(23, 59, 59, 999);
 
 matches.forEach((m) => {
-  const matchDate = new Date(m.date + "Z");
+  const matchDate = new Date(m.date);
 
   if (matchDate < startOfDay || matchDate > endOfDay) {
     return;

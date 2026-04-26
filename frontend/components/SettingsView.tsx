@@ -6,17 +6,19 @@ import FavoriteLeagues from "@/components/FavoriteLeagues";
 import StakeSettings from "@/components/StakeSettings";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import Image from "next/image";
+import { useSubscription } from "@/context/SubscriptionContext";
 
 /* 🔒 simulación (luego lo conectas con backend) */
-// const FREE_THEMES: Theme[] = ["trader", "sportsbook", "datalab"];
-const FREE_THEMES: Theme[] = ["trader", "sportsbook", "datalab", "neon", "futuristic", "classic"];
+const FREE_THEMES: Theme[] = ["trader", "sportsbook", "datalab"];
+// const FREE_THEMES: Theme[] = ["trader", "sportsbook", "datalab", "neon", "futuristic", "classic"];
 const PRO_THEMES: Theme[] = ["neon", "futuristic", "classic"];
 
 export default function SettingsView() {
   const { theme, setTheme } = useTheme();
-  const { lang, changeLang } = useLanguage();
+  const { lang, changeLang, t } = useLanguage();
 
-  const isPremium = false; // 🔥 luego lo conectas con tu estado real
+  // const isPremium = false; // 🔥 luego lo conectas con tu estado real
+  const { isPremium } = useSubscription(); // 🔥 luego lo conectas con tu estado real
 
   const renderThemeButton = (t: Theme, isPro: boolean = false) => {
     const isLocked = isPro && !isPremium;
@@ -42,7 +44,7 @@ export default function SettingsView() {
         {/* 🔒 BADGE PRO */}
         {isPro && (
           <span className="absolute top-1 right-1 text-[10px] px-1.5 py-0.5 rounded bg-yellow-500 text-black font-bold">
-            PRO
+            🔒 Premium
           </span>
         )}
       </button>
@@ -53,19 +55,19 @@ export default function SettingsView() {
     <div className="w-full max-w-3xl mx-auto text-[var(--text)] space-y-8">
 
       {/* TITLE */}
-      <h1 className="text-2xl font-bold">⚙️ Ajustes</h1>
+      <h1 className="text-2xl font-bold">⚙️ {t.settings}</h1>
 
       {/* ---------------- APARIENCIA ---------------- */}
       <section className="space-y-3">
         <h2 className="text-sm text-[var(--muted)] uppercase tracking-wide">
-          Apariencia
+          {t.appearance}
         </h2>
 
         <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 space-y-6">
 
           {/* FREE THEMES */}
           <div>
-            <p className="text-sm mb-2 text-[var(--muted)]">Temas gratuitos</p>
+            <p className="text-sm mb-2 text-[var(--muted)]">{t.freeThemes}</p>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {FREE_THEMES.map((t) => renderThemeButton(t))}
@@ -75,7 +77,7 @@ export default function SettingsView() {
           {/* PRO THEMES */}
           <div>
             <p className="text-sm mb-2 text-[var(--muted)]">
-              Temas premium
+              {t.premiumThemes}
             </p>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -89,14 +91,14 @@ export default function SettingsView() {
       {/* ---------------- PREFERENCIAS ---------------- */}
       <section className="space-y-3">
         <h2 className="text-sm text-[var(--muted)] uppercase tracking-wide">
-          Preferencias
+          {t.preferences}
         </h2>
 
         <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 space-y-3">
           <div className="space-y-2">
 
-            <p className="text-sm font-semibold">
-              🌐 Language
+            <p className="text-sm text-[var(--muted)] uppercase tracking-wide">
+              🌐 {t.language}
             </p>
 
             <div className="flex gap-3">
@@ -117,7 +119,7 @@ export default function SettingsView() {
                             height={72}
                             className="rounded-sm"
                           />
-                <span>English</span>
+                <span>{t.english}</span>
               </button>
 
               <button
@@ -136,7 +138,7 @@ export default function SettingsView() {
                             height={72}
                             className="rounded-sm"
                           />
-                <span>Español</span>
+                <span>{t.spanish}</span>
               </button>
 
             </div>
@@ -157,14 +159,14 @@ export default function SettingsView() {
       {/* ---------------- CUENTA ---------------- */}
       <section className="space-y-3">
         <h2 className="text-sm text-[var(--muted)] uppercase tracking-wide">
-          Cuenta
+          {t.account}
         </h2>
 
         <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 space-y-3">
 
           <div className="flex justify-between items-center">
-            <span>👤 Perfil</span>
-            <span className="text-[var(--muted)] text-sm">Gestionar</span>
+            <span>👤 {t.profile}</span>
+            <span className="text-[var(--muted)] text-sm">{t.manage}</span>
           </div>
 
         </div>

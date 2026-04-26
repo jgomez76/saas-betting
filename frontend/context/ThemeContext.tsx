@@ -55,7 +55,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   /* ---------- APPLY THEME ---------- */
   useEffect(() => {
-    console.log("THEME EFECT RUNNING");
+    // console.log("THEME EFECT RUNNING");
     const root = document.documentElement;
 
     VALID_THEMES.forEach((t) => root.classList.remove(t));
@@ -63,7 +63,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     root.classList.add(theme);
 
     localStorage.setItem("theme", theme);
-    console.log("HTML CLASS:", root.className);
+    // console.log("HTML CLASS:", root.className);
 
   }, [theme]);
 

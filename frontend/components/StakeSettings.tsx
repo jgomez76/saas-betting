@@ -2,14 +2,10 @@
 
 import { useState } from "react";
 import { DEFAULT_STAKES, getStakeRules, StakeRule } from "@/lib/stake";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
 
 export default function StakeSettings() {
-//   const [rules, setRules] = useState<StakeRule[]>([]);
-
-//   // LOAD
-//   useEffect(() => {
-//     setRules(getStakeRules());
-//   }, []);
+    const { t } = useLanguage();
     const [rules, setRules] = useState<StakeRule[]>(() => getStakeRules());
     const [saved, setSaved] = useState(false);
 
@@ -41,11 +37,10 @@ export default function StakeSettings() {
         
         <div className="space-y-4">
 
-            <h2 className="font-bold text-sm text-[var(--muted)] uppercase">💰 Stake Settings</h2>
+            <h2 className="font-bold text-sm text-[var(--muted)] uppercase">💰 {t.stakeSettings}</h2>
 
             <p className="text-sm text-[var(--muted)]">
-                Define cuánto apostar según la cuota. 
-                Cuotas altas → menor stake, cuotas bajas → mayor stake.
+                {t.stakeDescription}
             </p>
 
             {rules.map((r, i) => (
@@ -58,9 +53,9 @@ export default function StakeSettings() {
                     </p>
 
                     <p className="text-xs text-[var(--muted)] mb-2">
-                        {r.level === 1 && "Cuotas altas (más riesgo)"}
-                        {r.level === 2 && "Cuotas medias"}
-                        {r.level === 3 && "Cuotas bajas (más seguro)"}
+                        {r.level === 1 && t.highOddsHighRisk}
+                        {r.level === 2 && t.mediumOdds}
+                        {r.level === 3 && t.lowOddsSafe}
                     </p>
 
                     <div className="space-y-3 text-sm">
@@ -68,7 +63,7 @@ export default function StakeSettings() {
                     {/* AMOUNT */}
                     <div>
                         <label className="text-xs text-[var(--muted)]">
-                        Cantidad (€)
+                        {t.amount} (€)
                         </label>
                         <input
                         type="number"
@@ -85,7 +80,7 @@ export default function StakeSettings() {
                         
                         <div>
                         <label className="text-xs text-[var(--muted)]">
-                            Cuota mínima
+                            {t.minOdds}
                         </label>
                         <input
                             type="number"
@@ -100,7 +95,7 @@ export default function StakeSettings() {
 
                         <div>
                         <label className="text-xs text-[var(--muted)]">
-                            Cuota máxima
+                            {t.maxOdds}
                         </label>
                         <input
                             type="number"
@@ -118,7 +113,7 @@ export default function StakeSettings() {
                 </div>
             ))}
             <span className="text-xs text-[var(--muted)]">
-                Se aplicará automáticamente al apostar
+                {t.autoApplyStake}
             </span>
 
 
@@ -129,19 +124,19 @@ export default function StakeSettings() {
                 onClick={save}
                 className="flex-1 bg-[var(--accent)] text-black py-2 rounded font-semibold"
                 >
-                Guardar
+                {t.save}
                 </button>
 
                 <button
                 onClick={reset}
                 className="flex-1 bg-[var(--muted)] py-2 rounded"
                 >
-                Reset
+                {t.reset}
                 </button>
 
                 {saved && (
                     <div className="fixed top-20 left-1/2 -translate-x-1/2 bg-[var(--card)] border border-[var(--border)] px-4 py-2 rounded-lg shadow-lg text-sm animate-fade-in">
-                    ✅ Configuración guardada
+                    ✅ {t.settingsSaved}
                     </div>
                 )}
             </div>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { API_URL } from "@/lib/api";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
 
 type Bet = {
   match: string;
@@ -19,6 +20,7 @@ export default function TopValueModal({
   open: boolean;
   onClose: () => void;
 }) {
+  const { t } = useLanguage();
   const [bets, setBets] = useState<Bet[]>([]);
   const [selected, setSelected] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState(false);
@@ -71,11 +73,11 @@ export default function TopValueModal({
   // -----------------------
   const handleAction = async (action: string) => {
     if (selected.length === 0) {
-      alert("Selecciona al menos una apuesta");
+      alert(t.selectAtLeastOne);
       return;
     }
 
-    setMessage("Procesando...");
+    setMessage(t.processing);
 
     const ids = selected.join(",");
 
@@ -93,9 +95,9 @@ export default function TopValueModal({
       a.click();
 
       window.URL.revokeObjectURL(url);
-      setMessage("✅ Descargado");
+      setMessage(t.downloaded);
     } else {
-      setMessage("✅ Enviado");
+      setMessage(t.sent);
     }
 
     setTimeout(() => setMessage(null), 2000);
@@ -114,7 +116,7 @@ export default function TopValueModal({
         {/* HEADER */}
         <div className="flex justify-between mb-6">
           <h2 className="text-2xl font-bold text-[var(--primary)]">
-            🔥 Top Value Bets
+            🔥 {t.topValueBets}
           </h2>
           <button onClick={onClose}>✖</button>
         </div>
@@ -122,7 +124,7 @@ export default function TopValueModal({
         {/* LOADING */}
         {initialLoading ? (
           <div className="flex flex-col items-center justify-center h-[70%]">
-            <p className="mb-4 text-lg">Cargando apuestas top...</p>
+            <p className="mb-4 text-lg">{t.loadingTopBets}</p>
             <div className="w-64 h-2 bg-[var(--border)] rounded">
               <div className="h-2 bg-[var(--primary)] animate-pulse w-full rounded"></div>
             </div>
@@ -149,11 +151,11 @@ export default function TopValueModal({
                 onClick={toggleSelectAll}
                 className="bg-[var(--card)] px-4 py-2 rounded hover:bg-[var(--hover)]"
               >
-                {selectAll ? "Deseleccionar todo" : "Seleccionar todo"}
+                {selectAll ? t.deselectAll : t.selectAll}
               </button>
 
               <span className="text-[var(--muted)]">
-                {selected.length} seleccionadas
+                {selected.length} {t.selectedCount}
               </span>
             </div>
 
@@ -163,12 +165,12 @@ export default function TopValueModal({
                 <thead className="bg-[var(--card)]">
                   <tr>
                     <th className="p-3 border">✔</th>
-                    <th className="p-3 border">Match</th>
-                    <th className="p-3 border">Market</th>
-                    <th className="p-3 border">Pick</th>
-                    <th className="p-3 border">Odd</th>
-                    <th className="p-3 border">Book</th>
-                    <th className="p-3 border">Value</th>
+                    <th className="p-3 border">{t.match}</th>
+                    <th className="p-3 border">{t.market}</th>
+                    <th className="p-3 border">{t.pick}</th>
+                    <th className="p-3 border">{t.odd}</th>
+                    <th className="p-3 border">{t.book}</th>
+                    <th className="p-3 border">{t.value}</th>
                   </tr>
                 </thead>
 

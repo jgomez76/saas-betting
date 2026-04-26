@@ -3,6 +3,7 @@
 import { createContext, useContext, useState } from "react";
 import { translations } from "./translations";
 import { ReactNode } from "react";
+import Cookies from "js-cookie";
 
 type Lang = "en" | "es";
 
@@ -13,22 +14,22 @@ type LanguageContextType = {
 };
 
 type Props = {
-    children: ReactNode;
-}
+  children: ReactNode;
+  initialLang: Lang; // 👈 viene del servidor
+};
 
 const LanguageContext = createContext<LanguageContextType | null>(null);
 
-export const LanguageProvider = ({ children }: Props) => {
-    const [lang, setLang] = useState<Lang>(() => {
-    if (typeof window === "undefined") return "en";
+export const LanguageProvider = ({ children, initialLang }: Props) => {
 
-    const saved = localStorage.getItem("lang") as Lang;
-    return saved || "en";
-    });
+  // ✅ mismo valor que SSR → sin hydration mismatch
+  const [lang, setLang] = useState<Lang>(initialLang);
 
   const changeLang = (l: Lang) => {
     setLang(l);
-    localStorage.setItem("lang", l);
+
+    // ✅ guardar en cookie (persistente)
+    Cookies.set("lang", l, { expires: 365 });
   };
 
   const t = translations[lang];

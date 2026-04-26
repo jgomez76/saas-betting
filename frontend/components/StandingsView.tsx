@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-// import { API_URL } from "@/lib/api";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
 
 type Team = {
   team: string;
@@ -25,6 +25,7 @@ export default function StandingsView() {
   const [leagues, setLeagues] = useState<string[]>([]);
   const [selectedLeague, setSelectedLeague] = useState<string | null>(null);
   const [table, setTable] = useState<Team[]>([]);
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (!apiUrl) return;
@@ -34,8 +35,7 @@ export default function StandingsView() {
   }, []);
 
   useEffect(() => {
-    if (!apiUrl) return;
-    if (!selectedLeague) return;
+    if (!apiUrl || !selectedLeague) return;
 
     fetch(`${apiUrl}/standings/${selectedLeague}`)
       .then((res) => res.json())
@@ -45,9 +45,11 @@ export default function StandingsView() {
   return (
     <div className="flex flex-col md:flex-row gap-4 w-full">
 
-      {/* 🏆 SIDEBAR */}
+      {/* SIDEBAR */}
       <div className="w-full md:w-52 bg-[var(--card)] p-3 rounded-lg border border-[var(--border)]">
-        <h2 className="mb-3 text-sm font-bold text-[var(--primary)]">🏆 Ligas</h2>
+        <h2 className="mb-3 text-sm font-bold text-[var(--primary)]">
+          🏆 {t.leagues}
+        </h2>
 
         <div className="flex flex-wrap md:block gap-2">
           {leagues.map((l) => (
@@ -57,7 +59,7 @@ export default function StandingsView() {
               className={`px-3 py-2 text-sm rounded cursor-pointer ${
                 selectedLeague === l
                   ? "bg-[var(--primary)] text-white"
-                  : "bg-[var(--card)] hover:bg-[var(--hover)]"
+                  : "hover:bg-[var(--hover)]"
               }`}
             >
               {l}
@@ -66,68 +68,111 @@ export default function StandingsView() {
         </div>
       </div>
 
-      {/* 📊 CLASIFICACIÓN */}
+      {/* TABLE */}
       <div className="flex-1 w-full">
 
         {table.length > 0 && (
-          <div className="bg-[var(--card)] rounded-lg p-3 border border-[var(--border)] w-full">
+          <div className="bg-[var(--card)] rounded-lg border border-[var(--border)] overflow-hidden">
 
-            <h2 className="text-sm font-bold mb-3 text-[var(--primary)]">
-              Clasificación
-            </h2>
+            {/* ================= DESKTOP ================= */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-sm">
 
-            {/* 🏷 HEADER */}
-            <div className="grid grid-cols-[30px_1fr_40px_70px_40px] text-xs text-[var(--muted)] mb-2 px-2">
-              <span>#</span>
-              <span>Equipo</span>
-              <span className="text-center">PJ</span>
-              <span className="text-center">Goles</span>
-              <span className="text-center">Pts</span>
+                <thead className="bg-[var(--hover)] text-[var(--muted)] text-xs">
+                  <tr>
+                    <th className="px-2 py-2 text-left">#</th>
+                    <th className="px-2 py-2 text-left">{t.team}</th>
+                    <th className="text-center">{t.played}</th>
+                    <th className="text-center">{t.wins}</th>
+                    <th className="text-center">{t.draws}</th>
+                    <th className="text-center">{t.losses}</th>
+                    <th className="text-center">{t.goals}</th>
+                    <th className="text-center">{t.goalDiff}</th>
+                    <th className="text-center">{t.points}</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {table.map((team, i) => (
+                    <tr
+                      key={team.team}
+                      className="border-t border-[var(--border)] hover:bg-[var(--hover)] transition"
+                    >
+                      <td className="px-2 py-2">{i + 1}</td>
+                      <td className="px-2 py-2 font-medium truncate">
+                        {team.team}
+                      </td>
+
+                      <td className="text-center">{team.played}</td>
+                      <td className="text-center">{team.wins}</td>
+                      <td className="text-center">{team.draws}</td>
+                      <td className="text-center">{team.losses}</td>
+
+                      <td className="text-center text-[var(--muted)]">
+                        {team.gf}:{team.ga}
+                      </td>
+
+                      <td className="text-center">
+                        {team.gf - team.ga}
+                      </td>
+
+                      <td className="text-center font-bold">
+                        {team.points}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
 
-            {/* 📊 FILAS */}
-            <div className="flex flex-col gap-1">
+            {/* ================= MOBILE ================= */}
+            <div className="md:hidden overflow-x-auto">
+              <table className="w-full text-sm">
 
-              {table.map((t, i) => (
-                <div
-                  key={t.team}
-                  className="grid grid-cols-[30px_1fr_40px_70px_40px] items-center bg-[var(--hover)] rounded px-2 py-2 text-xs"
-                >
-                  {/* POS */}
-                  <span
-                    className={`
-                      text-center
-                      ${i < 4 ? "text-[var(--success)] font-semibold" : ""}
-                      ${i >= table.length - 3 ? "text-[var(--danger)] font-semibold" : ""}
-                    `}
-                  >
-                    {i + 1}
-                  </span>
+                <thead className="bg-[var(--hover)] text-[var(--muted)] text-xs">
+                  <tr>
+                    <th className="px-2 py-2 text-left">#</th>
+                    <th className="px-2 py-2 text-left">{t.team}</th>
+                    <th className="text-center">{t.played}</th>
+                    <th className="text-center">{t.goals}</th>
+                    <th className="text-center">{t.points}</th>
+                  </tr>
+                </thead>
 
-                  {/* EQUIPO */}
-                  <span className="truncate">
-                    {t.team}
-                  </span>
+                <tbody>
+                  {table.map((team, i) => (
+                    <tr
+                      key={team.team}
+                      className="border-t border-[var(--border)] hover:bg-[var(--hover)] transition"
+                    >
+                      <td className="px-2 py-2">{i + 1}</td>
 
-                  {/* PJ */}
-                  <span className="text-center text-[var(--muted)]">
-                    {t.played}
-                  </span>
+                      <td className="px-2 py-2 font-medium truncate max-w-[120px]">
+                        {team.team}
+                      </td>
 
-                  {/* GOLES */}
-                  <span className="text-center text-[var(--muted)]">
-                    {t.gf}:{t.ga}
-                  </span>
+                      <td className="text-center">{team.played}</td>
 
-                  {/* PTS */}
-                  <span className="text-center font-bold text-[var(--text)]">
-                    {t.points}
-                  </span>
-                </div>
-              ))}
+                      <td className="text-center text-[var(--muted)]">
+                        {team.gf}:{team.ga}
+                      </td>
 
+                      <td className="text-center font-bold">
+                        {team.points}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+
+              </table>
             </div>
 
+          </div>
+        )}
+
+        {table.length === 0 && (
+          <div className="text-center text-sm text-[var(--muted)] mt-10">
+            {t.selectLeague}
           </div>
         )}
       </div>

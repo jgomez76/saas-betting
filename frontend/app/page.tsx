@@ -19,6 +19,7 @@ import { Bet } from "@/types/bet";
 import { useSession } from "next-auth/react";
 import { useSubscription } from "@/context/SubscriptionContext"; 
 import { getStakeFromOdd, getStakeRules } from "@/lib/stake";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
 
 // ---------------- TYPES ----------------
 
@@ -37,6 +38,7 @@ export default function Home() {
   // ###########
   // CONSTANTES
   // ###########
+  const { t, lang } = useLanguage();
 
   const { data: session } = useSession();
   const oauthDone = useRef(false);
@@ -153,7 +155,8 @@ export default function Home() {
 
     const matchDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
-    const time = d.toLocaleTimeString("es-ES", {
+    // const time = d.toLocaleTimeString("es-ES", {
+    const time = d.toLocaleTimeString(lang === "es" ? "es-ES" : "en-GB", {
       hour: "2-digit",
       minute: "2-digit",
       timeZone: "Europe/Madrid",
@@ -607,6 +610,7 @@ export default function Home() {
 
   // const allPicks = getTopPicks(todayMatches);
   const allPicks = useMemo(() => {
+    // if (!mounted) return [];
     if (typeof window === "undefined") return [];
 
     const key = `topPicks_${getTodayKey()}`;
@@ -645,27 +649,16 @@ export default function Home() {
     return picks;
   }, [todayMatches]);
 
-  // const visiblePicks =
-  //   plan === "premium"
-  //     ? allPicks.slice(0, 5)
-  //     : allPicks.slice(0, 1);
-  // const visiblePicks = allPicks.slice(0, 4);
-  // const visiblePicks = allPicks
-  //   .filter((p) => new Date(p.date) > new Date()) // ❗ no empezados
-  //   .slice(0, 4);
-
-  const currentTime = new Date();
-
+  // const [now, setNow] = useState(new Date());
+  const [now, setNow] = useState(() => new Date());
+  
   const availablePicks = allPicks.filter(
-    (p: Pick) => new Date(p.date) > currentTime
+    (p: Pick) => new Date(p.date + "Z") > now
   );
 
   const visiblePicks = availablePicks.slice(0, 4);
-  // const visiblePicks = isPremium
-  //   ? availablePicks.slice(0, 4)
-  //   : availablePicks.slice(0, 1);
 
-  const [now, setNow] = useState(new Date());
+ 
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -675,16 +668,46 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);  
 
-  const getCountdown = () => {
-    const gen = getTodayGenerationTime();
-    const diff = gen.getTime() - now.getTime();
+  // const getCountdown = () => {
+  //   const target = getTodayGenerationTime();
 
-    if (diff <= 0) return null;
+  //   // 👉 si ya pasó hoy → ir a mañana
+  //   if (now > target) {
+  //     target.setDate(target.getDate() + 1);
+  //   }
+
+  //   const diff = target.getTime() - now.getTime();
+
+  //   const hours = Math.floor(diff / (1000 * 60 * 60));
+  //   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+  //   return `${hours}h ${minutes}m`;
+  // };
+
+  const getCountdown = (now: Date) => {
+    const target = getTodayGenerationTime();
+
+    // 👉 CLAVE: mantener esto
+    if (now > target) {
+      target.setDate(target.getDate() + 1);
+    }
+
+    const diff = target.getTime() - now.getTime();
 
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-    return `${hours}h ${minutes}m`;
+    // 🧠 UX inteligente (igual que antes pero mejor)
+    if (hours > 0) {
+      return `${hours}h ${minutes.toString().padStart(2, "0")}m`;
+    }
+
+    if (minutes > 0) {
+      return `${minutes}m ${seconds.toString().padStart(2, "0")}s`;
+    }
+
+    return `${seconds}s`;
   };
 
   const handleDeleteBet = (id: number) => {
@@ -959,7 +982,7 @@ export default function Home() {
     setOpenLeagues({ [leagueName]: true });
   };
 
-  const countdown = getCountdown();
+  const countdown = mounted ? getCountdown(now) : null;
 
   return (
     <>
@@ -969,14 +992,14 @@ export default function Home() {
         onClick={() => setPlan("free")}
         className={`px-3 py-1 rounded ${plan === "free" ? "bg-[var(--accent)] text-black" : "bg-[var(--card)]"}`}
       >
-        FREE
+        {t.free}
       </button>
 
       <button
         onClick={() => setPlan("premium")}
         className={`px-3 py-1 rounded ${plan === "premium" ? "bg-[var(--accent)] text-black" : "bg-[var(--card)]"}`}
       >
-        PREMIUM
+        {t.premium}
       </button>
     </div>
 
@@ -994,7 +1017,7 @@ export default function Home() {
             onClick={() => setShowMenu(true)}
             className="flex items-center gap-2 px-3 py-2 bg-[var(--card)] border border-[var(--border)] rounded-lg shadow"
           >
-            ☰ <span className="text-sm">Menú</span>
+            ☰ <span className="text-sm">{t.menu}</span>
           </button>
 
         </div>
@@ -1008,7 +1031,7 @@ export default function Home() {
 
               {/* TEXTO */}
               <p className="text-center text-sm text-[var(--muted)] mb-2 animate-pulse">
-                ⏳ {loadingMessage}
+                ⏳ {t.loadingMatches}
               </p>
 
               {/* 🔥 BARRA PROGRESO */}
@@ -1031,7 +1054,6 @@ export default function Home() {
           {mounted && (
             <Navbar
               onOpenTop={() => setShowTopModal(true)}
-              // onOpenBets={() => setShowBetsModal(true)}
               onOpenBets={() => setView("bets")}
               onOpenLogin={() => setShowLoginModal(true)}
               onLogout={handleLogout}
@@ -1041,7 +1063,6 @@ export default function Home() {
               marketFilter={marketFilter}
               setMarketFilter={setMarketFilter}
               leagueFilter={leagueFilter}
-              // setLeagueFilter={setLeagueFilter}
               setLeagueFilter={handleLeagueChange}
               dateFilter={dateFilter}
               setDateFilter={setDateFilter}
@@ -1060,12 +1081,28 @@ export default function Home() {
           )}
 
           {countdown ? (
-            <div className="mb-4 text-center text-sm text-[var(--muted)]">
-              ⏳ Nuevos picks en {countdown}
+            <div className="mb-4 flex items-center justify-center gap-2 bg-[var(--card)] border border-[var(--border)] rounded-lg py-2 px-4 text-sm">
+              <span className="text-[var(--warning)]">⏳</span>
+              <span className="text-[var(--muted)]">
+                {t.nextPicksIn}
+              </span>
+              <span className="font-semibold text-[var(--text)]">
+                {countdown}
+              </span>
+            </div>
+          ) : visiblePicks.length === 0 ? (
+            <div className="mb-4 flex items-center justify-center gap-2 bg-[var(--card)] border border-[var(--border)] rounded-lg py-2 px-4 text-sm">
+              <span>📭</span>
+              <span className="text-[var(--muted)]">
+                {t.noMorePicks}
+              </span>
             </div>
           ) : (
-            <div className="mb-4 text-center text-sm text-[var(--accent)] font-semibold">
-              🔥 Picks disponibles hoy
+            <div className="mb-4 flex items-center justify-center gap-2 bg-[var(--accent)]/10 border border-[var(--accent)]/30 rounded-lg py-2 px-4 text-sm">
+              <span>🔥</span>
+              <span className="font-semibold text-[var(--accent)]">
+                {t.picksAvailable}
+              </span>
             </div>
           )}
 
@@ -1083,12 +1120,7 @@ export default function Home() {
             </div>
           )}
 
-          {/* {Object.entries(grouped).map(([league, leagueMatches]) => ( */}
           {Object.entries(grouped).map(([league, leagueMatches], i) => (
-            // <div 
-            //   key={league}
-            //   className="animate-fadeIn"
-            // >
             <div
               key={league}
               className="animate-fadeIn"
@@ -1106,7 +1138,7 @@ export default function Home() {
                 </div>
 
                 <span className="text-sm text-[var(--muted)]">
-                  {leagueMatches.length} partidos
+                  {leagueMatches.length} {t.matches}
                 </span>
               </div>
 
@@ -1118,7 +1150,6 @@ export default function Home() {
                     : "max-h-0 opacity-0 -translate-y-2 overflow-hidden"
                 }`}
               >
-                {/* <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3"> */}
                 <div className="grid mt-4 gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
 
                   {/* LOADING SKELETON CARD */}
@@ -1152,14 +1183,13 @@ export default function Home() {
                         <div
                           className="grid text-center mb-3"
                           style={{ gridTemplateColumns: "45% 10% 45%" }}
-                          // className="flex justify-between items-center mb-3"
                           >
                           <div onClick={() => openTeamModal(match.home_team)}>
                             <p>{match.home_team}</p>
                             {renderForm(match.home_form || "")}
                           </div>
 
-                          <div className="text-[var(--muted)] text-xs">vs</div>
+                          <div className="text-[var(--muted)] text-xs">{t.vs}</div>
 
                           <div onClick={() => openTeamModal(match.away_team)}>
                             <p>{match.away_team}</p>
@@ -1168,7 +1198,6 @@ export default function Home() {
                         </div>
 
                         {/* FECHA */}
-                        {/* <p className="text-xs text-[var(--muted)] text-center mb-2"> */}
                         <p className="text-xs text-[var(--muted)] text-center mb-3 tracking-wide">
                           {formatMatchDate(match.date)}
                         </p>
@@ -1630,7 +1659,7 @@ export default function Home() {
                 onClick={() => setSelectedTeam(null)}
                 className="mt-4 w-full bg-[var(--card)] hover:opacity-80 p-2 rounded"
               >
-                Cerrar
+                {t.close}
               </button>
             </div>
           </div>
@@ -1675,7 +1704,7 @@ export default function Home() {
 
               {/* TITLE */}
               <h2 className="text-xl font-bold text-center mb-4">
-                Confirmar apuesta
+                {t.confirmBet}
               </h2>
 
               {/* INFO */}
@@ -1705,7 +1734,7 @@ export default function Home() {
                   </p>
                 )}
                 <p className="text-xs text-[var(--muted)] mb-1">
-                  Stake recomendado
+                  {t.recommendedStake}
                 </p>
 
                 <select
@@ -1724,9 +1753,7 @@ export default function Home() {
                   }}
                   className="w-full p-2 mb-4 bg-[var(--bg)] border border-[var(--border)] rounded text-sm"
                 >
-                  {/* <option value={1}>Stake 1 — 10€</option>
-                  <option value={2}>Stake 2 — 20€</option>
-                  <option value={3}>Stake 3 — 30€</option> */}
+
                   {getStakeRules().map((r) => (
                     <option key={r.level} value={r.level}>
                       Stake {r.level} — {r.amount}€
@@ -1742,7 +1769,7 @@ export default function Home() {
                   onClick={() => setPendingBet(null)}
                   className="flex-1 bg-[var(--card)] border border-[var(--border)] py-2 rounded-lg hover:opacity-80"
                 >
-                  Cancelar
+                  {t.cancel}
                 </button>
 
                 <button
@@ -1752,7 +1779,7 @@ export default function Home() {
                   }}
                   className="flex-1 bg-[var(--accent)] py-2 rounded-lg font-bold text-white hover:opacity-90"
                 >
-                  Confirmar
+                  {t.confirm}
                 </button>
 
               </div>

@@ -3,9 +3,11 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { API_URL } from "@/lib/api";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import Link from "next/link";
 
 export default function VerifyPage() {
+  const { t } = useLanguage();
   const params = useSearchParams();
   const token = params.get("token");
 
@@ -14,7 +16,7 @@ export default function VerifyPage() {
   >(token ? "loading" : "error");
 
   useEffect(() => {
-    const token = params.get("token");
+    // const token = params.get("token");
 
     if (!token) return;
 
@@ -28,7 +30,7 @@ export default function VerifyPage() {
     };
 
     verify();
-  }, [params]);
+  }, [token]);
 
   return (
     <div className="flex items-center justify-center h-screen bg-[var(--bg)] text-[var(--text)]">
@@ -36,23 +38,24 @@ export default function VerifyPage() {
 
         {status === "loading" && (
           <>
-            <p className="text-lg">⏳ Verificando cuenta...</p>
+            <div className="animate-spin w-6 h-6 border-2 border-[var(--primary)] border-t-transparent rounded-full mx-auto mb-3" />
+            <p className="text-lg">⏳ {t.verifyingAccount}</p>
           </>
         )}
 
         {status === "ok" && (
           <>
             <h2 className="text-2xl font-bold mb-3 text-[var(--success)]">
-              ✅ Cuenta verificada
+              ✅ {t.accountVerified}
             </h2>
             <p className="text-[var(--muted)] mb-4">
-              Ya puedes iniciar sesión
+              {t.youCanLogin}
             </p>
             <Link
               href="/"
               className="bg-[var(--primary)] px-4 py-2 rounded hover:opacity-90 text-white"
             >
-              Ir al login
+              {t.goToLogin}
             </Link>
           </>
         )}
@@ -60,10 +63,10 @@ export default function VerifyPage() {
         {status === "error" && (
           <>
             <h2 className="text-2xl font-bold mb-3 text-[var(--danger)]">
-              ❌ Error de verificación
+              ❌ {t.verificationError}
             </h2>
             <p className="text-[var(--muted)]">
-              El enlace no es válido o ha expirado
+              {t.invalidOrExpiredLink}
             </p>
           </>
         )}

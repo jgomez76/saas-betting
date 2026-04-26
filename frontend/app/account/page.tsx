@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { API_URL } from "@/lib/api";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
 
 export default function AccountPage() {
+  const { t } = useLanguage();
   const [email, setEmail] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -33,14 +35,13 @@ export default function AccountPage() {
       credentials: "include",
     });
 
-    window.location.href = "/";
+    // window.location.href = "/";
+    router.push("/");
   };
 
   // 🔥 deactivate
   const handleDeactivate = async () => {
-    const confirmDelete = confirm(
-      "¿Seguro que quieres eliminar tu cuenta?"
-    );
+    const confirmDelete = confirm(t.confirmDeleteAccount);
 
     if (!confirmDelete) return;
 
@@ -50,17 +51,17 @@ export default function AccountPage() {
     });
 
     if (res.ok) {
-      alert("Cuenta desactivada");
+      alert(t.accountDeactivated);
       window.location.href = "/";
     } else {
-      alert("Error al eliminar la cuenta");
+      alert(t.deleteError);
     }
   };
 
   if (loading) {
     return (
       <div className="text-[var(--muted)] text-center mt-10">
-        Cargando...
+        {t.loading}
       </div>
     );
   }
@@ -68,7 +69,7 @@ export default function AccountPage() {
   if (!email) {
     return (
       <div className="text-[var(--muted)] text-center mt-10">
-        No estás logueado
+        {t.notLoggedIn}
       </div>
     );
   }
@@ -80,11 +81,11 @@ export default function AccountPage() {
             onClick={() => router.push("/")}
             className="text-sm text-[var(--muted)] mb-4 hover:underline"
             >
-            ← Volver
+            ← {t.back}
         </button>
 
         <h2 className="text-xl font-bold mb-4">
-          👤 Mi cuenta
+          👤 {t.myAccount}
         </h2>
 
         <p className="mb-6 text-[var(--text)]">
@@ -96,7 +97,7 @@ export default function AccountPage() {
           onClick={handleLogout}
           className="w-full bg-[var(--card)] border border-[var(--border)] py-2 rounded mb-3 hover:bg-[var(--hover)]"
         >
-          Cerrar sesión
+          {t.logout}
         </button>
 
         {/* DELETE */}
@@ -104,7 +105,7 @@ export default function AccountPage() {
           onClick={handleDeactivate}
           className="w-full bg-[var(--danger)] py-2 rounded hover:opacity-90 text-white"
         >
-          ❌ Darse de baja
+          ❌ {t.deactivateAccount}
         </button>
 
       </div>

@@ -3,9 +3,11 @@
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { API_URL } from "@/lib/api";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import Link from "next/link";
 
 export default function ResetPage() {
+  const { t } = useLanguage();
   const params = useSearchParams();
   const token = params.get("token");
 
@@ -13,16 +15,21 @@ export default function ResetPage() {
   const [status, setStatus] = useState("");
 
   const handleReset = async () => {
-    console.log("🔥 CLICK RESET"); // 👈 1
+    // console.log("🔥 CLICK RESET"); // 👈 1
 
-    if (!password) {
-      console.log("❌ NO PASSWORD"); // 👈 2
+     if (!token) {
       setStatus("error");
       return;
     }
 
-    console.log("📦 TOKEN:", token);       // 👈 3
-    console.log("🔑 PASSWORD:", password); // 👈 4
+    if (!password) {
+      // console.log("❌ NO PASSWORD"); // 👈 2
+      setStatus("error");
+      return;
+    }
+
+    // console.log("📦 TOKEN:", token);       // 👈 3
+    // console.log("🔑 PASSWORD:", password); // 👈 4
 
     try {
       setStatus("loading");
@@ -38,7 +45,7 @@ export default function ResetPage() {
         }),
       });
 
-      console.log("📡 RESPONSE STATUS:", res.status); // 👈 5
+      // console.log("📡 RESPONSE STATUS:", res.status); // 👈 5
 
       if (!res.ok) {
         const text = await res.text();
@@ -47,7 +54,7 @@ export default function ResetPage() {
         return;
       }
 
-      console.log("✅ RESET OK"); // 👈 7
+      // console.log("✅ RESET OK"); // 👈 7
 
       setStatus("success");
 
@@ -62,14 +69,14 @@ export default function ResetPage() {
       <div className="bg-[var(--card)] border border-[var(--border)] p-8 rounded-2xl shadow-xl w-[350px] text-center">
 
         <h2 className="text-xl font-bold mb-4">
-          🔑 Nueva contraseña
+          🔑 {t.newPassword}
         </h2>
 
         {status !== "success" ? (
           <>
             <input
               type="password"
-              placeholder="Nueva contraseña"
+              placeholder={t.newPassword}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full mb-4 p-2 rounded bg-[var(--card)] border border-[var(--border)] text-[var(--text)]"
             />
@@ -78,19 +85,19 @@ export default function ResetPage() {
               onClick={handleReset}
               className="w-full bg-[var(--primary)] py-2 rounded hover:opacity-90 text-white"
             >
-              Cambiar contraseña
+              {t.changePassword}
             </button>
           </>
         ) : (
           <>
             <p className="text-[var(--success)] mb-3">
-              ✅ Contraseña actualizada
+              ✅ {t.passwordUpdated}
             </p>
             <Link
               href="/"
               className="bg-[var(--primary)] px-4 py-2 rounded hover:opacity-90 text-white"
             >
-              Ir al login
+              {t.goToLogin}
             </Link>
           </>
         )}
