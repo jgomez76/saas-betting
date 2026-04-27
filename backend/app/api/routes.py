@@ -2,7 +2,7 @@ from fastapi import Response, APIRouter, Depends, Query, Request, HTTPException,
 from fastapi.responses import StreamingResponse, JSONResponse
 
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from jose import jwt, JWTError
 from collections import defaultdict
 from pydantic import BaseModel
@@ -16,6 +16,7 @@ from app.core.email import send_verification_email, send_reset_email
 from app.models.fixture import Fixture
 from app.models.user import User
 from app.models.analysis import Analysis
+from app.models.top_picks import TopPick
 
 from app.schemas.auth import LoginRequest, ForgotRequest
 
@@ -26,6 +27,7 @@ from app.services.injuries import fetch_injuries
 from app.services.notifications import send_email, send_telegram
 from app.services.odds import save_odds
 from app.services.value import get_value_bets, get_top_value_bets
+from app.services.top_picks import generate_top_picks
 
 from uuid import uuid4
 
@@ -756,3 +758,41 @@ def upload_avatar(
 
     return {"avatar": avatar_url}
 
+@router.get("/top-picks")
+def get_top_picks(db: Session = Depends(get_db)):
+    today = date.today()
+
+    picks = db.query(TopPick)\
+        .filter(TopPick.date == today)\
+        .order_by(TopPick.probability.desc())\
+        .all()
+
+    if not picks:
+        return {"free": None, "premium": []}
+
+    serialized = [
+        {
+            "fixture_id": p.fixture_id,
+            "match": p.match,
+            "market": p.market,
+            "selection": p.selection,
+            "probability": p.probability,
+            "odd": p.odd,
+            "value": p.value,
+            "kickoff": p.kickoff,
+            "is_free": p.is_free
+        }
+        for p in picks
+    ]
+
+    free = next((p for p in serialized if p["is_free"]), None)
+
+    return {
+        "free": free,
+        "premium": serialized
+    }
+
+@router.post("/top-picks/generate")
+def run_top_picks(db: Session = Depends(get_db)):
+    generate_top_picks(db)
+    return {"status": "generated"}

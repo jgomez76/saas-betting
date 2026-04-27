@@ -12,7 +12,7 @@ import StandingsView from "@/components/StandingsView";
 import ProfileModal from "@/components/ProfileModal";
 import SettingsView from "@/components/SettingsView";
 import TopPicksCard from "@/components/TopPicksCard";
-import { Pick, getTopPicks } from "@/lib/topPicks";
+// import { Pick, getTopPicks } from "@/lib/topPicks";
 import { Match } from "@/types/match";
 // import { API_URL } from "@/lib/api";
 import { Bet } from "@/types/bet";
@@ -29,6 +29,18 @@ type TeamMatch = {
   home_goals: number;
   away_goals: number;
   date: string;
+};
+
+type TopPick = {
+  fixture_id: number;
+  match: string;
+  market: string;
+  selection: string;
+  probability: number;
+  odd: number;
+  value: number;
+  kickoff: string;
+  is_free: boolean;
 };
 
 // ---------------- COMPONENT ----------------
@@ -70,21 +82,22 @@ export default function Home() {
     return stored ? JSON.parse(stored) : [];
   });
 
-  const getTodayKey = () => {
-    const now = new Date();
-    return now.toISOString().split("T")[0];
-  };
+  // const getTodayKey = () => {
+  //   const now = new Date();
+  //   return now.toISOString().split("T")[0];
+  // };
 
-  const getTodayGenerationTime = () => {
-    const now = new Date();
-    const gen = new Date(now);
+  // const getTodayGenerationTime = () => {
+  //   const now = new Date();
+  //   const gen = new Date(now);
 
-    gen.setHours(10, 0, 0, 0);
+  //   gen.setHours(10, 0, 0, 0);
 
-    return gen;
-  };
+  //   return gen;
+  // };
 
-  const handleSelectTopPick = (pick: Pick) => {
+  const handleSelectTopPick = (pick: TopPick) => {
+    const stakeRule = getStakeFromOdd(pick.odd);
 
     setPendingBet({
       match: pick.match,
@@ -95,9 +108,9 @@ export default function Home() {
       value: pick.value,
       fixture_id: pick.fixture_id, // ⚠️ ahora lo arreglamos abajo
       status: "pending",
-      date: pick.date,
-      stake: pick.stake,
-      stakeLevel: pick.stakeLevel,
+      date: pick.kickoff,
+      stake: stakeRule.amount,
+      stakeLevel: stakeRule.level,
     });
   };
 
@@ -138,7 +151,7 @@ export default function Home() {
     return Array.from(map.values());
   };
 
-  const [loadingMessage, setLoadingMessage] = useState("");
+  // const [loadingMessage, setLoadingMessage] = useState("");
   const [progress, setProgress] = useState(0);
 
   // FUNCION PARA FECHA PARTIDOS
@@ -227,29 +240,29 @@ export default function Home() {
   //       return isToday && isFav;
   //   });
   // }, [allMatches, favLeagues]);
-  const todayMatches = useMemo(() => {
-    // const now = new Date();
+  // const todayMatches = useMemo(() => {
+  //   // const now = new Date();
 
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
+  //   const startOfDay = new Date();
+  //   startOfDay.setHours(0, 0, 0, 0);
 
-    const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999);
+  //   const endOfDay = new Date();
+  //   endOfDay.setHours(23, 59, 59, 999);
 
-    return allMatches.filter((m) => {
-      const matchDate = new Date(m.date + "Z");
+  //   return allMatches.filter((m) => {
+  //     const matchDate = new Date(m.date + "Z");
 
-      const isToday =
-        matchDate >= startOfDay &&
-        matchDate <= endOfDay;
+  //     const isToday =
+  //       matchDate >= startOfDay &&
+  //       matchDate <= endOfDay;
 
-      const isFav =
-        favLeagues.length === 0 ||
-        favLeagues.includes(m.league_id);
+  //     const isFav =
+  //       favLeagues.length === 0 ||
+  //       favLeagues.includes(m.league_id);
 
-      return isToday && isFav;
-    });
-  }, [allMatches, favLeagues]);
+  //     return isToday && isFav;
+  //   });
+  // }, [allMatches, favLeagues]);
     
 
   const apiUrl =
@@ -394,7 +407,7 @@ export default function Home() {
     if (!apiUrl) return;
     const load = async () => {
       setLoading(true);
-      setLoadingMessage("Cargando partidos...");
+      // setLoadingMessage("Cargando partidos...");
 
       await new Promise((r) => setTimeout(r, 0));
 
@@ -457,7 +470,7 @@ export default function Home() {
       // 🔥 CARGA PROGRESIVA
       for (let i = 0; i < leagueNames.length; i++) {
         const league = leagueNames[i];
-        setLoadingMessage(`Cargando partidos de: ${league}...`);
+        // setLoadingMessage(`Cargando partidos de: ${league}...`);
 
         setProgress(Math.round(((i + 1) / leagueNames.length) * 100));
 
@@ -472,11 +485,35 @@ export default function Home() {
 
       // 🔥 FIN
       setLoading(false);
-      setLoadingMessage("");
+      // setLoadingMessage("");
 
     };
 
     load();
+  }, [apiUrl]);
+
+  useEffect(() => {
+    if (!apiUrl) return;
+
+    const loadTopPicks = async () => {
+      try {
+        const res = await fetch(`${apiUrl}/top-picks`, {
+          credentials: "include",
+        });
+
+        const data = await res.json();
+
+        console.log("🔥 TOP PICKS:", data);
+
+        setTopPicks(data);
+      } catch (err) {
+        console.error("❌ top picks error", err);
+      } finally {
+        setTopPicksLoading(false);
+      }
+    };
+
+    loadTopPicks();
   }, [apiUrl]);
 
   useEffect(() => {
@@ -608,70 +645,91 @@ export default function Home() {
     return filtered;
   }, [allMatches, leagueFilter, marketFilter, dateFilter, favLeagues]);
 
-  // const allPicks = getTopPicks(todayMatches);
-  const allPicks = useMemo(() => {
-    // if (!mounted) return [];
-    if (typeof window === "undefined") return [];
+  // const allPicks = useMemo(() => {
+  //   // if (!mounted) return [];
+  //   if (typeof window === "undefined") return [];
 
-    const key = `topPicks_${getTodayKey()}`;
-    const generatedKey = `topPicks_generatedAt_${getTodayKey()}`;
+  //   const key = `topPicks_${getTodayKey()}`;
+  //   const generatedKey = `topPicks_generatedAt_${getTodayKey()}`;
 
-    const saved = localStorage.getItem(key);
-    const generatedAt = localStorage.getItem(generatedKey);
+  //   const saved = localStorage.getItem(key);
+  //   const generatedAt = localStorage.getItem(generatedKey);
 
-    const now = new Date();
-    const generationTime = getTodayGenerationTime();
+  //   const now = new Date();
+  //   const generationTime = getTodayGenerationTime();
 
-    // ⛔ antes de las 10:00 → NO generar
-    if (now < generationTime) {
-      return [];
-    }
+  //   // ⛔ antes de las 10:00 → NO generar
+  //   if (now < generationTime) {
+  //     return [];
+  //   }
 
-    // ✅ ya generados → usar cache
-    // if (saved && generatedAt) {
-    //   return JSON.parse(saved);
-    // }
-    if (saved && generatedAt) {
-      const parsed = JSON.parse(saved);
+  //   // ✅ ya generados → usar cache
+  //   // if (saved && generatedAt) {
+  //   //   return JSON.parse(saved);
+  //   // }
+  //   if (saved && generatedAt) {
+  //     const parsed = JSON.parse(saved);
 
-      // ❗ si está vacío → regenerar
-      if (parsed.length > 0) {
-        return parsed;
-      }
-    }
+  //     // ❗ si está vacío → regenerar
+  //     if (parsed.length > 0) {
+  //       return parsed;
+  //     }
+  //   }
 
-    // 🔥 generar picks UNA VEZ
-    const picks = getTopPicks(todayMatches);
+  //   // 🔥 generar picks UNA VEZ
+  //   const picks = getTopPicks(todayMatches);
 
-    localStorage.setItem(key, JSON.stringify(picks));
-    localStorage.setItem(generatedKey, now.toISOString());
+  //   localStorage.setItem(key, JSON.stringify(picks));
+  //   localStorage.setItem(generatedKey, now.toISOString());
 
-    return picks;
-  }, [todayMatches]);
+  //   return picks;
+  // }, [todayMatches]);
 
   // const [now, setNow] = useState(new Date());
-  const [now, setNow] = useState(() => new Date());
+
+
+
+  // const [now, setNow] = useState(() => new Date());
   
-  const availablePicks = allPicks.filter(
-    (p: Pick) => new Date(p.date + "Z") > now
+  // const availablePicks = allPicks.filter(
+  //   (p: Pick) => new Date(p.date + "Z") > now
+  // );
+
+  // const visiblePicks = availablePicks.slice(0, 4);
+
+  // const [topPicks, setTopPicks] = useState<any>(null);
+  type TopPicksResponse = {
+    free: TopPick | null;
+    premium: TopPick[];
+  };
+
+  const [topPicks, setTopPicks] = useState<TopPicksResponse | null>(null);
+  const [topPicksLoading, setTopPicksLoading] = useState(true);
+
+  const freePick = topPicks?.free;
+  const premiumPicks = topPicks?.premium || [];
+
+  // const nowDate = new Date();
+
+  // const validPicks = premiumPicks.filter(
+  //   (p: any) => new Date(p.kickoff) > nowDate
+  // );
+  const validPicks = premiumPicks.filter(
+    (p: TopPick) => new Date(p.kickoff) > new Date()
   );
 
-  const visiblePicks = availablePicks.slice(0, 4);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     setNow(new Date());
+  //   }, 1000);
 
- 
+  //   return () => clearInterval(interval);
+  // }, []);  
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setNow(new Date());
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);  
-
-  // const getCountdown = () => {
+  // const getCountdown = (now: Date) => {
   //   const target = getTodayGenerationTime();
 
-  //   // 👉 si ya pasó hoy → ir a mañana
+  //   // 👉 CLAVE: mantener esto
   //   if (now > target) {
   //     target.setDate(target.getDate() + 1);
   //   }
@@ -680,35 +738,19 @@ export default function Home() {
 
   //   const hours = Math.floor(diff / (1000 * 60 * 60));
   //   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  //   const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-  //   return `${hours}h ${minutes}m`;
+  //   // 🧠 UX inteligente (igual que antes pero mejor)
+  //   if (hours > 0) {
+  //     return `${hours}h ${minutes.toString().padStart(2, "0")}m`;
+  //   }
+
+  //   if (minutes > 0) {
+  //     return `${minutes}m ${seconds.toString().padStart(2, "0")}s`;
+  //   }
+
+  //   return `${seconds}s`;
   // };
-
-  const getCountdown = (now: Date) => {
-    const target = getTodayGenerationTime();
-
-    // 👉 CLAVE: mantener esto
-    if (now > target) {
-      target.setDate(target.getDate() + 1);
-    }
-
-    const diff = target.getTime() - now.getTime();
-
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-    // 🧠 UX inteligente (igual que antes pero mejor)
-    if (hours > 0) {
-      return `${hours}h ${minutes.toString().padStart(2, "0")}m`;
-    }
-
-    if (minutes > 0) {
-      return `${minutes}m ${seconds.toString().padStart(2, "0")}s`;
-    }
-
-    return `${seconds}s`;
-  };
 
   const handleDeleteBet = (id: number) => {
   // 1. eliminar de array
@@ -851,16 +893,6 @@ export default function Home() {
     return `${v > 0 ? "+" : ""}${(v * 100).toFixed(1)}%`;
   };
 
-  // const getValueColor = (v?: number | null, odd?: number) => {
-  //   if (v === null || v === undefined) return "bg-[var(--card)]";
-
-  //   if (v >= minValue && (odd ?? 0) >= minOdd) {
-  //     return "bg-[var(--accent)]";
-  //   }
-
-  //   return "bg-[var(--card)]";
-  // };
-
   const grouped = useMemo(() => {
     return matches.reduce((acc, match) => {
       if (!acc[match.league]) {
@@ -882,25 +914,6 @@ export default function Home() {
 
     return map;
   }, [allMatches]);
-
-  // const renderForm = (form: string) => (
-  //   <div className="flex justify-center gap-1 mt-1">
-  //     {form.split("").map((f, i) => {
-  //       const color =
-  //         f === "W"
-  //           ? "bg-[var(--success)]"
-  //           : f === "D"
-  //           ? "bg-[var(--warning)]"
-  //           : "bg-[var(--danger)]";
-
-  //       return (
-  //         <span key={i} className={`text-white text-xs px-1 rounded ${color}`}>
-  //           {f}
-  //         </span>
-  //       );
-  //     })}
-  //   </div>
-  // );
 
   const renderForm = (form: string) => {
     if (!form) return null;
@@ -982,7 +995,10 @@ export default function Home() {
     setOpenLeagues({ [leagueName]: true });
   };
 
-  const countdown = mounted ? getCountdown(now) : null;
+  // const countdown = mounted ? getCountdown(now) : null;
+  
+  const countdown = null;
+
 
   return (
     <>
@@ -1090,7 +1106,7 @@ export default function Home() {
                 {countdown}
               </span>
             </div>
-          ) : visiblePicks.length === 0 ? (
+          ) : validPicks.length === 0 ? (
             <div className="mb-4 flex items-center justify-center gap-2 bg-[var(--card)] border border-[var(--border)] rounded-lg py-2 px-4 text-sm">
               <span>📭</span>
               <span className="text-[var(--muted)]">
@@ -1106,11 +1122,24 @@ export default function Home() {
             </div>
           )}
 
-          <TopPicksCard 
+          {/* <TopPicksCard 
             picks={visiblePicks} 
             isPremium={isPremium} 
             onSelectPick={handleSelectTopPick}
-          />
+          /> */}
+
+          {topPicksLoading ? (
+            <div className="text-center text-[var(--muted)] mb-4">
+              ⏳ Cargando picks...
+            </div>
+          ) : (
+            <TopPicksCard
+              picks={validPicks}
+              freePick={freePick}
+              isPremium={isPremium}
+              onSelectPick={handleSelectTopPick}
+            />
+          )}
 
           {loading && Object.keys(grouped).length === 0 && (
             <div className="grid mt-6 gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
