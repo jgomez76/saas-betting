@@ -35,7 +35,7 @@ export const useBets = (isLogged: boolean) => {
       } else {
         throw new Error("Not authenticated");
       }
-    } catch (err) {
+    } catch {
       // 👤 no logueado o error → usar local
       setBets(local);
       return;

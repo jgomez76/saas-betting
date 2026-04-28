@@ -20,6 +20,8 @@ class TopPick(Base):
     odd = Column(Float)
     value = Column(Float)
 
+    bookmaker = Column(String, nullable=True)
+
     kickoff = Column(DateTime)
 
     is_free = Column(Boolean, default=False)

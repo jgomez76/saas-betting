@@ -9,6 +9,7 @@ type TopPick = {
   selection: string;
   probability: number;
   odd: number;
+  bookmaker: string;
   value: number;
   kickoff: string;
   is_free: boolean;
@@ -20,6 +21,56 @@ type Props = {
   isPremium: boolean;
   onSelectPick: (pick: TopPick) => void;
 };
+
+const formatPick = (p: TopPick) => {
+  if (p.market === "1X2") {
+    if (p.selection === "home") return "HOME WIN";
+    if (p.selection === "away") return "AWAY WIN";
+    if (p.selection === "draw") return "DRAW";
+  }
+
+  if (p.market === "OU25") {
+    return p.selection === "over"
+      ? "OVER 2.5 GOALS"
+      : "UNDER 2.5 GOALS";
+  }
+
+  if (p.market === "OU35") {
+    return p.selection === "over"
+      ? "OVER 3.5 GOALS"
+      : "UNDER 3.5 GOALS";
+  }
+
+  if (p.market === "BTTS") {
+    return p.selection === "yes"
+      ? "BTTS YES"
+      : "BTTS NO";
+  }
+
+  return `${p.market} ${p.selection}`;
+};
+
+const getProbStyles = (prob: number) => {
+  if (prob > 0.7) {
+    return {
+      color: "var(--positive)",
+      size: "text-3xl",
+    };
+  }
+
+  if (prob > 0.6) {
+    return {
+      color: "var(--accent)",
+      size: "text-2xl",
+    };
+  }
+
+  return {
+    color: "var(--warning)",
+    size: "text-xl",
+  };
+};
+
 
 export default function TopPicksCard({
   picks,
@@ -78,8 +129,8 @@ export default function TopPicksCard({
     });
   };
 
-    // console.log("PICKS EN CARD", picks)
-    
+    // console.log("PICKS EN CARD", picks
+
   return (
     <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 mb-6">
 
@@ -100,6 +151,7 @@ export default function TopPicksCard({
         {allPicks.slice(0, 6).map((p, i) => {
           // const locked = !isPremium && !p.is_free;
           const locked = !isPremium && i > 0;
+          const probStyles = getProbStyles(p.probability);
 
           return (
             <PremiumLock key={p.fixture_id} locked={locked}>
@@ -108,69 +160,104 @@ export default function TopPicksCard({
                   if (!locked) onSelectPick(p);
                 }}
                 className={`
-                  bg-[var(--bg)] border border-[var(--border)] rounded-lg p-4 
-                  flex justify-between items-center transition-all
+                  relative bg-gradient-to-br from-[var(--bg)] to-black/60 
+                  border border-[var(--border)] rounded-xl p-4
+                  transition-all
                   ${
                     locked
                       ? "cursor-not-allowed opacity-60"
-                      : "cursor-pointer hover:scale-[1.02] hover:shadow-md"
+                      : "cursor-pointer hover:scale-[1.02] hover:shadow-xl"
                   }
                 `}
               >
-                {/* LEFT */}
-                <div>
-                  {!locked ? (
-                    <>
-                      <p className="font-semibold text-sm">{p.match}</p>
+                {!locked ? (
+                  <>
+                    {/* TOP */}
+                    <div className="flex justify-between items-start mb-3">
 
-                      <p className="text-xs text-[var(--muted)]">
-                        🕒 {formatTime(p.kickoff)}
-                      </p>
-
-                      <p className="text-xs text-[var(--muted)]">
-                        {p.market} • {p.selection.toUpperCase()}
-                      </p>
-
-                      {/* FREE BADGE */}
-                      {/* {p.is_free && (
-                        <p className="text-xs text-[var(--accent)] font-semibold mt-1">
-                          FREE
+                      {/* MATCH */}
+                      <div>
+                        <p className="font-semibold text-sm leading-tight">
+                          {p.match}
                         </p>
-                      )} */}
-                    </>
-                  ) : (
+
+                        {/* <p className="text-xs text-[var(--muted)] mt-1">
+                          🕒 {formatTime(p.kickoff)} • {p.market} {p.selection.toUpperCase()}
+                        </p> */}
+                        <div className="mt-2 space-y-1">
+
+                          {/* ⏰ HORA */}
+                          <p className="text-xs text-[var(--muted)]">
+                            🕒 {formatTime(p.kickoff)}
+                          </p>
+
+                          {/* 🎯 PICK (PROTAGONISTA) */}
+                          <p className="text-sm font-bold text-[var(--accent)] tracking-wide">
+                            {formatPick(p)}
+                          </p>
+
+                        </div>
+                      </div>
+
+                      {/* PROBABILIDAD */}
+                      <div className="flex flex-col items-end w-[90px]">
+
+                        {/* % */}
+                        <p
+                          className={`${probStyles.size} font-bold leading-none`}
+                          style={{ color: probStyles.color }}
+                        >
+                          {(p.probability * 100).toFixed(0)}%
+                        </p>
+
+                        {/* LABEL */}
+                        <p className="text-[9px] uppercase tracking-wide text-[var(--muted)] mt-0.5">
+                          {t.probability}
+                        </p>
+
+                        {/* BARRA */}
+                        <div className="w-full h-2 bg-[var(--border)] rounded-full mt-1 overflow-hidden">
+                          <div
+                            className="h-full rounded-full"
+                            style={{
+                              width: `${p.probability * 100}%`,
+                              backgroundColor: probStyles.color,
+                            }}
+                          />
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    {/* BOTTOM */}
+                    <div className="flex justify-between items-end">
+
+                      {/* VALUE */}
+                      <div className="text-[var(--accent)] font-semibold text-sm">
+                        +{(p.value * 100).toFixed(1)}%
+                      </div>
+
+                      {/* ODDS + BOOKMAKER */}
+                      <div className="text-right">
+                        <p className="text-2xl font-bold">
+                          {p.odd}
+                        </p>
+
+                        <p className="text-xs text-[var(--muted)]">
+                          {p.bookmaker}
+                        </p>
+                      </div>
+
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex items-center justify-center h-full">
                     <p className="text-sm font-semibold text-[var(--muted)]">
                       🔒 Premium
                     </p>
-                  )}
-                </div>
-
-                {/* RIGHT */}
-                <div className="text-right flex flex-col items-end">
-
-                  {/* PROBABILIDAD */}
-                  <div className="px-3 py-1 rounded-lg bg-[var(--card)] border border-[var(--border)]">
-                    <p className="text-3xl font-extrabold text-[var(--positive)]">
-                      {(p.probability * 100).toFixed(0)}%
-                    </p>
                   </div>
-
-                  <p className="text-[12px] text-[var(--muted)] mb-2">
-                    {t.probability}
-                  </p>
-
-                  {/* CUOTA */}
-                  <p className="text-xl font-semibold">
-                    {p.odd}
-                  </p>
-
-                  {/* VALUE */}
-                  {!locked && (
-                    <p className="text-sm font-semibold text-[var(--accent)]">
-                      +{(p.value * 100).toFixed(1)}%
-                    </p>
-                  )}
-                </div>
+                )}
               </div>
             </PremiumLock>
           );

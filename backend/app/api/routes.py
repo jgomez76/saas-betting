@@ -779,6 +779,7 @@ def get_top_picks(db: Session = Depends(get_db)):
             "selection": p.selection,
             "probability": p.probability,
             "odd": p.odd,
+            "bookmaker": p.bookmaker,
             "value": p.value,
             "kickoff": p.kickoff,
             "is_free": p.is_free
