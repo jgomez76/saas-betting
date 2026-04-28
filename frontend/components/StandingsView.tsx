@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
+import { PRIORITY_LEAGUES } from "@/lib/config/leagues";
 
 type Team = {
   team: string;
@@ -14,6 +15,14 @@ type Team = {
   points: number;
 };
 
+// const PRIORITY_LEAGUES = [
+//   "Premier League",
+//   "La Liga",
+//   "Serie A",
+//   "Bundesliga",
+//   "Ligue 1",
+// ];
+
 const apiUrl =
   typeof window !== "undefined"
     ? window.location.hostname === "localhost"
@@ -22,6 +31,7 @@ const apiUrl =
     : "";
 
 export default function StandingsView() {
+  const [isMobile, setIsMobile] = useState(false);
   const [leagues, setLeagues] = useState<string[]>([]);
   const [selectedLeague, setSelectedLeague] = useState<string | null>(null);
   const [table, setTable] = useState<Team[]>([]);
@@ -42,6 +52,31 @@ export default function StandingsView() {
       .then(setTable);
   }, [selectedLeague]);
 
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  const sortedLeagues = [...leagues].sort((a, b) => {
+    const aIndex = PRIORITY_LEAGUES.indexOf(a);
+    const bIndex = PRIORITY_LEAGUES.indexOf(b);
+
+    // ambas en prioridad
+    if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+
+    // solo A en prioridad
+    if (aIndex !== -1) return -1;
+
+    // solo B en prioridad
+    if (bIndex !== -1) return 1;
+
+    // resto alfabético
+    return a.localeCompare(b);
+  });
+
   return (
     <div className="flex flex-col md:flex-row gap-4 w-full">
 
@@ -52,7 +87,7 @@ export default function StandingsView() {
         </h2>
 
         <div className="flex flex-wrap md:block gap-2">
-          {leagues.map((l) => (
+          {sortedLeagues.map((l) => (
             <div
               key={l}
               onClick={() => setSelectedLeague(l)}
@@ -75,7 +110,7 @@ export default function StandingsView() {
           <div className="bg-[var(--card)] rounded-lg border border-[var(--border)] overflow-hidden">
 
             {/* ================= DESKTOP ================= */}
-            <div className="hidden md:block overflow-x-auto">
+            {/* <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-sm">
 
                 <thead className="bg-[var(--hover)] text-[var(--muted)] text-xs">
@@ -123,10 +158,10 @@ export default function StandingsView() {
                   ))}
                 </tbody>
               </table>
-            </div>
+            </div> */}
 
             {/* ================= MOBILE ================= */}
-            <div className="md:hidden overflow-x-auto">
+            {/* <div className="md:hidden overflow-x-auto">
               <table className="w-full text-sm">
 
                 <thead className="bg-[var(--hover)] text-[var(--muted)] text-xs">
@@ -165,7 +200,103 @@ export default function StandingsView() {
                 </tbody>
 
               </table>
-            </div>
+            </div> */}
+
+            {!isMobile ? (
+              // ================= DESKTOP =================
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+
+                  <thead className="bg-[var(--hover)] text-[var(--muted)] text-xs">
+                    <tr>
+                      <th className="px-2 py-2 text-left">#</th>
+                      <th className="px-2 py-2 text-left">{t.team}</th>
+                      <th className="text-center">{t.played}</th>
+                      <th className="text-center">{t.wins}</th>
+                      <th className="text-center">{t.draws}</th>
+                      <th className="text-center">{t.losses}</th>
+                      <th className="text-center">{t.goals}</th>
+                      <th className="text-center">{t.goalDiff}</th>
+                      <th className="text-center">{t.points}</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {table.map((team, i) => (
+                      <tr
+                        key={team.team}
+                        className="border-t border-[var(--border)] hover:bg-[var(--hover)] transition"
+                      >
+                        <td className="px-2 py-2">{i + 1}</td>
+                        <td className="px-2 py-2 font-medium truncate">
+                          {team.team}
+                        </td>
+
+                        <td className="text-center">{team.played}</td>
+                        <td className="text-center">{team.wins}</td>
+                        <td className="text-center">{team.draws}</td>
+                        <td className="text-center">{team.losses}</td>
+
+                        <td className="text-center text-[var(--muted)]">
+                          {team.gf}:{team.ga}
+                        </td>
+
+                        <td className="text-center">
+                          {team.gf - team.ga}
+                        </td>
+
+                        <td className="text-center font-bold">
+                          {team.points}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+
+                </table>
+              </div>
+            ) : (
+              // ================= MOBILE =================
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+
+                  <thead className="bg-[var(--hover)] text-[var(--muted)] text-xs">
+                    <tr>
+                      <th className="px-2 py-2 text-left">#</th>
+                      <th className="px-2 py-2 text-left">{t.team}</th>
+                      <th className="text-center">{t.played}</th>
+                      <th className="text-center">{t.goals}</th>
+                      <th className="text-center">{t.points}</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {table.map((team, i) => (
+                      <tr
+                        key={team.team}
+                        className="border-t border-[var(--border)] hover:bg-[var(--hover)] transition"
+                      >
+                        <td className="px-2 py-2">{i + 1}</td>
+
+                        <td className="px-2 py-2 font-medium truncate max-w-[120px]">
+                          {team.team}
+                        </td>
+
+                        <td className="text-center">{team.played}</td>
+
+                        <td className="text-center text-[var(--muted)]">
+                          {team.gf}:{team.ga}
+                        </td>
+
+                        <td className="text-center font-bold">
+                          {team.points}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+
+                </table>
+              </div>
+            )}
 
           </div>
         )}

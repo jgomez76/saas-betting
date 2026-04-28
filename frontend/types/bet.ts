@@ -15,5 +15,5 @@ export type Bet = {
     result?: string;
 
     stake?: number;
-    stakeLevel?: number;
+    stake_level?: number;
 }

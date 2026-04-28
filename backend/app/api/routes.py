@@ -17,6 +17,7 @@ from app.models.fixture import Fixture
 from app.models.user import User
 from app.models.analysis import Analysis
 from app.models.top_picks import TopPick
+from app.models.bet import Bet
 
 from app.schemas.auth import LoginRequest, ForgotRequest
 
@@ -796,3 +797,77 @@ def get_top_picks(db: Session = Depends(get_db)):
 def run_top_picks(db: Session = Depends(get_db)):
     generate_top_picks(db)
     return {"status": "generated"}
+
+
+@router.get("/bets")
+def get_bets(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if not user:
+        return []
+
+    bets = db.query(Bet)\
+        .filter(Bet.user_id == user.id)\
+        .order_by(Bet.created_at.desc())\
+        .all()
+
+    return bets
+
+
+@router.post("/bets")
+def create_bet(
+    data: dict = Body(...),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    new_bet = Bet(
+        user_id=user.id,
+        match=data.get("match"),
+        market=data.get("market"),
+        selection=data.get("selection"),
+        odd=data.get("odd"),
+        bookmaker=data.get("bookmaker"),
+        value=data.get("value"),
+        fixture_id=data.get("fixture_id"),
+        status=data.get("status", "pending"),
+        date=datetime.fromisoformat(data.get("date")),
+        stake=data.get("stake"),
+        stake_level=data.get("stake_level"),
+    )
+
+    db.add(new_bet)
+    db.commit()
+    db.refresh(new_bet)
+
+    return new_bet
+
+# @router.post("/bets")
+# def create_bet(data: dict):
+#     print("🔥 DATA:", data)
+#     return {"ok": True}
+
+@router.delete("/bets/{bet_id}")
+def delete_bet(
+    bet_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if not user:
+        raise HTTPException(status_code=401)
+
+    bet = db.query(Bet).filter(
+        Bet.id == bet_id,
+        Bet.user_id == user.id
+    ).first()
+
+    if not bet:
+        raise HTTPException(status_code=404)
+
+    db.delete(bet)
+    db.commit()
+
+    return {"ok": True}

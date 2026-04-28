@@ -16,3 +16,12 @@ export const LEAGUES: League[] = [
   { id: 3, name: "Europa League" },
   { id: 848, name: "Conference League" },
 ];
+
+export const PRIORITY_LEAGUES = [
+  "La Liga",
+  "Segunda División",
+  "Premier League",
+  "Serie A",
+  "Bundesliga",
+  "Ligue 1",
+];

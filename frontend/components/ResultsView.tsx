@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 // import { API_URL } from "@/lib/api";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
+import { PRIORITY_LEAGUES } from "@/lib/config/leagues";
 
 // ---------------- TYPES ----------------
 
@@ -91,6 +92,23 @@ export default function ResultsView() {
 
   // ---------------- UI ----------------
 
+ const sortedLeagues = [...leagues].sort((a, b) => {
+    const aIndex = PRIORITY_LEAGUES.indexOf(a);
+    const bIndex = PRIORITY_LEAGUES.indexOf(b);
+
+    // ambas en prioridad
+    if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+
+    // solo A en prioridad
+    if (aIndex !== -1) return -1;
+
+    // solo B en prioridad
+    if (bIndex !== -1) return 1;
+
+    // resto alfabético
+    return a.localeCompare(b);
+  });   
+
 return (
   <div className="flex flex-col md:flex-row gap-4 w-full">
 
@@ -102,7 +120,7 @@ return (
       {/* 🔥 WRAP en vez de scroll */}
       <div className="flex flex-wrap md:block gap-2">
 
-        {leagues.map((l) => (
+        {sortedLeagues.map((l) => (
           <div
             key={l}
             onClick={() => setSelectedLeague(l)}

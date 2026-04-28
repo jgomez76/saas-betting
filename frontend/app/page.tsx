@@ -20,6 +20,7 @@ import { useSession } from "next-auth/react";
 import { useSubscription } from "@/context/SubscriptionContext"; 
 import { getStakeFromOdd, getStakeRules } from "@/lib/stake";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
+import { useBets } from "@/hooks/useBets";
 
 // ---------------- TYPES ----------------
 
@@ -76,25 +77,25 @@ export default function Home() {
   const [pendingBet, setPendingBet] = useState<PendingBet | null>(null);
   // const [betPreview, setBetPreview] = useState<Bet | null>(null);
 
-  const [bets, setBets] = useState<Bet[]>(() => {
-  if (typeof window === "undefined") return [];
-    const stored = localStorage.getItem("bets");
-    return stored ? JSON.parse(stored) : [];
-  });
+  // const [bets, setBets] = useState<Bet[]>(() => {
+  // if (typeof window === "undefined") return [];
+  //   const stored = localStorage.getItem("bets");
+  //   return stored ? JSON.parse(stored) : [];
+  // });
 
   // const getTodayKey = () => {
   //   const now = new Date();
   //   return now.toISOString().split("T")[0];
   // };
 
-  // const getTodayGenerationTime = () => {
-  //   const now = new Date();
-  //   const gen = new Date(now);
+  const getTodayGenerationTime = () => {
+    const now = new Date();
+    const gen = new Date(now);
 
-  //   gen.setHours(10, 0, 0, 0);
+    gen.setHours(10, 0, 0, 0);
 
-  //   return gen;
-  // };
+    return gen;
+  };
 
   const handleSelectTopPick = (pick: TopPick) => {
     const stakeRule = getStakeFromOdd(pick.odd);
@@ -110,7 +111,7 @@ export default function Home() {
       status: "pending",
       date: pick.kickoff,
       stake: stakeRule.amount,
-      stakeLevel: stakeRule.level,
+      stake_level: stakeRule.level,
     });
   };
 
@@ -131,7 +132,7 @@ export default function Home() {
   const [minValue, setMinValue] = useState(0.1); // 🔥 10% por defecto
   const [minOdd, setMinOdd] = useState(1.5);     // 🔥 cuota mínima
 
-  const betsRef = useRef<Bet[]>(bets);
+  // const betsRef = useRef<Bet[]>(bets);
 
   const mergeMatches = (oldMatches: Match[], newMatches: Match[]) => {
     const map = new Map<number, Match>();
@@ -281,22 +282,56 @@ export default function Home() {
 
     setIsAdmin(false);
     setEmail("");
+
+    // window.location.reload();
+    refreshUser();
   };
 
+  // const refreshUser = useCallback(() => {
+  //   fetch(`${apiUrl}/me`, {
+  //     credentials: "include",
+  //   })
+  //     .then((res) => res.json())
+  //     .then((data) => {
+  //       setIsAdmin(data.is_admin);
+  //       setEmail(data.email || "");
+  //       setPlan("premium");
+  //       // 🔥 NUEVO
+  //       setName(data.name || "");
+  //       setAvatar(data.avatar || "");
+  //       setProvider(data.provider ?? "email");
+  //       console.log("PROVIDER STATE:", data.provider)
+  //     })
+  //     .catch(() => {
+  //       setIsAdmin(false);
+  //       setEmail("");
+  //       setPlan("free");
+  //     });
+  // }, [apiUrl, setPlan]);
+  
+  // const { bets, addBet, deleteBet } = useBets(apiUrl);
+  
   const refreshUser = useCallback(() => {
     fetch(`${apiUrl}/me`, {
       credentials: "include",
     })
       .then((res) => res.json())
       .then((data) => {
+        if (!data.email) {
+          // 🔥 NO LOGUEADO
+          setIsAdmin(false);
+          setEmail("");
+          setPlan("free");
+          return;
+        }
+
+        // 🔐 LOGUEADO
         setIsAdmin(data.is_admin);
-        setEmail(data.email || "");
-        setPlan("premium");
-        // 🔥 NUEVO
+        setEmail(data.email);
+        setPlan(data.subscription || "free");
         setName(data.name || "");
         setAvatar(data.avatar || "");
         setProvider(data.provider ?? "email");
-        console.log("PROVIDER STATE:", data.provider)
       })
       .catch(() => {
         setIsAdmin(false);
@@ -304,6 +339,9 @@ export default function Home() {
         setPlan("free");
       });
   }, [apiUrl, setPlan]);
+
+  const isLogged = !!email && !authLoading;
+  const { bets, addBet, deleteBet } = useBets(isLogged);
 
   // ###########
   // USE EFFECTS
@@ -397,9 +435,9 @@ export default function Home() {
   }, [apiUrl, setPlan]);
 
   // --------- SINCRO REF --------
-  useEffect(() => {
-    betsRef.current = bets;
-  }, [bets]);
+  // useEffect(() => {
+  //   betsRef.current = bets;
+  // }, [bets]);
 
   // ---------------- LOAD DATA ----------------
 
@@ -689,7 +727,7 @@ export default function Home() {
 
 
 
-  // const [now, setNow] = useState(() => new Date());
+  const [now, setNow] = useState(() => new Date());
   
   // const availablePicks = allPicks.filter(
   //   (p: Pick) => new Date(p.date + "Z") > now
@@ -718,150 +756,151 @@ export default function Home() {
     (p: TopPick) => new Date(p.kickoff) > new Date()
   );
 
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     setNow(new Date());
-  //   }, 1000);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNow(new Date());
+    }, 1000);
 
-  //   return () => clearInterval(interval);
-  // }, []);  
+    return () => clearInterval(interval);
+  }, []);  
 
-  // const getCountdown = (now: Date) => {
-  //   const target = getTodayGenerationTime();
+  const getCountdown = (now: Date) => {
+    const target = getTodayGenerationTime();
 
-  //   // 👉 CLAVE: mantener esto
-  //   if (now > target) {
-  //     target.setDate(target.getDate() + 1);
-  //   }
+    // 👉 CLAVE: mantener esto
+    if (now > target) {
+      target.setDate(target.getDate() + 1);
+    }
 
-  //   const diff = target.getTime() - now.getTime();
+    const diff = target.getTime() - now.getTime();
 
-  //   const hours = Math.floor(diff / (1000 * 60 * 60));
-  //   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  //   const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-  //   // 🧠 UX inteligente (igual que antes pero mejor)
-  //   if (hours > 0) {
-  //     return `${hours}h ${minutes.toString().padStart(2, "0")}m`;
-  //   }
+    // 🧠 UX inteligente (igual que antes pero mejor)
+    if (hours > 0) {
+      return `${hours}h ${minutes.toString().padStart(2, "0")}m`;
+    }
 
-  //   if (minutes > 0) {
-  //     return `${minutes}m ${seconds.toString().padStart(2, "0")}s`;
-  //   }
+    if (minutes > 0) {
+      return `${minutes}m ${seconds.toString().padStart(2, "0")}s`;
+    }
 
-  //   return `${seconds}s`;
-  // };
-
-  const handleDeleteBet = (id: number) => {
-  // 1. eliminar de array
-    const updatedBets = bets.filter((b) => b.id !== id);
-
-    // 2. actualizar estado React
-    setBets(updatedBets);
-
-    // 3. actualizar localStorage
-    localStorage.setItem("bets", JSON.stringify(updatedBets));
+    return `${seconds}s`;
   };
+
+  // const handleDeleteBet = (id: number) => {
+  // // 1. eliminar de array
+  //   const updatedBets = bets.filter((b) => b.id !== id);
+
+  //   // 2. actualizar estado React
+  //   setBets(updatedBets);
+
+  //   // 3. actualizar localStorage
+  //   localStorage.setItem("bets", JSON.stringify(updatedBets));
+  // };
 
   // ------------- AUTO RESOLVE BETS -----------
 
-  useEffect(() => {
-    if (!apiUrl) return;
-    const resolveBets = async () => {
-      if (!betsRef.current.length) return;
+  // DE MOMENTO!!!
+  // useEffect(() => {
+  //   if (!apiUrl) return;
+  //   const resolveBets = async () => {
+  //     if (!betsRef.current.length) return;
 
-      const updated = await Promise.all(
-        betsRef.current.map(async (bet) => {
-          if (bet.status !== "pending" || !bet.fixture_id) return bet;
+  //     const updated = await Promise.all(
+  //       betsRef.current.map(async (bet) => {
+  //         if (bet.status !== "pending" || !bet.fixture_id) return bet;
 
-          try {
-            const res = await fetch(
-              `${apiUrl}/fixture/${bet.fixture_id}/result`
-            );
-            const data = await res.json();
+  //         try {
+  //           const res = await fetch(
+  //             `${apiUrl}/fixture/${bet.fixture_id}/result`
+  //           );
+  //           const data = await res.json();
 
-            if (!data || data.status !== "FT") return bet;
+  //           if (!data || data.status !== "FT") return bet;
 
-            const { home_goals, away_goals } = data;
+  //           const { home_goals, away_goals } = data;
 
-            let status: "won" | "lost" = "lost";
+  //           let status: "won" | "lost" = "lost";
 
-            // ---------------- 1X2 ----------------
-            if (bet.market === "1X2") {
-              if (
-                (bet.selection === "home" && home_goals > away_goals) ||
-                (bet.selection === "away" && away_goals > home_goals) ||
-                (bet.selection === "draw" && home_goals === away_goals)
-              ) {
-                status = "won";
-              }
-            }
+  //           // ---------------- 1X2 ----------------
+  //           if (bet.market === "1X2") {
+  //             if (
+  //               (bet.selection === "home" && home_goals > away_goals) ||
+  //               (bet.selection === "away" && away_goals > home_goals) ||
+  //               (bet.selection === "draw" && home_goals === away_goals)
+  //             ) {
+  //               status = "won";
+  //             }
+  //           }
 
-            // ---------------- OU25 ----------------
-            if (bet.market === "OU25") {
-              const total = home_goals + away_goals;
+  //           // ---------------- OU25 ----------------
+  //           if (bet.market === "OU25") {
+  //             const total = home_goals + away_goals;
 
-              if (
-                (bet.selection === "over" && total > 2.5) ||
-                (bet.selection === "under" && total < 2.5)
-              ) {
-                status = "won";
-              }
-            }
+  //             if (
+  //               (bet.selection === "over" && total > 2.5) ||
+  //               (bet.selection === "under" && total < 2.5)
+  //             ) {
+  //               status = "won";
+  //             }
+  //           }
 
-            // ---------------- OU35 ----------------
-            if (bet.market === "OU35") {
-              const total = home_goals + away_goals;
+  //           // ---------------- OU35 ----------------
+  //           if (bet.market === "OU35") {
+  //             const total = home_goals + away_goals;
 
-              if (
-                (bet.selection === "over" && total > 3.5) ||
-                (bet.selection === "under" && total < 3.5)
-              ) {
-                status = "won";
-              }
-            }
+  //             if (
+  //               (bet.selection === "over" && total > 3.5) ||
+  //               (bet.selection === "under" && total < 3.5)
+  //             ) {
+  //               status = "won";
+  //             }
+  //           }
 
-            // ---------------- BTTS ----------------
-            if (bet.market === "BTTS") {
-              const btts = home_goals > 0 && away_goals > 0;
+  //           // ---------------- BTTS ----------------
+  //           if (bet.market === "BTTS") {
+  //             const btts = home_goals > 0 && away_goals > 0;
 
-              if (
-                (bet.selection === "yes" && btts) ||
-                (bet.selection === "no" && !btts)
-              ) {
-                status = "won";
-              }
-            }
+  //             if (
+  //               (bet.selection === "yes" && btts) ||
+  //               (bet.selection === "no" && !btts)
+  //             ) {
+  //               status = "won";
+  //             }
+  //           }
 
-            return {
-              ...bet,
-              status,
-              result: `${home_goals}-${away_goals}`,
-            };
-          } catch {
-            return bet;
-          }
-        })
-      );
+  //           return {
+  //             ...bet,
+  //             status,
+  //             result: `${home_goals}-${away_goals}`,
+  //           };
+  //         } catch {
+  //           return bet;
+  //         }
+  //       })
+  //     );
 
-      setBets(updated);
-      localStorage.setItem("bets", JSON.stringify(updated));
-    };
+  //     setBets(updated);
+  //     localStorage.setItem("bets", JSON.stringify(updated));
+  //   };
 
-    resolveBets();
-  }, [apiUrl]);
+  //   resolveBets();
+  // }, [apiUrl]);
 
   // ---------------- BET SYSTEM ----------------
-  const addBet = (bet: PendingBet) => {
-    const newBet: Bet = {
-      ...bet,
-      id: Date.now(),
-    };
+  // const addBet = (bet: PendingBet) => {
+  //   const newBet: Bet = {
+  //     ...bet,
+  //     id: Date.now(),
+  //   };
 
-    const updated = [...bets, newBet];
-    setBets(updated);
-    localStorage.setItem("bets", JSON.stringify(updated));
-  };
+  //   const updated = [...bets, newBet];
+  //   setBets(updated);
+  //   localStorage.setItem("bets", JSON.stringify(updated));
+  // };
 
   // ---------------- FAVORITES ----------------
 
@@ -995,9 +1034,9 @@ export default function Home() {
     setOpenLeagues({ [leagueName]: true });
   };
 
-  // const countdown = mounted ? getCountdown(now) : null;
-  
-  const countdown = null;
+  const countdown = mounted ? getCountdown(now) : null;
+  // 
+  // const countdown = null;
 
 
   return (
@@ -1272,7 +1311,7 @@ export default function Home() {
                                         date: match.date,
 
                                         stake: stakeRule.amount,
-                                        stakeLevel: stakeRule.level,
+                                        stake_level: stakeRule.level,
                                       });
                                     }}
                                     className={`
@@ -1369,7 +1408,7 @@ export default function Home() {
                                         status: "pending",
                                         date: match.date,
                                         stake: stakeRule.amount,
-                                        stakeLevel: stakeRule.level,
+                                        stake_level: stakeRule.level,
                                       })
                                     }}
 
@@ -1461,7 +1500,7 @@ export default function Home() {
                                         status: "pending",
                                         date: match.date,
                                         stake: stakeRule.amount,
-                                        stakeLevel: stakeRule.level,
+                                        stake_level: stakeRule.level,
                                       })
                                     }}
 
@@ -1555,7 +1594,7 @@ export default function Home() {
                                         status: "pending",
                                         date: match.date,
                                         stake: stakeRule.amount,
-                                        stakeLevel: stakeRule.level,
+                                        stake_level: stakeRule.level,
                                       })
                                     }}
 
@@ -1705,7 +1744,7 @@ export default function Home() {
             open={true}
             onClose={() => setView("dashboard")}
             bets={bets}
-            onDelete={handleDeleteBet}
+            onDelete={deleteBet}
           />
         )}
 
@@ -1767,7 +1806,7 @@ export default function Home() {
                 </p>
 
                 <select
-                  value={pendingBet.stakeLevel}
+                  value={pendingBet.stake_level}
                   onChange={(e) => {
                     const level = Number(e.target.value);
                     const rule = getStakeRules().find(r => r.level === level);
@@ -1776,7 +1815,7 @@ export default function Home() {
 
                     setPendingBet({
                       ...pendingBet,
-                      stakeLevel: level,
+                      stake_level: level,
                       stake: rule.amount,
                     });
                   }}

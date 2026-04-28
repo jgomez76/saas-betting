@@ -1,5 +1,10 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy.orm import relationship
 from app.core.database import Base
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.models.bet import Bet
 
 class User(Base):
     __tablename__ = "users"
@@ -30,6 +35,8 @@ class User(Base):
     is_admin = Column(Boolean, default=False)
     subscription = Column(String, default="free")
 
+    # ✅ RELACIÓN CON BETS
+    bets = relationship("Bet", back_populates="user", cascade="all, delete")
     
     # Para mas tarde
     # subscription_status = Column(String, default="inactive")

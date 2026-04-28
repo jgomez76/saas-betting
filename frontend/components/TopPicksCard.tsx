@@ -78,7 +78,7 @@ export default function TopPicksCard({
     });
   };
 
-    console.log("PICKS EN CARD", picks)
+    // console.log("PICKS EN CARD", picks)
     
   return (
     <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 mb-6">
