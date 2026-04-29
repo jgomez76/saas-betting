@@ -1,6 +1,7 @@
 from fastapi import Response, APIRouter, Depends, Query, Request, HTTPException, BackgroundTasks, Body, UploadFile, File, Cookie
 from fastapi.responses import StreamingResponse, JSONResponse
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta, date
 from jose import jwt, JWTError
@@ -19,6 +20,7 @@ from app.models.analysis import Analysis
 from app.models.top_picks import TopPick
 from app.models.bet import Bet
 from app.models.favorite import Favorite
+from app.models.value_bet import ValueBet
 
 from app.schemas.auth import LoginRequest, ForgotRequest
 
@@ -60,11 +62,37 @@ def fetch_and_store(league_id: int, season: int, db: Session = Depends(get_db)):
     return {"message": f"Fixtures saved for league {league_id}, season {season}"}
 
 
+# @router.get("/value-bets")
+# def value_bets(db: Session = Depends(get_db)):
+#     return get_value_bets(db)
+
+
 @router.get("/value-bets")
 def value_bets(db: Session = Depends(get_db)):
-    return get_value_bets(db)
 
+    data = db.query(ValueBet)\
+        .order_by(ValueBet.date.asc())\
+        .all()
 
+    return [
+        {
+            "fixture_id": v.fixture_id,
+            "api_id": v.fixture_id,  # 👈 mantenemos compatibilidad
+            "home_team": v.home_team,
+            "away_team": v.away_team,
+            "league": v.league,
+            "league_id": v.league_id,
+            "date": v.date,
+
+            "markets": v.markets,
+            "value": v.value,
+            "market_values": v.market_values,
+
+            "probabilities": v.probabilities,
+            "extra_probabilities": v.extra_probabilities,
+        }
+        for v in data
+    ]
 
 @router.get("/odds/save/{league_id}/{season}")
 def fetch_odds(league_id: int, season: int, db: Session = Depends(get_db)):
@@ -890,12 +918,15 @@ def get_favorites(
 
     return [f.fixture_id for f in favs]
 
+
+
 def clean_finished_favorites(db: Session):
+
+    subquery = select(Fixture.api_id).where(Fixture.status == "FT")
 
     deleted = (
         db.query(Favorite)
-        .join(Fixture, Favorite.fixture_id == Fixture.fixture_id)
-        .filter(Fixture.status == "FT")
+        .filter(Favorite.fixture_id.in_(subquery))
         .delete(synchronize_session=False)
     )
 
@@ -904,8 +935,6 @@ def clean_finished_favorites(db: Session):
     print(f"🧹 Favoritos eliminados (FT): {deleted}")
 
 @router.post("/favorites")
-
-
 def add_favorite(
     data: dict = Body(...),
     user: User = Depends(get_current_user),

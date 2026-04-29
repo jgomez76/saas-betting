@@ -6,3 +6,4 @@ from .injury import Injury
 from .odds import Odds
 from .top_picks import TopPick
 from .user import User
+from .value_bet import ValueBet
