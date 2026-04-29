@@ -18,6 +18,7 @@ from app.models.user import User
 from app.models.analysis import Analysis
 from app.models.top_picks import TopPick
 from app.models.bet import Bet
+from app.models.favorite import Favorite
 
 from app.schemas.auth import LoginRequest, ForgotRequest
 
@@ -800,6 +801,8 @@ def run_top_picks(db: Session = Depends(get_db)):
     return {"status": "generated"}
 
 
+# MIS APUESTAS
+
 @router.get("/bets")
 def get_bets(
     user: User = Depends(get_current_user),
@@ -846,11 +849,6 @@ def create_bet(
 
     return new_bet
 
-# @router.post("/bets")
-# def create_bet(data: dict):
-#     print("🔥 DATA:", data)
-#     return {"ok": True}
-
 @router.delete("/bets/{bet_id}")
 def delete_bet(
     bet_id: int,
@@ -872,3 +870,90 @@ def delete_bet(
     db.commit()
 
     return {"ok": True}
+
+
+# FAVORITOS
+
+@router.get("/favorites")
+def get_favorites(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if not user:
+        return []
+
+    clean_finished_favorites(db)
+
+    favs = db.query(Favorite).filter(
+        Favorite.user_id == user.id
+    ).all()
+
+    return [f.fixture_id for f in favs]
+
+def clean_finished_favorites(db: Session):
+
+    deleted = (
+        db.query(Favorite)
+        .join(Fixture, Favorite.fixture_id == Fixture.fixture_id)
+        .filter(Fixture.status == "FT")
+        .delete(synchronize_session=False)
+    )
+
+    db.commit()
+
+    print(f"🧹 Favoritos eliminados (FT): {deleted}")
+
+@router.post("/favorites")
+
+
+def add_favorite(
+    data: dict = Body(...),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if not user:
+        raise HTTPException(status_code=401)
+
+    fixture_id = data.get("fixture_id")
+
+    if not fixture_id:
+        raise HTTPException(status_code=400, detail="fixture_id required")
+
+    exists = db.query(Favorite).filter(
+        Favorite.user_id == user.id,
+        Favorite.fixture_id == fixture_id
+    ).first()
+
+    if exists:
+        return {"status": "exists"}
+
+    fav = Favorite(
+        user_id=user.id,
+        fixture_id=fixture_id,
+        match=data.get("match"),
+        league=data.get("league"),
+    )
+
+    db.add(fav)
+    db.commit()
+
+    return {"status": "ok"}
+
+
+@router.delete("/favorites/{fixture_id}")
+def remove_favorite(
+    fixture_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if not user:
+        raise HTTPException(status_code=401)
+
+    db.query(Favorite).filter(
+        Favorite.user_id == user.id,
+        Favorite.fixture_id == fixture_id
+    ).delete()
+
+    db.commit()
+
+    return {"status": "deleted"}

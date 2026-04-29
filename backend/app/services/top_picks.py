@@ -102,7 +102,7 @@ def extract_candidates(db: Session):
                     "selection": "over",
                     "probability": probs_extra.get("over25_prob"),
                     "odd": odds["over"]["odd"],
-                    "bookmaker": odd.get("bookmaker"),
+                    "bookmaker": odds["over"].get("bookmaker"),
                     "value": vals.get("over_value", 0),
                     "kickoff": kickoff
                 })
@@ -115,7 +115,7 @@ def extract_candidates(db: Session):
                     "selection": "under",
                     "probability": probs_extra.get("under25_prob"),
                     "odd": odds["under"]["odd"],
-                    "bookmaker": odd.get("bookmaker"),
+                    "bookmaker": odds["under"].get("bookmaker"),
                     "value": vals.get("under_value", 0),
                     "kickoff": kickoff
                 })
@@ -135,7 +135,7 @@ def extract_candidates(db: Session):
                     "selection": "over",
                     "probability": probs_extra.get("over35_prob"),
                     "odd": odds["over"]["odd"],
-                    "bookmaker": odd.get("bookmaker"),
+                    "bookmaker": odds["over"].get("bookmaker"),
                     "value": vals.get("over_value", 0),
                     "kickoff": kickoff
                 })
@@ -148,7 +148,7 @@ def extract_candidates(db: Session):
                     "selection": "under",
                     "probability": probs_extra.get("under35_prob"),
                     "odd": odds["under"]["odd"],
-                    "bookmaker": odd.get("bookmaker"),
+                    "bookmaker": odds["under"].get("bookmaker"),
                     "value": vals.get("under_value", 0),
                     "kickoff": kickoff
                 })
@@ -168,7 +168,7 @@ def extract_candidates(db: Session):
                     "selection": "yes",
                     "probability": probs_extra.get("btts_yes_prob"),
                     "odd": odds["yes"]["odd"],
-                    "bookmaker": odd.get("bookmaker"),
+                    "bookmaker": odds["yes"].get("bookmaker"),
                     "value": vals.get("yes_value", 0),
                     "kickoff": kickoff
                 })
@@ -181,7 +181,7 @@ def extract_candidates(db: Session):
                     "selection": "no",
                     "probability": probs_extra.get("btts_no_prob"),
                     "odd": odds["no"]["odd"],
-                    "bookmaker": odd.get("bookmaker"),
+                    "bookmaker": odds["no"].get("bookmaker"),
                     "value": vals.get("no_value", 0),
                     "kickoff": kickoff
                 })

@@ -236,6 +236,7 @@ export const translations = {
     confirmDeleteAccount: "Are you sure you want to delete your account?",
     deleteSuccess: "Account deleted",
     deleteError: "Error deleting account",
+    favoriteMatches: "Favorites Matches",
   },
 
   es: {
@@ -472,5 +473,7 @@ export const translations = {
     confirmDeleteAccount: "¿Seguro que quieres eliminar tu cuenta?",
     deleteSuccess: "Cuenta desactivada",
     deleteError: "Error al eliminar la cuenta",
+
+    favoriteMatches: "Partidos Favoritos",
   },
 }

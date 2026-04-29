@@ -38,6 +38,16 @@ export default function Sidebar({ view, setView, isAdmin }: Props) {
         💰 {t.myBets}
       </button>
 
+      {/* APUESTAS */}
+      <button
+        onClick={() => setView("favorites")}
+        className={`p-2 rounded text-left transition-colors ${
+          view === "bets" ? "bg-[var(--primary)] text-white" : "hover:bg-[var(--hover)]"
+        }`}
+      >
+        ⭐ {t.favoriteMatches}
+      </button>
+
       {/* ANALYSIS (ADMIN) */}
       {isAdmin && (
         <button

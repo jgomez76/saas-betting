@@ -12,15 +12,17 @@ import StandingsView from "@/components/StandingsView";
 import ProfileModal from "@/components/ProfileModal";
 import SettingsView from "@/components/SettingsView";
 import TopPicksCard from "@/components/TopPicksCard";
-// import { Pick, getTopPicks } from "@/lib/topPicks";
+
 import { Match } from "@/types/match";
-// import { API_URL } from "@/lib/api";
 import { Bet } from "@/types/bet";
+
 import { useSession } from "next-auth/react";
 import { useSubscription } from "@/context/SubscriptionContext"; 
 import { getStakeFromOdd, getStakeRules } from "@/lib/stake";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
+
 import { useBets } from "@/hooks/useBets";
+import { useFavorites } from "@/hooks/useFavorites";
 
 // ---------------- TYPES ----------------
 
@@ -39,6 +41,7 @@ type TopPick = {
   selection: string;
   probability: number;
   odd: number;
+  bookmaker: string;
   value: number;
   kickoff: string;
   is_free: boolean;
@@ -75,18 +78,6 @@ export default function Home() {
 
   type PendingBet = Omit<Bet, "id">;
   const [pendingBet, setPendingBet] = useState<PendingBet | null>(null);
-  // const [betPreview, setBetPreview] = useState<Bet | null>(null);
-
-  // const [bets, setBets] = useState<Bet[]>(() => {
-  // if (typeof window === "undefined") return [];
-  //   const stored = localStorage.getItem("bets");
-  //   return stored ? JSON.parse(stored) : [];
-  // });
-
-  // const getTodayKey = () => {
-  //   const now = new Date();
-  //   return now.toISOString().split("T")[0];
-  // };
 
   const getTodayGenerationTime = () => {
     const now = new Date();
@@ -115,12 +106,6 @@ export default function Home() {
     });
   };
 
-  const [favorites, setFavorites] = useState<string[]>(() => {
-    if (typeof window === "undefined") return [];
-    const stored = localStorage.getItem("favorites");
-    return stored ? JSON.parse(stored) : [];
-  });
-
   const [openLeagues, setOpenLeagues] = useState<Record<string, boolean>>({});
   const toggleLeague = (league: string) => {
     setOpenLeagues((prev) => ({
@@ -131,8 +116,6 @@ export default function Home() {
 
   const [minValue, setMinValue] = useState(0.1); // 🔥 10% por defecto
   const [minOdd, setMinOdd] = useState(1.5);     // 🔥 cuota mínima
-
-  // const betsRef = useRef<Bet[]>(bets);
 
   const mergeMatches = (oldMatches: Match[], newMatches: Match[]) => {
     const map = new Map<number, Match>();
@@ -152,7 +135,6 @@ export default function Home() {
     return Array.from(map.values());
   };
 
-  // const [loadingMessage, setLoadingMessage] = useState("");
   const [progress, setProgress] = useState(0);
 
   // FUNCION PARA FECHA PARTIDOS
@@ -199,7 +181,6 @@ export default function Home() {
   };
 
   const [isAdmin, setIsAdmin] = useState(false);
-  // const [isPremium, setIsPremium] = useState(false);
   const [email, setEmail] = useState("");
   const [authLoading, setAuthLoading] = useState(true);
 
@@ -225,47 +206,6 @@ export default function Home() {
 
   const favLeagues = getFavLeagues();
 
-  // const todayMatches = useMemo(() => {
-  //   const now = new Date();
-
-  //   return allMatches.filter((m) => {
-  //       const matchDate = new Date(m.date + "Z");
-
-  //       const isToday =
-  //         matchDate.toDateString() === now.toDateString();
-
-  //       const isFav =
-  //         favLeagues.length === 0 ||
-  //         favLeagues.includes(m.league_id);
-
-  //       return isToday && isFav;
-  //   });
-  // }, [allMatches, favLeagues]);
-  // const todayMatches = useMemo(() => {
-  //   // const now = new Date();
-
-  //   const startOfDay = new Date();
-  //   startOfDay.setHours(0, 0, 0, 0);
-
-  //   const endOfDay = new Date();
-  //   endOfDay.setHours(23, 59, 59, 999);
-
-  //   return allMatches.filter((m) => {
-  //     const matchDate = new Date(m.date + "Z");
-
-  //     const isToday =
-  //       matchDate >= startOfDay &&
-  //       matchDate <= endOfDay;
-
-  //     const isFav =
-  //       favLeagues.length === 0 ||
-  //       favLeagues.includes(m.league_id);
-
-  //     return isToday && isFav;
-  //   });
-  // }, [allMatches, favLeagues]);
-    
-
   const apiUrl =
     typeof window !== "undefined"
       ? window.location.hostname === "localhost"
@@ -283,33 +223,8 @@ export default function Home() {
     setIsAdmin(false);
     setEmail("");
 
-    // window.location.reload();
     refreshUser();
   };
-
-  // const refreshUser = useCallback(() => {
-  //   fetch(`${apiUrl}/me`, {
-  //     credentials: "include",
-  //   })
-  //     .then((res) => res.json())
-  //     .then((data) => {
-  //       setIsAdmin(data.is_admin);
-  //       setEmail(data.email || "");
-  //       setPlan("premium");
-  //       // 🔥 NUEVO
-  //       setName(data.name || "");
-  //       setAvatar(data.avatar || "");
-  //       setProvider(data.provider ?? "email");
-  //       console.log("PROVIDER STATE:", data.provider)
-  //     })
-  //     .catch(() => {
-  //       setIsAdmin(false);
-  //       setEmail("");
-  //       setPlan("free");
-  //     });
-  // }, [apiUrl, setPlan]);
-  
-  // const { bets, addBet, deleteBet } = useBets(apiUrl);
   
   const refreshUser = useCallback(() => {
     fetch(`${apiUrl}/me`, {
@@ -342,6 +257,8 @@ export default function Home() {
 
   const isLogged = !!email && !authLoading;
   const { bets, addBet, deleteBet } = useBets(isLogged);
+
+  const { favorites, addFavorite, removeFavorite } = useFavorites(isLogged);
 
   // ###########
   // USE EFFECTS
@@ -434,10 +351,6 @@ export default function Home() {
       });
   }, [apiUrl, setPlan]);
 
-  // --------- SINCRO REF --------
-  // useEffect(() => {
-  //   betsRef.current = bets;
-  // }, [bets]);
 
   // ---------------- LOAD DATA ----------------
 
@@ -523,7 +436,6 @@ export default function Home() {
 
       // 🔥 FIN
       setLoading(false);
-      // setLoadingMessage("");
 
     };
 
@@ -621,7 +533,7 @@ export default function Home() {
         }
 
         if (dateFilter === "TODAY_TOMORROW") {
-          return diffDays >= 0 && diffDays <= 1;
+          return diffDays >= 0 && diffDays <= 2;
         }
 
         if (dateFilter === "NEXT_3_DAYS") {
@@ -683,59 +595,15 @@ export default function Home() {
     return filtered;
   }, [allMatches, leagueFilter, marketFilter, dateFilter, favLeagues]);
 
-  // const allPicks = useMemo(() => {
-  //   // if (!mounted) return [];
-  //   if (typeof window === "undefined") return [];
-
-  //   const key = `topPicks_${getTodayKey()}`;
-  //   const generatedKey = `topPicks_generatedAt_${getTodayKey()}`;
-
-  //   const saved = localStorage.getItem(key);
-  //   const generatedAt = localStorage.getItem(generatedKey);
-
-  //   const now = new Date();
-  //   const generationTime = getTodayGenerationTime();
-
-  //   // ⛔ antes de las 10:00 → NO generar
-  //   if (now < generationTime) {
-  //     return [];
-  //   }
-
-  //   // ✅ ya generados → usar cache
-  //   // if (saved && generatedAt) {
-  //   //   return JSON.parse(saved);
-  //   // }
-  //   if (saved && generatedAt) {
-  //     const parsed = JSON.parse(saved);
-
-  //     // ❗ si está vacío → regenerar
-  //     if (parsed.length > 0) {
-  //       return parsed;
-  //     }
-  //   }
-
-  //   // 🔥 generar picks UNA VEZ
-  //   const picks = getTopPicks(todayMatches);
-
-  //   localStorage.setItem(key, JSON.stringify(picks));
-  //   localStorage.setItem(generatedKey, now.toISOString());
-
-  //   return picks;
-  // }, [todayMatches]);
-
-  // const [now, setNow] = useState(new Date());
-
+  const favoriteMatches = useMemo(() => {
+    return allMatches.filter((m) =>
+      favorites.includes(m.fixture_id)
+    );
+  }, [allMatches, favorites]);
 
 
   const [now, setNow] = useState(() => new Date());
   
-  // const availablePicks = allPicks.filter(
-  //   (p: Pick) => new Date(p.date + "Z") > now
-  // );
-
-  // const visiblePicks = availablePicks.slice(0, 4);
-
-  // const [topPicks, setTopPicks] = useState<any>(null);
   type TopPicksResponse = {
     free: TopPick | null;
     premium: TopPick[];
@@ -790,127 +658,15 @@ export default function Home() {
     return `${seconds}s`;
   };
 
-  // const handleDeleteBet = (id: number) => {
-  // // 1. eliminar de array
-  //   const updatedBets = bets.filter((b) => b.id !== id);
-
-  //   // 2. actualizar estado React
-  //   setBets(updatedBets);
-
-  //   // 3. actualizar localStorage
-  //   localStorage.setItem("bets", JSON.stringify(updatedBets));
-  // };
-
-  // ------------- AUTO RESOLVE BETS -----------
-
-  // DE MOMENTO!!!
-  // useEffect(() => {
-  //   if (!apiUrl) return;
-  //   const resolveBets = async () => {
-  //     if (!betsRef.current.length) return;
-
-  //     const updated = await Promise.all(
-  //       betsRef.current.map(async (bet) => {
-  //         if (bet.status !== "pending" || !bet.fixture_id) return bet;
-
-  //         try {
-  //           const res = await fetch(
-  //             `${apiUrl}/fixture/${bet.fixture_id}/result`
-  //           );
-  //           const data = await res.json();
-
-  //           if (!data || data.status !== "FT") return bet;
-
-  //           const { home_goals, away_goals } = data;
-
-  //           let status: "won" | "lost" = "lost";
-
-  //           // ---------------- 1X2 ----------------
-  //           if (bet.market === "1X2") {
-  //             if (
-  //               (bet.selection === "home" && home_goals > away_goals) ||
-  //               (bet.selection === "away" && away_goals > home_goals) ||
-  //               (bet.selection === "draw" && home_goals === away_goals)
-  //             ) {
-  //               status = "won";
-  //             }
-  //           }
-
-  //           // ---------------- OU25 ----------------
-  //           if (bet.market === "OU25") {
-  //             const total = home_goals + away_goals;
-
-  //             if (
-  //               (bet.selection === "over" && total > 2.5) ||
-  //               (bet.selection === "under" && total < 2.5)
-  //             ) {
-  //               status = "won";
-  //             }
-  //           }
-
-  //           // ---------------- OU35 ----------------
-  //           if (bet.market === "OU35") {
-  //             const total = home_goals + away_goals;
-
-  //             if (
-  //               (bet.selection === "over" && total > 3.5) ||
-  //               (bet.selection === "under" && total < 3.5)
-  //             ) {
-  //               status = "won";
-  //             }
-  //           }
-
-  //           // ---------------- BTTS ----------------
-  //           if (bet.market === "BTTS") {
-  //             const btts = home_goals > 0 && away_goals > 0;
-
-  //             if (
-  //               (bet.selection === "yes" && btts) ||
-  //               (bet.selection === "no" && !btts)
-  //             ) {
-  //               status = "won";
-  //             }
-  //           }
-
-  //           return {
-  //             ...bet,
-  //             status,
-  //             result: `${home_goals}-${away_goals}`,
-  //           };
-  //         } catch {
-  //           return bet;
-  //         }
-  //       })
-  //     );
-
-  //     setBets(updated);
-  //     localStorage.setItem("bets", JSON.stringify(updated));
-  //   };
-
-  //   resolveBets();
-  // }, [apiUrl]);
-
-  // ---------------- BET SYSTEM ----------------
-  // const addBet = (bet: PendingBet) => {
-  //   const newBet: Bet = {
-  //     ...bet,
-  //     id: Date.now(),
-  //   };
-
-  //   const updated = [...bets, newBet];
-  //   setBets(updated);
-  //   localStorage.setItem("bets", JSON.stringify(updated));
-  // };
-
+  
   // ---------------- FAVORITES ----------------
 
-  const toggleFavorite = (id: string) => {
-    const updated = favorites.includes(id)
-      ? favorites.filter((f) => f !== id)
-      : [...favorites, id];
-
-    setFavorites(updated);
-    localStorage.setItem("favorites", JSON.stringify(updated));
+  const toggleFavorite = (fixtureId: number) => {
+    if (favorites.includes(fixtureId)) {
+      removeFavorite(fixtureId);
+    } else {
+      addFavorite(fixtureId);
+    }
   };
 
   // ---------------- TEAM MODAL ----------------
@@ -984,6 +740,123 @@ export default function Home() {
     );
   };
 
+const renderMatchCard = (match: Match) => {
+  const id = match.fixture_id;
+
+  return (
+    <div
+      className="bg-[var(--card)] w-full text-[var(--text)] p-4 rounded-xl relative border border-[var(--border)] shadow-[0_6px_25px_rgba(0,0,0,0.35)] hover:shadow-[0_10px_35px_rgba(0,0,0,0.5)] hover:scale-[1.015] transition-all duration-200"
+    >
+      {/* ⭐ FAVORITO */}
+      <button
+        onClick={() => toggleFavorite(id)}
+        className="absolute top-2 right-2"
+      >
+        {favorites.includes(id) ? "⭐" : "☆"}
+      </button>
+
+      {/* EQUIPOS */}
+      <div
+        className="grid text-center mb-3"
+        style={{ gridTemplateColumns: "45% 10% 45%" }}
+      >
+        <div onClick={() => openTeamModal(match.home_team)}>
+          <p>{match.home_team}</p>
+          {renderForm(match.home_form || "")}
+        </div>
+
+        <div className="text-[var(--muted)] text-xs">{t.vs}</div>
+
+        <div onClick={() => openTeamModal(match.away_team)}>
+          <p>{match.away_team}</p>
+          {renderForm(match.away_form || "")}
+        </div>
+      </div>
+
+      {/* FECHA */}
+      <p className="text-xs text-[var(--muted)] text-center mb-3 tracking-wide">
+        {formatMatchDate(match.date)}
+      </p>
+
+      {/* 1X2 */}
+      {match.markets?.["1X2"] && (
+        <div className="grid grid-cols-3 gap-2 mb-3">
+          {(["home", "draw", "away"] as const).map((k) => {
+            const odd = match.markets?.["1X2"]?.[k];
+
+            const value =
+              match.value?.[`${k}_value` as keyof typeof match.value];
+
+            const fairOdd =
+              k === "home"
+                ? match.probabilities?.home_odds
+                : k === "draw"
+                ? match.probabilities?.draw_odds
+                : match.probabilities?.away_odds;
+
+            const isValue =
+              value !== null &&
+              value !== undefined &&
+              value >= minValue &&
+              (odd?.odd ?? 0) >= minOdd;
+
+            return (
+              <div
+                key={k}
+                onClick={() => {
+                  const stakeRule = getStakeFromOdd(odd?.odd ?? 0);
+
+                  setPendingBet({
+                    match: `${match.home_team} vs ${match.away_team}`,
+                    market: "1X2",
+                    selection: k,
+                    odd: odd?.odd,
+                    bookmaker: odd?.bookmaker,
+                    value,
+                    fixture_id: match.fixture_id,
+                    status: "pending",
+                    date: match.date,
+                    stake: stakeRule.amount,
+                    stake_level: stakeRule.level,
+                  });
+                }}
+                className={`
+                  p-3 rounded-lg text-center cursor-pointer
+                  border transition-all
+                  hover:scale-105 hover:shadow-md
+                  
+                  ${
+                    isValue
+                      ? "bg-[var(--accent)] text-[var(--accent-contrast)] border-transparent"
+                      : "bg-[var(--card)] text-[var(--text)] border-[var(--border)]"
+                  }
+                `}
+              >
+                <p className="text-xs uppercase opacity-70">{k}</p>
+
+                <p className="font-bold text-2xl">
+                  {odd?.odd ?? "-"}
+                </p>
+
+                <p className="text-xs opacity-70">
+                  {odd?.bookmaker ?? ""}
+                </p>
+
+                <p className="text-xs mt-1">
+                  {fairOdd ? Number(fairOdd.toFixed(2)) : "-"}{" "}
+                  {value !== null &&
+                    value !== undefined &&
+                    (`${formatValue(value)}`)}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
   // SKELETON CARD
   const SkeletonCard = () => (
     <div className="bg-[var(--card)] p-4 rounded-xl animate-pulse border border-[var(--border)]">
@@ -1035,9 +908,6 @@ export default function Home() {
   };
 
   const countdown = mounted ? getCountdown(now) : null;
-  // 
-  // const countdown = null;
-
 
   return (
     <>
@@ -1161,12 +1031,6 @@ export default function Home() {
             </div>
           )}
 
-          {/* <TopPicksCard 
-            picks={visiblePicks} 
-            isPremium={isPremium} 
-            onSelectPick={handleSelectTopPick}
-          /> */}
-
           {topPicksLoading ? (
             <div className="text-center text-[var(--muted)] mb-4">
               ⏳ Cargando picks...
@@ -1231,7 +1095,8 @@ export default function Home() {
 
                   {!loading &&
                     leagueMatches.map((match, index) => {
-                    const id = match.home_team + match.away_team;
+                    // const id = match.home_team + match.away_team;
+                    const id = match.fixture_id;
 
                     // FECHA PARTIDOS
                     return (
@@ -1661,6 +1526,32 @@ export default function Home() {
         {/* STANDINGS */}
         {view === "standings" && (
           <StandingsView />
+        )}
+
+        {/* FAVORITES */}
+
+        {view === "favorites" && (
+          <div>
+
+            {/* HEADER */}
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold">⭐ Favoritos</h2>
+
+              <span className="text-sm text-[var(--muted)]">
+                {favoriteMatches.length} partidos
+              </span>
+            </div>
+
+            <div className="grid mt-4 gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+              {favoriteMatches.map((match) => (
+                <div key={match.fixture_id}>
+                  {renderMatchCard(match)}
+                </div>
+              ))}
+              {/* {favoriteMatches.map((match) => renderMatchCard(match))} */}
+            </div>
+
+          </div>
         )}
 
         {/* SETTINGS */}
