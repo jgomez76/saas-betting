@@ -207,7 +207,10 @@ export const translations = {
     // PICKS
     nextPicksIn: "New picks in",
     noMorePicks: "No more picks available",
-    picksAvailable: "Today's picks available",
+    picksLoading: "Loading today's picks...",
+    picksFinished: "All picks for today have been settled",
+    noPicksToday: "No picks met our value standards today",
+    picksAvailable: "Today's picks are now available",
 
     // BETS
     confirmBet: "Confirm bet",
@@ -444,7 +447,10 @@ export const translations = {
     // PICKS
     nextPicksIn: "Nuevos picks en",
     noMorePicks: "No hay más picks disponibles",
-    picksAvailable: "Picks disponibles hoy",
+    picksLoading: "Cargando Picks de hoy...",
+    picksFinished: "Todos los picks de hoy han finalizado",
+    noPicksToday: "Hoy no se han encontrado picks con suficiente valor",
+    picksAvailable: "Picks disponibles para hoy",
 
     // BETS
     confirmBet: "Confirmar apuesta",

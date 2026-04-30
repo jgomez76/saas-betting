@@ -442,6 +442,8 @@ export default function Home() {
     load();
   }, [apiUrl]);
 
+  const [allFinished, setAllFinished] = useState(false);
+
   useEffect(() => {
     if (!apiUrl) return;
 
@@ -456,6 +458,7 @@ export default function Home() {
         console.log("🔥 TOP PICKS:", data);
 
         setTopPicks(data);
+        setAllFinished(data.all_finished || false);
       } catch (err) {
         console.error("❌ top picks error", err);
       } finally {
@@ -607,19 +610,16 @@ export default function Home() {
   type TopPicksResponse = {
     free: TopPick | null;
     premium: TopPick[];
+    all_finished: TopPick[];
   };
 
   const [topPicks, setTopPicks] = useState<TopPicksResponse | null>(null);
   const [topPicksLoading, setTopPicksLoading] = useState(true);
 
+
   const freePick = topPicks?.free;
   const premiumPicks = topPicks?.premium || [];
 
-  // const nowDate = new Date();
-
-  // const validPicks = premiumPicks.filter(
-  //   (p: any) => new Date(p.kickoff) > nowDate
-  // );
   const validPicks = premiumPicks.filter(
     (p: TopPick) => new Date(p.kickoff) > new Date()
   );
@@ -683,9 +683,16 @@ export default function Home() {
 
   // ---------------- HELPERS ----------------
 
+  // const formatValue = (v?: number | null) => {
+  //   if (v === null || v === undefined) return null;
+  //   return `${v > 0 ? "+" : ""}${(v * 100).toFixed(1)}%`;
+  // };
   const formatValue = (v?: number | null) => {
     if (v === null || v === undefined) return null;
-    return `${v > 0 ? "+" : ""}${(v * 100).toFixed(1)}%`;
+
+    const value = (v * 100).toFixed(1);
+
+    return `${v > 0 ? "+" : ""}${value}%`;
   };
 
   const grouped = useMemo(() => {
@@ -787,12 +794,12 @@ const renderMatchCard = (match: Match) => {
             const value =
               match.value?.[`${k}_value` as keyof typeof match.value];
 
-            const fairOdd =
-              k === "home"
-                ? match.probabilities?.home_odds
-                : k === "draw"
-                ? match.probabilities?.draw_odds
-                : match.probabilities?.away_odds;
+            // const fairOdd =
+            //   k === "home"
+            //     ? match.probabilities?.home_odds
+            //     : k === "draw"
+            //     ? match.probabilities?.draw_odds
+            //     : match.probabilities?.away_odds;
 
             const isValue =
               value !== null &&
@@ -842,12 +849,22 @@ const renderMatchCard = (match: Match) => {
                   {odd?.bookmaker ?? ""}
                 </p>
 
-                <p className="text-xs mt-1">
-                  {fairOdd ? Number(fairOdd.toFixed(2)) : "-"}{" "}
-                  {value !== null &&
-                    value !== undefined &&
-                    (`${formatValue(value)}`)}
-                </p>
+                {value !== null && value !== undefined && (
+                  <div className="mt-2 text-center">
+
+                    <span
+                      className={`text-sm font-semibold ${
+                        isValue
+                          ? "text-[var(--accent-contrast)]"
+                          : "text-[var(--text)]"
+                      }`}
+                    >
+                      {formatValue(value)}
+                    </span>
+
+                  </div>
+                )} 
+                {/* </p> */}
               </div>
             );
           })}
@@ -1005,7 +1022,7 @@ const renderMatchCard = (match: Match) => {
             />
           )}
 
-          {countdown ? (
+          {/* {countdown ? (
             <div className="mb-4 flex items-center justify-center gap-2 bg-[var(--card)] border border-[var(--border)] rounded-lg py-2 px-4 text-sm">
               <span className="text-[var(--warning)]">⏳</span>
               <span className="text-[var(--muted)]">
@@ -1029,11 +1046,50 @@ const renderMatchCard = (match: Match) => {
                 {t.picksAvailable}
               </span>
             </div>
+          )} */}
+          {countdown ? (
+            // ⏳ ANTES DE PUBLICAR PICKS
+            <div className="mb-4 flex items-center justify-center gap-2 bg-[var(--card)] border border-[var(--border)] rounded-lg py-2 px-4 text-sm">
+              <span className="text-[var(--warning)]">⏳</span>
+              <span className="text-[var(--muted)]">
+                {t.nextPicksIn}
+              </span>
+              <span className="font-semibold text-[var(--text)]">
+                {countdown}
+              </span>
+            </div>
+
+          ) : allFinished ? (
+            // 🏁 PICKS YA TERMINARON
+            <div className="mb-4 flex items-center justify-center gap-2 bg-[var(--card)] border border-[var(--border)] rounded-lg py-2 px-4 text-sm">
+              <span>🏁</span>
+              <span className="text-[var(--muted)]">
+                {t.picksFinished}
+              </span>
+            </div>
+
+          ) : validPicks.length === 0 ? (
+            // 📭 NO HAY PICKS HOY (REAL)
+            <div className="mb-4 flex items-center justify-center gap-2 bg-[var(--card)] border border-[var(--border)] rounded-lg py-2 px-4 text-sm">
+              <span>📭</span>
+              <span className="text-[var(--muted)]">
+                {t.noPicksToday}
+              </span>
+            </div>
+
+          ) : (
+            // 🔥 PICKS DISPONIBLES
+            <div className="mb-4 flex items-center justify-center gap-2 bg-[var(--accent)]/10 border border-[var(--accent)]/30 rounded-lg py-2 px-4 text-sm">
+              <span>🔥</span>
+              <span className="font-semibold text-[var(--accent)]">
+                {t.picksAvailable}
+              </span>
+            </div>
           )}
 
           {topPicksLoading ? (
             <div className="text-center text-[var(--muted)] mb-4">
-              ⏳ Cargando picks...
+              ⏳ {t.picksLoading}
             </div>
           ) : (
             <TopPicksCard
@@ -1145,13 +1201,6 @@ const renderMatchCard = (match: Match) => {
                                 const value =
                                   match.value?.[`${k}_value` as keyof typeof match.value];
 
-                                const fairOdd =
-                                  k === "home"
-                                    ? match.probabilities?.home_odds
-                                    : k === "draw"
-                                    ? match.probabilities?.draw_odds
-                                    : match.probabilities?.away_odds;
-
                                 // 🔥 CLAVE → detectar si es VALUE
                                 const isValue =
                                   value !== null &&
@@ -1205,23 +1254,22 @@ const renderMatchCard = (match: Match) => {
                                     </p>
 
                                     {/* 📊 FAIR + VALUE */}
-                                    <p
-                                      className={`
-                                        text-xs font-medium mt-1
-                                        ${
-                                          value !== null &&
-                                          value !== undefined &&
-                                          value < 0
-                                            ? "text-[var(--negative)]"
-                                            : "opacity-70"
-                                        }
-                                      `}
-                                    >
-                                      {fairOdd ? Number(fairOdd.toFixed(2)) : "-"}{" "}
-                                      {value !== null &&
-                                        value !== undefined &&
-                                        `(${formatValue(value)})`}
-                                    </p>
+
+                                  {value !== null && value !== undefined && (
+                                    <div className="mt-2 text-center">
+
+                                      <span
+                                        className={`text-sm font-semibold ${
+                                          isValue
+                                            ? "text-[var(--accent-contrast)]"
+                                            : "text-[var(--text)]"
+                                        }`}
+                                      >
+                                        {formatValue(value)}
+                                      </span>
+
+                                    </div>
+                                  )} 
                                   </div>
                                 );
                               })}
@@ -1239,16 +1287,6 @@ const renderMatchCard = (match: Match) => {
                                   k === "over"
                                     ? match.market_values?.OU25?.over_value
                                     : match.market_values?.OU25?.under_value;
-
-                                // 👉 FAIR ODDS (IMPORTANTE)
-                                const fairOdd =
-                                  k === "over"
-                                    ? match.extra_probabilities?.over25_prob
-                                      ? 1 / match.extra_probabilities.over25_prob
-                                      : null
-                                    : match.extra_probabilities?.under25_prob
-                                    ? 1 / match.extra_probabilities.under25_prob
-                                    : null;                                // 🔥 CLAVE → detectar si es VALUE
                                 
                                 const isValue =
                                   value !== null &&
@@ -1305,17 +1343,21 @@ const renderMatchCard = (match: Match) => {
                                     </p>
 
                                     {/* 📊 FAIR ODDS + VALUE */}
-                                    <p
-                                        className={`text-xs font-medium mt-1 ${
-                                          value !== null && value !== undefined && value < 0
-                                            ? "text-[var(--negative)]"
-                                            : "opacity-70"
+                                  {value !== null && value !== undefined && (
+                                    <div className="mt-2 text-center">
+
+                                      <span
+                                        className={`text-sm font-semibold ${
+                                          isValue
+                                            ? "text-[var(--accent-contrast)]"
+                                            : "text-[var(--text)]"
                                         }`}
                                       >
-                                        {fairOdd ? Number(fairOdd.toFixed(2)) : "-"}{" "}
-                                        {value !== null && value !== undefined &&
-                                          `(${formatValue(value)})`}
-                                      </p>
+                                        {formatValue(value)}
+                                      </span>
+
+                                    </div>
+                                  )} 
                                   </div>
                                 );
                               })}
@@ -1331,16 +1373,6 @@ const renderMatchCard = (match: Match) => {
                                   k === "over"
                                     ? match.market_values?.OU35?.over_value
                                     : match.market_values?.OU35?.under_value;
-
-                                // 👉 FAIR ODDS (IMPORTANTE)
-                                const fairOdd =
-                                  k === "over"
-                                    ? match.extra_probabilities?.over35_prob
-                                      ? 1 / match.extra_probabilities.over35_prob
-                                      : null
-                                    : match.extra_probabilities?.under35_prob
-                                    ? 1 / match.extra_probabilities.under35_prob
-                                    : null;
 
                                 // 🔥 CLAVE → detectar si es VALUE
                                 const isValue =
@@ -1397,17 +1429,21 @@ const renderMatchCard = (match: Match) => {
                                     </p>
 
                                     {/* 📊 FAIR ODDS + VALUE */}
-                                    <p
-                                        className={`text-xs font-medium mt-1 ${
-                                          value !== null && value !== undefined && value < 0
-                                            ? "text-[var(--negative)]"
-                                            : "opacity-70"
+                                  {value !== null && value !== undefined && (
+                                    <div className="mt-2 text-center">
+
+                                      <span
+                                        className={`text-sm font-semibold ${
+                                          isValue
+                                            ? "text-[var(--accent-contrast)]"
+                                            : "text-[var(--text)]"
                                         }`}
                                       >
-                                        {fairOdd ? Number(fairOdd.toFixed(2)) : "-"}{" "}
-                                        {value !== null && value !== undefined &&
-                                          `(${formatValue(value)})`}
-                                      </p>
+                                        {formatValue(value)}
+                                      </span>
+
+                                    </div>
+                                  )} 
                                   </div>
                                 );
                               })}
@@ -1425,16 +1461,6 @@ const renderMatchCard = (match: Match) => {
                                   k === "yes"
                                     ? match.market_values?.BTTS?.yes_value
                                     : match.market_values?.BTTS?.no_value;
-
-                                // 👉 FAIR ODDS
-                                const fairOdd =
-                                  k === "yes"
-                                    ? match.extra_probabilities?.btts_yes_prob
-                                      ? 1 / match.extra_probabilities.btts_yes_prob
-                                      : null
-                                    : match.extra_probabilities?.btts_no_prob
-                                    ? 1 / match.extra_probabilities.btts_no_prob
-                                    : null;
 
                                 // 🔥 CLAVE → detectar si es VALUE
                                 const isValue =
@@ -1491,17 +1517,21 @@ const renderMatchCard = (match: Match) => {
                                     </p>
 
                                     {/* 📊 FAIR + VALUE */}
-                                    <p
-                                        className={`text-xs font-medium mt-1 ${
-                                          value !== null && value !== undefined && value < 0
-                                            ? "text-[var(--negative)]"
-                                            : "opacity-70"
+                                  {value !== null && value !== undefined && (
+                                    <div className="mt-2 text-center">
+
+                                      <span
+                                        className={`text-sm font-semibold ${
+                                          isValue
+                                            ? "text-[var(--accent-contrast)]"
+                                            : "text-[var(--text)]"
                                         }`}
                                       >
-                                        {fairOdd ? Number(fairOdd.toFixed(2)) : "-"}{" "}
-                                        {value !== null && value !== undefined &&
-                                          `(${formatValue(value)})`}
-                                      </p>
+                                        {formatValue(value)}
+                                      </span>
+
+                                    </div>
+                                  )} 
                                   </div>
                                 );
                               })}

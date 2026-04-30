@@ -1,3 +1,4 @@
+import random
 from sqlalchemy.orm import Session
 from datetime import date, datetime, timezone
 from app.models.top_picks import TopPick
@@ -258,6 +259,27 @@ def generate_top_picks(db: Session):
     if not selected:
         print("NO HAY PICKS TRAS UNIQUE")
         return
+    
+
+    n = len(selected)
+
+    free_index = None
+
+    if n == 0:
+        print("NO HAY PICKS VALIDOS")
+        return
+
+    elif n == 1:
+        free_index = 0
+
+    elif n <= 3:
+        free_index = 1
+
+    elif n <= 5:
+        free_index = random.choice([1, 2])
+
+    else:
+        free_index = random.choice([1, 2, 3])
 
     # =====================================================
     # 🎯 FREE PICK = MEJOR PICK (NO EL DEL MEDIO)
@@ -275,7 +297,7 @@ def generate_top_picks(db: Session):
             bookmaker=p["bookmaker"],
             value=p["value"],
             kickoff=p["kickoff"],
-            is_free=(i == 0)  # 🔥 CLAVE
+            is_free=(i == free_index)  # 🔥 CLAVE
         ))
 
     db.commit()

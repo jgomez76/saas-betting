@@ -19,6 +19,13 @@ def calculate_value(probability: float, odd: float):
     
     value = (probability * odd) - 1
 
+   # 🔥 SOFT CAP (MUCHO MEJOR)
+    if value > 0.25:
+        value = 0.25 + (value - 0.25) * 0.3
+
+    elif value < -0.25:
+        value = -0.25 + (value + 0.25) * 0.3
+
     # limitar valores extremos
     if value > 1:
         value = 1
@@ -150,7 +157,8 @@ def get_value_bets(db: Session, limit=50):
             db, 
             match.home_team, 
             match.away_team,
-            match.api_id
+            match.api_id,
+            match.league_id
         )
 
         if not probs:

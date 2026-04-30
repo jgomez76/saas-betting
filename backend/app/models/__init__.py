@@ -4,6 +4,7 @@ from .favorite import Favorite
 from .fixture import Fixture
 from .injury import Injury
 from .odds import Odds
+from .standings import Standings
 from .top_picks import TopPick
 from .user import User
 from .value_bet import ValueBet

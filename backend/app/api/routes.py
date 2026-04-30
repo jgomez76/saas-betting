@@ -788,17 +788,27 @@ def upload_avatar(
 
     return {"avatar": avatar_url}
 
+from datetime import datetime, date
+
 @router.get("/top-picks")
 def get_top_picks(db: Session = Depends(get_db)):
     today = date.today()
+    now = datetime.utcnow()
 
     picks = db.query(TopPick)\
         .filter(TopPick.date == today)\
-        .order_by(TopPick.probability.desc())\
+        .order_by(TopPick.value.desc(), TopPick.probability.desc())\
         .all()
 
     if not picks:
-        return {"free": None, "premium": []}
+        return {
+            "free": None,
+            "premium": [],
+            "message": "no_picks_today"
+        }
+
+    # 🔥 comprobar si ya han pasado todos
+    all_finished = all(p.kickoff < now for p in picks)
 
     serialized = [
         {
@@ -817,10 +827,12 @@ def get_top_picks(db: Session = Depends(get_db)):
     ]
 
     free = next((p for p in serialized if p["is_free"]), None)
+    premium = [p for p in serialized if not p["is_free"]]
 
     return {
         "free": free,
-        "premium": serialized
+        "premium": premium,
+        "all_finished": all_finished
     }
 
 @router.post("/top-picks/generate")

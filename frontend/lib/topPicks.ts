@@ -57,11 +57,6 @@ export const getTopPicks = (matches: Match[]): Pick[] => {
     // 🏷️ tier
     let tier: "high" | "medium" | "low" = "medium";
 
-    // if (probability >= 0.65 && value <= 0.12) {
-    //   tier = "high";
-    // } else if (probability < 0.5 || value > 0.18) {
-    //   tier = "low";
-    // }
     if (probability >= 0.65) tier = "high";
     else if (probability >= 0.55) tier = "medium";
     else tier = "low";
@@ -106,9 +101,6 @@ matches.forEach((m) => {
   }
 
   if (!m.markets) return;
-
-  // matches.forEach((m) => {
-  //   if (!m.markets) return;
 
     /* -------- 1X2 -------- */
     if (m.markets["1X2"] && m.value && m.probabilities) {
