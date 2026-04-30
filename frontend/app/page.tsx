@@ -620,10 +620,15 @@ export default function Home() {
   const freePick = topPicks?.free;
   const premiumPicks = topPicks?.premium || [];
 
-  const validPicks = premiumPicks.filter(
-    (p: TopPick) => new Date(p.kickoff) > new Date()
-  );
+  // const validPicks = premiumPicks.filter(
+  //   (p: TopPick) => new Date(p.kickoff) > new Date()
+  // );
 
+  const validPicks = premiumPicks.filter((p: TopPick) => {
+    const kickoffUTC = new Date(p.kickoff.replace(" ", "T") + "Z");
+    return kickoffUTC.getTime() > Date.now();
+  });
+  
   useEffect(() => {
     const interval = setInterval(() => {
       setNow(new Date());
@@ -764,18 +769,24 @@ const renderMatchCard = (match: Match) => {
 
       {/* EQUIPOS */}
       <div
-        className="grid text-center mb-3"
+        className="grid text-center mb-3 min-w-0"
         style={{ gridTemplateColumns: "45% 10% 45%" }}
       >
         <div onClick={() => openTeamModal(match.home_team)}>
-          <p>{match.home_team}</p>
+          {/* <p>{match.home_team}</p> */}
+          <p className="text-sm font-medium truncate">
+            {match.home_team}
+          </p>
           {renderForm(match.home_form || "")}
         </div>
 
         <div className="text-[var(--muted)] text-xs">{t.vs}</div>
 
         <div onClick={() => openTeamModal(match.away_team)}>
-          <p>{match.away_team}</p>
+          {/* <p>{match.away_team}</p> */}
+          <p className="text-sm font-medium truncate">
+            {match.away_team}
+          </p>
           {renderForm(match.away_form || "")}
         </div>
       </div>
@@ -787,19 +798,12 @@ const renderMatchCard = (match: Match) => {
 
       {/* 1X2 */}
       {match.markets?.["1X2"] && (
-        <div className="grid grid-cols-3 gap-2 mb-3">
+        <div className="grid grid-cols-3 gap-1.5 mb-3">
           {(["home", "draw", "away"] as const).map((k) => {
             const odd = match.markets?.["1X2"]?.[k];
 
             const value =
               match.value?.[`${k}_value` as keyof typeof match.value];
-
-            // const fairOdd =
-            //   k === "home"
-            //     ? match.probabilities?.home_odds
-            //     : k === "draw"
-            //     ? match.probabilities?.draw_odds
-            //     : match.probabilities?.away_odds;
 
             const isValue =
               value !== null &&
@@ -828,7 +832,7 @@ const renderMatchCard = (match: Match) => {
                   });
                 }}
                 className={`
-                  p-3 rounded-lg text-center cursor-pointer
+                  min-w-0 p-2 md:p-3 rounded-lg text-center cursor-pointer
                   border transition-all
                   hover:scale-105 hover:shadow-md
                   
@@ -839,13 +843,13 @@ const renderMatchCard = (match: Match) => {
                   }
                 `}
               >
-                <p className="text-xs uppercase opacity-70">{k}</p>
+                <p className="text-[10px] uppercase opacity-70">{k}</p>
 
                 <p className="font-bold text-2xl">
                   {odd?.odd ?? "-"}
                 </p>
 
-                <p className="text-xs opacity-70">
+                <p className="text-[10px] opacity-70 truncate max-w-[90px] mx-auto">
                   {odd?.bookmaker ?? ""}
                 </p>
 
@@ -1022,31 +1026,6 @@ const renderMatchCard = (match: Match) => {
             />
           )}
 
-          {/* {countdown ? (
-            <div className="mb-4 flex items-center justify-center gap-2 bg-[var(--card)] border border-[var(--border)] rounded-lg py-2 px-4 text-sm">
-              <span className="text-[var(--warning)]">⏳</span>
-              <span className="text-[var(--muted)]">
-                {t.nextPicksIn}
-              </span>
-              <span className="font-semibold text-[var(--text)]">
-                {countdown}
-              </span>
-            </div>
-          ) : validPicks.length === 0 ? (
-            <div className="mb-4 flex items-center justify-center gap-2 bg-[var(--card)] border border-[var(--border)] rounded-lg py-2 px-4 text-sm">
-              <span>📭</span>
-              <span className="text-[var(--muted)]">
-                {t.noMorePicks}
-              </span>
-            </div>
-          ) : (
-            <div className="mb-4 flex items-center justify-center gap-2 bg-[var(--accent)]/10 border border-[var(--accent)]/30 rounded-lg py-2 px-4 text-sm">
-              <span>🔥</span>
-              <span className="font-semibold text-[var(--accent)]">
-                {t.picksAvailable}
-              </span>
-            </div>
-          )} */}
           {countdown ? (
             // ⏳ ANTES DE PUBLICAR PICKS
             <div className="mb-4 flex items-center justify-center gap-2 bg-[var(--card)] border border-[var(--border)] rounded-lg py-2 px-4 text-sm">
@@ -1151,7 +1130,6 @@ const renderMatchCard = (match: Match) => {
 
                   {!loading &&
                     leagueMatches.map((match, index) => {
-                    // const id = match.home_team + match.away_team;
                     const id = match.fixture_id;
 
                     // FECHA PARTIDOS
@@ -1174,14 +1152,20 @@ const renderMatchCard = (match: Match) => {
                           style={{ gridTemplateColumns: "45% 10% 45%" }}
                           >
                           <div onClick={() => openTeamModal(match.home_team)}>
-                            <p>{match.home_team}</p>
+                            {/* <p>{match.home_team}</p> */}
+                            <p className="text-sm font-medium truncate">
+                              {match.home_team}
+                            </p>
                             {renderForm(match.home_form || "")}
                           </div>
 
                           <div className="text-[var(--muted)] text-xs">{t.vs}</div>
 
                           <div onClick={() => openTeamModal(match.away_team)}>
-                            <p>{match.away_team}</p>
+                            {/* <p>{match.away_team}</p> */}
+                            <p className="text-sm font-medium truncate">
+                              {match.away_team}
+                            </p>                            
                             {renderForm(match.away_form || "")}
                           </div>
                         </div>
@@ -1194,7 +1178,7 @@ const renderMatchCard = (match: Match) => {
                         {/* 1X2 */}
                         {(marketFilter === "ALL" || marketFilter === "1X2") &&
                           match.markets?.["1X2"] && (
-                            <div className="grid grid-cols-3 gap-2 mb-3">
+                            <div className="grid grid-cols-3 gap-1.5 mb-3">
                               {(["home", "draw", "away"] as const).map((k) => {
                                 const odd = match.markets?.["1X2"]?.[k];
 
@@ -1229,7 +1213,7 @@ const renderMatchCard = (match: Match) => {
                                       });
                                     }}
                                     className={`
-                                      p-3 rounded-lg text-center cursor-pointer
+                                      min-w-0 p-2 md:p-3 rounded-lg text-center cursor-pointer
                                       border transition-all
                                       hover:scale-105 hover:shadow-md
                                       
@@ -1241,15 +1225,15 @@ const renderMatchCard = (match: Match) => {
                                     `}
                                   >
                                     {/* 🏷️ LABEL */}
-                                    <p className="text-xs uppercase opacity-70">{k}</p>
+                                    <p className="text-[10px] uppercase opacity-70">{k}</p>
 
                                     {/* 💰 CUOTA REAL */}
-                                    <p className="font-bold text-2xl tracking-tight">
+                                    <p className="font-bold text-xl md:text-2xl tracking-tight">
                                       {odd?.odd ?? "-"}
                                     </p>
 
                                     {/* 🏦 BOOKMAKER */}
-                                    <p className="text-xs uppercase tracking-wide opacity-70">
+                                    <p className="text-[10px] opacity-70 truncate max-w-[90px] mx-auto">
                                       {odd?.bookmaker ?? ""}
                                     </p>
 
@@ -1259,7 +1243,7 @@ const renderMatchCard = (match: Match) => {
                                     <div className="mt-2 text-center">
 
                                       <span
-                                        className={`text-sm font-semibold ${
+                                        className={`text-xs font-semibold ${
                                           isValue
                                             ? "text-[var(--accent-contrast)]"
                                             : "text-[var(--text)]"
@@ -1316,7 +1300,7 @@ const renderMatchCard = (match: Match) => {
                                     }}
 
                                     className={`
-                                      p-3 rounded-lg text-center cursor-pointer
+                                      min-w-0 p-2 md:p-3 rounded-lg text-center cursor-pointer
                                       border transition-all
                                       hover:scale-105 hover:shadow-md
                                       
@@ -1328,17 +1312,17 @@ const renderMatchCard = (match: Match) => {
                                     `}
                                   >
                                     {/* 🏷️ LABEL */}
-                                    <p className="text-xs uppercase opacity-70">
+                                    <p className="text-[10px] uppercase opacity-70">
                                       {k} 2.5
                                     </p>
 
                                     {/* 💰 CUOTA REAL */}
-                                    <p className="font-bold text-2xl tracking-tight">
+                                    <p className="font-bold text-xl md:text-2xl tracking-tight">
                                       {odd?.odd ?? "-"}
                                     </p>
 
                                     {/* 🏦 BOOKMAKER */}
-                                    <p className="text-xs uppercase tracking-wide opacity-70">
+                                    <p className="text-[10px] opacity-70 truncate max-w-[90px] mx-auto">
                                       {odd?.bookmaker ?? ""}
                                     </p>
 
@@ -1347,7 +1331,7 @@ const renderMatchCard = (match: Match) => {
                                     <div className="mt-2 text-center">
 
                                       <span
-                                        className={`text-sm font-semibold ${
+                                        className={`text-xs font-semibold ${
                                           isValue
                                             ? "text-[var(--accent-contrast)]"
                                             : "text-[var(--text)]"
@@ -1402,7 +1386,7 @@ const renderMatchCard = (match: Match) => {
                                     }}
 
                                     className={`
-                                      p-3 rounded-lg text-center cursor-pointer
+                                      min-w-0 p-2 md:p-3 rounded-lg text-center cursor-pointer
                                       border transition-all
                                       hover:scale-105 hover:shadow-md
                                       
@@ -1414,17 +1398,17 @@ const renderMatchCard = (match: Match) => {
                                     `}                                    
                                   >
                                     {/* 🏷️ LABEL */}
-                                    <p className="text-xs uppercase opacity-70">
+                                    <p className="text-[10px] uppercase opacity-70">
                                       {k} 3.5
                                     </p>
 
                                     {/* 💰 CUOTA REAL */}
-                                    <p className="font-bold text-2xl tracking-tight">
+                                    <p className="font-bold text-xl md:text-2xl tracking-tight">
                                       {odd?.odd ?? "-"}
                                     </p>
 
                                     {/* 🏦 BOOKMAKER */}
-                                    <p className="text-xs uppercase tracking-wide opacity-70">
+                                    <p className="text-[10px] opacity-70 truncate max-w-[90px] mx-auto">
                                       {odd?.bookmaker ?? ""}
                                     </p>
 
@@ -1433,7 +1417,7 @@ const renderMatchCard = (match: Match) => {
                                     <div className="mt-2 text-center">
 
                                       <span
-                                        className={`text-sm font-semibold ${
+                                        className={`text-xs font-semibold ${
                                           isValue
                                             ? "text-[var(--accent-contrast)]"
                                             : "text-[var(--text)]"
@@ -1490,7 +1474,7 @@ const renderMatchCard = (match: Match) => {
                                     }}
 
                                     className={`
-                                      p-3 rounded-lg text-center cursor-pointer
+                                      min-w-0 p-2 md:p-3 rounded-lg text-center cursor-pointer
                                       border transition-all
                                       hover:scale-105 hover:shadow-md
                                       
@@ -1502,17 +1486,17 @@ const renderMatchCard = (match: Match) => {
                                     `}
                                   >
                                     {/* 🏷️ LABEL */}
-                                    <p className="text-xs uppercase opacity-70">
+                                    <p className="text-[10px] uppercase opacity-70">
                                       BTTS {k}
                                     </p>
 
                                     {/* 💰 CUOTA REAL */}
-                                    <p className="font-bold text-2xl tracking-tight">
+                                    <p className="font-bold text-xl md:text-2xl tracking-tight">
                                       {odd?.odd ?? "-"}
                                     </p>
 
                                     {/* 🏦 BOOKMAKER */}
-                                    <p className="text-xs uppercase tracking-wide opacity-70">
+                                    <p className="text-[10px] opacity-70 truncate max-w-[90px] mx-auto">
                                       {odd?.bookmaker ?? ""}
                                     </p>
 
@@ -1521,7 +1505,7 @@ const renderMatchCard = (match: Match) => {
                                     <div className="mt-2 text-center">
 
                                       <span
-                                        className={`text-sm font-semibold ${
+                                        className={`text-xs font-semibold ${
                                           isValue
                                             ? "text-[var(--accent-contrast)]"
                                             : "text-[var(--text)]"

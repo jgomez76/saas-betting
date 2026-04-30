@@ -153,114 +153,96 @@ export default function TopPicksCard({
           const locked = !isPremium && i > 0;
           const probStyles = getProbStyles(p.probability);
 
-          return (
-            <PremiumLock key={p.fixture_id} locked={locked}>
-              <div
-                onClick={() => {
-                  if (!locked) onSelectPick(p);
-                }}
-                className={`
-                  relative bg-gradient-to-br from-[var(--bg)] to-black/60 
-                  border border-[var(--border)] rounded-xl p-4
-                  transition-all
-                  ${
-                    locked
-                      ? "cursor-not-allowed opacity-60"
-                      : "cursor-pointer hover:scale-[1.02] hover:shadow-xl"
-                  }
-                `}
+return (
+  <PremiumLock key={p.fixture_id} locked={locked}>
+    <div
+      onClick={() => {
+        if (!locked) onSelectPick(p);
+      }}
+      className={`
+        relative bg-gradient-to-br from-[var(--bg)] to-black/60 
+        border border-[var(--border)] rounded-xl p-4
+        transition-all
+        ${
+          locked
+            ? "cursor-not-allowed opacity-60"
+            : "cursor-pointer hover:scale-[1.02] hover:shadow-xl"
+        }
+      `}
+    >
+      {!locked ? (
+        <>
+          {/* MATCH */}
+          <p className="font-semibold text-sm leading-tight">
+            {p.match}
+          </p>
+
+          {/* TIME */}
+          <p className="text-xs text-[var(--muted)] mt-1">
+            🕒 {formatTime(p.kickoff)}
+          </p>
+
+          {/* PICK */}
+          <p className="text-sm font-bold text-[var(--accent)] mt-2">
+            {formatPick(p)}
+          </p>
+
+          {/* PROBABILIDAD */}
+          <div className="mt-3">
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-xs text-[var(--muted)]">
+                {t.probability}
+              </span>
+              <span
+                className="text-sm font-bold"
+                style={{ color: probStyles.color }}
               >
-                {!locked ? (
-                  <>
-                    {/* TOP */}
-                    <div className="flex justify-between items-start mb-3">
+                {(p.probability * 100).toFixed(0)}%
+              </span>
+            </div>
 
-                      {/* MATCH */}
-                      <div>
-                        <p className="font-semibold text-sm leading-tight">
-                          {p.match}
-                        </p>
+            <div className="w-full h-2 bg-[var(--border)] rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full"
+                style={{
+                  width: `${p.probability * 100}%`,
+                  backgroundColor: probStyles.color,
+                }}
+              />
+            </div>
+          </div>
 
-                        {/* <p className="text-xs text-[var(--muted)] mt-1">
-                          🕒 {formatTime(p.kickoff)} • {p.market} {p.selection.toUpperCase()}
-                        </p> */}
-                        <div className="mt-2 space-y-1">
+          {/* FOOTER */}
+          <div className="flex justify-between items-end mt-4">
 
-                          {/* ⏰ HORA */}
-                          <p className="text-xs text-[var(--muted)]">
-                            🕒 {formatTime(p.kickoff)}
-                          </p>
+            {/* VALUE */}
+            <div className="text-[var(--accent)] font-semibold text-sm">
+              +{(p.value * 100).toFixed(1)}%
+            </div>
 
-                          {/* 🎯 PICK (PROTAGONISTA) */}
-                          <p className="text-sm font-bold text-[var(--accent)] tracking-wide">
-                            {formatPick(p)}
-                          </p>
+            {/* ODDS */}
+            <div className="text-right">
+              <p className="text-xl font-bold">
+                {p.odd}
+              </p>
+              <p className="text-xs text-[var(--muted)]">
+                {p.bookmaker}
+              </p>
+            </div>
 
-                        </div>
-                      </div>
+          </div>
+        </>
+      ) : (
+        <div className="flex items-center justify-center h-full">
+          <p className="text-sm font-semibold text-[var(--muted)]">
+            🔒 Premium
+          </p>
+        </div>
+      )}
+    </div>
+  </PremiumLock>
+);
 
-                      {/* PROBABILIDAD */}
-                      <div className="flex flex-col items-end w-[90px]">
-
-                        {/* % */}
-                        <p
-                          className={`${probStyles.size} font-bold leading-none`}
-                          style={{ color: probStyles.color }}
-                        >
-                          {(p.probability * 100).toFixed(0)}%
-                        </p>
-
-                        {/* LABEL */}
-                        <p className="text-[9px] uppercase tracking-wide text-[var(--muted)] mt-0.5">
-                          {t.probability}
-                        </p>
-
-                        {/* BARRA */}
-                        <div className="w-full h-2 bg-[var(--border)] rounded-full mt-1 overflow-hidden">
-                          <div
-                            className="h-full rounded-full"
-                            style={{
-                              width: `${p.probability * 100}%`,
-                              backgroundColor: probStyles.color,
-                            }}
-                          />
-                        </div>
-
-                      </div>
-
-                    </div>
-
-                    {/* BOTTOM */}
-                    <div className="flex justify-between items-end">
-
-                      {/* VALUE */}
-                      <div className="text-[var(--accent)] font-semibold text-sm">
-                        +{(p.value * 100).toFixed(1)}%
-                      </div>
-
-                      {/* ODDS + BOOKMAKER */}
-                      <div className="text-right">
-                        <p className="text-2xl font-bold">
-                          {p.odd}
-                        </p>
-
-                        <p className="text-xs text-[var(--muted)]">
-                          {p.bookmaker}
-                        </p>
-                      </div>
-
-                    </div>
-                  </>
-                ) : (
-                  <div className="flex items-center justify-center h-full">
-                    <p className="text-sm font-semibold text-[var(--muted)]">
-                      🔒 Premium
-                    </p>
-                  </div>
-                )}
-              </div>
-            </PremiumLock>
-          );
         })}
 
       </div>
