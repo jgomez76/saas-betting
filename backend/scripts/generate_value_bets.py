@@ -1,5 +1,6 @@
 from app.core.database import SessionLocal
 from app.services.value import get_value_bets
+from app.services.stats import get_team_form
 from app.models.value_bet import ValueBet
 from datetime import datetime
 
@@ -20,12 +21,17 @@ for m in matches:
         ValueBet.fixture_id == m["fixture_id"]
     ).first()
 
+    home_form = get_team_form(db, m["home_team"])
+    away_form = get_team_form(db, m["away_team"])
+
     if existing:
         # 🔄 UPDATE
         existing.league = m["league"]
         existing.league_id = m["league_id"]
         existing.home_team = m["home_team"]
         existing.away_team = m["away_team"]
+        existing.home_team_id = m["home_team_id"]
+        existing.away_team_id = m["away_team_id"]
         existing.date = m["date"]
 
         existing.markets = m["markets"]
@@ -35,6 +41,11 @@ for m in matches:
         existing.market_values = m["market_values"]
 
         existing.updated_at = datetime.utcnow()
+
+        existing.home_form = home_form
+        existing.away_form = away_form
+
+        existing.team_stats = m["team_stats"]
 
         updated += 1
 
@@ -46,12 +57,19 @@ for m in matches:
             league_id=m["league_id"],
             home_team=m["home_team"],
             away_team=m["away_team"],
+            home_team_id=m["home_team_id"],
+            away_team_id=m["away_team_id"],
             date=m["date"],
             markets=m["markets"],
             value=m["value"],
             probabilities=m["probabilities"],
             extra_probabilities=m["extra_probabilities"],
             market_values=m["market_values"],
+
+            home_form=home_form,
+            away_form=away_form,
+
+            team_stats=m["team_stats"],
         ))
 
         saved += 1

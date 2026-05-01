@@ -15,6 +15,7 @@ import TopPicksCard from "@/components/TopPicksCard";
 
 import { Match } from "@/types/match";
 import { Bet } from "@/types/bet";
+import { TeamStats } from "@/types/stats";
 
 import { useSession } from "next-auth/react";
 import { useSubscription } from "@/context/SubscriptionContext"; 
@@ -74,6 +75,7 @@ export default function Home() {
 
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [teamMatches, setTeamMatches] = useState<TeamMatch[]>([]);
+  const [teamStats, setTeamStats] = useState<TeamStats | null>(null);
   const [allMatches, setAllMatches] = useState<Match[]>([]);
 
   type PendingBet = Omit<Bet, "id">;
@@ -617,18 +619,34 @@ export default function Home() {
   const [topPicksLoading, setTopPicksLoading] = useState(true);
 
 
-  const freePick = topPicks?.free;
-  const premiumPicks = topPicks?.premium || [];
+  // const freePick = topPicks?.free;
+  // const premiumPicks = topPicks?.premium || [];
 
-  // const validPicks = premiumPicks.filter(
-  //   (p: TopPick) => new Date(p.kickoff) > new Date()
-  // );
+  // // const validPicks = premiumPicks.filter(
+  // //   (p: TopPick) => new Date(p.kickoff) > new Date()
+  // // );
+
+  // const validPicks = premiumPicks.filter((p: TopPick) => {
+  //   const kickoffUTC = new Date(p.kickoff.replace(" ", "T") + "Z");
+  //   return kickoffUTC.getTime() > Date.now();
+  // });
+  const freePickRaw = topPicks?.free;
+  const premiumPicks = topPicks?.premium || [];
 
   const validPicks = premiumPicks.filter((p: TopPick) => {
     const kickoffUTC = new Date(p.kickoff.replace(" ", "T") + "Z");
     return kickoffUTC.getTime() > Date.now();
   });
-  
+
+  const freePick = freePickRaw
+    ? (() => {
+        const kickoffUTC = new Date(
+          freePickRaw.kickoff.replace(" ", "T") + "Z"
+        );
+        return kickoffUTC.getTime() > Date.now() ? freePickRaw : null;
+      })()
+    : null;
+
   useEffect(() => {
     const interval = setInterval(() => {
       setNow(new Date());
@@ -676,13 +694,26 @@ export default function Home() {
 
   // ---------------- TEAM MODAL ----------------
 
+  // const openTeamModal = async (team: string) => {
+  //   setSelectedTeam(team);
+
+  //   const res = await fetch(`${apiUrl}/team/${team}/matches`);
+  //   const data = await res.json();
+
+  //   setTeamMatches(data);
+  // };
   const openTeamModal = async (team: string) => {
     setSelectedTeam(team);
 
+    // matches
     const res = await fetch(`${apiUrl}/team/${team}/matches`);
     const data = await res.json();
-
     setTeamMatches(data);
+
+    // 🔥 stats
+    const resStats = await fetch(`${apiUrl}/team-stats/${team}`);
+    const stats = await resStats.json();
+    setTeamStats(stats);
   };
 
 
@@ -754,6 +785,7 @@ export default function Home() {
 
 const renderMatchCard = (match: Match) => {
   const id = match.fixture_id;
+  // const stats = match.team_stats?.home;
 
   return (
     <div
@@ -773,7 +805,6 @@ const renderMatchCard = (match: Match) => {
         style={{ gridTemplateColumns: "45% 10% 45%" }}
       >
         <div onClick={() => openTeamModal(match.home_team)}>
-          {/* <p>{match.home_team}</p> */}
           <p className="text-sm font-medium truncate">
             {match.home_team}
           </p>
@@ -783,7 +814,6 @@ const renderMatchCard = (match: Match) => {
         <div className="text-[var(--muted)] text-xs">{t.vs}</div>
 
         <div onClick={() => openTeamModal(match.away_team)}>
-          {/* <p>{match.away_team}</p> */}
           <p className="text-sm font-medium truncate">
             {match.away_team}
           </p>
@@ -999,11 +1029,11 @@ const renderMatchCard = (match: Match) => {
 
           {mounted && (
             <Navbar
-              onOpenTop={() => setShowTopModal(true)}
-              onOpenBets={() => setView("bets")}
+              // onOpenTop={() => setShowTopModal(true)}
+              // onOpenBets={() => setView("bets")}
               onOpenLogin={() => setShowLoginModal(true)}
               onLogout={handleLogout}
-              onOpenAnalysis={() => setView("analysis")}
+              // onOpenAnalysis={() => setView("analysis")}
               onOpenProfile={() => setShowProfile(true)}
 
               marketFilter={marketFilter}
@@ -1152,7 +1182,6 @@ const renderMatchCard = (match: Match) => {
                           style={{ gridTemplateColumns: "45% 10% 45%" }}
                           >
                           <div onClick={() => openTeamModal(match.home_team)}>
-                            {/* <p>{match.home_team}</p> */}
                             <p className="text-sm font-medium truncate">
                               {match.home_team}
                             </p>
@@ -1162,7 +1191,6 @@ const renderMatchCard = (match: Match) => {
                           <div className="text-[var(--muted)] text-xs">{t.vs}</div>
 
                           <div onClick={() => openTeamModal(match.away_team)}>
-                            {/* <p>{match.away_team}</p> */}
                             <p className="text-sm font-medium truncate">
                               {match.away_team}
                             </p>                            
@@ -1585,47 +1613,68 @@ const renderMatchCard = (match: Match) => {
             </h2>
           
             {/* MATCHES */}
-              <div className="space-y-2">
-                {teamMatches.map((m, i) => {
-                  const isDraw = m.home_goals === m.away_goals;
+            <div className="space-y-2">
+              {teamMatches.map((m, i) => {
+                const isDraw = m.home_goals === m.away_goals;
 
-                  const isWin =
-                    (m.home === selectedTeam && m.home_goals > m.away_goals) ||
-                    (m.away === selectedTeam && m.away_goals > m.home_goals);
+                const isWin =
+                  (m.home === selectedTeam && m.home_goals > m.away_goals) ||
+                  (m.away === selectedTeam && m.away_goals > m.home_goals);
 
-                  const isLoss =
-                    (m.home === selectedTeam && m.home_goals < m.away_goals) ||
-                    (m.away === selectedTeam && m.away_goals < m.home_goals);
+                const isLoss =
+                  (m.home === selectedTeam && m.home_goals < m.away_goals) ||
+                  (m.away === selectedTeam && m.away_goals < m.home_goals);
 
-                  return (
-                    <div
-                      key={i}
-                      className="grid grid-cols-3 items-center text-lg border-b pb-2"
+                return (
+                  <div
+                    key={i}
+                    className="grid grid-cols-3 items-center text-lg border-b pb-2"
+                  >
+                    {/* HOME */}
+                    <span className="text-center pr-2">{m.home}</span>
+
+                    {/* RESULT */}
+                    <span
+                      className={`text-center font-bold text-2xl ${
+                        isDraw
+                          ? "text-[var(--warning)]"
+                          : isWin
+                          ? "text-[var(--success)]"
+                          : isLoss
+                          ? "text-[var(--danger)]"
+                          : ""
+                      }`}
                     >
-                      {/* HOME */}
-                      <span className="text-center pr-2">{m.home}</span>
+                      {m.home_goals} - {m.away_goals}
+                    </span>
 
-                      {/* RESULT */}
-                      <span
-                        className={`text-center font-bold text-2xl ${
-                          isDraw
-                            ? "text-[var(--warning)]"
-                            : isWin
-                            ? "text-[var(--success)]"
-                            : isLoss
-                            ? "text-[var(--danger)]"
-                            : ""
-                        }`}
-                      >
-                        {m.home_goals} - {m.away_goals}
-                      </span>
+                    {/* AWAY */}
+                    <span className="text-center pl-2">{m.away}</span>
+                  </div>
+                );
+              })}
+            </div>
 
-                      {/* AWAY */}
-                      <span className="text-center pl-2">{m.away}</span>
-                    </div>
-                  );
-                })}
+            {/* STATS */}
+            {teamStats && (
+              <div className="mt-4 border-t border-[var(--border)] pt-4">
+
+                <p className="text-xs text-[var(--muted)] mb-2">
+                  {t.statistics}
+                </p>
+
+                <div className="grid grid-cols-2 gap-2 text-xs">
+
+                  <div>⚽ {t.avgGoals}: {teamStats.avg_goals_scored ?? "-"}</div>
+                  <div>🛡️ {t.conceded}: {teamStats.avg_goals_conceded ?? "-"}</div>
+
+                  <div>🏆 {t.winRate}: {teamStats.results?.win ?? "-"}%</div>
+                  <div>📊 {t.matches}: {teamStats.matches ?? "-"}</div>
+
+                </div>
+
               </div>
+            )}
 
               {/* CLOSE */}
               <button

@@ -17,6 +17,9 @@ class ValueBet(Base):
     home_team = Column(String)
     away_team = Column(String)
 
+    home_team_id = Column(Integer)
+    away_team_id = Column(Integer)
+
     date = Column(DateTime)
 
     markets = Column(JSON)
@@ -24,5 +27,10 @@ class ValueBet(Base):
     probabilities = Column(JSON)
     extra_probabilities = Column(JSON)
     market_values = Column(JSON)
+
+    home_form = Column(String)
+    away_form = Column(String)
+
+    team_stats = Column(JSON)
 
     updated_at = Column(DateTime, default=datetime.utcnow)

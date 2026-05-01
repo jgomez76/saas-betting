@@ -32,6 +32,7 @@ from app.services.notifications import send_email, send_telegram
 from app.services.odds import save_odds
 from app.services.value import get_value_bets, get_top_value_bets
 from app.services.top_picks import generate_top_picks
+from app.services.stats import get_team_advanced_stats, get_league_stats
 
 from uuid import uuid4
 
@@ -90,6 +91,9 @@ def value_bets(db: Session = Depends(get_db)):
 
             "probabilities": v.probabilities,
             "extra_probabilities": v.extra_probabilities,
+
+            "home_form": v.home_form,
+            "away_form": v.away_form,
         }
         for v in data
     ]
@@ -998,3 +1002,11 @@ def remove_favorite(
     db.commit()
 
     return {"status": "deleted"}
+
+@router.get("/team-stats/{team}")
+def team_stats(team: str, db: Session = Depends(get_db)):
+    return get_team_advanced_stats(db, team)
+
+@router.get("/league-stats/{league_id}")
+def league_stats(league_id: int, db: Session = Depends(get_db)):
+    return get_league_stats(db, league_id)

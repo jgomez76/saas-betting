@@ -29,7 +29,6 @@ def fetch_fixtures(db: Session, league: int, season: int):
         league_data = item.get("league", {})
 
         fixture_id = fixture_data.get("id")
-        # date = fixture_data.get("date")
         date_str = fixture_data.get("date")
 
         try:
@@ -42,6 +41,9 @@ def fetch_fixtures(db: Session, league: int, season: int):
 
         home_team = teams_data.get("home", {}).get("name")
         away_team = teams_data.get("away", {}).get("name")
+
+        home_team_id = teams_data.get("home", {}).get("id")
+        away_team_id = teams_data.get("away", {}).get("id")
 
         home_goals = goals_data.get("home")
         away_goals = goals_data.get("away")
@@ -61,12 +63,14 @@ def fetch_fixtures(db: Session, league: int, season: int):
 
         if existing:
             # ✅ UPDATE COMPLETO
-            # existing.date = date
+            existing.date = date
             existing.status = status
             existing.home_goals = home_goals
             existing.away_goals = away_goals
-            # existing.league = league_name
-            # existing.league_id = league
+
+            # 🔥 CLAVE (AÑADIR ESTO)
+            existing.home_team_id = home_team_id
+            existing.away_team_id = away_team_id
 
         else:
             # ✅ INSERT NUEVO
@@ -74,6 +78,11 @@ def fetch_fixtures(db: Session, league: int, season: int):
                 api_id=fixture_id,
                 home_team=home_team,
                 away_team=away_team,
+
+                # 🔥 CLAVE
+                home_team_id=home_team_id,
+                away_team_id=away_team_id,
+
                 league=league_name,
                 league_id=league,
                 date=date,

@@ -167,8 +167,12 @@ def get_value_bets(db: Session, limit=50):
         # -----------------------------
         # STATS EXTRA
         # -----------------------------
-        home_stats = get_team_stats(db, match.home_team)
-        away_stats = get_team_stats(db, match.away_team)
+        if match.home_team_id and match.away_team_id:
+            home_stats = get_team_stats(db, match.home_team_id)
+            away_stats = get_team_stats(db, match.away_team_id)
+        else:
+            home_stats = None
+            away_stats = None
 
         if home_stats and away_stats:
             extra_probs = calculate_extra_markets(home_stats, away_stats)
@@ -262,10 +266,21 @@ def get_value_bets(db: Session, limit=50):
         results.append({
             "api_id": match.api_id,
             "fixture_id": match.api_id,
+            
             "home_team": match.home_team,
             "away_team": match.away_team,
+
+            "home_team_id": match.home_team_id,
+            "away_team_id": match.away_team_id,
+
             "home_form": home_form,
             "away_form": away_form,
+
+            "team_stats": {
+                "home": home_stats,
+                "away": away_stats
+            },
+
             "league": match.league,
             "league_id": match.league_id,
             "date": match.date,

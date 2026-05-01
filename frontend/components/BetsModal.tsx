@@ -444,7 +444,7 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
 
                                 {/* 🔥 NUEVO: STAKE */}
                             <span className="text-xs text-[var(--muted)]">
-                              {t.stake} {b.stakeLevel ?? "-"} • {b.stake ?? "-"}€
+                              {t.stake} {b.stake_level ?? "-"} • {b.stake ?? "-"}€
                             </span>
 
                             <span className="text-xs text-[var(--muted)]">

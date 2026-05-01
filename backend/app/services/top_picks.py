@@ -206,6 +206,16 @@ def generate_top_picks(db: Session):
 
     candidates = extract_candidates(db)
 
+    print("\n📊 CANDIDATOS INICIALES\n")
+
+    for c in candidates:
+        print(
+            f"{c['match']} | {c['market']} {c['selection']} | "
+            f"Prob: {c['probability']:.2f} | "
+            f"Value: {c['value']:.2f} | "
+            f"Odd: {c['odd']}"
+    )
+
     # =====================================================
     # 🔥 FILTRO DINÁMICO (CLAVE)
     # =====================================================

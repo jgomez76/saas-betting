@@ -13,6 +13,9 @@ class Fixture(Base):
     home_team = Column(String)
     away_team = Column(String)
 
+    home_team_id = Column(Integer)
+    away_team_id = Column(Integer)
+    
     home_goals = Column(Integer)
     away_goals = Column(Integer)
 

@@ -276,8 +276,15 @@ def calculate_extra_markets(home_stats, away_stats):
     under25 = 1 - over25
     under35 = 1 - over35
 
+    # btts = min(
+    #     (home_stats["btts_percentage"] + away_stats["btts_percentage"]) / 200,
+    #     0.9
+    # )
     btts = min(
-        (home_stats["btts_percentage"] + away_stats["btts_percentage"]) / 200,
+        (
+            home_stats["markets"]["btts"] +
+            away_stats["markets"]["btts"]
+        ) / 200,
         0.9
     )
 

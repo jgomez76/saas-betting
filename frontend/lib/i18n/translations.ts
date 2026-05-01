@@ -1,6 +1,5 @@
 export type Translation = typeof translations["en"];
 
-
 export const translations = {
   en: {
     topPicks: "Top Picks",
@@ -240,6 +239,11 @@ export const translations = {
     deleteSuccess: "Account deleted",
     deleteError: "Error deleting account",
     favoriteMatches: "Favorites Matches",
+    // STATS
+    statistics: "Statistics",
+    avgGoals: "Goals",
+    conceded: "Conceded",
+    winRate: "Win rate",
   },
 
   es: {
@@ -481,5 +485,10 @@ export const translations = {
     deleteError: "Error al eliminar la cuenta",
 
     favoriteMatches: "Partidos Favoritos",
+    // STATS
+    statistics: "Estadísticas",
+    avgGoals: "Goles",
+    conceded: "Encajados",
+    winRate: "Victorias",
   },
 }

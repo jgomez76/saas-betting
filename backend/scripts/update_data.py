@@ -11,7 +11,7 @@ from app.core.config import LEAGUES, SEASONS
 # -----------------------------
 # CONFIG
 # -----------------------------
-DAYS_AHEAD = 3  # hoy + 3 días
+DAYS_AHEAD = 2  # hoy + 2 días
 
 
 # -----------------------------

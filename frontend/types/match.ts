@@ -1,3 +1,5 @@
+import { TeamStats } from "./stats";
+
 export type Odd = {
   odd: number;
   bookmaker: string;
@@ -71,4 +73,11 @@ export type Match = {
     btts_yes_prob?: number;
     btts_no_prob?: number;
   };
+
+  
+  team_stats?: {
+    home: TeamStats;
+    away: TeamStats;
+  };
+
 };
