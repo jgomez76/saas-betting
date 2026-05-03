@@ -2,11 +2,15 @@ from sqlalchemy.orm import Session
 from app.models.fixture import Fixture
 
 
-def get_team_form(db: Session, team_name: str, limit: int = 5):
+def get_team_form(db: Session, team_id: int, limit: int = 5):
+
+    print(f"👉 get_team_form CALLED for team_id: {team_id}")
+
     matches = (
         db.query(Fixture)
         .filter(
-            (Fixture.home_team == team_name) | (Fixture.away_team == team_name),
+            (Fixture.home_team_id == team_id) |
+            (Fixture.away_team_id == team_id),
             Fixture.status == "FT"
         )
         .order_by(Fixture.date.desc())
@@ -14,10 +18,16 @@ def get_team_form(db: Session, team_name: str, limit: int = 5):
         .all()
     )
 
+    print(f"👉 matches found: {len(matches)}")
+
     form = ""
 
     for match in matches:
-        if match.home_team == team_name:
+        print(
+            f"   MATCH → {match.home_team_id} vs {match.away_team_id} | {match.home_goals}-{match.away_goals}"
+        )
+
+        if match.home_team_id == team_id:
             if match.home_goals > match.away_goals:
                 form += "W"
             elif match.home_goals == match.away_goals:
@@ -32,7 +42,9 @@ def get_team_form(db: Session, team_name: str, limit: int = 5):
             else:
                 form += "L"
 
-    return form
+    print(f"👉 FINAL FORM: {form}")
+
+    return form[::-1]
 
 
 # 🔥 NUEVO → HOME / AWAY SPLIT

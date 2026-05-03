@@ -244,6 +244,7 @@ export const translations = {
     avgGoals: "Goals",
     conceded: "Conceded",
     winRate: "Win rate",
+    form: "Form",
   },
 
   es: {
@@ -490,5 +491,6 @@ export const translations = {
     avgGoals: "Goles",
     conceded: "Encajados",
     winRate: "Victorias",
+    form: "Forma",
   },
 }

@@ -147,8 +147,8 @@ def get_value_bets(db: Session, limit=50):
 
     for match in matches:
         # print("MATCH:", match.home_team, "vs", match.away_team, "|", match.date)
-        home_form = get_team_form(db, match.home_team)
-        away_form = get_team_form(db, match.away_team)
+        home_form = get_team_form(db, match.home_team_id)
+        away_form = get_team_form(db, match.away_team_id)
 
         # -----------------------------
         # PROBABILIDADES 1X2

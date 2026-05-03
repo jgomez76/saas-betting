@@ -33,6 +33,8 @@ type TeamMatch = {
   home_goals: number;
   away_goals: number;
   date: string;
+  home_team_id: number;
+  away_team_id: number;
 };
 
 type TopPick = {
@@ -73,7 +75,9 @@ export default function Home() {
   const [dateFilter, setDateFilter] = useState("TODAY_TOMORROW");
   const [showTopModal, setShowTopModal] = useState(false);
 
-  const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
+  const [selectedTeam, setSelectedTeam] = useState<number | null>(null);
+  const [selectedTeamName, setSelectedTeamName] = useState<string | null>(null);
+
   const [teamMatches, setTeamMatches] = useState<TeamMatch[]>([]);
   const [teamStats, setTeamStats] = useState<TeamStats | null>(null);
   const [allMatches, setAllMatches] = useState<Match[]>([]);
@@ -89,6 +93,42 @@ export default function Home() {
 
     return gen;
   };
+
+  type StatBoxProps = {
+    label: string;
+    value: number | string;
+  };
+
+  const getIcon = (label: string) => {
+    if (label.includes("Partidos")) return "📊";
+    if (label.includes("Goles")) return "⚽";
+    if (label.includes("Encajados")) return "🛡️";
+    if (label.includes("Victorias")) return "🏆";
+    if (label.includes("Empates")) return "🤝";
+    if (label.includes("Derrotas")) return "❌";
+    if (label.includes("BTTS")) return "🎯";
+    if (label.includes("Over 2.5")) return "🔥";
+    if (label.includes("Over 3.5")) return "🚀";
+    return "📈";
+  };
+
+ const StatBox = ({ label, value }: StatBoxProps) => (
+    <div className="bg-white/5 border border-white/10 p-2.5 rounded-md flex flex-col items-center justify-center">
+
+      <span className="text-base mb-0.5">
+        {getIcon(label)}
+      </span>
+
+      <p className="text-base md:text-lg font-bold leading-tight">
+        {value}
+      </p>
+
+      <p className="text-xs text-[var(--muted)] leading-tight">
+        {label}
+      </p>
+
+    </div>
+  );
 
   const handleSelectTopPick = (pick: TopPick) => {
     const stakeRule = getStakeFromOdd(pick.odd);
@@ -693,29 +733,19 @@ export default function Home() {
   };
 
   // ---------------- TEAM MODAL ----------------
+  const openTeamModal = async (teamId: number, teamName: string) => {
+    setSelectedTeam(teamId);
+    setSelectedTeamName(teamName);
 
-  // const openTeamModal = async (team: string) => {
-  //   setSelectedTeam(team);
-
-  //   const res = await fetch(`${apiUrl}/team/${team}/matches`);
-  //   const data = await res.json();
-
-  //   setTeamMatches(data);
-  // };
-  const openTeamModal = async (team: string) => {
-    setSelectedTeam(team);
-
-    // matches
-    const res = await fetch(`${apiUrl}/team/${team}/matches`);
+    const res = await fetch(`${apiUrl}/team/${teamId}/matches`);
     const data = await res.json();
     setTeamMatches(data);
 
-    // 🔥 stats
-    const resStats = await fetch(`${apiUrl}/team-stats/${team}`);
+    const resStats = await fetch(`${apiUrl}/team-stats/${teamId}`);
     const stats = await resStats.json();
+
     setTeamStats(stats);
   };
-
 
   // ---------------- HELPERS ----------------
 
@@ -786,6 +816,7 @@ export default function Home() {
 const renderMatchCard = (match: Match) => {
   const id = match.fixture_id;
   // const stats = match.team_stats?.home;
+  console.log("FORM DATA:", match.home_form, match.away_form);
 
   return (
     <div
@@ -804,7 +835,7 @@ const renderMatchCard = (match: Match) => {
         className="grid text-center mb-3 min-w-0"
         style={{ gridTemplateColumns: "45% 10% 45%" }}
       >
-        <div onClick={() => openTeamModal(match.home_team)}>
+        <div onClick={() => openTeamModal(match.home_team_id, match.home_team)}>
           <p className="text-sm font-medium truncate">
             {match.home_team}
           </p>
@@ -813,7 +844,7 @@ const renderMatchCard = (match: Match) => {
 
         <div className="text-[var(--muted)] text-xs">{t.vs}</div>
 
-        <div onClick={() => openTeamModal(match.away_team)}>
+        <div onClick={() => openTeamModal(match.away_team_id, match.away_team)}>
           <p className="text-sm font-medium truncate">
             {match.away_team}
           </p>
@@ -1161,6 +1192,7 @@ const renderMatchCard = (match: Match) => {
                   {!loading &&
                     leagueMatches.map((match, index) => {
                     const id = match.fixture_id;
+                    // console.log("MATCH DATA:", match);
 
                     // FECHA PARTIDOS
                     return (
@@ -1181,7 +1213,7 @@ const renderMatchCard = (match: Match) => {
                           className="grid text-center mb-3"
                           style={{ gridTemplateColumns: "45% 10% 45%" }}
                           >
-                          <div onClick={() => openTeamModal(match.home_team)}>
+                          <div onClick={() => openTeamModal(match.home_team_id, match.home_team)}>
                             <p className="text-sm font-medium truncate">
                               {match.home_team}
                             </p>
@@ -1190,7 +1222,7 @@ const renderMatchCard = (match: Match) => {
 
                           <div className="text-[var(--muted)] text-xs">{t.vs}</div>
 
-                          <div onClick={() => openTeamModal(match.away_team)}>
+                          <div onClick={() => openTeamModal(match.away_team_id, match.away_team)}>
                             <p className="text-sm font-medium truncate">
                               {match.away_team}
                             </p>                            
@@ -1601,91 +1633,115 @@ const renderMatchCard = (match: Match) => {
           <SettingsView />
         )}
         
+{/* TEAM MODAL */}
+{selectedTeam && (
+  <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+    <div className="bg-[var(--card)] p-4 rounded-xl border border-[var(--border)] w-[95%] md:w-[600px] text-[var(--text)]">
+      <div className="text-base md:text-lg">
+        {/* TITLE */}
+        <h2 className="text-xl md:text-2xl font-bold mb-4 text-center">
+          {selectedTeamName}
+        </h2>
 
-        {/* TEAM MODAL */}
-        {selectedTeam && (
-          <div className="fixed inset-0 bg-black/80 flex items-center justify-center">
-            <div className="bg-[var(--card)] p-6 rounded-xl border border-[var(--border)] w-[90%] md:w-[600px] text-[var(--text)]">
-          
-            {/* TITLE */}
-            <h2 className="text-xl font-bold mb-4 text-center">
-            {selectedTeam}
-            </h2>
-          
-            {/* MATCHES */}
-            <div className="space-y-2">
-              {teamMatches.map((m, i) => {
-                const isDraw = m.home_goals === m.away_goals;
+        {/* MATCHES */}
+        <div className="space-y-1.5 mb-3">
 
-                const isWin =
-                  (m.home === selectedTeam && m.home_goals > m.away_goals) ||
-                  (m.away === selectedTeam && m.away_goals > m.home_goals);
+          {[...teamMatches].reverse().map((m, i) => {
 
-                const isLoss =
-                  (m.home === selectedTeam && m.home_goals < m.away_goals) ||
-                  (m.away === selectedTeam && m.away_goals < m.home_goals);
+            // 🔥 COMPARAR POR NOMBRE (NO ID)
+            const teamId = Number(selectedTeam);
 
-                return (
-                  <div
-                    key={i}
-                    className="grid grid-cols-3 items-center text-lg border-b pb-2"
-                  >
-                    {/* HOME */}
-                    <span className="text-center pr-2">{m.home}</span>
+            const isHome = Number(m.home_team_id) === teamId;
+            const isAway = Number(m.away_team_id) === teamId;
 
-                    {/* RESULT */}
-                    <span
-                      className={`text-center font-bold text-2xl ${
-                        isDraw
-                          ? "text-[var(--warning)]"
-                          : isWin
-                          ? "text-[var(--success)]"
-                          : isLoss
-                          ? "text-[var(--danger)]"
-                          : ""
-                      }`}
-                    >
-                      {m.home_goals} - {m.away_goals}
-                    </span>
+            const isWin =
+              (isHome && m.home_goals > m.away_goals) ||
+              (isAway && m.away_goals > m.home_goals);
 
-                    {/* AWAY */}
-                    <span className="text-center pl-2">{m.away}</span>
-                  </div>
-                );
-              })}
-            </div>
+            const isDraw = m.home_goals === m.away_goals;
 
-            {/* STATS */}
-            {teamStats && (
-              <div className="mt-4 border-t border-[var(--border)] pt-4">
+            const isLost =
+              (isHome && m.home_goals < m.away_goals) ||
+              (isAway && m.away_goals < m.home_goals);
 
-                <p className="text-xs text-[var(--muted)] mb-2">
-                  {t.statistics}
-                </p>
+            console.log({
+              match: m.home + " vs " + m.away,
+              isWin,
+              isDraw,
+              isLost,
+            });  
 
-                <div className="grid grid-cols-2 gap-2 text-xs">
+            return (
+              <div
+                key={i}
+                className="grid grid-cols-3 items-center text-base md:text-lg border-b border-[var(--border)] py-1"
+              >
+                <span className="text-base md:text-lg text-right pr-2 truncate">{m.home}</span>
+                <span
+                  className="text-center text-lg md:text-xl font-bold px-2 py-1"
+                  style={{
+                    color: isWin
+                      ? "var(--success)"
+                      : isDraw
+                      ? "var(--warning)"
+                      : isLost
+                      ? "var(--danger)"
+                      : "var(--text)"
+                  }}
+                >
+                  {m.home_goals} - {m.away_goals}
+                </span>
+                <span className="text-base md:text-lg text-left pr-2 truncate">{m.away}</span>
+              </div>
+            );
+          })}
+        </div>
 
-                  <div>⚽ {t.avgGoals}: {teamStats.avg_goals_scored ?? "-"}</div>
-                  <div>🛡️ {t.conceded}: {teamStats.avg_goals_conceded ?? "-"}</div>
+        {/* STATS */}
+        {teamStats && (() => {
+          console.log("TEAM STATS:", teamStats); // 👈 AQUÍ
 
-                  <div>🏆 {t.winRate}: {teamStats.results?.win ?? "-"}%</div>
-                  <div>📊 {t.matches}: {teamStats.matches ?? "-"}</div>
+          return (
+            <div className="border-t border-[var(--border)] pt-4">
 
-                </div>
+              <p className="text-base md:text-lg text-[var(--muted)] mb-4 text-center">
+                {/* Estadísticas */}
+              </p>
+
+              <div className="grid grid-cols-3 gap-4 text-center">
+
+                <StatBox label="Partidos" value={teamStats.matches} />
+                <StatBox label="Goles" value={teamStats.avg_goals_scored} />
+                <StatBox label="Encajados" value={teamStats.avg_goals_conceded} />
+
+                <StatBox label="Victorias" value={`${teamStats.results.win}%`} />
+                <StatBox label="Empates" value={`${teamStats.results.draw}%`} />
+                <StatBox label="Derrotas" value={`${teamStats.results.loss}%`} />
+
+                <StatBox label="BTTS" value={`${teamStats.markets.btts}%`} />
+                <StatBox label="Over 2.5" value={`${teamStats.markets.over_2_5}%`} />
+                <StatBox label="Over 3.5" value={`${teamStats.markets.over_3_5}%`} />
 
               </div>
-            )}
 
-              {/* CLOSE */}
-              <button
-                onClick={() => setSelectedTeam(null)}
-                className="mt-4 w-full bg-[var(--card)] hover:opacity-80 p-2 rounded"
-              >
-                {t.close}
-              </button>
+
+
             </div>
-          </div>
-        )}
+          );
+        })()}
+
+        {/* CLOSE */}
+        <button
+          onClick={() => setSelectedTeam(null)}
+          className="mt-5 w-full bg-[var(--card)] border border-[var(--border)] py-2 rounded hover:opacity-80"
+        >
+          Cerrar
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
 
         <TopValueModal
           open={showTopModal}

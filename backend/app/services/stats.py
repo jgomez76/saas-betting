@@ -4,13 +4,6 @@ from app.core.config import CURRENT_SEASON
 
 def get_team_stats(db: Session, team_id: int):
 
-    # matches = db.query(Fixture)\
-    #     .filter(
-    #         (Fixture.home_team_id == team_id) |
-    #         (Fixture.away_team_id == team_id)
-    #     )\
-    #     .filter(Fixture.status.in_(["FT", "AET", "PEN"]))\
-    #     .all()
     matches = db.query(Fixture)\
         .filter(
             (Fixture.home_team_id == team_id) |
@@ -66,6 +59,8 @@ def get_team_stats(db: Session, team_id: int):
 
     total = len(matches)
 
+    form = get_team_form(db, team_id)
+
     return {
         "matches": total,
         "avg_goals_scored": round(total_scored / total, 2),
@@ -79,19 +74,22 @@ def get_team_stats(db: Session, team_id: int):
             "over_2_5": round(over25 / total * 100, 1),
             "over_3_5": round(over35 / total * 100, 1),
             "btts": round(btts / total * 100, 1),
-        }
+        },
+        "form": form,
     }
 
 ## Paso 3, Home/Away Split
-def get_team_stats_split(db: Session, team: str):
+def get_team_stats_split(db: Session, team_id: int):
     home_matches = db.query(Fixture).filter(
-        Fixture.home_team == team,
-        Fixture.status == "FT"
+        Fixture.home_team_id == team_id,
+        Fixture.status == "FT",
+        Fixture.season == CURRENT_SEASON
     ).all()
 
     away_matches = db.query(Fixture).filter(
-        Fixture.away_team == team,
-        Fixture.status == "FT"
+        Fixture.away_team_id == team_id,
+        Fixture.status == "FT",
+        Fixture.season == CURRENT_SEASON
     ).all()
 
     # HOME
@@ -110,12 +108,13 @@ def get_team_stats_split(db: Session, team: str):
     }
 
 ## Paso 4, forma reciente
-def get_recent_stats(db: Session, team: str, limit: int = 5):
+def get_recent_stats(db: Session, team_id: int, limit: int = 5):
     matches = (
         db.query(Fixture)
         .filter(
-            ((Fixture.home_team == team) | (Fixture.away_team == team)),
-            Fixture.status == "FT"
+            ((Fixture.home_team_id == team_id) | (Fixture.away_team_id == team_id)),
+            Fixture.status == "FT",
+            Fixture.season == CURRENT_SEASON
         )
         .order_by(Fixture.date.desc())
         .limit(limit)
@@ -129,7 +128,7 @@ def get_recent_stats(db: Session, team: str, limit: int = 5):
     goals_conceded = 0
 
     for m in matches:
-        if m.home_team == team:
+        if m.home_team_id == team_id:
             goals_scored += m.home_goals
             goals_conceded += m.away_goals
         else:
@@ -141,12 +140,13 @@ def get_recent_stats(db: Session, team: str, limit: int = 5):
         "conceded_avg": goals_conceded / len(matches),
     }
 
-def get_team_form(db: Session, team: str, limit: int = 5):
+def get_team_form(db: Session, team_id: int, limit: int = 5):
     matches = (
         db.query(Fixture)
         .filter(
-            ((Fixture.home_team == team) | (Fixture.away_team == team)),
-            Fixture.status.in_(["FT", "AET", "PEN"])
+            ((Fixture.home_team_id == team_id) | (Fixture.away_team_id == team_id)),
+            Fixture.status.in_(["FT", "AET", "PEN"]),
+            Fixture.season == CURRENT_SEASON
         )
         .order_by(Fixture.date.desc())
         .limit(limit)
@@ -159,7 +159,7 @@ def get_team_form(db: Session, team: str, limit: int = 5):
     form = ""
 
     for m in matches:
-        if m.home_team == team:
+        if m.home_team_id == team_id:
             if m.home_goals > m.away_goals:
                 form += "W"
             elif m.home_goals == m.away_goals:
@@ -177,13 +177,14 @@ def get_team_form(db: Session, team: str, limit: int = 5):
     # 🔥 importante → orden correcto (más antiguo → más reciente)
     return form[::-1]
 
-def get_team_advanced_stats(db: Session, team: str):
+def get_team_advanced_stats(db: Session, team_id: int):
 
     matches = db.query(Fixture)\
         .filter(
-            (Fixture.home_team == team) |
-            (Fixture.away_team == team),
-            Fixture.status.in_(["FT", "AET", "PEN"])
+            (Fixture.home_team_id == team_id) |
+            (Fixture.away_team_id == team_id),
+            Fixture.status.in_(["FT", "AET", "PEN"]),
+            Fixture.season == CURRENT_SEASON
         )\
         .all()
 
@@ -197,7 +198,7 @@ def get_team_advanced_stats(db: Session, team: str):
     goals_conceded = 0
 
     for m in matches:
-        if m.home_team == team:
+        if m.home_team_id == team_id:
             scored = m.home_goals
             conceded = m.away_goals
         else:
@@ -215,7 +216,7 @@ def get_team_advanced_stats(db: Session, team: str):
             losses += 1
 
     return {
-        "team": team,
+        "team": team_id,
         "matches": total,
         "wins": wins,
         "draws": draws,
@@ -233,7 +234,8 @@ def get_league_stats(db: Session, league_id: int):
     matches = db.query(Fixture)\
         .filter(
             Fixture.league_id == league_id,
-            Fixture.status.in_(["FT", "AET", "PEN"])
+            Fixture.status.in_(["FT", "AET", "PEN"]),
+            Fixture.season == CURRENT_SEASON
         )\
         .all()
 

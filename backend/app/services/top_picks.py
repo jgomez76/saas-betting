@@ -2,6 +2,8 @@ import random
 from sqlalchemy.orm import Session
 from datetime import date, datetime, timezone
 from app.models.top_picks import TopPick
+from app.models.top_picks_history import TopPickHistory
+from app.models.fixture import Fixture
 from app.services.value import get_value_bets
 
 # 🎯 thresholds dinámicos
@@ -10,6 +12,21 @@ STRICT_VALUE = 0.01
 
 RELAX_PROB = 0.50
 RELAX_VALUE = -0.01
+
+#######################
+### VALORES PARA V2 ###
+#######################
+
+MIN_PROB = 0.58
+MIN_VALUE = 0.03
+MAX_ODD = 3.5
+
+TARGET_PICKS = 4
+MAX_PER_MARKET = 2
+
+#########################
+#########################
+#########################
 
 
 # -----------------------------------------
@@ -313,3 +330,206 @@ def generate_top_picks(db: Session):
     db.commit()
 
     print("TOP PICKS GENERADOS:", len(selected))
+
+
+
+def generate_top_picks_v2(db: Session):
+
+    today = date.today()
+
+    if db.query(TopPick).filter(TopPick.date == today).first():
+        print("Top picks ya generados hoy")
+        return
+
+    candidates = extract_candidates(db)
+
+    print("TOTAL CANDIDATES:", len(candidates))
+
+    enriched = []
+
+    for c in candidates:
+
+        prob = c["probability"]
+        odd = c["odd"]
+        value = c["value"]
+
+        if not prob or not odd or not value:
+            continue
+
+        # -----------------------------
+        # 🔴 FILTROS DUROS
+        # -----------------------------
+
+        if prob < MIN_PROB:
+            continue
+
+        if value < MIN_VALUE:
+            continue
+
+        if odd > MAX_ODD:
+            continue
+
+        # -----------------------------
+        # 🧠 SCORE NUEVO (CLAVE)
+        # -----------------------------
+
+        ev = prob * odd - 1
+
+        # penaliza odds altas (riesgo)
+        risk_penalty = odd ** 0.5
+
+        score = (ev * prob) / risk_penalty
+
+        c["score"] = score
+        c["ev"] = ev
+
+        enriched.append(c)
+
+    if not enriched:
+        print("NO HAY PICKS TRAS FILTRO")
+        return
+
+    # -----------------------------
+    # 🔥 ORDENAR
+    # -----------------------------
+
+    enriched = sorted(enriched, key=lambda x: x["score"], reverse=True)
+
+    # -----------------------------
+    # 🚫 EVITAR DUPLICADOS PARTIDO
+    # -----------------------------
+
+    used_fixtures = set()
+    used_markets = {}
+
+    final = []
+
+    for p in enriched:
+
+        fixture_id = p["fixture_id"]
+        market = p["market"]
+
+        if fixture_id in used_fixtures:
+            continue
+
+        # limitar por mercado
+        if used_markets.get(market, 0) >= MAX_PER_MARKET:
+            continue
+
+        final.append(p)
+
+        used_fixtures.add(fixture_id)
+        used_markets[market] = used_markets.get(market, 0) + 1
+
+        if len(final) >= TARGET_PICKS:
+            break
+
+    if not final:
+        print("NO PICKS TRAS FILTRO FINAL")
+        return
+
+    # -----------------------------
+    # 🎯 FREE PICK = EL MEJOR
+    # -----------------------------
+
+    for i, p in enumerate(final):
+        db.add(TopPick(
+            date=today,
+            fixture_id=p["fixture_id"],
+            match=p["match"],
+            market=p["market"],
+            selection=p["selection"],
+            probability=p["probability"],
+            odd=p["odd"],
+            bookmaker=p["bookmaker"],
+            value=p["value"],
+            kickoff=p["kickoff"],
+            is_free=(i == 0)  # 🔥 EL MEJOR
+        ))
+
+        db.add(TopPickHistory(
+            date=today,
+            fixture_id=p["fixture_id"],
+            market=p["market"],
+            selection=p["selection"],
+            odd=p["odd"],
+            probability=p["probability"],
+            value=p["value"],
+        ))
+
+    db.commit()
+
+    print("TOP PICKS V2:", len(final))
+
+def update_top_pick_results(db: Session):
+
+    picks = db.query(TopPickHistory)\
+        .filter(TopPickHistory.result == None)\
+        .all()
+
+    for p in picks:
+
+        fixture = db.query(Fixture)\
+            .filter(Fixture.api_id == p.fixture_id)\
+            .first()
+
+        if not fixture or fixture.status != "FT":
+            continue
+
+        home_goals = fixture.home_goals or 0
+        away_goals = fixture.away_goals or 0
+        total_goals = home_goals + away_goals
+
+        # -----------------------------
+        # 1X2
+        # -----------------------------
+        if p.market == "1X2":
+
+            if p.selection == "home" and home_goals > away_goals:
+                p.result = "win"
+            elif p.selection == "away" and away_goals > home_goals:
+                p.result = "win"
+            elif p.selection == "draw" and home_goals == away_goals:
+                p.result = "win"
+            else:
+                p.result = "loss"
+
+        # -----------------------------
+        # OVER / UNDER 2.5
+        # -----------------------------
+        elif p.market == "OU25":
+
+            if p.selection == "over" and total_goals > 2.5:
+                p.result = "win"
+            elif p.selection == "under" and total_goals <= 2.5:
+                p.result = "win"
+            else:
+                p.result = "loss"
+
+        # -----------------------------
+        # OVER / UNDER 3.5
+        # -----------------------------
+        elif p.market == "OU35":
+
+            if p.selection == "over" and total_goals > 3.5:
+                p.result = "win"
+            elif p.selection == "under" and total_goals <= 3.5:
+                p.result = "win"
+            else:
+                p.result = "loss"
+
+        # -----------------------------
+        # BTTS
+        # -----------------------------
+        elif p.market == "BTTS":
+
+            both_score = home_goals > 0 and away_goals > 0
+
+            if p.selection == "yes" and both_score:
+                p.result = "win"
+            elif p.selection == "no" and not both_score:
+                p.result = "win"
+            else:
+                p.result = "loss"
+
+    db.commit()

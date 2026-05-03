@@ -32,7 +32,7 @@ from app.services.notifications import send_email, send_telegram
 from app.services.odds import save_odds
 from app.services.value import get_value_bets, get_top_value_bets
 from app.services.top_picks import generate_top_picks
-from app.services.stats import get_team_advanced_stats, get_league_stats
+from app.services.stats import get_team_stats, get_league_stats
 
 from uuid import uuid4
 
@@ -81,6 +81,8 @@ def value_bets(db: Session = Depends(get_db)):
             "api_id": v.fixture_id,  # 👈 mantenemos compatibilidad
             "home_team": v.home_team,
             "away_team": v.away_team,
+            "home_team_id": v.home_team_id,
+            "away_team_id": v.away_team_id,
             "league": v.league,
             "league_id": v.league_id,
             "date": v.date,
@@ -124,12 +126,12 @@ def update_odds(db: Session = Depends(get_db)):
 
     return {"message": "Odds updated (today + next 2 days)"}
 
-@router.get("/team/{team_name}/matches")
-def get_team_matches(team_name: str, db: Session = Depends(get_db)):
+@router.get("/team/{team_id}/matches")
+def get_team_matches(team_id: int, db: Session = Depends(get_db)):
     matches = (
         db.query(Fixture)
         .filter(
-            (Fixture.home_team == team_name) | (Fixture.away_team == team_name),
+            (Fixture.home_team_id == team_id) | (Fixture.away_team_id == team_id),
             Fixture.status == "FT"
         )
         .order_by(Fixture.date.desc())
@@ -143,6 +145,8 @@ def get_team_matches(team_name: str, db: Session = Depends(get_db)):
         result.append({
             "home": m.home_team,
             "away": m.away_team,
+            "home_team_id": m.home_team_id,
+            "away_team_id": m.away_team_id,
             "home_goals": m.home_goals,
             "away_goals": m.away_goals,
             "date": m.date
@@ -1003,9 +1007,9 @@ def remove_favorite(
 
     return {"status": "deleted"}
 
-@router.get("/team-stats/{team}")
-def team_stats(team: str, db: Session = Depends(get_db)):
-    return get_team_advanced_stats(db, team)
+@router.get("/team-stats/{team_id}")
+def team_stats(team_id: int, db: Session = Depends(get_db)):
+    return get_team_stats(db, team_id)
 
 @router.get("/league-stats/{league_id}")
 def league_stats(league_id: int, db: Session = Depends(get_db)):

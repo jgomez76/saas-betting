@@ -21,8 +21,10 @@ for m in matches:
         ValueBet.fixture_id == m["fixture_id"]
     ).first()
 
-    home_form = get_team_form(db, m["home_team"])
-    away_form = get_team_form(db, m["away_team"])
+    # home_form = get_team_form(db, m["home_team"])
+    # away_form = get_team_form(db, m["away_team"])
+    home_form = get_team_form(db, m["home_team_id"])
+    away_form = get_team_form(db, m["away_team_id"])
 
     if existing:
         # 🔄 UPDATE
