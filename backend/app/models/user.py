@@ -38,6 +38,10 @@ class User(Base):
     # ✅ RELACIÓN CON BETS
     bets = relationship("Bet", back_populates="user", cascade="all, delete")
     
+    # REACTIVACION CUENTA
+    reactivation_token = Column(String, nullable=True)
+    reactivation_expires = Column(DateTime, nullable=True)
+    
     # Para mas tarde
     # subscription_status = Column(String, default="inactive")
     # subscription_end = Column(DateTime, nullable=True)

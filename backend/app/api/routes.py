@@ -4,7 +4,7 @@ from fastapi.responses import StreamingResponse, JSONResponse
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta, date
-from jose import jwt, JWTError
+from jose import jwt
 from collections import defaultdict
 from pydantic import BaseModel
 
@@ -12,7 +12,7 @@ from app.core.database import SessionLocal
 from app.core.config import CURRENT_SEASON, LEAGUES, SELECTED_LEAGUES
 from app.core.auth import create_token
 from app.core.security import SECRET_KEY, ALGORITHM, create_access_token, hash_password, verify_password
-from app.core.email import send_verification_email, send_reset_email
+from app.core.email import send_verification_email, send_reset_email, send_reactivation_email
 
 from app.models.fixture import Fixture
 from app.models.user import User
@@ -55,17 +55,15 @@ def get_db():
     finally:
         db.close()
 
+def generate_reactivation_token():
+    return secrets.token_urlsafe(32)
+
 
 @router.get("/fixtures/save/{league_id}/{season}")
 def fetch_and_store(league_id: int, season: int, db: Session = Depends(get_db)):
     data = get_fixtures(league_id, season)
     save_fixtures(db, data)
     return {"message": f"Fixtures saved for league {league_id}, season {season}"}
-
-
-# @router.get("/value-bets")
-# def value_bets(db: Session = Depends(get_db)):
-#     return get_value_bets(db)
 
 
 @router.get("/value-bets")
@@ -392,7 +390,7 @@ def login(data: LoginRequest, response: Response, db: Session = Depends(get_db))
 
         if not user:
             raise HTTPException(status_code=401, detail="Invalid credentials")
-
+    
         # 🔥 proteger verify_password
         try:
             valid = verify_password(data.password, user.password)
@@ -404,7 +402,7 @@ def login(data: LoginRequest, response: Response, db: Session = Depends(get_db))
             raise HTTPException(status_code=401, detail="Invalid credentials")
         
         if not user.is_active:
-            raise HTTPException(status_code=403, detail="User deactivated") 
+            raise HTTPException(status_code=403, detail="ACCOUNT_DISABLED") 
 
         if not user.is_verified:
             raise HTTPException(status_code=403, detail="Email not verified")
@@ -607,22 +605,101 @@ def deactivate_account(
     user=Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    db_user = db.query(User).filter(User.email == user["sub"]).first()
+    print("🔥 USER OBJ:", user)
+    print("🔥 USER EMAIL:", user.email)
+
+    db_user = db.query(User).filter(User.email == user.email).first()
+
+    print("🔥 DB USER:", db_user)
 
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # 🔥 desactivar usuario
     db_user.is_active = False
-    db.commit()
 
-    # 🔥 LOGOUT AUTOMÁTICO (CLAVE)
+    try:
+        db.commit()
+        print("✅ COMMIT OK")
+    except Exception as e:
+        print("💥 DB ERROR:", e)
+        raise
+
     response.delete_cookie(
         key="access_token",
         path="/",
     )
 
     return {"message": "account deactivated"}
+
+# REACTIVAR CUENTA
+
+class ReactivateRequest(BaseModel):
+    email: str
+
+@router.post("/request-reactivation")
+def request_reactivation(
+    data: ReactivateRequest,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+):
+    user = db.query(User).filter(User.email == data.email).first()
+
+    # 🔐 No revelar nada
+    if not user or user.is_active:
+        return {"message": "ok"}
+
+    token = secrets.token_urlsafe(32)
+
+    user.reactivation_token = token
+    user.reactivation_expires = datetime.utcnow() + timedelta(hours=1)
+
+    db.commit()
+
+    # 🔥 TEMPORAL (sin email)
+    # print(f"👉 REACTIVATE LINK: http://localhost:3000/reactivate?token={token}")
+    background_tasks.add_task(
+        send_reactivation_email,
+        user.email,
+        token
+    )
+
+    return {"message": "sent"}
+
+@router.get("/reactivate-account")
+def reactivate_account(
+    token: str,
+    response: Response,
+    db: Session = Depends(get_db),
+):
+    user = db.query(User).filter(User.reactivation_token == token).first()
+
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid token")
+
+    if user.reactivation_expires < datetime.utcnow():
+        raise HTTPException(status_code=400, detail="Token expired")
+
+    # ✅ reactivar
+    user.is_active = True
+    user.reactivation_token = None
+    user.reactivation_expires = None
+    db.commit()
+
+    # 🔐 login automático
+    token_jwt = create_access_token({"sub": str(user.id)})
+
+    response.set_cookie(
+        key="access_token",
+        value=token_jwt,
+        httponly=True,
+        samesite="lax",
+        secure=False,
+        path="/",
+    )
+
+    return {"message": "account reactivated"}
+
+
 
 
 # REENVIO DE VERIFICACION
@@ -679,6 +756,12 @@ def oauth_login(data: dict, db: Session = Depends(get_db)):
         )
         db.add(user)
         db.commit()
+
+    if not user.is_active:
+        raise HTTPException(
+            status_code=403,
+            detail="ACCOUNT_DISABLED"
+        )
 
 
     if not user.name or user.name == "" or user.name == user.email:

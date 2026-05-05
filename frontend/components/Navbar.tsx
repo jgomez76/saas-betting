@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, memo } from "react";
 import Image from "next/image";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import { LEAGUES } from "@/lib/config/leagues";
@@ -32,7 +32,7 @@ type Props = {
   avatar: string;
 };
 
-export default function Navbar({
+const Navbar = memo(function Navbar({
   onOpenLogin,
   onLogout,
   onOpenProfile,
@@ -50,7 +50,6 @@ export default function Navbar({
   name,
   avatar,
 }: Props) {
-
   const { changeLang, t } = useLanguage();
 
   const [openMarkets, setOpenMarkets] = useState(false);
@@ -59,11 +58,26 @@ export default function Navbar({
 
   const marketsRef = useRef<HTMLDivElement>(null);
   const leaguesRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  const API =
+    typeof window !== "undefined"
+      ? window.location.hostname === "localhost"
+        ? "http://localhost:8000"
+        : `http://${window.location.hostname}:8000`
+      : "";
+
+  const safeAvatar =
+    avatar && avatar !== "null" && avatar !== "undefined"
+      ? avatar.startsWith("http")
+        ? avatar
+        : `${API}${avatar}`
+      : null;
 
   const currentLeague =
     leagueFilter === "ALL"
       ? t.all
-      : LEAGUES.find(l => String(l.id) === leagueFilter)?.name;
+      : LEAGUES.find((l) => String(l.id) === leagueFilter)?.name;
 
   const marketLabels: Record<string, string> = {
     ALL: t.all,
@@ -73,14 +87,20 @@ export default function Navbar({
     BTTS: "BTTS",
   };
 
-  // cerrar dropdowns
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (marketsRef.current && !marketsRef.current.contains(event.target as Node)) {
-        setOpenMarkets(false);
-      }
-      if (leaguesRef.current && !leaguesRef.current.contains(event.target as Node)) {
-        setOpenLeagues(false);
+      if (
+        marketsRef.current &&
+        !marketsRef.current.contains(event.target as Node)
+      ) setOpenMarkets(false);
+
+      if (
+        leaguesRef.current &&
+        !leaguesRef.current.contains(event.target as Node)
+      ) setOpenLeagues(false);
+
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpenMenu(false);
       }
     };
 
@@ -89,14 +109,13 @@ export default function Navbar({
   }, []);
 
   return (
-    <div className="w-full bg-[var(--bg)] border-b border-[var(--border)] text-[var(--text)] p-4 mb-6 rounded-xl shadow flex flex-col gap-4">
+    <div className="w-full bg-[var(--bg)] border-b border-[var(--border)] text-[var(--text)] p-4 mb-6 rounded-xl shadow">
 
-      {/* ================= LEFT ================= */}
       <div className="flex flex-wrap items-center gap-3">
 
-        {/* LOGIN */}
+        {/* USER */}
         {email ? (
-          <div className="relative">
+          <div className="relative" ref={menuRef}>
             <div
               onClick={(e) => {
                 e.stopPropagation();
@@ -104,17 +123,18 @@ export default function Navbar({
               }}
               className="flex items-center gap-2 cursor-pointer"
             >
-              {avatar ? (
+              {safeAvatar ? (
                 <Image
-                  src={avatar}
+                  src={safeAvatar}
                   alt="avatar"
                   width={32}
                   height={32}
                   className="rounded-full"
+                  unoptimized
                 />
               ) : (
                 <div className="w-8 h-8 rounded-full bg-[var(--card)] flex items-center justify-center text-xs">
-                  {email[0]?.toUpperCase()}
+                  {email[0]?.toUpperCase() || "👤"}
                 </div>
               )}
 
@@ -150,25 +170,7 @@ export default function Navbar({
           </button>
         )}
 
-        {/* ================= LIGAS ================= */}
-
-        {/* 📱 MOBILE */}
-        <div className="md:hidden">
-          <select
-            value={leagueFilter}
-            onChange={(e) => setLeagueFilter(e.target.value)}
-            className="px-3 py-1 rounded text-sm bg-[var(--card)] border border-[var(--border)]"
-          >
-            <option value="ALL">{t.all}</option>
-            {LEAGUES.map(l => (
-              <option key={l.id} value={l.id}>
-                {l.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* 💻 DESKTOP */}
+        {/* LEAGUES */}
         <div className="hidden md:block relative" ref={leaguesRef}>
           <button
             onClick={() => setOpenLeagues(!openLeagues)}
@@ -186,7 +188,7 @@ export default function Navbar({
                 {t.all}
               </div>
 
-              {LEAGUES.map(l => (
+              {LEAGUES.map((l) => (
                 <div
                   key={l.id}
                   onClick={() => setLeagueFilter(String(l.id))}
@@ -199,24 +201,7 @@ export default function Navbar({
           )}
         </div>
 
-        {/* ================= MERCADOS ================= */}
-
-        {/* 📱 MOBILE */}
-        <div className="md:hidden">
-          <select
-            value={marketFilter}
-            onChange={(e) => setMarketFilter(e.target.value)}
-            className="px-3 py-1 rounded text-sm bg-[var(--card)] border border-[var(--border)]"
-          >
-            <option value="ALL">{t.all}</option>
-            <option value="1X2">1X2</option>
-            <option value="OU25">Over 2.5</option>
-            <option value="OU35">Over 3.5</option>
-            <option value="BTTS">BTTS</option>
-          </select>
-        </div>
-
-        {/* 💻 DESKTOP */}
+        {/* MARKETS */}
         <div className="hidden md:block relative" ref={marketsRef}>
           <button
             onClick={() => setOpenMarkets(!openMarkets)}
@@ -240,7 +225,7 @@ export default function Navbar({
           )}
         </div>
 
-        {/* 📅 FECHA */}
+        {/* DATE */}
         <select
           value={dateFilter}
           onChange={(e) => setDateFilter(e.target.value)}
@@ -268,7 +253,9 @@ export default function Navbar({
 
         {/* ODD */}
         <div className="flex items-center gap-1 text-xs">
-          <button onClick={() => setMinOdd(Math.max(1, minOdd - 0.1))}>-</button>
+          <button onClick={() => setMinOdd(Math.max(1, minOdd - 0.1))}>
+            -
+          </button>
           <input
             type="number"
             value={minOdd}
@@ -278,14 +265,19 @@ export default function Navbar({
           <button onClick={() => setMinOdd(minOdd + 0.1)}>+</button>
         </div>
 
-      </div>
+        {/* FLAGS RIGHT */}
+        <div className="flex items-center gap-2 ml-auto">
+          <button onClick={() => changeLang("en")}>
+            <Image src="/flags/gb.svg" alt="EN" width={24} height={24} />
+          </button>
+          <button onClick={() => changeLang("es")}>
+            <Image src="/flags/es.svg" alt="ES" width={24} height={24} />
+          </button>
+        </div>
 
-      {/* ================= LANG ================= */}
-      <div className="flex gap-2">
-        <button onClick={() => changeLang("en")}>🇬🇧</button>
-        <button onClick={() => changeLang("es")}>🇪🇸</button>
       </div>
-
     </div>
   );
-}
+});
+
+export default Navbar;

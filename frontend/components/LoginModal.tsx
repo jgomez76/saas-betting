@@ -1,15 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 // import { API_URL } from "@/lib/api";
-import { signIn } from "next-auth/react";
+// import { signIn } from "next-auth/react";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
+import { useSearchParams } from "next/navigation";
 
 // ---------------- TYPES ----------------
 
-type LoginResponse = {
-  message: string;
-};
+// type LoginResponse = {
+//   message: string;
+// };
 
 type Props = {
   onClose: () => void;
@@ -32,8 +33,20 @@ export default function LoginModal({ onClose, onLogin }: Props) {
   const [error, setError] = useState("");
   const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
   const [showResend, setShowResend] = useState(false);
+  const [showReactivate, setShowReactivate] = useState(false);
 
   // ---------------- LOGIN ----------------
+
+  const params = useSearchParams();
+
+  useEffect(() => {
+    const errorParam = params.get("error");
+
+    if (errorParam === "ACCOUNT_DISABLED") {
+      setError(t.accountDisabled);
+      setShowReactivate(true);
+    }
+  }, [params, t.accountDisabled]);
 
   const handleLogin = async () => {
     setError("");
@@ -59,22 +72,53 @@ export default function LoginModal({ onClose, onLogin }: Props) {
       });
 
       // 🔥 MANEJO POR STATUS CODE (PRO)
+      // if (!res.ok) {
+      //   if (res.status === 403) {
+      //     setError(t.verifyEmailFirst);
+      //     setShowResend(true);
+      //   } else if (res.status === 401) {
+      //     setError(t.invalidCredentials);
+      //     setShowResend(false);
+      //   } else {
+      //     setError(t.unexpectedError);
+      //     setShowResend(false);
+      //   }
+
+      //   return;
+      // }
+      const data = await res.json();
+
       if (!res.ok) {
+
+        // 🔥 CUENTA DESACTIVADA
+        if (data.detail === "ACCOUNT_DISABLED") {
+          setError(t.accountDisabled);
+          setShowResend(false);
+          setShowReactivate(true);
+          return;
+        }
+
+        // 🔥 EMAIL NO VERIFICADO
         if (res.status === 403) {
           setError(t.verifyEmailFirst);
           setShowResend(true);
-        } else if (res.status === 401) {
-          setError(t.invalidCredentials);
-          setShowResend(false);
-        } else {
-          setError(t.unexpectedError);
-          setShowResend(false);
+          return;
         }
 
+        // 🔥 CREDENCIALES MAL
+        if (res.status === 401) {
+          setError(t.invalidCredentials);
+          setShowResend(false);
+          return;
+        }
+
+        // 🔥 OTROS
+        setError(t.unexpectedError);
+        setShowResend(false);
         return;
       }
 
-      const data: LoginResponse = await res.json();
+      // const data: LoginResponse = await res.json();
 
       if (data.message === "ok") {
         onLogin();
@@ -88,6 +132,41 @@ export default function LoginModal({ onClose, onLogin }: Props) {
       setError(t.connectionError);
     } finally {
       setLoading(false); // 🔥 SIEMPRE
+    }
+  };
+
+  const handleReactivate = async () => {
+    if (!email) {
+      setError(t.enterEmail);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError("");
+
+      const res = await fetch(`${apiUrl}/request-reactivation`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }), // 🔥 CLAVE
+      });
+
+      if (!res.ok) {
+        setError(t.unexpectedError);
+        return;
+      }
+
+      setError(t.emailSentReactivation);
+      setShowReactivate(false);
+
+      alert(t.accountReactivated);
+
+    } catch {
+      setError(t.connectionError);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -252,14 +331,66 @@ export default function LoginModal({ onClose, onLogin }: Props) {
         )}
 
         <button
-          onClick={() => signIn("google")}
+          // onClick={() => signIn("google")}
+          onClick={async () => {
+            setError("");
+
+            // const result = await signIn("google", {
+            //   redirect: false,
+            //   callbackUrl: "/", // 👈 importante
+            // });
+
+            // 🔥 esperar a que NextAuth termine de procesar
+            setTimeout(async () => {
+              const res = await fetch(`${apiUrl}/me`, {
+                credentials: "include",
+              });
+
+              const data = await res.json();
+
+              if (!data.email) {
+                setError(t.accountDisabled);
+                setShowReactivate(true);
+                return;
+              }
+
+              onLogin();
+              onClose();
+            }, 500); // 👈 CLAVE
+          }}
           className="w-full bg-white text-black py-2 rounded mb-2"
         >
           🔵 {t.continueWithGoogle}
         </button>
 
         <button
-          onClick={() => signIn("github")}
+          // onClick={() => signIn("github")}
+          onClick={async () => {
+            setError("");
+
+            // const result = await signIn("google", {
+            //   redirect: false,
+            //   callbackUrl: "/", // 👈 importante
+            // });
+
+            // 🔥 esperar a que NextAuth termine de procesar
+            setTimeout(async () => {
+              const res = await fetch(`${apiUrl}/me`, {
+                credentials: "include",
+              });
+
+              const data = await res.json();
+
+              if (!data.email) {
+                setError(t.accountDisabled);
+                setShowReactivate(true);
+                return;
+              }
+
+              onLogin();
+              onClose();
+            }, 500); // 👈 CLAVE
+          }}
           className="w-full bg-black text-white py-2 rounded"
         >
           ⚫ {t.continueWithGithub}
@@ -364,6 +495,15 @@ export default function LoginModal({ onClose, onLogin }: Props) {
         >
           {t.cancel}
         </button>
+
+        {showReactivate && (
+          <button
+            onClick={handleReactivate}
+            className="w-full text-[var(--primary)] text-sm mb-3 hover:underline"
+          >
+            🔁 {t.reactivateAccount}
+          </button>
+        )}
 
       </div>
     </div>

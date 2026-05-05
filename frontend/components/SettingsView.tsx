@@ -1,50 +1,145 @@
 "use client";
 
+import { useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import type { Theme } from "@/context/ThemeContext";
 import FavoriteLeagues from "@/components/FavoriteLeagues";
 import StakeSettings from "@/components/StakeSettings";
+import ProfileModal from "@/components/ProfileModal";
+import DeleteAccountModal from "@/components/DeleteAccountModal";
+
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
+import { User } from "@/types/user";
 import Image from "next/image";
 import { useSubscription } from "@/context/SubscriptionContext";
 
-/* 🔒 simulación (luego lo conectas con backend) */
+/* THEMES */
 const FREE_THEMES: Theme[] = ["trader", "sportsbook", "datalab"];
-// const FREE_THEMES: Theme[] = ["trader", "sportsbook", "datalab", "neon", "futuristic", "classic"];
 const PRO_THEMES: Theme[] = ["neon", "futuristic", "classic"];
 
-export default function SettingsView() {
+/* 🔥 COMPONENTE FUERA (CLAVE) */
+function Section({
+  title,
+  open,
+  toggle,
+  children,
+}: {
+  title: string;
+  open: boolean;
+  toggle: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl">
+      <div
+        onClick={toggle}
+        className="flex justify-between items-center p-4 cursor-pointer hover:bg-[var(--hover)]"
+      >
+        <span className="font-semibold">{title}</span>
+        <span>{open ? "▼" : "▶️"}</span>
+      </div>
+
+      {open && <div className="p-4 pt-0">{children}</div>}
+    </div>
+  );
+}
+
+export default function SettingsView({
+  user,
+  onLogout,
+  onRefreshUser,
+}: {
+  user: User;
+  onLogout: () => void;
+  onRefreshUser: () => void;
+}) {
   const { theme, setTheme } = useTheme();
   const { lang, changeLang, t } = useLanguage();
+  const { isPremium } = useSubscription();
 
-  // const isPremium = false; // 🔥 luego lo conectas con tu estado real
-  const { isPremium } = useSubscription(); // 🔥 luego lo conectas con tu estado real
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const renderThemeButton = (t: Theme, isPro: boolean = false) => {
+  const [openAppearance, setOpenAppearance] = useState(true);
+  const [openPreferences, setOpenPreferences] = useState(false);
+  const [openAccount, setOpenAccount] = useState(false);
+
+  const [openLang, setOpenLang] = useState(true);
+  const [openFav, setOpenFav] = useState(false);
+  const [openStake, setOpenStake] = useState(false);
+
+  const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+
+  const API =
+    typeof window !== "undefined"
+      ? window.location.hostname === "localhost"
+        ? "http://localhost:8000"
+        : `http://${window.location.hostname}:8000`
+      : "";
+
+  // // 🔓 LOGOUT (usa el que ya tienes)
+  // const handleLogout = async () => {
+  //   await fetch(`${API}/logout`, {
+  //     method: "POST",
+  //     credentials: "include",
+  //   });
+  //   window.location.reload();
+  // };
+
+ 
+
+
+  // ⭐ PREMIUM (placeholder limpio)
+  const handleUpgrade = () => {
+    alert(t.premiumComingSoon);
+  };
+
+   // ❌ DELETE ACCOUNT
+  const handleDeleteAccount = async () => {
+    try {
+      const res = await fetch(`${API}/deactivate-account`, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (!res.ok) throw new Error();
+
+      setSuccessMsg(t.accountDeleted);
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+
+    } catch {
+      setErrorMsg(t.errorDeletingAccount);
+    }
+  };
+
+  const renderThemeButton = (tt: Theme, isPro: boolean = false) => {
     const isLocked = isPro && !isPremium;
 
     return (
       <button
-        key={t}
+        key={tt}
         onClick={() => {
           if (isLocked) return;
-          setTheme(t);
+          setTheme(tt);
         }}
         className={`relative p-3 rounded-lg border transition text-sm capitalize flex items-center justify-center
           ${
-            theme === t
+            theme === tt
               ? "bg-[var(--accent)] text-white border-transparent"
               : "bg-[var(--bg)] border-[var(--border)] hover:bg-[var(--hover)]"
           }
           ${isLocked ? "opacity-50 cursor-not-allowed" : ""}
         `}
       >
-        {t}
+        {tt}
 
-        {/* 🔒 BADGE PRO */}
-        {isPro && (
-          <span className="absolute top-1 right-1 text-[10px] px-1.5 py-0.5 rounded bg-yellow-500 text-black font-bold">
-            🔒 Premium
+        {isPro && !isPremium && (
+          <span className="absolute top-1 right-1 text-[9px] px-1 py-0.5 rounded bg-yellow-500 text-black">
+            PRO
           </span>
         )}
       </button>
@@ -52,125 +147,163 @@ export default function SettingsView() {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto text-[var(--text)] space-y-8">
+    <div className="w-full max-w-3xl mx-auto text-[var(--text)] space-y-4">
 
-      {/* TITLE */}
       <h1 className="text-2xl font-bold">⚙️ {t.settings}</h1>
 
-      {/* ---------------- APARIENCIA ---------------- */}
-      <section className="space-y-3">
-        <h2 className="text-sm text-[var(--muted)] uppercase tracking-wide">
-          {t.appearance}
-        </h2>
+      {/* APPEARANCE */}
+      <Section
+        title={`🎨 ${t.appearance}`}
+        open={openAppearance}
+        toggle={() => setOpenAppearance(!openAppearance)}
+      >
+        <div className="space-y-4">
 
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 space-y-6">
-
-          {/* FREE THEMES */}
           <div>
-            <p className="text-sm mb-2 text-[var(--muted)]">{t.freeThemes}</p>
-
+            <p className="text-sm mb-2 text-[var(--muted)]">
+              {t.freeThemes}
+            </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {FREE_THEMES.map((t) => renderThemeButton(t))}
+              {FREE_THEMES.map((tt) => renderThemeButton(tt))}
             </div>
           </div>
 
-          {/* PRO THEMES */}
           <div>
             <p className="text-sm mb-2 text-[var(--muted)]">
               {t.premiumThemes}
             </p>
-
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {PRO_THEMES.map((t) => renderThemeButton(t, true))}
+              {PRO_THEMES.map((tt) => renderThemeButton(tt, true))}
             </div>
           </div>
 
         </div>
-      </section>
+      </Section>
 
-      {/* ---------------- PREFERENCIAS ---------------- */}
-      <section className="space-y-3">
-        <h2 className="text-sm text-[var(--muted)] uppercase tracking-wide">
-          {t.preferences}
-        </h2>
+      {/* PREFERENCES */}
+      <Section
+        title={`⚙️ ${t.preferences}`}
+        open={openPreferences}
+        toggle={() => setOpenPreferences(!openPreferences)}
+      >
 
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 space-y-3">
-          <div className="space-y-2">
+        <Section
+          title={`🌐 ${t.language}`}
+          open={openLang}
+          toggle={() => setOpenLang(!openLang)}
+        >
+          <div className="flex gap-3">
 
-            <p className="text-sm text-[var(--muted)] uppercase tracking-wide">
-              🌐 {t.language}
-            </p>
+            <button
+              onClick={() => changeLang("en")}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg border
+                ${lang === "en"
+                  ? "border-[var(--accent)] bg-[var(--accent)]/10"
+                  : "border-[var(--border)] opacity-70"}
+              `}
+            >
+              <Image src="/flags/gb.svg" alt="EN" width={28} height={28} />
+              {t.english}
+            </button>
 
-            <div className="flex gap-3">
-
-              <button
-                onClick={() => changeLang("en")}
-                className={`
-                  flex items-center gap-2 px-3 py-2 rounded-lg border
-                  ${lang === "en"
-                    ? "border-[var(--accent)] bg-[var(--accent)]/10"
-                    : "border-[var(--border)] opacity-70"}
-                `}
-              >
-                          <Image
-                            src="/flags/gb.svg"
-                            alt="English"
-                            width={72}
-                            height={72}
-                            className="rounded-sm"
-                          />
-                <span>{t.english}</span>
-              </button>
-
-              <button
-                onClick={() => changeLang("es")}
-                className={`
-                  flex items-center gap-2 px-3 py-2 rounded-lg border
-                  ${lang === "es"
-                    ? "border-[var(--accent)] bg-[var(--accent)]/10"
-                    : "border-[var(--border)] opacity-70"}
-                `}
-              >
-                          <Image
-                            src="/flags/es.svg"
-                            alt="Español"
-                            width={72}
-                            height={72}
-                            className="rounded-sm"
-                          />
-                <span>{t.spanish}</span>
-              </button>
-
-            </div>
+            <button
+              onClick={() => changeLang("es")}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg border
+                ${lang === "es"
+                  ? "border-[var(--accent)] bg-[var(--accent)]/10"
+                  : "border-[var(--border)] opacity-70"}
+              `}
+            >
+              <Image src="/flags/es.svg" alt="ES" width={28} height={28} />
+              {t.spanish}
+            </button>
 
           </div>
-        </div>
+        </Section>
 
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 space-y-3">
-
+        <Section
+          title={`⭐ ${t.favoriteLeagues}`}
+          open={openFav}
+          toggle={() => setOpenFav(!openFav)}
+        >
           <FavoriteLeagues />
-        </div>
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 space-y-3">
+        </Section>
+
+        <Section
+          title={`💰 ${t.stakeSettings}`}
+          open={openStake}
+          toggle={() => setOpenStake(!openStake)}
+        >
           <StakeSettings />
+        </Section>
+
+      </Section>
+
+      {/* ACCOUNT */}
+      <Section
+        title={`👤 ${t.myAccount}`}
+        open={openAccount}
+        toggle={() => setOpenAccount(!openAccount)}
+      >
+        <div className="space-y-3">
+
+          {/* PROFILE */}
+          <button
+            onClick={() => setShowProfileModal(true)}
+            className="w-full text-left p-2 hover:bg-[var(--hover)] rounded"
+          >
+            👤 {t.profile}
+          </button>
+
+          {/* PREMIUM */}
+          <button
+            onClick={handleUpgrade}
+            className="w-full text-left p-2 hover:bg-[var(--hover)] rounded"
+          >
+            ⭐ {isPremium ? t.premiumActive : t.upgradeToPremium}
+          </button>
+
+          {/* DELETE ACCOUNT */}
+          <button
+            onClick={() => setShowDeleteModal(true)}
+            className="w-full text-left p-2 hover:bg-[var(--hover)] rounded text-red-500"
+          >
+            ❌ {t.deleteAccount}
+          </button>
 
         </div>
-      </section>
+      </Section>
 
-      {/* ---------------- CUENTA ---------------- */}
-      <section className="space-y-3">
-        <h2 className="text-sm text-[var(--muted)] uppercase tracking-wide">
-          {t.account}
-        </h2>
+      {showProfileModal && (
+        <ProfileModal
+          user={user}
+          onClose={() => setShowProfileModal(false)}
+          onLogout={onLogout}
+          onRefreshUser={onRefreshUser}
+        />
+      )}
 
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 space-y-3">
+      {showDeleteModal && (
+        <DeleteAccountModal
+          onClose={() => setShowDeleteModal(false)}
+          onConfirm={() => {
+            setShowDeleteModal(false);
+            handleDeleteAccount();
+          }}
+        />
+      )}
 
-          <div className="flex justify-between items-center">
-            <span>👤 {t.profile}</span>
-            <span className="text-[var(--muted)] text-sm">{t.manage}</span>
-          </div>
-
+      {errorMsg && (
+        <div className="text-red-500 text-sm mt-2 text-center">
+          {errorMsg}
         </div>
-      </section>
+      )}
+
+      {successMsg && (
+        <div className="text-green-500 text-sm mt-2 text-center">
+          {successMsg}
+        </div>
+      )}
 
     </div>
   );

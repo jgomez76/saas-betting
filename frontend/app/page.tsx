@@ -17,13 +17,18 @@ import { Match } from "@/types/match";
 import { Bet } from "@/types/bet";
 import { TeamStats } from "@/types/stats";
 
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
+
 import { useSubscription } from "@/context/SubscriptionContext"; 
+
 import { getStakeFromOdd, getStakeRules } from "@/lib/stake";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 
 import { useBets } from "@/hooks/useBets";
 import { useFavorites } from "@/hooks/useFavorites";
+import { useFilters } from "@/hooks/useFilters";
+
 
 // ---------------- TYPES ----------------
 
@@ -50,6 +55,8 @@ type TopPick = {
   is_free: boolean;
 };
 
+
+
 // ---------------- COMPONENT ----------------
 
 export default function Home() {
@@ -69,10 +76,6 @@ export default function Home() {
   const [showMenu, setShowMenu] = useState(false);
 
   const [loading, setLoading] = useState(true);
-
-  const [marketFilter, setMarketFilter] = useState("1X2");
-  const [leagueFilter, setLeagueFilter] = useState("ALL");
-  const [dateFilter, setDateFilter] = useState("TODAY_TOMORROW");
   const [showTopModal, setShowTopModal] = useState(false);
 
   const [selectedTeam, setSelectedTeam] = useState<number | null>(null);
@@ -93,6 +96,25 @@ export default function Home() {
 
     return gen;
   };
+
+  const params = useSearchParams();
+
+  // useEffect(() => {
+  //   if (params.get("error") === "ACCOUNT_DISABLED") {
+  //     setShowLoginModal(true);
+  //   }
+  // }, [params]);
+  useEffect(() => {
+    const error = params.get("error");
+
+    if (error === "ACCOUNT_DISABLED") {
+      signOut({ redirect: false});
+      setShowLoginModal(true);
+
+      // 🔥 LIMPIAR URL
+      window.history.replaceState({}, "", "/");
+    }
+  }, [params]);
 
   type StatBoxProps = {
     label: string;
@@ -156,8 +178,18 @@ export default function Home() {
     }));
   };
 
-  const [minValue, setMinValue] = useState(0.1); // 🔥 10% por defecto
-  const [minOdd, setMinOdd] = useState(1.5);     // 🔥 cuota mínima
+  const {
+    marketFilter,
+    setMarketFilter,
+    leagueFilter,
+    setLeagueFilter,
+    dateFilter,
+    setDateFilter,
+    minValue,
+    setMinValue,
+    minOdd,
+    setMinOdd,
+  } = useFilters();
 
   const mergeMatches = (oldMatches: Match[], newMatches: Match[]) => {
     const map = new Map<number, Match>();
@@ -322,77 +354,115 @@ export default function Home() {
 
 
   // LOGIN GOOGLE/GITHUB
-  useEffect(() => {
-    // 1️⃣ esperar a tener apiUrl
-    if (!apiUrl) return;
+  // useEffect(() => {
+  //   // 1️⃣ esperar a tener apiUrl
+  //   if (!apiUrl) return;
 
-    // 2️⃣ evitar doble ejecución
-    if (!session?.user?.email || oauthDone.current) return;
+  //   // 2️⃣ evitar doble ejecución
+  //   if (!session?.user?.email || oauthDone.current) return;
 
-    oauthDone.current = true;
+  //   oauthDone.current = true;
 
-    const runOAuth = async () => {
-      console.log("🔐 OAuth user:", session.user?.email);
+  //   const runOAuth = async () => {
+  //     console.log("🔐 OAuth user:", session.user?.email);
 
-      await fetch(`${apiUrl}/oauth-login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: session.user?.email,
-          name: session.user?.name,
-          avatar: session.user?.image,
-          provider: session.user?.image?.includes("googleusercontent")
-            ? "google"
-            : "github",
-        }),
-        credentials: "include",
-      });
+  //     await fetch(`${apiUrl}/oauth-login`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         email: session.user?.email,
+  //         name: session.user?.name,
+  //         avatar: session.user?.image,
+  //         provider: session.user?.image?.includes("googleusercontent")
+  //           ? "google"
+  //           : "github",
+  //       }),
+  //       credentials: "include",
+  //     });
 
-      console.log("✅ OAuth login OK");
+  //     console.log("✅ OAuth login OK");
 
-      const res = await fetch(`${apiUrl}/me`, {
-        credentials: "include",
-      });
+  //     const res = await fetch(`${apiUrl}/me`, {
+  //       credentials: "include",
+  //     });
 
-      const data = await res.json();
+  //     const data = await res.json();
 
-      console.log("🔥 USER AFTER LOGIN:", data);
+  //     console.log("🔥 USER AFTER LOGIN:", data);
 
-      setIsAdmin(data.is_admin);
-      setEmail(data.email || "");
-      setPlan("premium");
-      setName(data.name || "");
-      setAvatar(data.avatar || "");
-      setProvider(data.provider ?? "email");
-    };
+  //     setIsAdmin(data.is_admin);
+  //     setEmail(data.email || "");
+  //     setPlan("premium");
+  //     setName(data.name || "");
+  //     setAvatar(data.avatar || "");
+  //     setProvider(data.provider ?? "email");
+  //   };
 
-    runOAuth();
-  }, [session, apiUrl, setPlan]);
+  //   runOAuth();
+  // }, [session, apiUrl, setPlan]);
   
   // NEW LOGIN WITH JWT
+  // useEffect(() => {
+  //   if (!apiUrl) return;
+  //   fetch(`${apiUrl}/me`, {
+  //     credentials: "include",
+  //   })
+  //     .then((res) => res.json())
+  //     .then((data) => {
+  //       setIsAdmin(data.is_admin);
+  //       setEmail(data.email || "");
+  //       setPlan("premium");
+  //     })
+  //     .catch(() => {
+  //       setIsAdmin(false);
+  //       setEmail("");
+  //       setPlan("free");
+  //     })
+  //     .finally(() => {
+  //       setAuthLoading(false);
+  //     });
+  // }, [apiUrl, setPlan]);
+
   useEffect(() => {
-    if (!apiUrl) return;
+  if (!apiUrl) return;
+
     fetch(`${apiUrl}/me`, {
       credentials: "include",
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("not authenticated");
+        return res.json();
+      })
       .then((data) => {
+        // ❌ NO LOGUEADO
+        if (!data.email) {
+          setEmail("");
+          setIsAdmin(false);
+          setPlan("free");
+          return;
+        }
+
+        // ✅ LOGUEADO REAL
+        setEmail(data.email);
         setIsAdmin(data.is_admin);
-        setEmail(data.email || "");
-        setPlan("premium");
+        setPlan(data.subscription || "free");
+        setName(data.name || "");
+        setAvatar(data.avatar || "");
+        setProvider(data.provider ?? "email");
       })
       .catch(() => {
-        setIsAdmin(false);
+        // ❌ fallback seguro
         setEmail("");
+        setIsAdmin(false);
         setPlan("free");
       })
       .finally(() => {
         setAuthLoading(false);
       });
-  }, [apiUrl, setPlan]);
 
+  }, [apiUrl, setPlan]);
 
   // ---------------- LOAD DATA ----------------
 
@@ -990,6 +1060,8 @@ const renderMatchCard = (match: Match) => {
   };
 
   const countdown = mounted ? getCountdown(now) : null;
+
+  // const hasAuthError = params.get("error") === "ACCOUNT_DISABLED";
 
   return (
     <>
@@ -1630,118 +1702,128 @@ const renderMatchCard = (match: Match) => {
 
         {/* SETTINGS */}
         {view === "settings" && (
-          <SettingsView />
+          <SettingsView
+            user={{
+              email,
+              name,
+              avatar,
+              subscription: isPremium ? "premium" : "free",
+              provider,
+            }}
+            onLogout={handleLogout}
+            onRefreshUser={refreshUser}
+          />
         )}
         
-{/* TEAM MODAL */}
-{selectedTeam && (
-  <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-    <div className="bg-[var(--card)] p-4 rounded-xl border border-[var(--border)] w-[95%] md:w-[600px] text-[var(--text)]">
-      <div className="text-base md:text-lg">
-        {/* TITLE */}
-        <h2 className="text-xl md:text-2xl font-bold mb-4 text-center">
-          {selectedTeamName}
-        </h2>
+        {/* TEAM MODAL */}
+        {selectedTeam && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+            <div className="bg-[var(--card)] p-4 rounded-xl border border-[var(--border)] w-[95%] md:w-[600px] text-[var(--text)]">
+              <div className="text-base md:text-lg">
+                {/* TITLE */}
+                <h2 className="text-xl md:text-2xl font-bold mb-4 text-center">
+                  {selectedTeamName}
+                </h2>
 
-        {/* MATCHES */}
-        <div className="space-y-1.5 mb-3">
+                {/* MATCHES */}
+                <div className="space-y-1.5 mb-3">
 
-          {[...teamMatches].reverse().map((m, i) => {
+                  {[...teamMatches].reverse().map((m, i) => {
 
-            // 🔥 COMPARAR POR NOMBRE (NO ID)
-            const teamId = Number(selectedTeam);
+                    // 🔥 COMPARAR POR NOMBRE (NO ID)
+                    const teamId = Number(selectedTeam);
 
-            const isHome = Number(m.home_team_id) === teamId;
-            const isAway = Number(m.away_team_id) === teamId;
+                    const isHome = Number(m.home_team_id) === teamId;
+                    const isAway = Number(m.away_team_id) === teamId;
 
-            const isWin =
-              (isHome && m.home_goals > m.away_goals) ||
-              (isAway && m.away_goals > m.home_goals);
+                    const isWin =
+                      (isHome && m.home_goals > m.away_goals) ||
+                      (isAway && m.away_goals > m.home_goals);
 
-            const isDraw = m.home_goals === m.away_goals;
+                    const isDraw = m.home_goals === m.away_goals;
 
-            const isLost =
-              (isHome && m.home_goals < m.away_goals) ||
-              (isAway && m.away_goals < m.home_goals);
+                    const isLost =
+                      (isHome && m.home_goals < m.away_goals) ||
+                      (isAway && m.away_goals < m.home_goals);
 
-            console.log({
-              match: m.home + " vs " + m.away,
-              isWin,
-              isDraw,
-              isLost,
-            });  
+                    console.log({
+                      match: m.home + " vs " + m.away,
+                      isWin,
+                      isDraw,
+                      isLost,
+                    });  
 
-            return (
-              <div
-                key={i}
-                className="grid grid-cols-3 items-center text-base md:text-lg border-b border-[var(--border)] py-1"
-              >
-                <span className="text-base md:text-lg text-right pr-2 truncate">{m.home}</span>
-                <span
-                  className="text-center text-lg md:text-xl font-bold px-2 py-1"
-                  style={{
-                    color: isWin
-                      ? "var(--success)"
-                      : isDraw
-                      ? "var(--warning)"
-                      : isLost
-                      ? "var(--danger)"
-                      : "var(--text)"
-                  }}
+                    return (
+                      <div
+                        key={i}
+                        className="grid grid-cols-3 items-center text-base md:text-lg border-b border-[var(--border)] py-1"
+                      >
+                        <span className="text-base md:text-lg text-right pr-2 truncate">{m.home}</span>
+                        <span
+                          className="text-center text-lg md:text-xl font-bold px-2 py-1"
+                          style={{
+                            color: isWin
+                              ? "var(--success)"
+                              : isDraw
+                              ? "var(--warning)"
+                              : isLost
+                              ? "var(--danger)"
+                              : "var(--text)"
+                          }}
+                        >
+                          {m.home_goals} - {m.away_goals}
+                        </span>
+                        <span className="text-base md:text-lg text-left pr-2 truncate">{m.away}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* STATS */}
+                {teamStats && (() => {
+                  console.log("TEAM STATS:", teamStats); // 👈 AQUÍ
+
+                  return (
+                    <div className="border-t border-[var(--border)] pt-4">
+
+                      <p className="text-base md:text-lg text-[var(--muted)] mb-4 text-center">
+                        {/* Estadísticas */}
+                      </p>
+
+                      <div className="grid grid-cols-3 gap-4 text-center">
+
+                        <StatBox label="Partidos" value={teamStats.matches} />
+                        <StatBox label="Goles" value={teamStats.avg_goals_scored} />
+                        <StatBox label="Encajados" value={teamStats.avg_goals_conceded} />
+
+                        <StatBox label="Victorias" value={`${teamStats.results.win}%`} />
+                        <StatBox label="Empates" value={`${teamStats.results.draw}%`} />
+                        <StatBox label="Derrotas" value={`${teamStats.results.loss}%`} />
+
+                        <StatBox label="BTTS" value={`${teamStats.markets.btts}%`} />
+                        <StatBox label="Over 2.5" value={`${teamStats.markets.over_2_5}%`} />
+                        <StatBox label="Over 3.5" value={`${teamStats.markets.over_3_5}%`} />
+
+                      </div>
+
+
+
+                    </div>
+                  );
+                })()}
+
+                {/* CLOSE */}
+                <button
+                  onClick={() => setSelectedTeam(null)}
+                  className="mt-5 w-full bg-[var(--card)] border border-[var(--border)] py-2 rounded hover:opacity-80"
                 >
-                  {m.home_goals} - {m.away_goals}
-                </span>
-                <span className="text-base md:text-lg text-left pr-2 truncate">{m.away}</span>
+                  Cerrar
+                </button>
               </div>
-            );
-          })}
-        </div>
-
-        {/* STATS */}
-        {teamStats && (() => {
-          console.log("TEAM STATS:", teamStats); // 👈 AQUÍ
-
-          return (
-            <div className="border-t border-[var(--border)] pt-4">
-
-              <p className="text-base md:text-lg text-[var(--muted)] mb-4 text-center">
-                {/* Estadísticas */}
-              </p>
-
-              <div className="grid grid-cols-3 gap-4 text-center">
-
-                <StatBox label="Partidos" value={teamStats.matches} />
-                <StatBox label="Goles" value={teamStats.avg_goals_scored} />
-                <StatBox label="Encajados" value={teamStats.avg_goals_conceded} />
-
-                <StatBox label="Victorias" value={`${teamStats.results.win}%`} />
-                <StatBox label="Empates" value={`${teamStats.results.draw}%`} />
-                <StatBox label="Derrotas" value={`${teamStats.results.loss}%`} />
-
-                <StatBox label="BTTS" value={`${teamStats.markets.btts}%`} />
-                <StatBox label="Over 2.5" value={`${teamStats.markets.over_2_5}%`} />
-                <StatBox label="Over 3.5" value={`${teamStats.markets.over_3_5}%`} />
-
-              </div>
-
-
 
             </div>
-          );
-        })()}
-
-        {/* CLOSE */}
-        <button
-          onClick={() => setSelectedTeam(null)}
-          className="mt-5 w-full bg-[var(--card)] border border-[var(--border)] py-2 rounded hover:opacity-80"
-        >
-          Cerrar
-        </button>
-      </div>
-
-    </div>
-  </div>
-)}
+          </div>
+        )}
 
         <TopValueModal
           open={showTopModal}

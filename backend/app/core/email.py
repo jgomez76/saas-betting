@@ -43,3 +43,23 @@ def send_reset_email(to_email: str, token: str):
             <a href="{link}">Resetear contraseña</a>
         """
     })
+
+def send_reactivation_email(to_email: str, token: str):
+    try:
+        link = f"http://localhost:3000/reactivate?token={token}"
+
+        resend.Emails.send({
+            "from": "onboarding@resend.dev",
+            "to": to_email,
+            "subject": "Reactiva tu cuenta",
+            "html": f"""
+                <h2>Cuenta desactivada</h2>
+                <p>Puedes reactivar tu cuenta haciendo click aquí:</p>
+                <a href="{link}">Reactivar cuenta</a>
+            """
+        })
+
+        print(f"📧 Reactivation email enviado a {to_email}")
+
+    except Exception as e:
+        print("❌ ERROR REACTIVATION EMAIL:", str(e))
