@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import TopValueModal from "@/components/TopValueModal";
@@ -11,36 +11,41 @@ import ResultsView from "@/components/ResultsView";
 import StandingsView from "@/components/StandingsView";
 import ProfileModal from "@/components/ProfileModal";
 import SettingsView from "@/components/SettingsView";
-import TopPicksCard from "@/components/TopPicksCard";
+
+import {
+  formatValue,
+  SkeletonCard,
+} from "@/components/ui/match-ui";
+
+import TeamModal from "@/components/modals/TeamModal";
+import PendingBetModal from "@/components/modals/PendingBetModal";
+
+import MatchCard from "@/components/cards/MatchCard";
+
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import LeagueSection from "@/components/dashboard/LeagueSection";
 
 import { Match } from "@/types/match";
 import { Bet } from "@/types/bet";
-import { TeamStats } from "@/types/stats";
 
-import { signOut, useSession } from "next-auth/react";
+// import { signOut, useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 
 import { useSubscription } from "@/context/SubscriptionContext"; 
 
-import { getStakeFromOdd, getStakeRules } from "@/lib/stake";
+import { getStakeFromOdd } from "@/lib/stake";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 
 import { useBets } from "@/hooks/useBets";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useFilters } from "@/hooks/useFilters";
+import { useAuth } from "@/hooks/useAuth";
+import { useMatches } from "@/hooks/useMatches";
+import { useTopPicks } from "@/hooks/useTopPicks";
 
 
 // ---------------- TYPES ----------------
-
-type TeamMatch = {
-  home: string;
-  away: string;
-  home_goals: number;
-  away_goals: number;
-  date: string;
-  home_team_id: number;
-  away_team_id: number;
-};
 
 type TopPick = {
   fixture_id: number;
@@ -55,8 +60,6 @@ type TopPick = {
   is_free: boolean;
 };
 
-
-
 // ---------------- COMPONENT ----------------
 
 export default function Home() {
@@ -64,10 +67,10 @@ export default function Home() {
   // ###########
   // CONSTANTES
   // ###########
-  const { t, lang } = useLanguage();
+  const { t } = useLanguage();
 
-  const { data: session } = useSession();
-  const oauthDone = useRef(false);
+  // const { data: session } = useSession();
+  // const oauthDone = useRef(false);
   
   const { plan, setPlan, isPremium } = useSubscription();
 
@@ -75,15 +78,12 @@ export default function Home() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
 
-  const [loading, setLoading] = useState(true);
   const [showTopModal, setShowTopModal] = useState(false);
 
-  const [selectedTeam, setSelectedTeam] = useState<number | null>(null);
-  const [selectedTeamName, setSelectedTeamName] = useState<string | null>(null);
-
-  const [teamMatches, setTeamMatches] = useState<TeamMatch[]>([]);
-  const [teamStats, setTeamStats] = useState<TeamStats | null>(null);
-  const [allMatches, setAllMatches] = useState<Match[]>([]);
+  const [teamModal, setTeamModal] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
 
   type PendingBet = Omit<Bet, "id">;
   const [pendingBet, setPendingBet] = useState<PendingBet | null>(null);
@@ -99,58 +99,20 @@ export default function Home() {
 
   const params = useSearchParams();
 
-  // useEffect(() => {
-  //   if (params.get("error") === "ACCOUNT_DISABLED") {
-  //     setShowLoginModal(true);
-  //   }
-  // }, [params]);
   useEffect(() => {
     const error = params.get("error");
 
     if (error === "ACCOUNT_DISABLED") {
-      signOut({ redirect: false});
-      setShowLoginModal(true);
 
-      // 🔥 LIMPIAR URL
-      window.history.replaceState({}, "", "/");
+      queueMicrotask(() => {
+        signOut({ redirect: false });
+
+        setShowLoginModal(true);
+
+        window.history.replaceState({}, "", "/");
+      });
     }
   }, [params]);
-
-  type StatBoxProps = {
-    label: string;
-    value: number | string;
-  };
-
-  const getIcon = (label: string) => {
-    if (label.includes("Partidos")) return "📊";
-    if (label.includes("Goles")) return "⚽";
-    if (label.includes("Encajados")) return "🛡️";
-    if (label.includes("Victorias")) return "🏆";
-    if (label.includes("Empates")) return "🤝";
-    if (label.includes("Derrotas")) return "❌";
-    if (label.includes("BTTS")) return "🎯";
-    if (label.includes("Over 2.5")) return "🔥";
-    if (label.includes("Over 3.5")) return "🚀";
-    return "📈";
-  };
-
- const StatBox = ({ label, value }: StatBoxProps) => (
-    <div className="bg-white/5 border border-white/10 p-2.5 rounded-md flex flex-col items-center justify-center">
-
-      <span className="text-base mb-0.5">
-        {getIcon(label)}
-      </span>
-
-      <p className="text-base md:text-lg font-bold leading-tight">
-        {value}
-      </p>
-
-      <p className="text-xs text-[var(--muted)] leading-tight">
-        {label}
-      </p>
-
-    </div>
-  );
 
   const handleSelectTopPick = (pick: TopPick) => {
     const stakeRule = getStakeFromOdd(pick.odd);
@@ -170,14 +132,6 @@ export default function Home() {
     });
   };
 
-  const [openLeagues, setOpenLeagues] = useState<Record<string, boolean>>({});
-  const toggleLeague = (league: string) => {
-    setOpenLeagues((prev) => ({
-      ...prev,
-      [league]: !prev[league],
-    }));
-  };
-
   const {
     marketFilter,
     setMarketFilter,
@@ -191,79 +145,10 @@ export default function Home() {
     setMinOdd,
   } = useFilters();
 
-  const mergeMatches = (oldMatches: Match[], newMatches: Match[]) => {
-    const map = new Map<number, Match>();
-
-    // 🔹 antiguos
-    oldMatches.forEach((m) => {
-      map.set(m.fixture_id, m);
-    });
-
-
-
-    // 🔹 nuevos (sobrescriben siempre)
-    newMatches.forEach((m) => {
-      map.set(m.fixture_id, m);
-    });
-
-    return Array.from(map.values());
-  };
-
-  const [progress, setProgress] = useState(0);
-
   // FUNCION PARA FECHA PARTIDOS
-  const formatMatchDate = (date: string) => {
-    if (!date) return "-";
-
-    const d = new Date(date + "Z");
-    const now = new Date();
-
-    // 🔥 NORMALIZAR DÍAS
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
-
-    const matchDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-
-    // const time = d.toLocaleTimeString("es-ES", {
-    const time = d.toLocaleTimeString(lang === "es" ? "es-ES" : "en-GB", {
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone: "Europe/Madrid",
-    });
-
-    // HOY
-    if (matchDay.getTime() === today.getTime()) {
-      return `Hoy • ${time}`;
-    }
-
-    // MAÑANA
-    if (matchDay.getTime() === tomorrow.getTime()) {
-      return `Mañana • ${time}`;
-    }
-
-    // FORMATO NORMAL
-    const day = d.toLocaleDateString("es-ES", {
-      day: "2-digit",
-    });
-
-    const month = d
-      .toLocaleDateString("es-ES", { month: "short" })
-      .replace(".", "");
-
-    return `${day} ${month} • ${time}`;
-  };
-
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [email, setEmail] = useState("");
-  const [authLoading, setAuthLoading] = useState(true);
 
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-
-  const [name, setName] = useState("");
-  const [avatar, setAvatar] = useState("");
-  const [provider, setProvider] = useState("");
 
   const [showProfile, setShowProfile] = useState(false);
 
@@ -287,51 +172,35 @@ export default function Home() {
         : `http://${window.location.hostname}:8000`
       : "";
 
+  const {
+    isAdmin,
+    email,
+    authLoading,
+    name,
+    avatar,
+    provider,
+    refreshUser,
+    handleLogout,
+  } = useAuth(apiUrl);
 
-  const handleLogout = async () => {
-    await fetch(`${apiUrl}/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
-
-    setIsAdmin(false);
-    setEmail("");
-
-    refreshUser();
-  };
+  const {
+    allMatches,
+    loading,
+    progress,
+    openLeagues,
+    setOpenLeagues,
+    toggleLeague,
+  } = useMatches(apiUrl);
   
-  const refreshUser = useCallback(() => {
-    fetch(`${apiUrl}/me`, {
-      credentials: "include",
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (!data.email) {
-          // 🔥 NO LOGUEADO
-          setIsAdmin(false);
-          setEmail("");
-          setPlan("free");
-          return;
-        }
-
-        // 🔐 LOGUEADO
-        setIsAdmin(data.is_admin);
-        setEmail(data.email);
-        setPlan(data.subscription || "free");
-        setName(data.name || "");
-        setAvatar(data.avatar || "");
-        setProvider(data.provider ?? "email");
-      })
-      .catch(() => {
-        setIsAdmin(false);
-        setEmail("");
-        setPlan("free");
-      });
-  }, [apiUrl, setPlan]);
+  const {
+    freePick,
+    validPicks,
+    allFinished,
+    topPicksLoading,
+  } = useTopPicks(apiUrl);
 
   const isLogged = !!email && !authLoading;
   const { bets, addBet, deleteBet } = useBets(isLogged);
-
   const { favorites, addFavorite, removeFavorite } = useFavorites(isLogged);
 
   // ###########
@@ -352,260 +221,7 @@ export default function Home() {
     return () => cancelAnimationFrame(id);
   }, []);
 
-
-  // LOGIN GOOGLE/GITHUB
-  // useEffect(() => {
-  //   // 1️⃣ esperar a tener apiUrl
-  //   if (!apiUrl) return;
-
-  //   // 2️⃣ evitar doble ejecución
-  //   if (!session?.user?.email || oauthDone.current) return;
-
-  //   oauthDone.current = true;
-
-  //   const runOAuth = async () => {
-  //     console.log("🔐 OAuth user:", session.user?.email);
-
-  //     await fetch(`${apiUrl}/oauth-login`, {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({
-  //         email: session.user?.email,
-  //         name: session.user?.name,
-  //         avatar: session.user?.image,
-  //         provider: session.user?.image?.includes("googleusercontent")
-  //           ? "google"
-  //           : "github",
-  //       }),
-  //       credentials: "include",
-  //     });
-
-  //     console.log("✅ OAuth login OK");
-
-  //     const res = await fetch(`${apiUrl}/me`, {
-  //       credentials: "include",
-  //     });
-
-  //     const data = await res.json();
-
-  //     console.log("🔥 USER AFTER LOGIN:", data);
-
-  //     setIsAdmin(data.is_admin);
-  //     setEmail(data.email || "");
-  //     setPlan("premium");
-  //     setName(data.name || "");
-  //     setAvatar(data.avatar || "");
-  //     setProvider(data.provider ?? "email");
-  //   };
-
-  //   runOAuth();
-  // }, [session, apiUrl, setPlan]);
-  
-  // NEW LOGIN WITH JWT
-  // useEffect(() => {
-  //   if (!apiUrl) return;
-  //   fetch(`${apiUrl}/me`, {
-  //     credentials: "include",
-  //   })
-  //     .then((res) => res.json())
-  //     .then((data) => {
-  //       setIsAdmin(data.is_admin);
-  //       setEmail(data.email || "");
-  //       setPlan("premium");
-  //     })
-  //     .catch(() => {
-  //       setIsAdmin(false);
-  //       setEmail("");
-  //       setPlan("free");
-  //     })
-  //     .finally(() => {
-  //       setAuthLoading(false);
-  //     });
-  // }, [apiUrl, setPlan]);
-
-  useEffect(() => {
-  if (!apiUrl) return;
-
-    fetch(`${apiUrl}/me`, {
-      credentials: "include",
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("not authenticated");
-        return res.json();
-      })
-      .then((data) => {
-        // ❌ NO LOGUEADO
-        if (!data.email) {
-          setEmail("");
-          setIsAdmin(false);
-          setPlan("free");
-          return;
-        }
-
-        // ✅ LOGUEADO REAL
-        setEmail(data.email);
-        setIsAdmin(data.is_admin);
-        setPlan(data.subscription || "free");
-        setName(data.name || "");
-        setAvatar(data.avatar || "");
-        setProvider(data.provider ?? "email");
-      })
-      .catch(() => {
-        // ❌ fallback seguro
-        setEmail("");
-        setIsAdmin(false);
-        setPlan("free");
-      })
-      .finally(() => {
-        setAuthLoading(false);
-      });
-
-  }, [apiUrl, setPlan]);
-
   // ---------------- LOAD DATA ----------------
-
-  useEffect(() => {
-    if (!apiUrl) return;
-    const load = async () => {
-      setLoading(true);
-      // setLoadingMessage("Cargando partidos...");
-
-      await new Promise((r) => setTimeout(r, 0));
-
-      let data = [];
-
-      try {
-        const res = await fetch(`${apiUrl}/value-bets`, {
-          credentials: "include",
-        });
-
-        // 🔐 si no está logueado o backend no responde bien
-        if (!res.ok) {
-          console.warn("⚠️ value-bets no disponible (modo público)");
-          setLoading(false);
-          return;
-        }
-
-        data = await res.json();
-
-      } catch (err) {
-        console.error("💥 ERROR cargando value-bets:", err);
-        setLoading(false);
-        return;
-      }
-
-      // 👇 solo partidos con odds
-      const filtered = data.filter((m: Match) => m.markets?.["1X2"]);
-
-
-      // 🔥 ABRIR TODAS LAS LIGAS
-
-      const leagues: string[] = Array.from(
-        new Set(filtered.map((m: Match) => m.league))
-      );
-
-      const initialState: Record<string, boolean> = {};
-
-      leagues.forEach((l) => {
-        initialState[l] = true;
-      });
-
-      setOpenLeagues(initialState);
-      
-      // NUEVO LOADING
-      // 🔥 AGRUPAR POR LIGA
-      const groupedByLeague: Record<string, Match[]> = {};
-
-      filtered.forEach((m: Match) => {
-        if (!groupedByLeague[m.league]) {
-          groupedByLeague[m.league] = [];
-        }
-        groupedByLeague[m.league].push(m);
-      });
-
-      const leagueNames = Object.keys(groupedByLeague);
-
-      // 🔥 RESET INICIAL
-      setAllMatches([]);
-
-      // 🔥 CARGA PROGRESIVA
-      for (let i = 0; i < leagueNames.length; i++) {
-        const league = leagueNames[i];
-        // setLoadingMessage(`Cargando partidos de: ${league}...`);
-
-        setProgress(Math.round(((i + 1) / leagueNames.length) * 100));
-
-        // 👇 pequeña pausa visual (UX)
-        await new Promise((r) => setTimeout(r, 300));
-
-        setAllMatches((prev) => [
-          ...prev,
-          ...groupedByLeague[league],
-        ]);
-      }
-
-      // 🔥 FIN
-      setLoading(false);
-
-    };
-
-    load();
-  }, [apiUrl]);
-
-  const [allFinished, setAllFinished] = useState(false);
-
-  useEffect(() => {
-    if (!apiUrl) return;
-
-    const loadTopPicks = async () => {
-      try {
-        const res = await fetch(`${apiUrl}/top-picks`, {
-          credentials: "include",
-        });
-
-        const data = await res.json();
-
-        console.log("🔥 TOP PICKS:", data);
-
-        setTopPicks(data);
-        setAllFinished(data.all_finished || false);
-      } catch (err) {
-        console.error("❌ top picks error", err);
-      } finally {
-        setTopPicksLoading(false);
-      }
-    };
-
-    loadTopPicks();
-  }, [apiUrl]);
-
-  useEffect(() => {
-    if (!apiUrl) return;
-    const interval = setInterval(async () => {
-      try {
-        const res = await fetch(`${apiUrl}/value-bets`, {
-          credentials: "include",
-        });
-
-        if (!res.ok) return;
-
-        const data = await res.json();
-
-        const filtered = data.filter((m: Match) => m.markets?.["1X2"]);
-
-        console.log("Refresh: ", filtered.length);
-
-        setAllMatches((prev) => mergeMatches(prev, filtered));
-
-      } catch (err) {
-        console.error("Refresh error", err);
-      }
-    }, 5 * 60 * 1000);
-
-    return () => clearInterval(interval);
-  }, [apiUrl]);
 
   const matches = useMemo(() => {
     let filtered: Match[] = [...allMatches];
@@ -718,44 +334,6 @@ export default function Home() {
 
 
   const [now, setNow] = useState(() => new Date());
-  
-  type TopPicksResponse = {
-    free: TopPick | null;
-    premium: TopPick[];
-    all_finished: TopPick[];
-  };
-
-  const [topPicks, setTopPicks] = useState<TopPicksResponse | null>(null);
-  const [topPicksLoading, setTopPicksLoading] = useState(true);
-
-
-  // const freePick = topPicks?.free;
-  // const premiumPicks = topPicks?.premium || [];
-
-  // // const validPicks = premiumPicks.filter(
-  // //   (p: TopPick) => new Date(p.kickoff) > new Date()
-  // // );
-
-  // const validPicks = premiumPicks.filter((p: TopPick) => {
-  //   const kickoffUTC = new Date(p.kickoff.replace(" ", "T") + "Z");
-  //   return kickoffUTC.getTime() > Date.now();
-  // });
-  const freePickRaw = topPicks?.free;
-  const premiumPicks = topPicks?.premium || [];
-
-  const validPicks = premiumPicks.filter((p: TopPick) => {
-    const kickoffUTC = new Date(p.kickoff.replace(" ", "T") + "Z");
-    return kickoffUTC.getTime() > Date.now();
-  });
-
-  const freePick = freePickRaw
-    ? (() => {
-        const kickoffUTC = new Date(
-          freePickRaw.kickoff.replace(" ", "T") + "Z"
-        );
-        return kickoffUTC.getTime() > Date.now() ? freePickRaw : null;
-      })()
-    : null;
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -803,33 +381,17 @@ export default function Home() {
   };
 
   // ---------------- TEAM MODAL ----------------
-  const openTeamModal = async (teamId: number, teamName: string) => {
-    setSelectedTeam(teamId);
-    setSelectedTeamName(teamName);
 
-    const res = await fetch(`${apiUrl}/team/${teamId}/matches`);
-    const data = await res.json();
-    setTeamMatches(data);
-
-    const resStats = await fetch(`${apiUrl}/team-stats/${teamId}`);
-    const stats = await resStats.json();
-
-    setTeamStats(stats);
+  const openTeamModal = (
+    teamId: number,
+    teamName: string
+  ) => {
+    setTeamModal({
+      id: teamId,
+      name: teamName,
+    });
   };
-
   // ---------------- HELPERS ----------------
-
-  // const formatValue = (v?: number | null) => {
-  //   if (v === null || v === undefined) return null;
-  //   return `${v > 0 ? "+" : ""}${(v * 100).toFixed(1)}%`;
-  // };
-  const formatValue = (v?: number | null) => {
-    if (v === null || v === undefined) return null;
-
-    const value = (v * 100).toFixed(1);
-
-    return `${v > 0 ? "+" : ""}${value}%`;
-  };
 
   const grouped = useMemo(() => {
     return matches.reduce((acc, match) => {
@@ -852,186 +414,6 @@ export default function Home() {
 
     return map;
   }, [allMatches]);
-
-  const renderForm = (form: string) => {
-    if (!form) return null;
-
-    return (
-      <div className="flex justify-center gap-1 mt-1">
-        {form
-          .toUpperCase()
-          .split("") // aquí sí queremos char a char
-          .map((raw, i) => {
-            const f = raw.trim(); // 🔥 CLAVE
-
-            let color = "bg-[var(--muted)]";
-
-            if (f === "W") color = "bg-[var(--positive)]";
-            else if (f === "D") color = "bg-[var(--warning)]";
-            else if (f === "L") color = "bg-[var(--negative)]";
-
-            return (
-              <span
-                key={i}
-                className={`text-white text-xs px-1.5 py-0.5 rounded font-semibold ${color}`}
-              >
-                {f}
-              </span>
-            );
-          })}
-      </div>
-    );
-  };
-
-const renderMatchCard = (match: Match) => {
-  const id = match.fixture_id;
-  // const stats = match.team_stats?.home;
-  console.log("FORM DATA:", match.home_form, match.away_form);
-
-  return (
-    <div
-      className="bg-[var(--card)] w-full text-[var(--text)] p-4 rounded-xl relative border border-[var(--border)] shadow-[0_6px_25px_rgba(0,0,0,0.35)] hover:shadow-[0_10px_35px_rgba(0,0,0,0.5)] hover:scale-[1.015] transition-all duration-200"
-    >
-      {/* ⭐ FAVORITO */}
-      <button
-        onClick={() => toggleFavorite(id)}
-        className="absolute top-2 right-2"
-      >
-        {favorites.includes(id) ? "⭐" : "☆"}
-      </button>
-
-      {/* EQUIPOS */}
-      <div
-        className="grid text-center mb-3 min-w-0"
-        style={{ gridTemplateColumns: "45% 10% 45%" }}
-      >
-        <div onClick={() => openTeamModal(match.home_team_id, match.home_team)}>
-          <p className="text-sm font-medium truncate">
-            {match.home_team}
-          </p>
-          {renderForm(match.home_form || "")}
-        </div>
-
-        <div className="text-[var(--muted)] text-xs">{t.vs}</div>
-
-        <div onClick={() => openTeamModal(match.away_team_id, match.away_team)}>
-          <p className="text-sm font-medium truncate">
-            {match.away_team}
-          </p>
-          {renderForm(match.away_form || "")}
-        </div>
-      </div>
-
-      {/* FECHA */}
-      <p className="text-xs text-[var(--muted)] text-center mb-3 tracking-wide">
-        {formatMatchDate(match.date)}
-      </p>
-
-      {/* 1X2 */}
-      {match.markets?.["1X2"] && (
-        <div className="grid grid-cols-3 gap-1.5 mb-3">
-          {(["home", "draw", "away"] as const).map((k) => {
-            const odd = match.markets?.["1X2"]?.[k];
-
-            const value =
-              match.value?.[`${k}_value` as keyof typeof match.value];
-
-            const isValue =
-              value !== null &&
-              value !== undefined &&
-              value >= minValue &&
-              (odd?.odd ?? 0) >= minOdd;
-
-            return (
-              <div
-                key={k}
-                onClick={() => {
-                  const stakeRule = getStakeFromOdd(odd?.odd ?? 0);
-
-                  setPendingBet({
-                    match: `${match.home_team} vs ${match.away_team}`,
-                    market: "1X2",
-                    selection: k,
-                    odd: odd?.odd,
-                    bookmaker: odd?.bookmaker,
-                    value,
-                    fixture_id: match.fixture_id,
-                    status: "pending",
-                    date: match.date,
-                    stake: stakeRule.amount,
-                    stake_level: stakeRule.level,
-                  });
-                }}
-                className={`
-                  min-w-0 p-2 md:p-3 rounded-lg text-center cursor-pointer
-                  border transition-all
-                  hover:scale-105 hover:shadow-md
-                  
-                  ${
-                    isValue
-                      ? "bg-[var(--accent)] text-[var(--accent-contrast)] border-transparent"
-                      : "bg-[var(--card)] text-[var(--text)] border-[var(--border)]"
-                  }
-                `}
-              >
-                <p className="text-[10px] uppercase opacity-70">{k}</p>
-
-                <p className="font-bold text-2xl">
-                  {odd?.odd ?? "-"}
-                </p>
-
-                <p className="text-[10px] opacity-70 truncate max-w-[90px] mx-auto">
-                  {odd?.bookmaker ?? ""}
-                </p>
-
-                {value !== null && value !== undefined && (
-                  <div className="mt-2 text-center">
-
-                    <span
-                      className={`text-sm font-semibold ${
-                        isValue
-                          ? "text-[var(--accent-contrast)]"
-                          : "text-[var(--text)]"
-                      }`}
-                    >
-                      {formatValue(value)}
-                    </span>
-
-                  </div>
-                )} 
-                {/* </p> */}
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-};
-
-  // SKELETON CARD
-  const SkeletonCard = () => (
-    <div className="bg-[var(--card)] p-4 rounded-xl animate-pulse border border-[var(--border)]">
-
-      {/* equipos */}
-      <div className="grid mb-3" style={{ gridTemplateColumns: "45% 10% 45%" }}>
-        <div className="h-4 bg-[var(--border)] rounded w-3/4 mx-auto"></div>
-        <div></div>
-        <div className="h-4 bg-[var(--border)] rounded w-3/4 mx-auto"></div>
-      </div>
-
-      {/* fecha */}
-      <div className="h-3 bg-[var(--border)] rounded w-1/2 mx-auto mb-3"></div>
-
-      {/* cuotas */}
-      <div className="grid grid-cols-3 gap-2">
-        <div className="h-12 bg-[var(--border)] rounded"></div>
-        <div className="h-12 bg-[var(--border)] rounded"></div>
-        <div className="h-12 bg-[var(--border)] rounded"></div>
-      </div>
-
-    </div>
-  );
 
   // ---------------- RENDER ----------------
 
@@ -1060,8 +442,6 @@ const renderMatchCard = (match: Match) => {
   };
 
   const countdown = mounted ? getCountdown(now) : null;
-
-  // const hasAuthError = params.get("error") === "ACCOUNT_DISABLED";
 
   return (
     <>
@@ -1105,30 +485,6 @@ const renderMatchCard = (match: Match) => {
         {/* DASHBOARD */}
         {view === "dashboard" && (
         <>
-          {loading && (
-            <div className="mb-6">
-
-              {/* TEXTO */}
-              <p className="text-center text-sm text-[var(--muted)] mb-2 animate-pulse">
-                ⏳ {t.loadingMatches}
-              </p>
-
-              {/* 🔥 BARRA PROGRESO */}
-              <div className="w-full max-w-md mx-auto bg-[var(--border)] rounded-full h-2 overflow-hidden">
-                <div
-                  className="bg-[var(--accent)] h-2 transition-all duration-500"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-
-              {/* % */}
-              <p className="text-center text-xs text-[var(--muted)] mt-1">
-                {progress}%
-              </p>
-
-            </div>
-          )}
-
 
           {mounted && (
             <Navbar
@@ -1159,58 +515,34 @@ const renderMatchCard = (match: Match) => {
             />
           )}
 
-          {countdown ? (
-            // ⏳ ANTES DE PUBLICAR PICKS
-            <div className="mb-4 flex items-center justify-center gap-2 bg-[var(--card)] border border-[var(--border)] rounded-lg py-2 px-4 text-sm">
-              <span className="text-[var(--warning)]">⏳</span>
-              <span className="text-[var(--muted)]">
-                {t.nextPicksIn}
-              </span>
-              <span className="font-semibold text-[var(--text)]">
-                {countdown}
-              </span>
-            </div>
+          <DashboardHeader
+            loading={loading}
+            progress={progress}
 
-          ) : allFinished ? (
-            // 🏁 PICKS YA TERMINARON
-            <div className="mb-4 flex items-center justify-center gap-2 bg-[var(--card)] border border-[var(--border)] rounded-lg py-2 px-4 text-sm">
-              <span>🏁</span>
-              <span className="text-[var(--muted)]">
-                {t.picksFinished}
-              </span>
-            </div>
+            countdown={countdown}
 
-          ) : validPicks.length === 0 ? (
-            // 📭 NO HAY PICKS HOY (REAL)
-            <div className="mb-4 flex items-center justify-center gap-2 bg-[var(--card)] border border-[var(--border)] rounded-lg py-2 px-4 text-sm">
-              <span>📭</span>
-              <span className="text-[var(--muted)]">
-                {t.noPicksToday}
-              </span>
-            </div>
+            allFinished={allFinished}
 
-          ) : (
-            // 🔥 PICKS DISPONIBLES
-            <div className="mb-4 flex items-center justify-center gap-2 bg-[var(--accent)]/10 border border-[var(--accent)]/30 rounded-lg py-2 px-4 text-sm">
-              <span>🔥</span>
-              <span className="font-semibold text-[var(--accent)]">
-                {t.picksAvailable}
-              </span>
-            </div>
-          )}
+            validPicks={validPicks}
 
-          {topPicksLoading ? (
-            <div className="text-center text-[var(--muted)] mb-4">
-              ⏳ {t.picksLoading}
-            </div>
-          ) : (
-            <TopPicksCard
-              picks={validPicks}
-              freePick={freePick}
-              isPremium={isPremium}
-              onSelectPick={handleSelectTopPick}
-            />
-          )}
+            topPicksLoading={topPicksLoading}
+
+            freePick={freePick}
+
+            isPremium={isPremium}
+
+            onSelectPick={handleSelectTopPick}
+
+            t={{
+              loadingMatches: t.loadingMatches,
+              nextPicksIn: t.nextPicksIn,
+              picksFinished: t.picksFinished,
+              noPicksToday: t.noPicksToday,
+              picksAvailable: t.picksAvailable,
+              picksLoading: t.picksLoading,
+            }}
+          />
+
 
           {loading && Object.keys(grouped).length === 0 && (
             <div className="grid mt-6 gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
@@ -1220,446 +552,53 @@ const renderMatchCard = (match: Match) => {
             </div>
           )}
 
-          {Object.entries(grouped).map(([league, leagueMatches], i) => (
-            <div
-              key={league}
-              className="animate-fadeIn"
-              style={{ animationDelay: `${i * 0.08}s` }}
-            >
+          {Object.entries(grouped).map(
+            ([league, leagueMatches]) => (
 
-              {/* 🏆 NOMBRE LIGA */}
-              <div
-                onClick={() => toggleLeague(league)}
-                className="flex justify-between items-center bg-[var(--card)] text-[var(--text)] px-4 py-3 rounded-lg cursor-pointer hover:opacity-80 transition mt-8 border border-[var(--border)]"
-              >
-                <div className="flex items-center gap-2">
-                  <span>{openLeagues[league] ? "▼" : "▶"}</span>
-                  <span className="font-semibold text-lg">{league}</span>
-                </div>
+              <LeagueSection
+                key={league}
 
-                <span className="text-sm text-[var(--muted)]">
-                  {leagueMatches.length} {t.matches}
-                </span>
-              </div>
+                league={league}
 
-              {/* 📦 GRID DE PARTIDOS */}
-              <div
-                className={`transition-all duration-500 ease-out transform ${
+                leagueMatches={leagueMatches}
+
+                isOpen={
                   openLeagues[league]
-                    ? "max-h-[2000px] opacity-100 translate-y-0"
-                    : "max-h-0 opacity-0 -translate-y-2 overflow-hidden"
-                }`}
-              >
-                <div className="grid mt-4 gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+                }
 
-                  {/* LOADING SKELETON CARD */}
-                  {loading && leagueMatches.length === 0 && (
-                    <div className="grid mt-4 gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-                      {Array.from({ length: 6 }).map((_, i) => (
-                        <SkeletonCard key={i} />
-                      ))}
-                    </div>
-                  )}
+                toggleLeague={
+                  toggleLeague
+                }
 
-                  {!loading &&
-                    leagueMatches.map((match, index) => {
-                    const id = match.fixture_id;
-                    // console.log("MATCH DATA:", match);
+                loading={loading}
 
-                    // FECHA PARTIDOS
-                    return (
-                      <div
-                        key={index}
-                        className="bg-[var(--card)] text-[var(--text)] p-4 rounded-xl relative border border-[var(--border)] shadow-[0_6px_25px_rgba(0,0,0,0.35)] hover:shadow-[0_10px_35px_rgba(0,0,0,0.5)] hover:scale-[1.015] transition-all duration-200"
-                      >
-                        {/* ⭐ FAVORITO */}
-                        <button
-                          onClick={() => toggleFavorite(id)}
-                          className="absolute top-2 right-2"
-                        >
-                          {favorites.includes(id) ? "⭐" : "☆"}
-                        </button>
+                favorites={favorites}
 
-                        {/* EQUIPOS */}
-                        <div
-                          className="grid text-center mb-3"
-                          style={{ gridTemplateColumns: "45% 10% 45%" }}
-                          >
-                          <div onClick={() => openTeamModal(match.home_team_id, match.home_team)}>
-                            <p className="text-sm font-medium truncate">
-                              {match.home_team}
-                            </p>
-                            {renderForm(match.home_form || "")}
-                          </div>
+                toggleFavorite={
+                  toggleFavorite
+                }
 
-                          <div className="text-[var(--muted)] text-xs">{t.vs}</div>
+                openTeamModal={
+                  openTeamModal
+                }
 
-                          <div onClick={() => openTeamModal(match.away_team_id, match.away_team)}>
-                            <p className="text-sm font-medium truncate">
-                              {match.away_team}
-                            </p>                            
-                            {renderForm(match.away_form || "")}
-                          </div>
-                        </div>
+                marketFilter={
+                  marketFilter
+                }
 
-                        {/* FECHA */}
-                        <p className="text-xs text-[var(--muted)] text-center mb-3 tracking-wide">
-                          {formatMatchDate(match.date)}
-                        </p>
+                minValue={minValue}
 
-                        {/* 1X2 */}
-                        {(marketFilter === "ALL" || marketFilter === "1X2") &&
-                          match.markets?.["1X2"] && (
-                            <div className="grid grid-cols-3 gap-1.5 mb-3">
-                              {(["home", "draw", "away"] as const).map((k) => {
-                                const odd = match.markets?.["1X2"]?.[k];
+                minOdd={minOdd}
 
-                                const value =
-                                  match.value?.[`${k}_value` as keyof typeof match.value];
+                setPendingBet={
+                  setPendingBet
+                }
 
-                                // 🔥 CLAVE → detectar si es VALUE
-                                const isValue =
-                                  value !== null &&
-                                  value !== undefined &&
-                                  value >= minValue &&
-                                  (odd?.odd ?? 0) >= minOdd;
-
-                                return (
-                                  <div
-                                    key={k}
-                                    onClick={() => {
-                                      const stakeRule = getStakeFromOdd(odd?.odd ?? 0);
-                                      setPendingBet({
-                                        match: `${match.home_team} vs ${match.away_team}`,
-                                        market: "1X2",
-                                        selection: k,
-                                        odd: odd?.odd,
-                                        bookmaker: odd?.bookmaker,
-                                        value,
-                                        fixture_id: match.fixture_id,
-                                        status: "pending",
-                                        date: match.date,
-
-                                        stake: stakeRule.amount,
-                                        stake_level: stakeRule.level,
-                                      });
-                                    }}
-                                    className={`
-                                      min-w-0 p-2 md:p-3 rounded-lg text-center cursor-pointer
-                                      border transition-all
-                                      hover:scale-105 hover:shadow-md
-                                      
-                                      ${
-                                        isValue
-                                          ? "bg-[var(--accent)] text-[var(--accent-contrast)] border-transparent"
-                                          : "bg-[var(--card)] text-[var(--text)] border-[var(--border)]"
-                                      }
-                                    `}
-                                  >
-                                    {/* 🏷️ LABEL */}
-                                    <p className="text-[10px] uppercase opacity-70">{k}</p>
-
-                                    {/* 💰 CUOTA REAL */}
-                                    <p className="font-bold text-xl md:text-2xl tracking-tight">
-                                      {odd?.odd ?? "-"}
-                                    </p>
-
-                                    {/* 🏦 BOOKMAKER */}
-                                    <p className="text-[10px] opacity-70 truncate max-w-[90px] mx-auto">
-                                      {odd?.bookmaker ?? ""}
-                                    </p>
-
-                                    {/* 📊 FAIR + VALUE */}
-
-                                  {value !== null && value !== undefined && (
-                                    <div className="mt-2 text-center">
-
-                                      <span
-                                        className={`text-xs font-semibold ${
-                                          isValue
-                                            ? "text-[var(--accent-contrast)]"
-                                            : "text-[var(--text)]"
-                                        }`}
-                                      >
-                                        {formatValue(value)}
-                                      </span>
-
-                                    </div>
-                                  )} 
-                                  </div>
-                                );
-                              })}
-                            </div>
-                        )}
-
-                      
-                        {/* OU25 */}
-                        {(marketFilter === "ALL" || marketFilter === "OU25") &&
-                          match.markets?.OU25 && (
-                            <div className="grid grid-cols-2 gap-2 mb-3">
-                              {(["over", "under"] as const).map((k) => {
-                                const odd = match.markets?.OU25?.[k];
-                                const value =
-                                  k === "over"
-                                    ? match.market_values?.OU25?.over_value
-                                    : match.market_values?.OU25?.under_value;
-                                
-                                const isValue =
-                                  value !== null &&
-                                  value !== undefined &&
-                                  value >= minValue &&
-                                  (odd?.odd ?? 0) >= minOdd;
-
-                                return (
-                                  <div
-                                    key={k}
-                                    onClick={() =>
-                                    {
-                                      const stakeRule = getStakeFromOdd(odd?.odd ?? 0);
-                                      setPendingBet({
-                                        match: `${match.home_team} vs ${match.away_team}`,
-                                        market: "OU25",
-                                        selection: k,
-                                        odd: odd?.odd,
-                                        bookmaker: odd?.bookmaker,
-                                        value,
-                                        fixture_id: match.fixture_id,
-                                        status: "pending",
-                                        date: match.date,
-                                        stake: stakeRule.amount,
-                                        stake_level: stakeRule.level,
-                                      })
-                                    }}
-
-                                    className={`
-                                      min-w-0 p-2 md:p-3 rounded-lg text-center cursor-pointer
-                                      border transition-all
-                                      hover:scale-105 hover:shadow-md
-                                      
-                                      ${
-                                        isValue
-                                          ? "bg-[var(--accent)] text-[var(--accent-contrast)] border-transparent"
-                                          : "bg-[var(--card)] text-[var(--text)] border-[var(--border)]"
-                                      }
-                                    `}
-                                  >
-                                    {/* 🏷️ LABEL */}
-                                    <p className="text-[10px] uppercase opacity-70">
-                                      {k} 2.5
-                                    </p>
-
-                                    {/* 💰 CUOTA REAL */}
-                                    <p className="font-bold text-xl md:text-2xl tracking-tight">
-                                      {odd?.odd ?? "-"}
-                                    </p>
-
-                                    {/* 🏦 BOOKMAKER */}
-                                    <p className="text-[10px] opacity-70 truncate max-w-[90px] mx-auto">
-                                      {odd?.bookmaker ?? ""}
-                                    </p>
-
-                                    {/* 📊 FAIR ODDS + VALUE */}
-                                  {value !== null && value !== undefined && (
-                                    <div className="mt-2 text-center">
-
-                                      <span
-                                        className={`text-xs font-semibold ${
-                                          isValue
-                                            ? "text-[var(--accent-contrast)]"
-                                            : "text-[var(--text)]"
-                                        }`}
-                                      >
-                                        {formatValue(value)}
-                                      </span>
-
-                                    </div>
-                                  )} 
-                                  </div>
-                                );
-                              })}
-                            </div>
-                        )}                    
-                        {/* OU35 */}
-                        {(marketFilter === "ALL" || marketFilter === "OU35") &&
-                          match.markets?.OU35 && (
-                            <div className="grid grid-cols-2 gap-2 mb-3">
-                              {(["over", "under"] as const).map((k) => {
-                                const odd = match.markets?.OU35?.[k];
-                                const value =
-                                  k === "over"
-                                    ? match.market_values?.OU35?.over_value
-                                    : match.market_values?.OU35?.under_value;
-
-                                // 🔥 CLAVE → detectar si es VALUE
-                                const isValue =
-                                  value !== null &&
-                                  value !== undefined &&
-                                  value >= minValue &&
-                                  (odd?.odd ?? 0) >= minOdd;
-
-                                return (
-                                  <div
-                                    key={k}
-                                    onClick={() => {
-                                      const stakeRule = getStakeFromOdd(odd?.odd ?? 0);
-                                      setPendingBet({
-                                        match: `${match.home_team} vs ${match.away_team}`,
-                                        market: "OU35",
-                                        selection: k,
-                                        odd: odd?.odd,
-                                        bookmaker: odd?.bookmaker,
-                                        value,
-                                        fixture_id: match.fixture_id,
-                                        status: "pending",
-                                        date: match.date,
-                                        stake: stakeRule.amount,
-                                        stake_level: stakeRule.level,
-                                      })
-                                    }}
-
-                                    className={`
-                                      min-w-0 p-2 md:p-3 rounded-lg text-center cursor-pointer
-                                      border transition-all
-                                      hover:scale-105 hover:shadow-md
-                                      
-                                      ${
-                                        isValue
-                                          ? "bg-[var(--accent)] text-[var(--accent-contrast)] border-transparent"
-                                          : "bg-[var(--card)] text-[var(--text)] border-[var(--border)]"
-                                      }
-                                    `}                                    
-                                  >
-                                    {/* 🏷️ LABEL */}
-                                    <p className="text-[10px] uppercase opacity-70">
-                                      {k} 3.5
-                                    </p>
-
-                                    {/* 💰 CUOTA REAL */}
-                                    <p className="font-bold text-xl md:text-2xl tracking-tight">
-                                      {odd?.odd ?? "-"}
-                                    </p>
-
-                                    {/* 🏦 BOOKMAKER */}
-                                    <p className="text-[10px] opacity-70 truncate max-w-[90px] mx-auto">
-                                      {odd?.bookmaker ?? ""}
-                                    </p>
-
-                                    {/* 📊 FAIR ODDS + VALUE */}
-                                  {value !== null && value !== undefined && (
-                                    <div className="mt-2 text-center">
-
-                                      <span
-                                        className={`text-xs font-semibold ${
-                                          isValue
-                                            ? "text-[var(--accent-contrast)]"
-                                            : "text-[var(--text)]"
-                                        }`}
-                                      >
-                                        {formatValue(value)}
-                                      </span>
-
-                                    </div>
-                                  )} 
-                                  </div>
-                                );
-                              })}
-                            </div>
-                        )}                    
-
-                        {/* BTTS */}
-                        {(marketFilter === "ALL" || marketFilter === "BTTS") &&
-                          match.markets?.BTTS && (
-                            <div className="grid grid-cols-2 gap-2">
-                              {(["yes", "no"] as const).map((k) => {
-                                const odd = match.markets?.BTTS?.[k];
-
-                                const value =
-                                  k === "yes"
-                                    ? match.market_values?.BTTS?.yes_value
-                                    : match.market_values?.BTTS?.no_value;
-
-                                // 🔥 CLAVE → detectar si es VALUE
-                                const isValue =
-                                  value !== null &&
-                                  value !== undefined &&
-                                  value >= minValue &&
-                                  (odd?.odd ?? 0) >= minOdd;
-
-                                return (
-                                  <div
-                                    key={k}
-                                    onClick={() => {
-                                      const stakeRule = getStakeFromOdd(odd?.odd ?? 0);
-                                      setPendingBet({
-                                        match: `${match.home_team} vs ${match.away_team}`,
-                                        market: "BTTS",
-                                        selection: k,
-                                        odd: odd?.odd,
-                                        bookmaker: odd?.bookmaker,
-                                        value,
-                                        fixture_id: match.fixture_id,
-                                        status: "pending",
-                                        date: match.date,
-                                        stake: stakeRule.amount,
-                                        stake_level: stakeRule.level,
-                                      })
-                                    }}
-
-                                    className={`
-                                      min-w-0 p-2 md:p-3 rounded-lg text-center cursor-pointer
-                                      border transition-all
-                                      hover:scale-105 hover:shadow-md
-                                      
-                                      ${
-                                        isValue
-                                          ? "bg-[var(--accent)] text-[var(--accent-contrast)] border-transparent"
-                                          : "bg-[var(--card)] text-[var(--text)] border-[var(--border)]"
-                                      }
-                                    `}
-                                  >
-                                    {/* 🏷️ LABEL */}
-                                    <p className="text-[10px] uppercase opacity-70">
-                                      BTTS {k}
-                                    </p>
-
-                                    {/* 💰 CUOTA REAL */}
-                                    <p className="font-bold text-xl md:text-2xl tracking-tight">
-                                      {odd?.odd ?? "-"}
-                                    </p>
-
-                                    {/* 🏦 BOOKMAKER */}
-                                    <p className="text-[10px] opacity-70 truncate max-w-[90px] mx-auto">
-                                      {odd?.bookmaker ?? ""}
-                                    </p>
-
-                                    {/* 📊 FAIR + VALUE */}
-                                  {value !== null && value !== undefined && (
-                                    <div className="mt-2 text-center">
-
-                                      <span
-                                        className={`text-xs font-semibold ${
-                                          isValue
-                                            ? "text-[var(--accent-contrast)]"
-                                            : "text-[var(--text)]"
-                                        }`}
-                                      >
-                                        {formatValue(value)}
-                                      </span>
-
-                                    </div>
-                                  )} 
-                                  </div>
-                                );
-                              })}
-                            </div>
-                        )}                    
-                      </div>
-                    );
-                  })}
-
-                </div>
-              </div>
-            </div>
+                t={{
+                  matches: t.matches,
+                  vs: t.vs,
+                }}
+              />
           ))}
           </>
         )}
@@ -1690,11 +629,21 @@ const renderMatchCard = (match: Match) => {
 
             <div className="grid mt-4 gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
               {favoriteMatches.map((match) => (
-                <div key={match.fixture_id}>
-                  {renderMatchCard(match)}
-                </div>
+                <MatchCard
+                  key={match.fixture_id}
+                  match={match}
+                  favorites={favorites}
+                  toggleFavorite={toggleFavorite}
+                  openTeamModal={openTeamModal}
+                  marketFilter={marketFilter}
+                  minValue={minValue}
+                  minOdd={minOdd}
+                  setPendingBet={setPendingBet}
+                  t={{
+                    vs: t.vs,
+                  }}
+                />
               ))}
-              {/* {favoriteMatches.map((match) => renderMatchCard(match))} */}
             </div>
 
           </div>
@@ -1716,113 +665,13 @@ const renderMatchCard = (match: Match) => {
         )}
         
         {/* TEAM MODAL */}
-        {selectedTeam && (
-          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-            <div className="bg-[var(--card)] p-4 rounded-xl border border-[var(--border)] w-[95%] md:w-[600px] text-[var(--text)]">
-              <div className="text-base md:text-lg">
-                {/* TITLE */}
-                <h2 className="text-xl md:text-2xl font-bold mb-4 text-center">
-                  {selectedTeamName}
-                </h2>
-
-                {/* MATCHES */}
-                <div className="space-y-1.5 mb-3">
-
-                  {[...teamMatches].reverse().map((m, i) => {
-
-                    // 🔥 COMPARAR POR NOMBRE (NO ID)
-                    const teamId = Number(selectedTeam);
-
-                    const isHome = Number(m.home_team_id) === teamId;
-                    const isAway = Number(m.away_team_id) === teamId;
-
-                    const isWin =
-                      (isHome && m.home_goals > m.away_goals) ||
-                      (isAway && m.away_goals > m.home_goals);
-
-                    const isDraw = m.home_goals === m.away_goals;
-
-                    const isLost =
-                      (isHome && m.home_goals < m.away_goals) ||
-                      (isAway && m.away_goals < m.home_goals);
-
-                    console.log({
-                      match: m.home + " vs " + m.away,
-                      isWin,
-                      isDraw,
-                      isLost,
-                    });  
-
-                    return (
-                      <div
-                        key={i}
-                        className="grid grid-cols-3 items-center text-base md:text-lg border-b border-[var(--border)] py-1"
-                      >
-                        <span className="text-base md:text-lg text-right pr-2 truncate">{m.home}</span>
-                        <span
-                          className="text-center text-lg md:text-xl font-bold px-2 py-1"
-                          style={{
-                            color: isWin
-                              ? "var(--success)"
-                              : isDraw
-                              ? "var(--warning)"
-                              : isLost
-                              ? "var(--danger)"
-                              : "var(--text)"
-                          }}
-                        >
-                          {m.home_goals} - {m.away_goals}
-                        </span>
-                        <span className="text-base md:text-lg text-left pr-2 truncate">{m.away}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* STATS */}
-                {teamStats && (() => {
-                  console.log("TEAM STATS:", teamStats); // 👈 AQUÍ
-
-                  return (
-                    <div className="border-t border-[var(--border)] pt-4">
-
-                      <p className="text-base md:text-lg text-[var(--muted)] mb-4 text-center">
-                        {/* Estadísticas */}
-                      </p>
-
-                      <div className="grid grid-cols-3 gap-4 text-center">
-
-                        <StatBox label="Partidos" value={teamStats.matches} />
-                        <StatBox label="Goles" value={teamStats.avg_goals_scored} />
-                        <StatBox label="Encajados" value={teamStats.avg_goals_conceded} />
-
-                        <StatBox label="Victorias" value={`${teamStats.results.win}%`} />
-                        <StatBox label="Empates" value={`${teamStats.results.draw}%`} />
-                        <StatBox label="Derrotas" value={`${teamStats.results.loss}%`} />
-
-                        <StatBox label="BTTS" value={`${teamStats.markets.btts}%`} />
-                        <StatBox label="Over 2.5" value={`${teamStats.markets.over_2_5}%`} />
-                        <StatBox label="Over 3.5" value={`${teamStats.markets.over_3_5}%`} />
-
-                      </div>
-
-
-
-                    </div>
-                  );
-                })()}
-
-                {/* CLOSE */}
-                <button
-                  onClick={() => setSelectedTeam(null)}
-                  className="mt-5 w-full bg-[var(--card)] border border-[var(--border)] py-2 rounded hover:opacity-80"
-                >
-                  Cerrar
-                </button>
-              </div>
-
-            </div>
-          </div>
+        {teamModal && (
+          <TeamModal
+            teamId={teamModal.id}
+            teamName={teamModal.name}
+            apiUrl={apiUrl}
+            onClose={() => setTeamModal(null)}
+          />
         )}
 
         <TopValueModal
@@ -1858,94 +707,18 @@ const renderMatchCard = (match: Match) => {
         )}
 
 
-        {pendingBet && (
-          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-            <div className="bg-[var(--card)] text-[var(--text)] p-6 rounded-xl border border-[var(--border)] w-[90%] md:w-[420px] shadow-lg">
-
-              {/* TITLE */}
-              <h2 className="text-xl font-bold text-center mb-4">
-                {t.confirmBet}
-              </h2>
-
-              {/* INFO */}
-              <div className="bg-[var(--bg)] p-4 rounded-lg text-center space-y-2">
-
-                <p className="text-lg font-semibold">
-                  {pendingBet.match}
-                </p>
-
-                <p className="text-sm text-[var(--muted)]">
-                  {pendingBet.market} — {pendingBet.selection.toUpperCase()}
-                </p>
-
-                <p className="text-3xl font-bold">
-                  {pendingBet.odd ?? "-"}
-                </p>
-
-                {pendingBet.bookmaker && (
-                  <p className="text-sm text-[var(--muted)]">
-                    {pendingBet.bookmaker}
-                  </p>
-                )}
-
-                {pendingBet.value !== null && pendingBet.value !== undefined && (
-                  <p className="text-[var(--accent)] font-bold">
-                    {formatValue(pendingBet.value)}
-                  </p>
-                )}
-                <p className="text-xs text-[var(--muted)] mb-1">
-                  {t.recommendedStake}
-                </p>
-
-                <select
-                  value={pendingBet.stake_level}
-                  onChange={(e) => {
-                    const level = Number(e.target.value);
-                    const rule = getStakeRules().find(r => r.level === level);
-
-                    if (!rule) return;
-
-                    setPendingBet({
-                      ...pendingBet,
-                      stake_level: level,
-                      stake: rule.amount,
-                    });
-                  }}
-                  className="w-full p-2 mb-4 bg-[var(--bg)] border border-[var(--border)] rounded text-sm"
-                >
-
-                  {getStakeRules().map((r) => (
-                    <option key={r.level} value={r.level}>
-                      Stake {r.level} — {r.amount}€
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* ACTIONS */}
-              <div className="flex gap-3 mt-5">
-
-                <button
-                  onClick={() => setPendingBet(null)}
-                  className="flex-1 bg-[var(--card)] border border-[var(--border)] py-2 rounded-lg hover:opacity-80"
-                >
-                  {t.cancel}
-                </button>
-
-                <button
-                  onClick={() => {
-                    addBet(pendingBet);
-                    setPendingBet(null);
-                  }}
-                  className="flex-1 bg-[var(--accent)] py-2 rounded-lg font-bold text-white hover:opacity-90"
-                >
-                  {t.confirm}
-                </button>
-
-              </div>
-            </div>
-          </div>
-        )}
+        <PendingBetModal
+          pendingBet={pendingBet}
+          setPendingBet={setPendingBet}
+          addBet={addBet}
+          formatValue={formatValue}
+          t={{
+            confirmBet: t.confirmBet,
+            recommendedStake: t.recommendedStake,
+            cancel: t.cancel,
+            confirm: t.confirm,
+          }}
+        />
 
 
 

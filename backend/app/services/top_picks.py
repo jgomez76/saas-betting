@@ -17,17 +17,33 @@ RELAX_VALUE = -0.01
 ### VALORES PARA V2 ###
 #######################
 
-MIN_PROB = 0.58
-MIN_VALUE = 0.03
-MAX_ODD = 3.5
+# MIN_PROB = 0.58
+# MIN_VALUE = 0.03
+# MAX_ODD = 3.5
 
-TARGET_PICKS = 4
+# TARGET_PICKS = 4
+# MAX_PER_MARKET = 2
+
+#########################
+#########################
+#########################
+
+
+#######################
+### VALORES PARA V3 ###
+#######################
+
+MIN_PROB = 0.60
+MIN_VALUE = 0.05
+MAX_ODD = 2.5
+
+TARGET_PICKS = 6
 MAX_PER_MARKET = 2
+TOP_CANDIDATES_POOL = 20  # 🔥 clave
 
 #########################
 #########################
 #########################
-
 
 # -----------------------------------------
 # 🔥 FILTRO REUTILIZABLE
@@ -331,8 +347,6 @@ def generate_top_picks(db: Session):
 
     print("TOP PICKS GENERADOS:", len(selected))
 
-
-
 def generate_top_picks_v2(db: Session):
 
     today = date.today()
@@ -460,6 +474,135 @@ def generate_top_picks_v2(db: Session):
     db.commit()
 
     print("TOP PICKS V2:", len(final))
+
+def generate_top_picks_v3(db: Session):
+
+    today = date.today()
+
+    if db.query(TopPick).filter(TopPick.date == today).first():
+        print("Top picks ya generados hoy")
+        return
+
+    candidates = extract_candidates(db)
+
+    enriched = []
+
+    for c in candidates:
+
+        prob = c["probability"]
+        odd = c["odd"]
+        value = c["value"]
+
+        if not prob or not odd or not value:
+            continue
+
+        # 🔴 FILTROS
+        if prob < MIN_PROB:
+            continue
+
+        if value < MIN_VALUE:
+            continue
+
+        if odd > MAX_ODD:
+            continue
+
+        # 🧠 SCORE LIMPIO
+        edge = (prob * odd) - 1
+        score = edge * prob
+
+        c["score"] = score
+        c["edge"] = edge
+
+        enriched.append(c)
+
+    if not enriched:
+        print("NO HAY PICKS")
+        return
+
+    # 🔥 ORDENAR
+    enriched.sort(key=lambda x: x["score"], reverse=True)
+
+    # 🔥 SOLO TOP POOL (evita ruido)
+    enriched = enriched[:TOP_CANDIDATES_POOL]
+
+    # -----------------------------
+    # 🎯 SELECCIÓN INTELIGENTE
+    # -----------------------------
+
+    used_fixtures = set()
+    used_markets = {}
+    final = []
+
+    for p in enriched:
+
+        fixture_id = p["fixture_id"]
+        market = p["market"]
+
+        if fixture_id in used_fixtures:
+            continue
+
+        if used_markets.get(market, 0) >= MAX_PER_MARKET:
+            continue
+
+        final.append(p)
+
+        used_fixtures.add(fixture_id)
+        used_markets[market] = used_markets.get(market, 0) + 1
+
+        if len(final) >= TARGET_PICKS:
+            break
+
+    n = len(final)
+
+    if n == 0:
+        print("NO HAY PICKS VALIDOS")
+        return
+
+    elif n == 1:
+        free_index = 0
+
+    elif n <= 3:
+        free_index = 1
+
+    elif n <= 5:
+        free_index = random.choice([1, 2])
+
+    else:
+        free_index = random.choice([1, 2, 3])
+
+    # -----------------------------
+    # 💾 GUARDAR
+    # -----------------------------
+
+    for i, p in enumerate(final):
+
+        db.add(TopPick(
+            date=today,
+            fixture_id=p["fixture_id"],
+            match=p["match"],
+            market=p["market"],
+            selection=p["selection"],
+            probability=p["probability"],
+            odd=p["odd"],
+            bookmaker=p["bookmaker"],
+            value=p["value"],
+            kickoff=p["kickoff"],
+            is_free=(i == free_index)
+        ))
+
+        db.add(TopPickHistory(
+            date=today,
+            fixture_id=p["fixture_id"],
+            market=p["market"],
+            selection=p["selection"],
+            odd=p["odd"],
+            probability=p["probability"],
+            value=p["value"],
+        ))
+
+    db.commit()
+
+    print("TOP PICKS V3:", n)
 
 def update_top_pick_results(db: Session):
 
