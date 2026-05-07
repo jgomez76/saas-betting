@@ -67,7 +67,7 @@ export default function Home() {
   // ###########
   // CONSTANTES
   // ###########
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
   // const { data: session } = useSession();
   // const oauthDone = useRef(false);
@@ -597,6 +597,7 @@ export default function Home() {
                 t={{
                   matches: t.matches,
                   vs: t.vs,
+                  lang,
                 }}
               />
           ))}
@@ -641,6 +642,7 @@ export default function Home() {
                   setPendingBet={setPendingBet}
                   t={{
                     vs: t.vs,
+                    lang,
                   }}
                 />
               ))}

@@ -4,6 +4,8 @@ import React from "react";
 import { Match } from "@/types/match";
 import { Bet } from "@/types/bet";
 
+import { formatMatchDate } from "@/components/ui/format-match-date";
+
 import {
   formatValue,
   renderForm,
@@ -41,6 +43,7 @@ type Props = {
 
   t: {
     vs: string;
+    lang: string;
   };
 };
 
@@ -124,7 +127,10 @@ export default function MatchCard({
 
         {/* FECHA */}
         <p className="text-xs text-[var(--muted)] text-center mb-3 tracking-wide">
-        {match.date}
+            {formatMatchDate(
+                match.date,
+                t.lang
+            )}
         </p>
 
         {/* 1X2 */}

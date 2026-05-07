@@ -46,6 +46,7 @@ type Props = {
   t: {
     matches: string;
     vs: string;
+    lang: string;
   };
 };
 
@@ -122,6 +123,7 @@ export default function LeagueSection({
                 setPendingBet={setPendingBet}
                 t={{
                   vs: t.vs,
+                  lang: t.lang,
                 }}
               />
           ))}
