@@ -1,0 +1,176 @@
+
+digraph SaaSBets {
+
+  rankdir=TB;
+  splines=ortho;
+  overlap=false;
+
+  nodesep=0.8;
+  ranksep=1.2;
+
+  bgcolor="white";
+
+  node [
+    shape=box,
+    style="rounded,filled",
+    fontname="Arial",
+    fontsize=13,
+    margin=0.35
+  ];
+
+  edge [
+    color="#666666",
+    penwidth=1.6,
+    arrowsize=0.8
+  ];
+
+  // ========================
+  // FRONTEND
+  // ========================
+
+  subgraph cluster_frontend {
+
+    label="Frontend Layer (Next.js)";
+    fontsize=22;
+    fontname="Arial Bold";
+    color="#2563eb";
+    style="rounded";
+
+    frontend [
+      label="Dashboard UI\nHooks\nComponents\nContexts",
+      fillcolor="#93c5fd"
+    ];
+  }
+
+  // ========================
+  // API + AUTH
+  // ========================
+
+  subgraph cluster_api {
+
+    label="API Layer (FastAPI)";
+    fontsize=22;
+    color="#16a34a";
+    style="rounded";
+
+    routes [
+      label="API Routes\n/value-bets\n/top-picks\n/login\n/favorites",
+      fillcolor="#86efac"
+    ];
+
+    auth [
+      label="Authentication\nOAuth\nJWT\nEmail Verification",
+      fillcolor="#22c55e",
+      fontcolor="white"
+    ];
+  }
+
+  // ========================
+  // SERVICES
+  // ========================
+
+  subgraph cluster_services {
+
+    label="Business Layer";
+    fontsize=22;
+    color="#0f766e";
+    style="rounded";
+
+    services [
+      label="Business Services\nvalue.py\ntop_picks.py\nodds.py\nanalysis.py",
+      fillcolor="#5eead4"
+    ];
+
+    jobs [
+      label="Automation Jobs\nupdate_data.py\ngenerate_value_bets.py\nbuild_top_picks.py",
+      fillcolor="#c4b5fd"
+    ];
+  }
+
+  // ========================
+  // DATA LAYER
+  // ========================
+
+  subgraph cluster_data {
+
+    label="Data Layer";
+    fontsize=22;
+    color="#ca8a04";
+    style="rounded";
+
+    models [
+      label="Database Models\nUser\nBet\nFavorite\nValueBet",
+      fillcolor="#fde68a"
+    ];
+
+    database [
+      label="PostgreSQL / SQLite",
+      fillcolor="#facc15"
+    ];
+  }
+
+  // ========================
+  // EXTERNAL SERVICES
+  // ========================
+
+  subgraph cluster_external {
+
+    label="External Services";
+    fontsize=20;
+    color="#7c3aed";
+    style="rounded";
+
+    google [
+      label="Google OAuth",
+      fillcolor="#fecaca"
+    ];
+
+    github [
+      label="GitHub OAuth",
+      fillcolor="#e5e7eb"
+    ];
+
+    football [
+      label="API-Football",
+      fillcolor="#fdba74"
+    ];
+
+    resend [
+      label="Email Service\nResend / SMTP",
+      fillcolor="#ddd6fe"
+    ];
+  }
+
+  // ========================
+  // MAIN FLOW
+  // ========================
+
+  frontend -> routes;
+  routes -> services;
+  services -> models;
+  models -> database;
+
+  // ========================
+  // AUTH FLOW
+  // ========================
+
+  routes -> auth;
+
+  auth -> google;
+  auth -> github;
+  auth -> resend;
+
+  // ========================
+  // DATA FLOW
+  // ========================
+
+  services -> football;
+
+  // ========================
+  // AUTOMATION
+  // ========================
+
+  jobs -> services;
+  jobs -> database;
+
+}

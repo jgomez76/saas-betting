@@ -280,24 +280,49 @@ export default function Home() {
 
     // 📅 FECHA
     if (dateFilter !== "ALL") {
-      const now = new Date();
+
+      const today = new Date();
+
+      today.setHours(0, 0, 0, 0);
+
+      const tomorrow = new Date(today);
+      tomorrow.setDate(today.getDate() + 1);
+
+      const dayAfterTomorrow = new Date(today);
+      dayAfterTomorrow.setDate(today.getDate() + 2);
+
+      const next3Days = new Date(today);
+      next3Days.setDate(today.getDate() + 3);
 
       filtered = filtered.filter((m) => {
-        const matchDate = new Date(m.date + "Z");
 
-        const diffTime = matchDate.getTime() - now.getTime();
-        const diffDays = diffTime / (1000 * 60 * 60 * 24);
+        const matchDate =
+          new Date(m.date + "Z");
+
+        matchDate.setHours(0, 0, 0, 0);
 
         if (dateFilter === "TODAY") {
-          return matchDate.toDateString() === now.toDateString();
+
+          return (
+            matchDate.getTime() ===
+            today.getTime()
+          );
         }
 
         if (dateFilter === "TODAY_TOMORROW") {
-          return diffDays >= 0 && diffDays <= 2;
+
+          return (
+            matchDate.getTime() === today.getTime() ||
+            matchDate.getTime() === tomorrow.getTime()
+          );
         }
 
         if (dateFilter === "NEXT_3_DAYS") {
-          return diffDays >= 0 && diffDays <= 3;
+
+          return (
+            matchDate >= today &&
+            matchDate < next3Days
+          );
         }
 
         return true;

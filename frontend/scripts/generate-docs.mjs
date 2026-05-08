@@ -1,167 +1,115 @@
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import { execSync } from "child_process";
 
-const __filename =
-  fileURLToPath(import.meta.url);
+console.log(
+  "🚀 Generating SaaSBets docs...\n"
+);
 
-const __dirname =
-  path.dirname(__filename);
+try {
 
-const ROOT = path.join(__dirname, "..");
-const DOCS_DIR = path.join(ROOT, "docs");
+  console.log(
+    "📦 Generating dependencies..."
+  );
 
-const FRONTEND_DIRS = [
-  "app",
-  "components",
-  "hooks",
-  "context",
-  "lib",
-];
-
-function getAllFiles(dir, arr = []) {
-  const files = fs.readdirSync(dir);
-
-  for (const file of files) {
-    const fullPath = path.join(dir, file);
-
-    const stat = fs.statSync(fullPath);
-
-    if (stat.isDirectory()) {
-      getAllFiles(fullPath, arr);
-    } else {
-      arr.push(fullPath);
-    }
-  }
-
-  return arr;
-}
-
-function extractImports(content) {
-  const regex =
-    /import\s+.?from\s+["'](.?)["']/g;
-
-  const imports = [];
-
-  let match;
-
-  while ((match = regex.exec(content))) {
-    imports.push(match[1]);
-  }
-
-  return imports;
-}
-
-function extractExports(content) {
-  const regex =
-    /export\s+(?:default\s+)?(?:function|const|class)\s+([A-Za-z0-9_]+)/g;
-
-  const exports = [];
-
-  let match;
-
-  while ((match = regex.exec(content))) {
-    exports.push(match[1]);
-  }
-
-  return exports;
-}
-
-function extractEndpoints(content) {
-  const regex =
-    /fetch\(?\$\{?.*?\/([A-Za-z0-9-_\/]+)?/g;
-
-  const endpoints = [];
-
-  let match;
-
-  while ((match = regex.exec(content))) {
-    endpoints.push(match[1]);
-  }
-
-  return [...new Set(endpoints)];
-}
-
-function generate() {
-
-  if (!fs.existsSync(DOCS_DIR)) {
-    fs.mkdirSync(DOCS_DIR);
-  }
-
-  let md = `# SaaSBets App Map\n\n`;
-
-  for (const dir of FRONTEND_DIRS) {
-
-    const fullDir =
-      path.join(ROOT, dir);
-
-    if (!fs.existsSync(fullDir)) {
-      continue;
-    }
-
-    md += `# ${dir.toUpperCase()}\n\n`;
-
-    const files = getAllFiles(fullDir);
-
-    for (const file of files) {
-
-      const relative =
-        path.relative(ROOT, file);
-
-      const content =
-        fs.readFileSync(file, "utf8");
-
-      const imports =
-        extractImports(content);
-
-      const exports =
-        extractExports(content);
-
-      const endpoints =
-        extractEndpoints(content);
-
-      md += `## ${relative}\n\n`;
-
-      if (exports.length) {
-        md += `### Exports\n`;
-
-        exports.forEach((e) => {
-          md += `- ${e}\n`;
-        });
-
-        md += `\n`;
-      }
-
-      if (imports.length) {
-        md += `### Imports\n`;
-
-        imports.forEach((i) => {
-          md += `- ${i}\n`;
-        });
-
-        md += `\n`;
-      }
-
-      if (endpoints.length) {
-        md += `### API Endpoints\n`;
-
-        endpoints.forEach((e) => {
-          md += `- /${e}\n`;
-        });
-
-        md += `\n`;
-      }
-    }
-  }
-
-  fs.writeFileSync(
-    path.join(DOCS_DIR, "app-map.md"),
-    md
+  execSync(
+    `npx madge --ts-config tsconfig.json --extensions ts,tsx app hooks components context lib types --json > docs/dependencies.json`,
+    { stdio: "inherit" }
   );
 
   console.log(
-    "✅ docs/app-map.md generated"
+    "🧠 Generating app map..."
   );
-}
 
-generate();
+  execSync(
+    "node scripts/generate-map.mjs",
+    { stdio: "inherit" }
+  );
+
+  console.log(
+    "⚙️ Generating backend map..."
+  );
+
+  execSync(
+    "node scripts/generate-backend-map.mjs",
+    { stdio: "inherit" }
+  );
+
+  console.log(
+    "🔌 Generating API map..."
+  );
+
+  execSync(
+    "node scripts/generate-api-map.mjs",
+    { stdio: "inherit" }
+  );
+
+  console.log(
+    "🏗️ Generating architecture..."
+  );
+
+  execSync(
+    "node scripts/generate-architecture.mjs",
+    { stdio: "inherit" }
+  );
+
+  console.log(
+    "🎨 Generating architecture diagram..."
+  );
+
+  execSync(
+    "node scripts/generate-diagram.mjs",
+    { stdio: "inherit" }
+  );
+
+  console.log(
+    "🎨 Generating architecture graph..."
+  );
+
+  execSync(
+    "node scripts/generate-graph.mjs",
+    { stdio: "inherit" }
+  );
+
+  console.log(
+    "🏗️ Generating clean architecture graph..."
+  );
+
+  execSync(
+    "node scripts/generate-clean-graph.mjs",
+    { stdio: "inherit" }
+  );
+
+  console.log(
+    "🎨 Generating dependency graph..."
+  );
+
+  execSync(
+    `npx madge --ts-config tsconfig.json --extensions ts,tsx --image docs/dependency-graph.svg app hooks components context lib types`,
+    { stdio: "inherit" }
+  );
+
+  console.log(
+    "🏗️ Generating architecture portal..."
+  );
+
+  execSync(
+    "node scripts/generate-architecture-data.mjs",
+    { stdio: "inherit" }
+  );
+
+  execSync(
+    "node scripts/render-architecture.mjs",
+    { stdio: "inherit" }
+  );
+
+  console.log(
+    "\n✅ ALL DOCS GENERATED"
+  );
+
+} catch (err) {
+
+  console.error(
+    "💥 Docs generation failed"
+  );
+
+  console.error(err);
+}

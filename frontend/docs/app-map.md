@@ -1,319 +1,778 @@
-# SaaSBets App Map
+# SaaSBets Architecture
 
-# APP
+## Most Used Files
 
-## app\account\page.tsx
+- lib/i18n/LanguageProvider.tsx (22 imports)
+- lib/api.ts (6 imports)
+- types/bet.ts (6 imports)
+- lib/stake.ts (5 imports)
+- types/match.ts (5 imports)
+- context/SubscriptionContext.tsx (4 imports)
+- lib/config/leagues.ts (4 imports)
+- components/ui/match-ui.tsx (3 imports)
+- lib/i18n/translations.ts (3 imports)
+- context/ThemeContext.tsx (2 imports)
 
-### Exports
+---
 
-- AccountPage
+# app/account/page.tsx
 
-## app\favicon.ico
+Type: App
 
-## app\globals.css
+## Dependencies
 
-## app\layout.tsx
+- lib/api.ts
+- lib/i18n/LanguageProvider.tsx
 
-## app\oauth-disabled\page.tsx
+---
 
-### Exports
+# app/globals.css
 
-- OAuthDisabledPage
+Type: App
 
-## app\oauth-success\page.tsx
+## Used By
 
-### Exports
+- app/layout.tsx
 
-- OAuthSuccessPage
+---
 
-## app\page.tsx
+# app/layout.tsx
 
-### Exports
+Type: App
 
-- Home
+## Dependencies
 
-## app\profile\page.tsx
+- app/globals.css
+- app/providers.tsx
+- context/SubscriptionContext.tsx
+- context/ThemeContext.tsx
+- lib/i18n/LanguageProvider.tsx
 
-### Exports
+---
 
-- ProfilePage
+# app/oauth-disabled/page.tsx
 
-## app\providers.tsx
+Type: App
 
-### Exports
+---
 
-- Providers
+# app/oauth-success/page.tsx
 
-## app\reactivate\page.tsx
+Type: App
 
-### Exports
+---
 
-- ReactivatePage
+# app/page.tsx
 
-## app\reset\page.tsx
+Type: App
 
-### Exports
+## Dependencies
 
-- ResetPage
+- components/AnalysisModal.tsx
+- components/BetsModal.tsx
+- components/LoginModal.tsx
+- components/Navbar.tsx
+- components/ProfileModal.tsx
+- components/ResultsView.tsx
+- components/SettingsView.tsx
+- components/Sidebar.tsx
+- components/StandingsView.tsx
+- components/TopValueModal.tsx
+- components/cards/MatchCard.tsx
+- components/dashboard/DashboardHeader.tsx
+- components/dashboard/LeagueSection.tsx
+- components/modals/PendingBetModal.tsx
+- components/modals/TeamModal.tsx
+- components/ui/match-ui.tsx
+- context/SubscriptionContext.tsx
+- hooks/useAuth.ts
+- hooks/useBets.ts
+- hooks/useFavorites.ts
+- hooks/useFilters.ts
+- hooks/useMatches.ts
+- hooks/useTopPicks.ts
+- lib/i18n/LanguageProvider.tsx
+- lib/stake.ts
+- types/bet.ts
+- types/match.ts
 
-## app\verify\page.tsx
+---
 
-### Exports
+# app/profile/page.tsx
 
-- VerifyPage
+Type: App
 
-# COMPONENTS
+## Dependencies
 
-## components\AnalysisModal.tsx
+- lib/api.ts
+- lib/i18n/LanguageProvider.tsx
 
-### Exports
+---
 
-- AnalysisModal
+# app/providers.tsx
 
-## components\BetsModal.tsx
+Type: App
 
-### Exports
+## Used By
 
-- BetsModal
+- app/layout.tsx
 
-## components\cards\MatchCard.tsx
+---
 
-### Exports
+# app/reactivate/page.tsx
 
-- MatchCard
+Type: App
 
-## components\dashboard\DashboardHeader.tsx
+---
 
-### Exports
+# app/reset/page.tsx
 
-- DashboardHeader
+Type: App
 
-## components\dashboard\LeagueSection.tsx
+## Dependencies
 
-### Exports
+- lib/api.ts
+- lib/i18n/LanguageProvider.tsx
 
-- LeagueSection
+---
 
-## components\DeleteAccountModal.tsx
+# app/verify/page.tsx
 
-### Exports
+Type: App
 
-- DeleteAccountModal
+## Dependencies
 
-## components\FavoriteLeagues.tsx
+- lib/api.ts
+- lib/i18n/LanguageProvider.tsx
 
-### Exports
+---
 
-- FavoriteLeagues
+# components/AnalysisModal.tsx
 
-## components\LoginModal.tsx
+Type: Component
 
-### Exports
+## Dependencies
 
-- LoginModal
+- lib/i18n/LanguageProvider.tsx
 
-## components\modals\PendingBetModal.tsx
+## Used By
 
-### Exports
+- app/page.tsx
 
-- PendingBetModal
+---
 
-## components\modals\TeamModal.tsx
+# components/BetsModal.tsx
 
-### Exports
+Type: Component
 
-- TeamModal
+## Dependencies
 
-## components\Navbar.tsx
+- lib/format.ts
+- lib/i18n/LanguageProvider.tsx
+- lib/i18n/config.ts
+- lib/i18n/translations.ts
+- types/bet.ts
 
-## components\PremiumLock.tsx
+## Used By
 
-### Exports
+- app/page.tsx
 
-- PremiumLock
+---
 
-## components\ProfileModal.tsx
+# components/DeleteAccountModal.tsx
 
-### Exports
+Type: Component
 
-- ProfileModal
+## Dependencies
 
-## components\ProfileSettingsModal.tsx
+- lib/i18n/LanguageProvider.tsx
 
-### Exports
+## Used By
 
-- ProfileSettingsModal
+- components/SettingsView.tsx
 
-## components\ResultsView.tsx
+---
 
-### Exports
+# components/FavoriteLeagues.tsx
 
-- ResultsView
+Type: Component
 
-## components\SettingsView.tsx
+## Dependencies
 
-### Exports
+- lib/config/leagues.ts
+- lib/i18n/LanguageProvider.tsx
 
-- SettingsView
+## Used By
 
-## components\Sidebar.tsx
+- components/SettingsView.tsx
 
-### Exports
+---
 
-- Sidebar
+# components/LoginModal.tsx
 
-## components\StakeSettings.tsx
+Type: Component
 
-### Exports
+## Dependencies
 
-- StakeSettings
+- lib/i18n/LanguageProvider.tsx
 
-## components\StandingsView.tsx
+## Used By
 
-### Exports
+- app/page.tsx
 
-- StandingsView
+---
 
-## components\TopPicksCard.tsx
+# components/Navbar.tsx
 
-### Exports
+Type: Component
 
-- TopPicksCard
+## Dependencies
 
-## components\TopValueModal.tsx
+- lib/config/leagues.ts
+- lib/i18n/LanguageProvider.tsx
 
-### Exports
+## Used By
 
-- TopValueModal
+- app/page.tsx
 
-## components\TopValueTable.tsx
+---
 
-### Exports
+# components/PremiumLock.tsx
 
-- TopValueTable
+Type: Component
 
-## components\ui\format-match-date.ts
+## Dependencies
 
-### Exports
+- lib/i18n/LanguageProvider.tsx
 
-- formatMatchDate
+## Used By
 
-## components\ui\match-ui.tsx
+- components/TopPicksCard.tsx
 
-### Exports
+---
 
-- StatBox
-- formatValue
-- renderForm
-- SkeletonCard
+# components/ProfileModal.tsx
 
-# HOOKS
+Type: Component
 
-## hooks\useAuth.ts
+## Dependencies
 
-### Exports
+- lib/i18n/LanguageProvider.tsx
 
-- useAuth
+## Used By
 
-## hooks\useBets.ts
+- app/page.tsx
+- components/SettingsView.tsx
 
-### Exports
+---
 
-- useBets
+# components/ProfileSettingsModal.tsx
 
-## hooks\useFavorites.ts
+Type: Component
 
-### Exports
+---
 
-- useFavorites
+# components/ResultsView.tsx
 
-## hooks\useFilters.ts
+Type: Component
 
-### Exports
+## Dependencies
 
-- useFilters
+- lib/config/leagues.ts
+- lib/i18n/LanguageProvider.tsx
 
-## hooks\useMatches.ts
+## Used By
 
-### Exports
+- app/page.tsx
 
-- useMatches
+---
 
-## hooks\useTopPicks.ts
+# components/SettingsView.tsx
 
-### Exports
+Type: Component
 
-- useTopPicks
+## Dependencies
 
-# CONTEXT
+- components/DeleteAccountModal.tsx
+- components/FavoriteLeagues.tsx
+- components/ProfileModal.tsx
+- components/StakeSettings.tsx
+- context/SubscriptionContext.tsx
+- context/ThemeContext.tsx
+- lib/i18n/LanguageProvider.tsx
+- types/user.ts
 
-## context\SubscriptionContext.tsx
+## Used By
 
-### Exports
+- app/page.tsx
 
-- SubscriptionProvider
-- useSubscription
+---
 
-## context\ThemeContext.tsx
+# components/Sidebar.tsx
 
-### Exports
+Type: Component
 
-- VALID_THEMES
-- ThemeProvider
-- useTheme
+## Dependencies
 
-# LIB
+- lib/i18n/LanguageProvider.tsx
 
-## lib\api.ts
+## Used By
 
-### Exports
+- app/page.tsx
 
-- API_URL
-- API_URL
-- API_URL
+---
 
-## lib\config\leagues.ts
+# components/StakeSettings.tsx
 
-### Exports
+Type: Component
 
-- LEAGUES
-- PRIORITY_LEAGUES
+## Dependencies
 
-## lib\format.ts
+- lib/i18n/LanguageProvider.tsx
+- lib/stake.ts
 
-### Exports
+## Used By
 
-- formatBetLabel
+- components/SettingsView.tsx
 
-## lib\i18n\config.ts
+---
 
-### Exports
+# components/StandingsView.tsx
 
-- LOCALES
+Type: Component
 
-## lib\i18n\LanguageProvider.tsx
+## Dependencies
 
-### Exports
+- lib/config/leagues.ts
+- lib/i18n/LanguageProvider.tsx
 
-- LanguageProvider
-- useLanguage
+## Used By
 
-## lib\i18n\translations.ts
+- app/page.tsx
 
-### Exports
+---
 
-- translations
+# components/TopPicksCard.tsx
 
-## lib\stake.ts
+Type: Component
 
-### Exports
+## Dependencies
 
-- DEFAULT_STAKES
-- getStakeRules
-- getStakeFromOdd
+- components/PremiumLock.tsx
+- lib/i18n/LanguageProvider.tsx
+- lib/i18n/config.ts
 
-## lib\topPicks.ts
+## Used By
 
-### Exports
+- components/dashboard/DashboardHeader.tsx
 
-- getTopPicks
+---
+
+# components/TopValueModal.tsx
+
+Type: Component
+
+## Dependencies
+
+- lib/api.ts
+- lib/i18n/LanguageProvider.tsx
+
+## Used By
+
+- app/page.tsx
+
+---
+
+# components/TopValueTable.tsx
+
+Type: Component
+
+## Dependencies
+
+- lib/api.ts
+- lib/i18n/LanguageProvider.tsx
+
+---
+
+# components/cards/MatchCard.tsx
+
+Type: Component
+
+## Dependencies
+
+- components/ui/format-match-date.ts
+- components/ui/match-ui.tsx
+- lib/stake.ts
+- types/bet.ts
+- types/match.ts
+
+## Used By
+
+- app/page.tsx
+- components/dashboard/LeagueSection.tsx
+
+---
+
+# components/dashboard/DashboardHeader.tsx
+
+Type: Component
+
+## Dependencies
+
+- components/TopPicksCard.tsx
+
+## Used By
+
+- app/page.tsx
+
+---
+
+# components/dashboard/LeagueSection.tsx
+
+Type: Component
+
+## Dependencies
+
+- components/cards/MatchCard.tsx
+- types/bet.ts
+- types/match.ts
+
+## Used By
+
+- app/page.tsx
+
+---
+
+# components/modals/PendingBetModal.tsx
+
+Type: Component
+
+## Dependencies
+
+- lib/stake.ts
+- types/bet.ts
+
+## Used By
+
+- app/page.tsx
+
+---
+
+# components/modals/TeamModal.tsx
+
+Type: Component
+
+## Dependencies
+
+- components/ui/match-ui.tsx
+- types/stats.ts
+
+## Used By
+
+- app/page.tsx
+
+---
+
+# components/ui/format-match-date.ts
+
+Type: Component
+
+## Used By
+
+- components/cards/MatchCard.tsx
+
+---
+
+# components/ui/match-ui.tsx
+
+Type: Component
+
+## Used By
+
+- app/page.tsx
+- components/cards/MatchCard.tsx
+- components/modals/TeamModal.tsx
+
+---
+
+# context/SubscriptionContext.tsx
+
+Type: Context
+
+## Used By
+
+- app/layout.tsx
+- app/page.tsx
+- components/SettingsView.tsx
+- hooks/useAuth.ts
+
+---
+
+# context/ThemeContext.tsx
+
+Type: Context
+
+## Used By
+
+- app/layout.tsx
+- components/SettingsView.tsx
+
+---
+
+# hooks/useAuth.ts
+
+Type: Hook
+
+## Dependencies
+
+- context/SubscriptionContext.tsx
+
+## Used By
+
+- app/page.tsx
+
+---
+
+# hooks/useBets.ts
+
+Type: Hook
+
+## Dependencies
+
+- types/bet.ts
+
+## Used By
+
+- app/page.tsx
+
+---
+
+# hooks/useFavorites.ts
+
+Type: Hook
+
+## Used By
+
+- app/page.tsx
+
+---
+
+# hooks/useFilters.ts
+
+Type: Hook
+
+## Used By
+
+- app/page.tsx
+
+---
+
+# hooks/useMatches.ts
+
+Type: Hook
+
+## Dependencies
+
+- types/match.ts
+
+## Used By
+
+- app/page.tsx
+
+---
+
+# hooks/useTopPicks.ts
+
+Type: Hook
+
+## Used By
+
+- app/page.tsx
+
+---
+
+# lib/api.ts
+
+Type: Library
+
+## Used By
+
+- app/account/page.tsx
+- app/profile/page.tsx
+- app/reset/page.tsx
+- app/verify/page.tsx
+- components/TopValueModal.tsx
+- components/TopValueTable.tsx
+
+---
+
+# lib/config/leagues.ts
+
+Type: Library
+
+## Used By
+
+- components/FavoriteLeagues.tsx
+- components/Navbar.tsx
+- components/ResultsView.tsx
+- components/StandingsView.tsx
+
+---
+
+# lib/format.ts
+
+Type: Library
+
+## Dependencies
+
+- lib/i18n/translations.ts
+
+## Used By
+
+- components/BetsModal.tsx
+
+---
+
+# lib/i18n/LanguageProvider.tsx
+
+Type: Library
+
+## Dependencies
+
+- lib/i18n/translations.ts
+
+## Used By
+
+- app/account/page.tsx
+- app/layout.tsx
+- app/page.tsx
+- app/profile/page.tsx
+- app/reset/page.tsx
+- app/verify/page.tsx
+- components/AnalysisModal.tsx
+- components/BetsModal.tsx
+- components/DeleteAccountModal.tsx
+- components/FavoriteLeagues.tsx
+- components/LoginModal.tsx
+- components/Navbar.tsx
+- components/PremiumLock.tsx
+- components/ProfileModal.tsx
+- components/ResultsView.tsx
+- components/SettingsView.tsx
+- components/Sidebar.tsx
+- components/StakeSettings.tsx
+- components/StandingsView.tsx
+- components/TopPicksCard.tsx
+- components/TopValueModal.tsx
+- components/TopValueTable.tsx
+
+---
+
+# lib/i18n/config.ts
+
+Type: Library
+
+## Used By
+
+- components/BetsModal.tsx
+- components/TopPicksCard.tsx
+
+---
+
+# lib/i18n/translations.ts
+
+Type: Library
+
+## Used By
+
+- components/BetsModal.tsx
+- lib/format.ts
+- lib/i18n/LanguageProvider.tsx
+
+---
+
+# lib/stake.ts
+
+Type: Library
+
+## Used By
+
+- app/page.tsx
+- components/StakeSettings.tsx
+- components/cards/MatchCard.tsx
+- components/modals/PendingBetModal.tsx
+- lib/topPicks.ts
+
+---
+
+# lib/topPicks.ts
+
+Type: Library
+
+## Dependencies
+
+- lib/stake.ts
+- types/match.ts
+
+---
+
+# types/bet.ts
+
+Type: Type
+
+## Used By
+
+- app/page.tsx
+- components/BetsModal.tsx
+- components/cards/MatchCard.tsx
+- components/dashboard/LeagueSection.tsx
+- components/modals/PendingBetModal.tsx
+- hooks/useBets.ts
+
+---
+
+# types/match.ts
+
+Type: Type
+
+## Dependencies
+
+- types/stats.ts
+
+## Used By
+
+- app/page.tsx
+- components/cards/MatchCard.tsx
+- components/dashboard/LeagueSection.tsx
+- hooks/useMatches.ts
+- lib/topPicks.ts
+
+---
+
+# types/next-auth.d.ts
+
+Type: Type
+
+---
+
+# types/stats.ts
+
+Type: Type
+
+## Used By
+
+- components/modals/TeamModal.tsx
+- types/match.ts
+
+---
+
+# types/user.ts
+
+Type: Type
+
+## Used By
+
+- components/SettingsView.tsx
+
+---
+

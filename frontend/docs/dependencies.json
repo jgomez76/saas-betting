@@ -1,0 +1,189 @@
+{
+  "app/account/page.tsx": [
+    "lib/api.ts",
+    "lib/i18n/LanguageProvider.tsx"
+  ],
+  "app/globals.css": [],
+  "app/layout.tsx": [
+    "app/globals.css",
+    "app/providers.tsx",
+    "context/SubscriptionContext.tsx",
+    "context/ThemeContext.tsx",
+    "lib/i18n/LanguageProvider.tsx"
+  ],
+  "app/oauth-disabled/page.tsx": [],
+  "app/oauth-success/page.tsx": [],
+  "app/page.tsx": [
+    "components/AnalysisModal.tsx",
+    "components/BetsModal.tsx",
+    "components/LoginModal.tsx",
+    "components/Navbar.tsx",
+    "components/ProfileModal.tsx",
+    "components/ResultsView.tsx",
+    "components/SettingsView.tsx",
+    "components/Sidebar.tsx",
+    "components/StandingsView.tsx",
+    "components/TopValueModal.tsx",
+    "components/cards/MatchCard.tsx",
+    "components/dashboard/DashboardHeader.tsx",
+    "components/dashboard/LeagueSection.tsx",
+    "components/modals/PendingBetModal.tsx",
+    "components/modals/TeamModal.tsx",
+    "components/ui/match-ui.tsx",
+    "context/SubscriptionContext.tsx",
+    "hooks/useAuth.ts",
+    "hooks/useBets.ts",
+    "hooks/useFavorites.ts",
+    "hooks/useFilters.ts",
+    "hooks/useMatches.ts",
+    "hooks/useTopPicks.ts",
+    "lib/i18n/LanguageProvider.tsx",
+    "lib/stake.ts",
+    "types/bet.ts",
+    "types/match.ts"
+  ],
+  "app/profile/page.tsx": [
+    "lib/api.ts",
+    "lib/i18n/LanguageProvider.tsx"
+  ],
+  "app/providers.tsx": [],
+  "app/reactivate/page.tsx": [],
+  "app/reset/page.tsx": [
+    "lib/api.ts",
+    "lib/i18n/LanguageProvider.tsx"
+  ],
+  "app/verify/page.tsx": [
+    "lib/api.ts",
+    "lib/i18n/LanguageProvider.tsx"
+  ],
+  "components/AnalysisModal.tsx": [
+    "lib/i18n/LanguageProvider.tsx"
+  ],
+  "components/BetsModal.tsx": [
+    "lib/format.ts",
+    "lib/i18n/LanguageProvider.tsx",
+    "lib/i18n/config.ts",
+    "lib/i18n/translations.ts",
+    "types/bet.ts"
+  ],
+  "components/DeleteAccountModal.tsx": [
+    "lib/i18n/LanguageProvider.tsx"
+  ],
+  "components/FavoriteLeagues.tsx": [
+    "lib/config/leagues.ts",
+    "lib/i18n/LanguageProvider.tsx"
+  ],
+  "components/LoginModal.tsx": [
+    "lib/i18n/LanguageProvider.tsx"
+  ],
+  "components/Navbar.tsx": [
+    "lib/config/leagues.ts",
+    "lib/i18n/LanguageProvider.tsx"
+  ],
+  "components/PremiumLock.tsx": [
+    "lib/i18n/LanguageProvider.tsx"
+  ],
+  "components/ProfileModal.tsx": [
+    "lib/i18n/LanguageProvider.tsx"
+  ],
+  "components/ProfileSettingsModal.tsx": [],
+  "components/ResultsView.tsx": [
+    "lib/config/leagues.ts",
+    "lib/i18n/LanguageProvider.tsx"
+  ],
+  "components/SettingsView.tsx": [
+    "components/DeleteAccountModal.tsx",
+    "components/FavoriteLeagues.tsx",
+    "components/ProfileModal.tsx",
+    "components/StakeSettings.tsx",
+    "context/SubscriptionContext.tsx",
+    "context/ThemeContext.tsx",
+    "lib/i18n/LanguageProvider.tsx",
+    "types/user.ts"
+  ],
+  "components/Sidebar.tsx": [
+    "lib/i18n/LanguageProvider.tsx"
+  ],
+  "components/StakeSettings.tsx": [
+    "lib/i18n/LanguageProvider.tsx",
+    "lib/stake.ts"
+  ],
+  "components/StandingsView.tsx": [
+    "lib/config/leagues.ts",
+    "lib/i18n/LanguageProvider.tsx"
+  ],
+  "components/TopPicksCard.tsx": [
+    "components/PremiumLock.tsx",
+    "lib/i18n/LanguageProvider.tsx",
+    "lib/i18n/config.ts"
+  ],
+  "components/TopValueModal.tsx": [
+    "lib/api.ts",
+    "lib/i18n/LanguageProvider.tsx"
+  ],
+  "components/TopValueTable.tsx": [
+    "lib/api.ts",
+    "lib/i18n/LanguageProvider.tsx"
+  ],
+  "components/cards/MatchCard.tsx": [
+    "components/ui/format-match-date.ts",
+    "components/ui/match-ui.tsx",
+    "lib/stake.ts",
+    "types/bet.ts",
+    "types/match.ts"
+  ],
+  "components/dashboard/DashboardHeader.tsx": [
+    "components/TopPicksCard.tsx"
+  ],
+  "components/dashboard/LeagueSection.tsx": [
+    "components/cards/MatchCard.tsx",
+    "types/bet.ts",
+    "types/match.ts"
+  ],
+  "components/modals/PendingBetModal.tsx": [
+    "lib/stake.ts",
+    "types/bet.ts"
+  ],
+  "components/modals/TeamModal.tsx": [
+    "components/ui/match-ui.tsx",
+    "types/stats.ts"
+  ],
+  "components/ui/format-match-date.ts": [],
+  "components/ui/match-ui.tsx": [],
+  "context/SubscriptionContext.tsx": [],
+  "context/ThemeContext.tsx": [],
+  "hooks/useAuth.ts": [
+    "context/SubscriptionContext.tsx"
+  ],
+  "hooks/useBets.ts": [
+    "types/bet.ts"
+  ],
+  "hooks/useFavorites.ts": [],
+  "hooks/useFilters.ts": [],
+  "hooks/useMatches.ts": [
+    "types/match.ts"
+  ],
+  "hooks/useTopPicks.ts": [],
+  "lib/api.ts": [],
+  "lib/config/leagues.ts": [],
+  "lib/format.ts": [
+    "lib/i18n/translations.ts"
+  ],
+  "lib/i18n/LanguageProvider.tsx": [
+    "lib/i18n/translations.ts"
+  ],
+  "lib/i18n/config.ts": [],
+  "lib/i18n/translations.ts": [],
+  "lib/stake.ts": [],
+  "lib/topPicks.ts": [
+    "lib/stake.ts",
+    "types/match.ts"
+  ],
+  "types/bet.ts": [],
+  "types/match.ts": [
+    "types/stats.ts"
+  ],
+  "types/next-auth.d.ts": [],
+  "types/stats.ts": [],
+  "types/user.ts": []
+}

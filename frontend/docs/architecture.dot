@@ -1,0 +1,558 @@
+
+digraph SaaSBets {
+
+  rankdir=LR;
+  splines=true;
+  overlap=false;
+
+  node [
+    shape=box,
+    style=filled,
+    fontname="Arial",
+    fontsize=10
+  ];
+
+  edge [
+    color="#666666"
+  ];
+
+  subgraph cluster_frontend {
+
+    label="Frontend (Next.js)";
+    color="#3b82f6";
+
+
+    app_account_page_tsx [
+      label="app/account/page.tsx",
+      fillcolor="#dbeafe"
+    ];
+  
+    app_globals_css [
+      label="app/globals.css",
+      fillcolor="#dbeafe"
+    ];
+  
+    app_layout_tsx [
+      label="app/layout.tsx",
+      fillcolor="#dbeafe"
+    ];
+  
+    app_oauth_disabled_page_tsx [
+      label="app/oauth-disabled/page.tsx",
+      fillcolor="#dbeafe"
+    ];
+  
+    app_oauth_success_page_tsx [
+      label="app/oauth-success/page.tsx",
+      fillcolor="#dbeafe"
+    ];
+  
+    app_page_tsx [
+      label="app/page.tsx",
+      fillcolor="#dbeafe"
+    ];
+  
+    app_profile_page_tsx [
+      label="app/profile/page.tsx",
+      fillcolor="#dbeafe"
+    ];
+  
+    app_providers_tsx [
+      label="app/providers.tsx",
+      fillcolor="#dbeafe"
+    ];
+  
+    app_reactivate_page_tsx [
+      label="app/reactivate/page.tsx",
+      fillcolor="#dbeafe"
+    ];
+  
+    app_reset_page_tsx [
+      label="app/reset/page.tsx",
+      fillcolor="#dbeafe"
+    ];
+  
+    app_verify_page_tsx [
+      label="app/verify/page.tsx",
+      fillcolor="#dbeafe"
+    ];
+  
+    components_AnalysisModal_tsx [
+      label="components/AnalysisModal.tsx",
+      fillcolor="#93c5fd"
+    ];
+  
+    components_BetsModal_tsx [
+      label="components/BetsModal.tsx",
+      fillcolor="#93c5fd"
+    ];
+  
+    components_DeleteAccountModal_tsx [
+      label="components/DeleteAccountModal.tsx",
+      fillcolor="#93c5fd"
+    ];
+  
+    components_FavoriteLeagues_tsx [
+      label="components/FavoriteLeagues.tsx",
+      fillcolor="#93c5fd"
+    ];
+  
+    components_LoginModal_tsx [
+      label="components/LoginModal.tsx",
+      fillcolor="#93c5fd"
+    ];
+  
+    components_Navbar_tsx [
+      label="components/Navbar.tsx",
+      fillcolor="#93c5fd"
+    ];
+  
+    components_PremiumLock_tsx [
+      label="components/PremiumLock.tsx",
+      fillcolor="#93c5fd"
+    ];
+  
+    components_ProfileModal_tsx [
+      label="components/ProfileModal.tsx",
+      fillcolor="#93c5fd"
+    ];
+  
+    components_ProfileSettingsModal_tsx [
+      label="components/ProfileSettingsModal.tsx",
+      fillcolor="#93c5fd"
+    ];
+  
+    components_ResultsView_tsx [
+      label="components/ResultsView.tsx",
+      fillcolor="#93c5fd"
+    ];
+  
+    components_SettingsView_tsx [
+      label="components/SettingsView.tsx",
+      fillcolor="#93c5fd"
+    ];
+  
+    components_Sidebar_tsx [
+      label="components/Sidebar.tsx",
+      fillcolor="#93c5fd"
+    ];
+  
+    components_StakeSettings_tsx [
+      label="components/StakeSettings.tsx",
+      fillcolor="#93c5fd"
+    ];
+  
+    components_StandingsView_tsx [
+      label="components/StandingsView.tsx",
+      fillcolor="#93c5fd"
+    ];
+  
+    components_TopPicksCard_tsx [
+      label="components/TopPicksCard.tsx",
+      fillcolor="#93c5fd"
+    ];
+  
+    components_TopValueModal_tsx [
+      label="components/TopValueModal.tsx",
+      fillcolor="#93c5fd"
+    ];
+  
+    components_TopValueTable_tsx [
+      label="components/TopValueTable.tsx",
+      fillcolor="#93c5fd"
+    ];
+  
+    components_cards_MatchCard_tsx [
+      label="components/cards/MatchCard.tsx",
+      fillcolor="#93c5fd"
+    ];
+  
+    components_dashboard_DashboardHeader_tsx [
+      label="components/dashboard/DashboardHeader.tsx",
+      fillcolor="#93c5fd"
+    ];
+  
+    components_dashboard_LeagueSection_tsx [
+      label="components/dashboard/LeagueSection.tsx",
+      fillcolor="#93c5fd"
+    ];
+  
+    components_modals_PendingBetModal_tsx [
+      label="components/modals/PendingBetModal.tsx",
+      fillcolor="#93c5fd"
+    ];
+  
+    components_modals_TeamModal_tsx [
+      label="components/modals/TeamModal.tsx",
+      fillcolor="#93c5fd"
+    ];
+  
+    components_ui_format_match_date_ts [
+      label="components/ui/format-match-date.ts",
+      fillcolor="#93c5fd"
+    ];
+  
+    components_ui_match_ui_tsx [
+      label="components/ui/match-ui.tsx",
+      fillcolor="#93c5fd"
+    ];
+  
+    context_SubscriptionContext_tsx [
+      label="context/SubscriptionContext.tsx",
+      fillcolor="#60a5fa"
+    ];
+  
+    context_ThemeContext_tsx [
+      label="context/ThemeContext.tsx",
+      fillcolor="#60a5fa"
+    ];
+  
+    hooks_useAuth_ts [
+      label="hooks/useAuth.ts",
+      fillcolor="#bfdbfe"
+    ];
+  
+    hooks_useBets_ts [
+      label="hooks/useBets.ts",
+      fillcolor="#bfdbfe"
+    ];
+  
+    hooks_useFavorites_ts [
+      label="hooks/useFavorites.ts",
+      fillcolor="#bfdbfe"
+    ];
+  
+    hooks_useFilters_ts [
+      label="hooks/useFilters.ts",
+      fillcolor="#bfdbfe"
+    ];
+  
+    hooks_useMatches_ts [
+      label="hooks/useMatches.ts",
+      fillcolor="#bfdbfe"
+    ];
+  
+    hooks_useTopPicks_ts [
+      label="hooks/useTopPicks.ts",
+      fillcolor="#bfdbfe"
+    ];
+  
+    lib_api_ts [
+      label="lib/api.ts",
+      fillcolor="#dbeafe"
+    ];
+  
+    lib_config_leagues_ts [
+      label="lib/config/leagues.ts",
+      fillcolor="#dbeafe"
+    ];
+  
+    lib_format_ts [
+      label="lib/format.ts",
+      fillcolor="#dbeafe"
+    ];
+  
+    lib_i18n_LanguageProvider_tsx [
+      label="lib/i18n/LanguageProvider.tsx",
+      fillcolor="#dbeafe"
+    ];
+  
+    lib_i18n_config_ts [
+      label="lib/i18n/config.ts",
+      fillcolor="#dbeafe"
+    ];
+  
+    lib_i18n_translations_ts [
+      label="lib/i18n/translations.ts",
+      fillcolor="#dbeafe"
+    ];
+  
+    lib_stake_ts [
+      label="lib/stake.ts",
+      fillcolor="#dbeafe"
+    ];
+  
+    lib_topPicks_ts [
+      label="lib/topPicks.ts",
+      fillcolor="#dbeafe"
+    ];
+  
+    types_bet_ts [
+      label="types/bet.ts",
+      fillcolor="#dbeafe"
+    ];
+  
+    types_match_ts [
+      label="types/match.ts",
+      fillcolor="#dbeafe"
+    ];
+  
+    types_next_auth_d_ts [
+      label="types/next-auth.d.ts",
+      fillcolor="#dbeafe"
+    ];
+  
+    types_stats_ts [
+      label="types/stats.ts",
+      fillcolor="#dbeafe"
+    ];
+  
+    types_user_ts [
+      label="types/user.ts",
+      fillcolor="#dbeafe"
+    ];
+  
+  }
+
+  subgraph cluster_backend {
+
+    label="Backend (FastAPI)";
+    color="#22c55e";
+
+
+    routes_py [
+      label="routes.py",
+      fillcolor="#bbf7d0"
+    ];
+  
+    services_value_py [
+      label="services/value.py",
+      fillcolor="#bbf7d0"
+    ];
+  
+    services_top_picks_py [
+      label="services/top_picks.py",
+      fillcolor="#bbf7d0"
+    ];
+  
+    services_odds_py [
+      label="services/odds.py",
+      fillcolor="#bbf7d0"
+    ];
+  
+    models_value_bet_py [
+      label="models/value_bet.py",
+      fillcolor="#bbf7d0"
+    ];
+  
+    models_user_py [
+      label="models/user.py",
+      fillcolor="#bbf7d0"
+    ];
+  
+    models_top_picks_py [
+      label="models/top_picks.py",
+      fillcolor="#bbf7d0"
+    ];
+  
+  }
+
+      app_account_page_tsx -> lib_api_ts;
+    
+      app_account_page_tsx -> lib_i18n_LanguageProvider_tsx;
+    
+      app_layout_tsx -> app_globals_css;
+    
+      app_layout_tsx -> app_providers_tsx;
+    
+      app_layout_tsx -> context_SubscriptionContext_tsx;
+    
+      app_layout_tsx -> context_ThemeContext_tsx;
+    
+      app_layout_tsx -> lib_i18n_LanguageProvider_tsx;
+    
+      app_page_tsx -> components_AnalysisModal_tsx;
+    
+      app_page_tsx -> components_BetsModal_tsx;
+    
+      app_page_tsx -> components_LoginModal_tsx;
+    
+      app_page_tsx -> components_Navbar_tsx;
+    
+      app_page_tsx -> components_ProfileModal_tsx;
+    
+      app_page_tsx -> components_ResultsView_tsx;
+    
+      app_page_tsx -> components_SettingsView_tsx;
+    
+      app_page_tsx -> components_Sidebar_tsx;
+    
+      app_page_tsx -> components_StandingsView_tsx;
+    
+      app_page_tsx -> components_TopValueModal_tsx;
+    
+      app_page_tsx -> components_cards_MatchCard_tsx;
+    
+      app_page_tsx -> components_dashboard_DashboardHeader_tsx;
+    
+      app_page_tsx -> components_dashboard_LeagueSection_tsx;
+    
+      app_page_tsx -> components_modals_PendingBetModal_tsx;
+    
+      app_page_tsx -> components_modals_TeamModal_tsx;
+    
+      app_page_tsx -> components_ui_match_ui_tsx;
+    
+      app_page_tsx -> context_SubscriptionContext_tsx;
+    
+      app_page_tsx -> hooks_useAuth_ts;
+    
+      app_page_tsx -> hooks_useBets_ts;
+    
+      app_page_tsx -> hooks_useFavorites_ts;
+    
+      app_page_tsx -> hooks_useFilters_ts;
+    
+      app_page_tsx -> hooks_useMatches_ts;
+    
+      app_page_tsx -> hooks_useTopPicks_ts;
+    
+      app_page_tsx -> lib_i18n_LanguageProvider_tsx;
+    
+      app_page_tsx -> lib_stake_ts;
+    
+      app_page_tsx -> types_bet_ts;
+    
+      app_page_tsx -> types_match_ts;
+    
+      app_profile_page_tsx -> lib_api_ts;
+    
+      app_profile_page_tsx -> lib_i18n_LanguageProvider_tsx;
+    
+      app_reset_page_tsx -> lib_api_ts;
+    
+      app_reset_page_tsx -> lib_i18n_LanguageProvider_tsx;
+    
+      app_verify_page_tsx -> lib_api_ts;
+    
+      app_verify_page_tsx -> lib_i18n_LanguageProvider_tsx;
+    
+      components_AnalysisModal_tsx -> lib_i18n_LanguageProvider_tsx;
+    
+      components_BetsModal_tsx -> lib_format_ts;
+    
+      components_BetsModal_tsx -> lib_i18n_LanguageProvider_tsx;
+    
+      components_BetsModal_tsx -> lib_i18n_config_ts;
+    
+      components_BetsModal_tsx -> lib_i18n_translations_ts;
+    
+      components_BetsModal_tsx -> types_bet_ts;
+    
+      components_DeleteAccountModal_tsx -> lib_i18n_LanguageProvider_tsx;
+    
+      components_FavoriteLeagues_tsx -> lib_config_leagues_ts;
+    
+      components_FavoriteLeagues_tsx -> lib_i18n_LanguageProvider_tsx;
+    
+      components_LoginModal_tsx -> lib_i18n_LanguageProvider_tsx;
+    
+      components_Navbar_tsx -> lib_config_leagues_ts;
+    
+      components_Navbar_tsx -> lib_i18n_LanguageProvider_tsx;
+    
+      components_PremiumLock_tsx -> lib_i18n_LanguageProvider_tsx;
+    
+      components_ProfileModal_tsx -> lib_i18n_LanguageProvider_tsx;
+    
+      components_ResultsView_tsx -> lib_config_leagues_ts;
+    
+      components_ResultsView_tsx -> lib_i18n_LanguageProvider_tsx;
+    
+      components_SettingsView_tsx -> components_DeleteAccountModal_tsx;
+    
+      components_SettingsView_tsx -> components_FavoriteLeagues_tsx;
+    
+      components_SettingsView_tsx -> components_ProfileModal_tsx;
+    
+      components_SettingsView_tsx -> components_StakeSettings_tsx;
+    
+      components_SettingsView_tsx -> context_SubscriptionContext_tsx;
+    
+      components_SettingsView_tsx -> context_ThemeContext_tsx;
+    
+      components_SettingsView_tsx -> lib_i18n_LanguageProvider_tsx;
+    
+      components_SettingsView_tsx -> types_user_ts;
+    
+      components_Sidebar_tsx -> lib_i18n_LanguageProvider_tsx;
+    
+      components_StakeSettings_tsx -> lib_i18n_LanguageProvider_tsx;
+    
+      components_StakeSettings_tsx -> lib_stake_ts;
+    
+      components_StandingsView_tsx -> lib_config_leagues_ts;
+    
+      components_StandingsView_tsx -> lib_i18n_LanguageProvider_tsx;
+    
+      components_TopPicksCard_tsx -> components_PremiumLock_tsx;
+    
+      components_TopPicksCard_tsx -> lib_i18n_LanguageProvider_tsx;
+    
+      components_TopPicksCard_tsx -> lib_i18n_config_ts;
+    
+      components_TopValueModal_tsx -> lib_api_ts;
+    
+      components_TopValueModal_tsx -> lib_i18n_LanguageProvider_tsx;
+    
+      components_TopValueTable_tsx -> lib_api_ts;
+    
+      components_TopValueTable_tsx -> lib_i18n_LanguageProvider_tsx;
+    
+      components_cards_MatchCard_tsx -> components_ui_format_match_date_ts;
+    
+      components_cards_MatchCard_tsx -> components_ui_match_ui_tsx;
+    
+      components_cards_MatchCard_tsx -> lib_stake_ts;
+    
+      components_cards_MatchCard_tsx -> types_bet_ts;
+    
+      components_cards_MatchCard_tsx -> types_match_ts;
+    
+      components_dashboard_DashboardHeader_tsx -> components_TopPicksCard_tsx;
+    
+      components_dashboard_LeagueSection_tsx -> components_cards_MatchCard_tsx;
+    
+      components_dashboard_LeagueSection_tsx -> types_bet_ts;
+    
+      components_dashboard_LeagueSection_tsx -> types_match_ts;
+    
+      components_modals_PendingBetModal_tsx -> lib_stake_ts;
+    
+      components_modals_PendingBetModal_tsx -> types_bet_ts;
+    
+      components_modals_TeamModal_tsx -> components_ui_match_ui_tsx;
+    
+      components_modals_TeamModal_tsx -> types_stats_ts;
+    
+      hooks_useAuth_ts -> context_SubscriptionContext_tsx;
+    
+      hooks_useBets_ts -> types_bet_ts;
+    
+      hooks_useMatches_ts -> types_match_ts;
+    
+      lib_format_ts -> lib_i18n_translations_ts;
+    
+      lib_i18n_LanguageProvider_tsx -> lib_i18n_translations_ts;
+    
+      lib_topPicks_ts -> lib_stake_ts;
+    
+      lib_topPicks_ts -> types_match_ts;
+    
+      types_match_ts -> types_stats_ts;
+    
+
+  hooks_useMatches_ts
+    -> services_value_py
+    [color="#ef4444", penwidth=2];
+
+  hooks_useTopPicks_ts
+    -> services_top_picks_py
+    [color="#f59e0b", penwidth=2];
+
+  hooks_useAuth_ts
+    -> routes_py
+    [color="#8b5cf6", penwidth=2];
+
+
+}
