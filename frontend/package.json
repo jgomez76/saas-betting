@@ -6,12 +6,12 @@
     "dev": "next dev -H 0.0.0.0",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "docs": "node scripts/generate-docs.mjs"
   },
   "dependencies": {
     "js-cookie": "^3.0.5",
     "next": "16.2.2",
-    "next-auth": "^4.24.13",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "recharts": "^3.8.1"

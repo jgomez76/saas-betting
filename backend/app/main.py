@@ -7,6 +7,9 @@ from fastapi.staticfiles import StaticFiles
 from app.api.routes import router
 from app.core.database import Base, engine
 
+from starlette.middleware.sessions import SessionMiddleware
+from app.core.config import SECRET_KEY
+
 
 Base.metadata.create_all(bind=engine)
 
@@ -22,6 +25,11 @@ origins = [
     "http://127.0.0.1:3000",
     "http://192.168.1.137:3000",  # opcional
 ]
+
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=SECRET_KEY,
+)
 
 app.add_middleware(
     CORSMiddleware,

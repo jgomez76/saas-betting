@@ -29,7 +29,6 @@ import { Match } from "@/types/match";
 import { Bet } from "@/types/bet";
 
 // import { signOut, useSession } from "next-auth/react";
-import { signOut } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 
 import { useSubscription } from "@/context/SubscriptionContext"; 
@@ -100,19 +99,20 @@ export default function Home() {
   const params = useSearchParams();
 
   useEffect(() => {
-    const error = params.get("error");
 
-    if (error === "ACCOUNT_DISABLED") {
+    const disabled =
+      localStorage.getItem(
+        "oauth_disabled"
+      );
+
+    if (disabled === "1") {
 
       queueMicrotask(() => {
-        signOut({ redirect: false });
-
         setShowLoginModal(true);
-
-        window.history.replaceState({}, "", "/");
       });
     }
-  }, [params]);
+
+  }, []);
 
   const handleSelectTopPick = (pick: TopPick) => {
     const stakeRule = getStakeFromOdd(pick.odd);
@@ -183,6 +183,9 @@ export default function Home() {
     handleLogout,
   } = useAuth(apiUrl);
 
+  const disableDataLoading =
+    params.get("oauth_error") === "ACCOUNT_DISABLED";
+
   const {
     allMatches,
     loading,
@@ -190,14 +193,22 @@ export default function Home() {
     openLeagues,
     setOpenLeagues,
     toggleLeague,
-  } = useMatches(apiUrl);
+  } = useMatches(
+    disableDataLoading
+      ? ""
+      : apiUrl
+  );
   
   const {
     freePick,
     validPicks,
     allFinished,
     topPicksLoading,
-  } = useTopPicks(apiUrl);
+  } = useTopPicks(
+    disableDataLoading
+      ? ""
+      : apiUrl
+  );
 
   const isLogged = !!email && !authLoading;
   const { bets, addBet, deleteBet } = useBets(isLogged);
@@ -222,9 +233,27 @@ export default function Home() {
   }, []);
 
   // ---------------- LOAD DATA ----------------
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNow(new Date());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);  
+
 
   const matches = useMemo(() => {
     let filtered: Match[] = [...allMatches];
+
+    // const now = new Date();
+
+    filtered = filtered.filter((m) => {
+      const matchDate = new Date(m.date + "Z");
+
+      return matchDate.getTime() > now.getTime();
+    });
 
     // 🏆 LIGA (manual > favoritas)
     if (leagueFilter !== "ALL") {
@@ -324,7 +353,7 @@ export default function Home() {
     });
 
     return filtered;
-  }, [allMatches, leagueFilter, marketFilter, dateFilter, favLeagues]);
+  }, [allMatches, leagueFilter, marketFilter, dateFilter, favLeagues, now]);
 
   const favoriteMatches = useMemo(() => {
     return allMatches.filter((m) =>
@@ -333,15 +362,7 @@ export default function Home() {
   }, [allMatches, favorites]);
 
 
-  const [now, setNow] = useState(() => new Date());
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setNow(new Date());
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);  
 
   const getCountdown = (now: Date) => {
     const target = getTodayGenerationTime();

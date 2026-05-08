@@ -24,3 +24,25 @@ LEAGUES = [2, 3, 39, 61, 78, 135, 140, 141, 848]
 # SELECTED_LEAGUES = [39, 61, 78, 135, 140, 141]
 SELECTED_LEAGUES = [140, 141, 39, 78, 135, 61]
 
+# ---------------- OAUTH ----------------
+
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+
+GITHUB_CLIENT_ID = os.getenv("GITHUB_CLIENT_ID")
+GITHUB_CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET")
+
+FRONTEND_URL = os.getenv(
+    "FRONTEND_URL",
+    "http://localhost:3000"
+)
+
+BACKEND_URL = os.getenv(
+    "BACKEND_URL",
+    "http://localhost:8000"
+)
+
+SECRET_KEY = os.getenv(
+    "SECRET_KEY",
+    "super-secret-key"
+)

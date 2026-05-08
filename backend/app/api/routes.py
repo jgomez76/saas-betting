@@ -1,15 +1,28 @@
 from fastapi import Response, APIRouter, Depends, Query, Request, HTTPException, BackgroundTasks, Body, UploadFile, File, Cookie
-from fastapi.responses import StreamingResponse, JSONResponse
+from fastapi.responses import StreamingResponse, JSONResponse, RedirectResponse
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta, date
 from jose import jwt
+from authlib.integrations.starlette_client import OAuth
+from starlette.config import Config
+
 from collections import defaultdict
 from pydantic import BaseModel
 
 from app.core.database import SessionLocal
-from app.core.config import CURRENT_SEASON, LEAGUES, SELECTED_LEAGUES
+from app.core.config import (
+    CURRENT_SEASON, 
+    LEAGUES, 
+    SELECTED_LEAGUES,
+    GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET,
+    GITHUB_CLIENT_ID,
+    GITHUB_CLIENT_SECRET,
+    FRONTEND_URL,
+)
+
 from app.core.auth import create_token
 from app.core.security import SECRET_KEY, ALGORITHM, create_access_token, hash_password, verify_password
 from app.core.email import send_verification_email, send_reset_email, send_reactivation_email
@@ -43,6 +56,44 @@ import secrets
 import shutil
 
 router = APIRouter()
+
+# ---------------- OAUTH ----------------
+
+config = Config(environ={})
+
+oauth = OAuth(config)
+
+oauth.register(
+    name="google",
+    client_id=GOOGLE_CLIENT_ID,
+    client_secret=GOOGLE_CLIENT_SECRET,
+
+    server_metadata_url=
+    "https://accounts.google.com/.well-known/openid-configuration",
+
+    client_kwargs={
+        "scope": "openid email profile"
+    },
+)
+
+oauth.register(
+    name="github",
+
+    client_id=GITHUB_CLIENT_ID,
+    client_secret=GITHUB_CLIENT_SECRET,
+
+    access_token_url=
+    "https://github.com/login/oauth/access_token",
+
+    authorize_url=
+    "https://github.com/login/oauth/authorize",
+
+    api_base_url="https://api.github.com/",
+
+    client_kwargs={
+        "scope": "user:email"
+    },
+)
 
 class RegisterRequest(BaseModel):
     email: str
@@ -375,6 +426,248 @@ def get_selected_leagues(db: Session = Depends(get_db)):
 
     return [l[0] for l in leagues]
 
+
+# ---------------- GOOGLE LOGIN ----------------
+
+@router.get("/auth/google")
+async def login_google(request: Request):
+
+    redirect_uri = (
+        "http://localhost:8000/auth/google/callback"
+    )
+
+    return await oauth.google.authorize_redirect(
+        request,
+        redirect_uri,
+    )
+
+
+@router.get("/auth/github")
+async def login_github(request: Request):
+
+    redirect_uri = (
+        "http://localhost:8000/auth/github/callback"
+    )
+
+    return await oauth.github.authorize_redirect(
+        request,
+        redirect_uri,
+    )
+
+
+@router.get("/auth/google/callback")
+async def auth_google_callback(
+    request: Request,
+    db: Session = Depends(get_db),
+):
+
+    token = await oauth.google.authorize_access_token(
+        request
+    )
+
+    user_data = token.get("userinfo")
+
+    if not user_data:
+        raise HTTPException(
+            status_code=400,
+            detail="Google auth failed"
+        )
+
+    email = user_data.get("email")
+    name = user_data.get("name")
+    avatar = user_data.get("picture")
+
+    if not email:
+        raise HTTPException(
+            status_code=400,
+            detail="No email from Google"
+        )
+
+    # 🔍 buscar usuario
+    user = db.query(User).filter(
+        User.email == email
+    ).first()
+
+    # 👤 crear usuario si no existe
+    if not user:
+
+        user = User(
+            email=email,
+            password="",
+            is_verified=True,
+            is_active=True,
+            provider="google",
+            name=name or email.split("@")[0],
+            avatar=avatar,
+        )
+
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+    # 🚫 cuenta desactivada
+    if not user.is_active:
+
+        return RedirectResponse(
+            url=(
+                f"{FRONTEND_URL}"
+                f"/oauth-disabled"
+                f"?email={email}"
+            )
+        )
+
+    # 🔄 actualizar datos
+    user.provider = "google"
+
+    if avatar:
+        user.avatar = avatar
+
+    if name:
+        user.name = name
+
+    db.commit()
+
+    # 🔐 crear JWT REAL
+    access_token = create_access_token({
+        "sub": str(user.id),
+        "is_admin": user.is_admin,
+    })
+
+    # ✅ redirect frontend
+    response = RedirectResponse(
+        url=f"{FRONTEND_URL}/oauth-success"
+    )
+
+    # 🍪 cookie REAL app
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=False,  # localhost
+        samesite="lax",
+        path="/",
+    )
+
+    return response
+
+@router.get("/auth/github/callback")
+async def auth_github_callback(
+    request: Request,
+    db: Session = Depends(get_db),
+):
+
+    token = await oauth.github.authorize_access_token(
+        request
+    )
+
+    resp = await oauth.github.get(
+        "user",
+        token=token,
+    )
+
+    user_data = resp.json()
+
+    email = user_data.get("email")
+
+    # 🔥 GitHub a veces no devuelve email
+    if not email:
+
+        emails_resp = await oauth.github.get(
+            "user/emails",
+            token=token,
+        )
+
+        emails = emails_resp.json()
+
+        primary = next(
+            (
+                e for e in emails
+                if e.get("primary")
+            ),
+            None,
+        )
+
+        if primary:
+            email = primary.get("email")
+
+    if not email:
+        raise HTTPException(
+            status_code=400,
+            detail="No email from GitHub"
+        )
+
+    name = (
+        user_data.get("name")
+        or user_data.get("login")
+    )
+
+    avatar = user_data.get("avatar_url")
+
+    # 🔍 buscar usuario
+    user = db.query(User).filter(
+        User.email == email
+    ).first()
+
+    # 👤 crear usuario
+    if not user:
+
+        user = User(
+            email=email,
+            password="",
+            is_verified=True,
+            is_active=True,
+            provider="github",
+            name=name or email.split("@")[0],
+            avatar=avatar,
+        )
+
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+    # 🚫 cuenta desactivada
+    if not user.is_active:
+
+        return RedirectResponse(
+            url=(
+                f"{FRONTEND_URL}"
+                f"/oauth-disabled"
+                f"?email={email}"
+            )
+        )
+    
+    # 🔄 actualizar datos
+    user.provider = "github"
+
+    if avatar:
+        user.avatar = avatar
+
+    if name:
+        user.name = name
+
+    db.commit()
+
+    # 🔐 JWT REAL
+    access_token = create_access_token({
+        "sub": str(user.id),
+        "is_admin": user.is_admin,
+    })
+
+    response = RedirectResponse(
+        url=f"{FRONTEND_URL}/oauth-success"
+    )
+
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        path="/",
+    )
+
+    return response
+
 ###################################
 ############ LOGIN ################
 ###################################
@@ -528,9 +821,17 @@ def register(
 
 # LOGOUT
 @router.post("/logout")
-def logout(response: Response):
-    response = JSONResponse({"message": "logout ok"})
-    response.delete_cookie("access_token")
+def logout():
+
+    response = JSONResponse({
+        "message": "logout ok"
+    })
+
+    response.delete_cookie(
+        key="access_token",
+        path="/",
+    )
+
     return response
 
 # VERIFY
@@ -745,6 +1046,14 @@ def oauth_login(data: dict, db: Session = Depends(get_db)):
 
     user = db.query(User).filter(User.email == email).first()
 
+    # print("🔥 OAUTH EMAIL:", email)
+    # print("🔥 USER:", user)
+
+    # if user:
+    #     print("🔥 USER EMAIL:", user.email)
+    #     print("🔥 USER ACTIVE:", user.is_active)
+    #     print("🔥 USER PROVIDER:", user.provider)
+
     if not user:
         user = User(
             email=email,
@@ -781,7 +1090,7 @@ def oauth_login(data: dict, db: Session = Depends(get_db)):
         key="access_token",
         value=token,
         httponly=True,
-        samesite="lax",
+        samesite="none",
         secure=False, #En Local SIEMPRE!!
         path="/",
     )

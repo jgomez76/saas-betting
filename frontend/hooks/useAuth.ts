@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { signOut } from "next-auth/react";
 
 import { useSubscription } from "@/context/SubscriptionContext";
 
@@ -93,7 +92,7 @@ export function useAuth(apiUrl: string): UseAuthReturn {
       credentials: "include",
     });
 
-    await signOut({ redirect: false });
+    // await signOut({ redirect: false });
 
     setIsAdmin(false);
     setEmail("");

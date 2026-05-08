@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 // import { API_URL } from "@/lib/api";
-// import { signIn } from "next-auth/react";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import { useSearchParams } from "next/navigation";
 
@@ -27,7 +26,6 @@ const apiUrl =
 
 export default function LoginModal({ onClose, onLogin }: Props) {
   const { t } = useLanguage();
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -35,9 +33,57 @@ export default function LoginModal({ onClose, onLogin }: Props) {
   const [showResend, setShowResend] = useState(false);
   const [showReactivate, setShowReactivate] = useState(false);
 
+  useEffect(() => {
+
+    const disabled =
+      localStorage.getItem(
+        "oauth_disabled"
+      );
+
+    if (disabled === "1") {
+
+      const savedEmail =
+        localStorage.getItem(
+          "oauth_disabled_email"
+        );
+
+      if (savedEmail) {
+        setEmail(savedEmail);
+      }
+
+      setError(
+        t.accountDisabled
+      );
+
+      setShowReactivate(true);
+
+      localStorage.removeItem(
+        "oauth_disabled"
+      );
+
+      localStorage.removeItem(
+        "oauth_disabled_email"
+      );
+    }
+
+  }, [t.accountDisabled]);
+
   // ---------------- LOGIN ----------------
 
   const params = useSearchParams();
+
+  const [email, setEmail] = useState(() => {
+
+    if (typeof window === "undefined") {
+      return "";
+    }
+
+    return (
+      localStorage.getItem(
+        "reactivate_email"
+      ) || ""
+    );
+  });
 
   useEffect(() => {
     const errorParam = params.get("error");
@@ -70,22 +116,6 @@ export default function LoginModal({ onClose, onLogin }: Props) {
           password,
         }),
       });
-
-      // 🔥 MANEJO POR STATUS CODE (PRO)
-      // if (!res.ok) {
-      //   if (res.status === 403) {
-      //     setError(t.verifyEmailFirst);
-      //     setShowResend(true);
-      //   } else if (res.status === 401) {
-      //     setError(t.invalidCredentials);
-      //     setShowResend(false);
-      //   } else {
-      //     setError(t.unexpectedError);
-      //     setShowResend(false);
-      //   }
-
-      //   return;
-      // }
       const data = await res.json();
 
       if (!res.ok) {
@@ -161,7 +191,7 @@ export default function LoginModal({ onClose, onLogin }: Props) {
       setError(t.emailSentReactivation);
       setShowReactivate(false);
 
-      alert(t.accountReactivated);
+      // alert(t.accountReactivated);
 
     } catch {
       setError(t.connectionError);
@@ -331,65 +361,19 @@ export default function LoginModal({ onClose, onLogin }: Props) {
         )}
 
         <button
-          // onClick={() => signIn("google")}
-          onClick={async () => {
-            setError("");
-
-            // const result = await signIn("google", {
-            //   redirect: false,
-            //   callbackUrl: "/", // 👈 importante
-            // });
-
-            // 🔥 esperar a que NextAuth termine de procesar
-            setTimeout(async () => {
-              const res = await fetch(`${apiUrl}/me`, {
-                credentials: "include",
-              });
-
-              const data = await res.json();
-
-              if (!data.email) {
-                setError(t.accountDisabled);
-                setShowReactivate(true);
-                return;
-              }
-
-              onLogin();
-              onClose();
-            }, 500); // 👈 CLAVE
-          }}
+        onClick={() => {
+          window.location.href =
+            `${apiUrl}/auth/google`;
+        }}
           className="w-full bg-white text-black py-2 rounded mb-2"
         >
           🔵 {t.continueWithGoogle}
         </button>
 
         <button
-          // onClick={() => signIn("github")}
-          onClick={async () => {
-            setError("");
-
-            // const result = await signIn("google", {
-            //   redirect: false,
-            //   callbackUrl: "/", // 👈 importante
-            // });
-
-            // 🔥 esperar a que NextAuth termine de procesar
-            setTimeout(async () => {
-              const res = await fetch(`${apiUrl}/me`, {
-                credentials: "include",
-              });
-
-              const data = await res.json();
-
-              if (!data.email) {
-                setError(t.accountDisabled);
-                setShowReactivate(true);
-                return;
-              }
-
-              onLogin();
-              onClose();
-            }, 500); // 👈 CLAVE
+          onClick={() => {
+            window.location.href =
+              `${apiUrl}/auth/github`;
           }}
           className="w-full bg-black text-white py-2 rounded"
         >

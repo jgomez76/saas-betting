@@ -166,9 +166,10 @@ export function useMatches(apiUrl: string): UseMatchesReturn {
 
         console.log("Refresh:", filtered.length);
 
-        setAllMatches((prev) =>
-          mergeMatches(prev, filtered)
-        );
+        // setAllMatches((prev) =>
+        //   mergeMatches(prev, filtered)
+        // );
+        setAllMatches(filtered);
       } catch (err) {
         console.error("Refresh error", err);
       }
