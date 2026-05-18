@@ -68,11 +68,15 @@ const Navbar = memo(function Navbar({
       : "";
 
   const safeAvatar =
-    avatar && avatar !== "null" && avatar !== "undefined"
+    avatar &&
+    avatar !== "null" &&
+    avatar !== "undefined"
       ? avatar.startsWith("http")
         ? avatar
-        : `${API}${avatar}`
+        : `${API}/${avatar.replace(/^\/+/, "").replace(/\\/g, "/")}`
       : null;
+    // console.log("avatar raw:", avatar);
+    // console.log("safeAvatar:", safeAvatar);
 
   const currentLeague =
     leagueFilter === "ALL"
@@ -131,6 +135,7 @@ const Navbar = memo(function Navbar({
                   height={32}
                   className="rounded-full"
                   unoptimized
+                  referrerPolicy="no-referrer"
                 />
               ) : (
                 <div className="w-8 h-8 rounded-full bg-[var(--card)] flex items-center justify-center text-xs">

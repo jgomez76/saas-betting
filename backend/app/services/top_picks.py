@@ -33,13 +33,13 @@ RELAX_VALUE = -0.01
 ### VALORES PARA V3 ###
 #######################
 
-MIN_PROB = 0.60
-MIN_VALUE = 0.05
-MAX_ODD = 2.5
+# MIN_PROB = 0.60
+# MIN_VALUE = 0.05
+# MAX_ODD = 2.5
 
-TARGET_PICKS = 6
-MAX_PER_MARKET = 2
-TOP_CANDIDATES_POOL = 20  # 🔥 clave
+# TARGET_PICKS = 6
+# MAX_PER_MARKET = 2
+# TOP_CANDIDATES_POOL = 20  # 🔥 clave
 
 #########################
 #########################
@@ -603,6 +603,296 @@ def generate_top_picks_v3(db: Session):
     db.commit()
 
     print("TOP PICKS V3:", n)
+
+
+
+# VERSION 4
+import random
+
+from datetime import date
+
+from sqlalchemy.orm import Session
+
+from app.models.top_picks import TopPick
+from app.models.top_picks_history import TopPickHistory
+
+from app.services.top_picks import extract_candidates
+
+
+# --------------------------------------------------
+# V4 CONFIG
+# --------------------------------------------------
+
+MIN_PROB = 0.62
+MAX_PROB = 0.82
+
+MIN_VALUE = 0.10
+
+MIN_ODD = 1.70
+MAX_ODD = 2.15
+
+TARGET_PICKS = 6
+
+MAX_PER_MARKET = 2
+
+TOP_CANDIDATES_POOL = 15
+
+
+# --------------------------------------------------
+# MARKETS TO AVOID
+# --------------------------------------------------
+
+BAD_MARKETS = {
+    ("OU25", "over"),
+}
+
+
+# --------------------------------------------------
+# MAIN
+# --------------------------------------------------
+
+def generate_top_picks_v4(db: Session):
+
+    today = date.today()
+
+    existing = (
+        db.query(TopPick)
+        .filter(TopPick.date == today)
+        .first()
+    )
+
+    if existing:
+        print("⚠️ Top picks ya generados hoy")
+        return
+
+    candidates = extract_candidates(db)
+
+    print("TOTAL CANDIDATES:", len(candidates))
+
+    enriched = []
+
+    # --------------------------------------------------
+    # FILTER + SCORE
+    # --------------------------------------------------
+
+    for c in candidates:
+
+        prob = c.get("probability")
+        odd = c.get("odd")
+        value = c.get("value")
+
+        market = c.get("market")
+        selection = c.get("selection")
+
+        if not prob or not odd or not value:
+            continue
+
+        # --------------------------------------------------
+        # HARD FILTERS
+        # --------------------------------------------------
+
+        if prob < MIN_PROB:
+            continue
+
+        if prob > MAX_PROB:
+            continue
+
+        if value < MIN_VALUE:
+            continue
+
+        if odd < MIN_ODD:
+            continue
+
+        if odd > MAX_ODD:
+            continue
+
+        # --------------------------------------------------
+        # AVOID BAD MARKETS
+        # --------------------------------------------------
+
+        if (market, selection) in BAD_MARKETS:
+            continue
+
+        # --------------------------------------------------
+        # SAFE PROBABILITY CAP
+        # --------------------------------------------------
+
+        prob = min(prob, 0.78)
+
+        # --------------------------------------------------
+        # EXPECTED VALUE
+        # --------------------------------------------------
+
+        ev = (prob * odd) - 1
+
+        # --------------------------------------------------
+        # RISK CONTROL
+        # --------------------------------------------------
+
+        risk_penalty = odd ** 0.7
+
+        # --------------------------------------------------
+        # STABILITY BONUS
+        #
+        # Favorece odds cercanas a 1.90
+        # --------------------------------------------------
+
+        stability_bonus = (
+            1 - abs(odd - 1.90)
+        )
+
+        # --------------------------------------------------
+        # FINAL SCORE
+        # --------------------------------------------------
+
+        score = (
+            ev *
+            stability_bonus *
+            prob
+        ) / risk_penalty
+
+        # --------------------------------------------------
+        # EXTRA PROTECTION
+        # --------------------------------------------------
+
+        if score <= 0:
+            continue
+
+        c["score"] = score
+        c["ev"] = ev
+
+        enriched.append(c)
+
+    # --------------------------------------------------
+    # NO PICKS
+    # --------------------------------------------------
+
+    if not enriched:
+        print("❌ NO HAY PICKS VALIDOS")
+        return
+
+    # --------------------------------------------------
+    # SORT
+    # --------------------------------------------------
+
+    enriched.sort(
+        key=lambda x: x["score"],
+        reverse=True
+    )
+
+    # --------------------------------------------------
+    # REDUCE NOISE
+    # --------------------------------------------------
+
+    enriched = enriched[:TOP_CANDIDATES_POOL]
+
+    # --------------------------------------------------
+    # SMART SELECTION
+    # --------------------------------------------------
+
+    used_fixtures = set()
+
+    used_markets = {}
+    final = []
+
+    for p in enriched:
+
+        fixture_id = p["fixture_id"]
+        market = p["market"]
+
+        # --------------------------------------------------
+        # AVOID SAME MATCH
+        # --------------------------------------------------
+
+        if fixture_id in used_fixtures:
+            continue
+
+        # --------------------------------------------------
+        # MARKET LIMIT
+        # --------------------------------------------------
+
+        if used_markets.get(market, 0) >= MAX_PER_MARKET:
+            continue
+
+        final.append(p)
+
+        used_fixtures.add(fixture_id)
+
+        used_markets[market] = (
+            used_markets.get(market, 0) + 1
+        )
+
+        # --------------------------------------------------
+        # MAX PICKS
+        # --------------------------------------------------
+
+        if len(final) >= TARGET_PICKS:
+            break
+
+    # --------------------------------------------------
+    # FINAL CHECK
+    # --------------------------------------------------
+
+    n = len(final)
+
+    if n == 0:
+        print("❌ NO HAY PICKS TRAS FILTRO FINAL")
+        return
+
+    print(f"✅ FINAL PICKS: {n}")
+
+    # --------------------------------------------------
+    # FREE PICK LOGIC
+    #
+    # Evita regalar siempre el top 1
+    # --------------------------------------------------
+
+    if n == 1:
+        free_index = 0
+    elif n <= 3:
+        free_index = 1
+    elif n <= 5:
+        free_index = random.choice([1, 2])
+    else:
+        free_index = random.choice([1, 2, 3])
+
+    # --------------------------------------------------
+    # SAVE PICKS
+    # --------------------------------------------------
+
+    for i, p in enumerate(final):
+
+        db.add(
+            TopPick(
+                date=today,
+                fixture_id=p["fixture_id"],
+                match=p["match"],
+                market=p["market"],
+                selection=p["selection"],
+                probability=p["probability"],
+                odd=p["odd"],
+                bookmaker=p["bookmaker"],
+                value=p["value"],
+                kickoff=p["kickoff"],
+                is_free=(i == free_index),
+            )
+        )
+
+        db.add(
+            TopPickHistory(
+                date=today,
+                fixture_id=p["fixture_id"],
+                market=p["market"],
+                selection=p["selection"],
+                odd=p["odd"],
+                probability=p["probability"],
+                value=p["value"],
+            )
+        )
+
+    db.commit()
+
+    print("🔥 TOP PICKS V4 GENERATED")
 
 def update_top_pick_results(db: Session):
 

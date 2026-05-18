@@ -67,15 +67,15 @@ export function useAuth(apiUrl: string): UseAuthReturn {
         setAvatar(data.avatar || "");
         setProvider(data.provider || "email");
       })
-      .catch(() => {
-        setIsAdmin(false);
-        setEmail("");
+      .catch((err) => {
 
-        setPlan("free");
+        console.warn(
+          "⚠️ Auth server unavailable",
+          err
+        );
 
-        setName("");
-        setAvatar("");
-        setProvider("");
+        // ❌ NO resetear usuario
+        // si backend aún está arrancando
       })
       .finally(() => {
         setAuthLoading(false);
