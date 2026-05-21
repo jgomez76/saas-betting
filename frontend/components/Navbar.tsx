@@ -50,7 +50,7 @@ const Navbar = memo(function Navbar({
   name,
   avatar,
 }: Props) {
-  const { changeLang, t } = useLanguage();
+  const { changeLang, t, lang } = useLanguage();
 
   const [openMarkets, setOpenMarkets] = useState(false);
   const [openLeagues, setOpenLeagues] = useState(false);
@@ -272,12 +272,51 @@ const Navbar = memo(function Navbar({
 
         {/* FLAGS RIGHT */}
         <div className="flex items-center gap-2 ml-auto">
-          <button onClick={() => changeLang("en")}>
+{/*           <button onClick={() => changeLang("en")}>
             <Image src="/flags/gb.svg" alt="EN" width={24} height={24} />
           </button>
           <button onClick={() => changeLang("es")}>
             <Image src="/flags/es.svg" alt="ES" width={24} height={24} />
-          </button>
+          </button> */}
+          <div className="flex items-center gap-2 ml-auto">
+
+            <button
+              onClick={() => changeLang("en")}
+              className={`
+                rounded-full p-0.5 transition-all
+                ${lang === "en"
+                  ? "ring-2 ring-[var(--accent)] scale-110"
+                  : "opacity-60 hover:opacity-100"}
+              `}
+            >
+              <Image
+                src="/flags/gb.svg"
+                alt="EN"
+                width={24}
+                height={24}
+                className="rounded-full"
+              />
+            </button>
+
+            <button
+              onClick={() => changeLang("es")}
+              className={`
+                rounded-full p-0.5 transition-all
+                ${lang === "es"
+                  ? "ring-2 ring-[var(--accent)] scale-110"
+                  : "opacity-60 hover:opacity-100"}
+              `}
+            >
+              <Image
+                src="/flags/es.svg"
+                alt="ES"
+                width={24}
+                height={24}
+                className="rounded-full"
+              />
+            </button>
+
+          </div>
         </div>
 
       </div>

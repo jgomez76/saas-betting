@@ -83,25 +83,7 @@ export default function DashboardHeader({
         </div>
       )}
 
-      {countdown ? (
-
-        <div className="mb-4 flex items-center justify-center gap-2 bg-[var(--card)] border border-[var(--border)] rounded-lg py-2 px-4 text-sm">
-
-          <span className="text-[var(--warning)]">
-            ⏳
-          </span>
-
-          <span className="text-[var(--muted)]">
-            {t.nextPicksIn}
-          </span>
-
-          <span className="font-semibold text-[var(--text)]">
-            {countdown}
-          </span>
-
-        </div>
-
-      ) : allFinished ? (
+      {allFinished ? (
 
         <div className="mb-4 flex items-center justify-center gap-2 bg-[var(--card)] border border-[var(--border)] rounded-lg py-2 px-4 text-sm">
 
@@ -113,7 +95,7 @@ export default function DashboardHeader({
 
         </div>
 
-      ) : validPicks.length === 0 ? (
+      ) : !freePick ? (
 
         <div className="mb-4 flex items-center justify-center gap-2 bg-[var(--card)] border border-[var(--border)] rounded-lg py-2 px-4 text-sm">
 
@@ -136,7 +118,10 @@ export default function DashboardHeader({
           </span>
 
         </div>
+
       )}
+
+
 
       {topPicksLoading ? (
 
@@ -153,6 +138,27 @@ export default function DashboardHeader({
           onSelectPick={onSelectPick}
         />
       )}
+
+      {countdown && (
+
+        <div className="mb-4 flex items-center justify-center gap-2 bg-[var(--card)] border border-[var(--border)] rounded-lg py-2 px-4 text-sm">
+
+          <span className="text-[var(--warning)]">
+            ⏳
+          </span>
+
+          <span className="text-[var(--muted)]">
+            {t.nextPicksIn}
+          </span>
+
+          <span className="font-semibold text-[var(--text)]">
+            {countdown}
+          </span>
+
+        </div>
+
+      )}
+
     </>
   );
 }
