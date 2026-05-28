@@ -3,8 +3,6 @@ from datetime import datetime, timedelta
 
 from app.core.database import SessionLocal
 from app.services.fixtures import fetch_fixtures
-from app.services.odds import fetch_odds
-from app.services.injuries import fetch_injuries
 from app.core.config import LEAGUES, SEASONS
 
 # -----------------------------

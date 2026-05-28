@@ -6,7 +6,8 @@ import Sidebar from "@/components/Sidebar";
 import TopValueModal from "@/components/TopValueModal";
 import BetsModal from "@/components/BetsModal";
 import LoginModal from "@/components/LoginModal";
-import AnalysisModal from "@/components/AnalysisModal";
+// import AnalysisModal from "@/components/AnalysisModal";
+import AnalysisCenter from "@/components/analysys/AnalysisCenter";
 import ResultsView from "@/components/ResultsView";
 import StandingsView from "@/components/StandingsView";
 import ProfileModal from "@/components/ProfileModal";
@@ -512,7 +513,7 @@ export default function Home() {
       
 
       {!isMobile && (
-        <Sidebar view={view} setView={setView} isAdmin={isAdmin} />
+        <Sidebar view={view} setView={setView} isPremium={isPremium} />
       )}
       <main className="flex-1 p-6 bg-[var(--bg)] min-h-screen text-[var(--text)]">
         {isMobile && (
@@ -748,10 +749,13 @@ export default function Home() {
         )}
 
         {/* ANALISIS */}
-        {view === "analysis" && !authLoading && isAdmin && (
+{/*         {view === "analysis" && !authLoading && isAdmin && (
           <AnalysisModal
             onClose={() => setView("dashboard")}
           />
+        )} */}
+        {view === "analysis" && !authLoading && isPremium && (
+          <AnalysisCenter />
         )}
 
 
@@ -781,7 +785,7 @@ export default function Home() {
                   setView(v);
                   setShowMenu(false); // cerrar al clicar
                 }}
-                isAdmin={isAdmin}
+                isPremium={isPremium}
               />
             </div>
 

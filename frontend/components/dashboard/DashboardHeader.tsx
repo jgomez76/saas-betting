@@ -58,6 +58,14 @@ export default function DashboardHeader({
   t,
 }: Props) {
 
+  const now = new Date();
+  const generationTime = new Date();
+
+  generationTime.setHours(10, 0, 0, 0);
+
+  const generationFinished =
+    now >= generationTime;
+
   return (
     <>
       {loading && (
@@ -83,44 +91,78 @@ export default function DashboardHeader({
         </div>
       )}
 
-      {allFinished ? (
+{allFinished ? (
 
-        <div className="mb-4 flex items-center justify-center gap-2 bg-[var(--card)] border border-[var(--border)] rounded-lg py-2 px-4 text-sm">
+  <div className="mb-4 flex items-center justify-center gap-2 bg-[var(--card)] border border-[var(--border)] rounded-lg py-2 px-4 text-sm">
 
-          <span>🏁</span>
+    <span>🏁</span>
 
-          <span className="text-[var(--muted)]">
-            {t.picksFinished}
-          </span>
+    <span className="text-[var(--muted)]">
+      {t.picksFinished}
+    </span>
 
-        </div>
+  </div>
+  
 
-      ) : !freePick ? (
+) : generationFinished && !freePick ? (
 
-        <div className="mb-4 flex items-center justify-center gap-2 bg-[var(--card)] border border-[var(--border)] rounded-lg py-2 px-4 text-sm">
+  <div className="mb-4 flex flex-col items-center justify-center gap-2 bg-[var(--card)] border border-[var(--border)] rounded-lg py-2 px-4 text-sm">
 
-          <span>📭</span>
+    <div className="flex items-center gap-2">
 
-          <span className="text-[var(--muted)]">
-            {t.noPicksToday}
-          </span>
+      <span>📭</span>
 
-        </div>
+      <span className="text-[var(--muted)]">
+        {t.noPicksToday}
+      </span>
 
-      ) : (
+    </div>
 
-        <div className="mb-4 flex items-center justify-center gap-2 bg-[var(--accent)]/10 border border-[var(--accent)]/30 rounded-lg py-2 px-4 text-sm">
+    <div className="flex items-center gap-2">
 
-          <span>🔥</span>
+      <span>⏳</span>
 
-          <span className="font-semibold text-[var(--accent)]">
-            {t.picksAvailable}
-          </span>
+      <span className="text-[var(--muted)]">
+        {t.nextPicksIn}
+      </span>
 
-        </div>
+      <span className="font-semibold text-[var(--text)]">
+        {countdown}
+      </span>
 
-      )}
+    </div>
 
+  </div>
+
+) : !generationFinished ? (
+
+  <div className="mb-4 flex items-center justify-center gap-2 bg-[var(--card)] border border-[var(--border)] rounded-lg py-2 px-4 text-sm">
+
+    <span>⏳</span>
+
+    <span className="text-[var(--muted)]">
+      {t.nextPicksIn}
+    </span>
+
+    <span className="font-semibold text-[var(--text)]">
+      {countdown}
+    </span>
+
+  </div>
+
+) : (
+
+  <div className="mb-4 flex items-center justify-center gap-2 bg-[var(--accent)]/10 border border-[var(--accent)]/30 rounded-lg py-2 px-4 text-sm">
+
+    <span>🔥</span>
+
+    <span className="font-semibold text-[var(--accent)]">
+      {t.picksAvailable}
+    </span>
+
+  </div>
+
+)}
 
 
       {topPicksLoading ? (
@@ -139,7 +181,7 @@ export default function DashboardHeader({
         />
       )}
 
-      {countdown && (
+{/*       {countdown && (
 
         <div className="mb-4 flex items-center justify-center gap-2 bg-[var(--card)] border border-[var(--border)] rounded-lg py-2 px-4 text-sm">
 
@@ -157,7 +199,7 @@ export default function DashboardHeader({
 
         </div>
 
-      )}
+      )} */}
 
     </>
   );

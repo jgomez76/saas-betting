@@ -906,7 +906,9 @@ def update_top_pick_results(db: Session):
             .filter(Fixture.api_id == p.fixture_id)\
             .first()
 
-        if not fixture or fixture.status != "FT":
+        FINISHED_STATUSES = {"FT", "AET", "PEN"}
+
+        if not fixture or fixture.status not in FINISHED_STATUSES:
             continue
 
         home_goals = fixture.home_goals or 0

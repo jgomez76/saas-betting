@@ -16,7 +16,9 @@ for bet in pending:
         Fixture.api_id == bet.fixture_id
     ).first()
 
-    if not fixture or fixture.status != "FT":
+    FINISHED_STATUSES = {"FT", "AET", "PEN"}
+
+    if not fixture or fixture.status not in FINISHED_STATUSES:
         continue
 
     home = fixture.home_goals

@@ -5,10 +5,10 @@ import { useLanguage } from "@/lib/i18n/LanguageProvider";
 type Props = {
   view: string;
   setView: (v: string) => void;
-  isAdmin: boolean;
+  isPremium: boolean;
 };
 
-export default function Sidebar({ view, setView, isAdmin }: Props) {
+export default function Sidebar({ view, setView, isPremium }: Props) {
   const { t } = useLanguage();
 
   return (
@@ -49,7 +49,7 @@ export default function Sidebar({ view, setView, isAdmin }: Props) {
       </button>
 
       {/* ANALYSIS (ADMIN) */}
-      {isAdmin && (
+      {isPremium && (
         <button
           onClick={() => setView("analysis")}
           className={`p-2 rounded text-left transition-colors ${

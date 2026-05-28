@@ -46,6 +46,12 @@ from app.services.odds import save_odds
 from app.services.value import get_value_bets, get_top_value_bets
 from app.services.top_picks import generate_top_picks
 from app.services.stats import get_team_stats, get_league_stats
+from app.services.team_analysis import get_team_analysis
+from app.services.h2h_analysis import get_h2h_analysis
+from app.services.match_analysis import get_match_analysis
+
+
+
 
 from uuid import uuid4
 
@@ -1406,3 +1412,155 @@ def team_stats(team_id: int, db: Session = Depends(get_db)):
 @router.get("/league-stats/{league_id}")
 def league_stats(league_id: int, db: Session = Depends(get_db)):
     return get_league_stats(db, league_id)
+
+
+@router.get("/analysis/metadata")
+def analysis_metadata(
+    db: Session = Depends(get_db),
+):
+
+    fixtures = db.query(Fixture).all()
+
+    league_teams = {}
+
+    seasons = set()
+
+    for f in fixtures:
+
+        # 🔥 LEAGUES + TEAMS
+        if f.league not in league_teams:
+            league_teams[f.league] = set()
+
+        league_teams[f.league].add(
+            f.home_team
+        )
+
+        league_teams[f.league].add(
+            f.away_team
+        )
+
+        # 🔥 SEASONS
+        if f.season:
+            seasons.add(f.season)
+
+    return {
+
+        "league_teams": {
+
+            league: sorted(list(teams))
+
+            for league, teams
+            in league_teams.items()
+        },
+
+        "seasons": sorted(
+            list(seasons),
+            reverse=True
+        )
+    }
+
+# ANALISIS CENTER
+@router.get("/analysis/team")
+def analysis_team(
+    team: str,
+    season: int | None = None,
+    db: Session = Depends(get_db),
+):
+
+    result = get_team_analysis(
+        db=db,
+        team=team,
+        season=season,
+    )
+
+    if not result:
+
+        return {
+            "error": "Team not found"
+        }
+
+    return result
+
+@router.get("/analysis/h2h")
+def analysis_h2h(
+    team1: str,
+    team2: str,
+    db: Session = Depends(get_db),
+):
+
+    result = get_h2h_analysis(
+        db=db,
+        team1=team1,
+        team2=team2,
+    )
+
+    if not result:
+
+        return {
+            "error": "No H2H found"
+        }
+
+    return result
+
+@router.get("/analysis/match")
+def analysis_match(
+    home_team: str,
+    away_team: str,
+    db: Session = Depends(get_db),
+):
+
+    result = get_match_analysis(
+        db=db,
+        home_team=home_team,
+        away_team=away_team,
+    )
+
+    if not result:
+
+        return {
+            "error": "Match analysis not found"
+        }
+
+    return result
+
+@router.get("/analysis/upcoming-fixtures")
+def analysis_upcoming_fixtures(
+    league: str | None = None,
+    db: Session = Depends(get_db),
+):
+
+    query = db.query(Fixture).filter(
+
+        Fixture.status.in_([
+            "NS",
+            "TBD",
+        ])
+
+    )
+
+    if league:
+
+        query = query.filter(
+            Fixture.league == league
+        )
+
+    fixtures = query.order_by(
+        Fixture.date.asc()
+    ).all()
+
+    return [
+
+        {
+
+            "id": f.id,
+
+            "league": f.league,
+
+            "date": f.date.isoformat() + "Z",
+
+            "home_team": f.home_team,
+            "away_team": f.away_team,
+        }
+
+        for f in fixtures
+    ]
