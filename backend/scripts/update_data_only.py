@@ -3,7 +3,8 @@ from datetime import datetime, timedelta
 
 from app.core.database import SessionLocal
 from app.services.fixtures import fetch_fixtures
-from app.core.config import LEAGUES, SEASONS
+from app.core.config import LEAGUES
+from app.services.league_season import get_season
 
 # -----------------------------
 # RATE LIMIT CONTROL
@@ -26,13 +27,13 @@ def update_data_only():
     print("\n📅 Updating fixtures...")
 
     for league in LEAGUES:
-        for season in SEASONS:
+        season = get_season(league)  # temporada actual
 
-            print(f"➡️ League {league} | Season {season}")
+        print(f"➡️ League {league} | Season {season}")
 
-            fetch_fixtures(db, league, season)
+        fetch_fixtures(db, league, season)
 
-            wait()
+        wait()
 
     db.close()
 

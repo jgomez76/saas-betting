@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
 
 import BettingAnalyticsTab from "../tabs/BettingAnalyticsTab";
 import TeamAnalysisTab from "../tabs/TeamAnalysisTab";
@@ -9,6 +10,7 @@ import MatchAnalysisTab from "../tabs/MatchAnalysisTab";
 
 
 export default function AnalysisCenter() {
+  const { t } = useLanguage();
 
   const [tab, setTab] =
     useState("teams");
@@ -20,11 +22,11 @@ export default function AnalysisCenter() {
       {/* HEADER */}
       <div>
         <h1 className="text-2xl font-bold">
-          📊 Analysis Center
+          📊 {t.analysisCenter}
         </h1>
 
         <p className="text-[var(--muted)] text-sm mt-1">
-          Advanced football and betting analytics
+          {t.advancedAnalytics}
         </p>
       </div>
 
@@ -50,7 +52,7 @@ export default function AnalysisCenter() {
               : "bg-[var(--card)] border border-[var(--border)]"
           }`}
         >
-          ⚽ Team Analysis
+          ⚽ {t.teamAnalysis}
         </button>
 
         <button
@@ -61,7 +63,7 @@ export default function AnalysisCenter() {
               : "bg-[var(--card)] border border-[var(--border)]"
           }`}
         >
-          ⚔️ H2H Analysis
+          ⚔️ {t.h2hAnalysis}
         </button>
 
         <button
@@ -72,7 +74,7 @@ export default function AnalysisCenter() {
               : "bg-[var(--card)] border border-[var(--border)]"
           }`}
         >
-          🎯 Match Analysis
+          🎯 {t.matchAnalysis}
         </button>
 
       </div>

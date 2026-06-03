@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ResponsiveContainer,
   LineChart,
@@ -9,6 +9,7 @@ import {
   YAxis,
   Tooltip,
 } from "recharts";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
 
 type TeamAnalysis = {
 
@@ -75,6 +76,12 @@ type TeamAnalysis = {
   };
 };
 
+type LeagueGroups = {
+  [group: string]: {
+    [leagueId: string]: string;
+  };
+};
+
 const apiUrl =
   typeof window !== "undefined"
     ? window.location.hostname === "localhost"
@@ -83,27 +90,30 @@ const apiUrl =
     : "";
 
 export default function TeamAnalysisTab() {
+  const { t } = useLanguage();
 
-  const [selectedTeam, setSelectedTeam] =
-    useState("");
+  const [selectedTeam, setSelectedTeam] = useState("");
+  const [selectedSeason, setSelectedSeason] = useState<number | "ALL">("ALL");
+  const [analysis, setAnalysis] = useState<TeamAnalysis | null>(null);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [seasons, setSeasons] = useState<number[]>([]);
+  const [selectedLeague, setSelectedLeague] = useState("");  
 
-  const [selectedSeason, setSelectedSeason] =
-    useState<number | "ALL">("ALL");
-
-  const [analysis, setAnalysis] =
-    useState<TeamAnalysis | null>(null);
-
-  const [loading, setLoading] =
-    useState(false);
-
-  const [seasons, setSeasons] =
-    useState<number[]>([]);
-
-  const [selectedLeague, setSelectedLeague] =
-    useState("");  
-
+  // const [leagueTeams, setLeagueTeams] = useState<Record<string, string[]>>({});
   const [leagueTeams, setLeagueTeams] =
-    useState<Record<string, string[]>>({});
+  useState<
+    Record<
+      string,
+      {
+        id: number;
+        name: string;
+        teams: string[];
+      }
+    >
+  >({});
+
+  const [leagueGroups, setLeagueGroups] = useState<LeagueGroups>({});
 
   // ---------------- FETCH FIXTURES ----------------
 
@@ -116,8 +126,12 @@ export default function TeamAnalysisTab() {
       .then((data) => {
 
         setLeagueTeams(
-        data.league_teams || {}
-      );
+          data.league_teams || {}
+        );
+
+        setLeagueGroups(
+          data.league_groups || {}
+        );
 
         setSeasons(data.seasons || []);
 
@@ -147,6 +161,17 @@ export default function TeamAnalysisTab() {
         const res = await fetch(url);
 
         const data = await res.json();
+
+        if (data.error) {
+
+          setError(data.error);
+
+          setAnalysis(null);
+
+          return;
+        }
+
+        setError("");
 
         setAnalysis(data);
 
@@ -209,11 +234,11 @@ export default function TeamAnalysisTab() {
       <div>
 
         <h2 className="text-2xl font-bold">
-          ⚽ Team Analysis
+          ⚽ {t.teamAnalysis}
         </h2>
 
         <p className="text-sm text-[var(--muted)] mt-1">
-          Historical team performance and trends
+          {t.historicalTeamPerformance}
         </p>
 
       </div>
@@ -237,39 +262,66 @@ export default function TeamAnalysisTab() {
         >
 
           <option value="">
-            Select league
+            {t.selectLeague}
           </option>
 
-          {Object.keys(leagueTeams).map((league) => (
+          {Object.entries(leagueGroups).map(
 
-            <option
-              key={league}
-              value={league}
-            >
-              {league}
-            </option>
+            ([groupName, leagues]) => (
 
-          ))}
+              <optgroup
+                key={groupName}
+                label={groupName}
+              >
+
+                {Object.entries(
+                  leagues
+                ).map(
+
+                  ([leagueId, leagueName]) => (
+
+                    <option
+                      key={leagueId}
+                      value={leagueId}
+                    >
+                      {leagueName}
+                    </option>
+
+                  )
+
+                )}
+
+              </optgroup>
+
+            )
+
+          )}
 
         </select>
 
         {/* TEAM */}
         <select
           value={selectedTeam}
-          onChange={(e) =>
+          onChange={(e) => {
+
+            setError("");
+
             setSelectedTeam(
               e.target.value
-            )
-          }
+            );
+
+          }}
           disabled={!selectedLeague}
           className="p-3 rounded-xl bg-[var(--card)] border border-[var(--border)] disabled:opacity-50"
         >
 
           <option value="">
-            Select team
+            {t.selectTeam}
           </option>
 
-          {(leagueTeams[selectedLeague] || []).map((team) => (
+          {(
+            leagueTeams[selectedLeague]?.teams || []
+          ).map((team) => (
 
             <option
               key={team}
@@ -285,20 +337,24 @@ export default function TeamAnalysisTab() {
         {/* SEASON */}
         <select
           value={selectedSeason}
-          onChange={(e) =>
+          onChange={(e) => {
+
+            setError("");
+
             setSelectedSeason(
               e.target.value === "ALL"
                 ? "ALL"
                 : Number(
                     e.target.value
                   )
-            )
-          }
+            );
+
+          }}
           className="p-3 rounded-xl bg-[var(--card)] border border-[var(--border)]"
         >
 
           <option value="ALL">
-            All seasons
+            {t.allSeasons}
           </option>
 
           {seasons.map((season) => (
@@ -320,7 +376,27 @@ export default function TeamAnalysisTab() {
       {loading && (
 
         <div className="text-center text-[var(--muted)]">
-          ⏳ Loading analysis...
+          ⏳ {t.loadingAnalysis}
+        </div>
+
+      )}
+
+      {error && !loading && (
+
+        <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-6 text-center">
+
+          <div className="text-4xl mb-3">
+            ⚽
+          </div>
+
+          <h3 className="text-xl font-semibold">
+            {t.noDataAvailable}
+          </h3>
+
+          <p className="text-[var(--muted)] mt-2">
+            {t.teamNotInSeason}
+          </p>
+
         </div>
 
       )}
@@ -342,7 +418,7 @@ export default function TeamAnalysisTab() {
                 </h3>
 
                 <p className="text-[var(--muted)] mt-1">
-                    {analysis.matches} matches analyzed
+                    {analysis.matches} {t.matchesAnalyzed}
                 </p>
 
                 </div>
@@ -350,7 +426,7 @@ export default function TeamAnalysisTab() {
                 <div>
 
                 <div className="text-sm text-[var(--muted)] mb-2">
-                    Last 5
+                    {t.form}
                 </div>
 
                 {renderLast5()}
@@ -367,7 +443,7 @@ export default function TeamAnalysisTab() {
             <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 text-center">
 
                 <div className="text-xs text-[var(--muted)]">
-                Wins
+                {t.wins}
                 </div>
 
                 <div className="text-2xl font-bold">
@@ -379,7 +455,7 @@ export default function TeamAnalysisTab() {
             <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 text-center">
 
                 <div className="text-xs text-[var(--muted)]">
-                Draws
+                {t.draws}
                 </div>
 
                 <div className="text-2xl font-bold">
@@ -391,7 +467,7 @@ export default function TeamAnalysisTab() {
             <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 text-center">
 
                 <div className="text-xs text-[var(--muted)]">
-                Losses
+                {t.losses}
                 </div>
 
                 <div className="text-2xl font-bold">
@@ -420,7 +496,7 @@ export default function TeamAnalysisTab() {
             <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5">
 
                 <div className="text-sm text-[var(--muted)] mb-2">
-                ⚽ Goals Scored
+                ⚽ {t.goalsScored}
                 </div>
 
                 <div className="text-4xl font-bold">
@@ -428,7 +504,7 @@ export default function TeamAnalysisTab() {
                 </div>
 
                 <div className="text-sm text-[var(--muted)] mt-2">
-                Avg: {analysis.avg_goals_scored}
+                {t.average}: {analysis.avg_goals_scored}
                 </div>
 
             </div>
@@ -436,7 +512,7 @@ export default function TeamAnalysisTab() {
             <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5">
 
                 <div className="text-sm text-[var(--muted)] mb-2">
-                🥅 Goals Conceded
+                🥅 {t.goalsConceded}
                 </div>
 
                 <div className="text-4xl font-bold">
@@ -444,7 +520,7 @@ export default function TeamAnalysisTab() {
                 </div>
 
                 <div className="text-sm text-[var(--muted)] mt-2">
-                Avg: {analysis.avg_goals_conceded}
+                {t.average}: {analysis.avg_goals_conceded}
                 </div>
 
             </div>
@@ -481,7 +557,7 @@ export default function TeamAnalysisTab() {
             <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 text-center">
 
                 <div className="text-sm text-[var(--muted)] mb-2">
-                Clean Sheets
+                {t.cleanSheets}
                 </div>
 
                 <div className="text-3xl font-bold">
@@ -500,11 +576,11 @@ export default function TeamAnalysisTab() {
                 <div>
 
                 <h3 className="text-lg font-semibold">
-                    📈 Goals Trend
+                    📈 {t.goalsTrend}
                 </h3>
 
                 <p className="text-sm text-[var(--muted)]">
-                    Goals scored vs conceded
+                    {t.goalsScored} vs {t.goalsConceded}
                 </p>
 
                 </div>
@@ -525,7 +601,40 @@ export default function TeamAnalysisTab() {
 
                     <YAxis />
 
-                    <Tooltip />
+                    <Tooltip
+                      content={({ active, payload }) => {
+
+                        if (!active || !payload?.length) {
+                          return null;
+                        }
+
+                        const data = payload[0].payload;
+
+                        return (
+                          <div className="bg-[var(--card)] border border-[var(--border)] p-3 rounded-lg">
+
+                            <div className="font-bold mb-2">
+                              {data.home_team} {data.home_goals}
+                              {" - "}
+                              {data.away_goals} {data.away_team}
+                            </div>
+
+                            <div className="text-sm text-[var(--muted)]">
+                              {data.date}
+                            </div>
+
+                            <div className="mt-2">
+                              ⚽ {data.scored}
+                            </div>
+
+                            <div>
+                              🥅 {data.conceded}
+                            </div>
+
+                          </div>
+                        );
+                      }}
+                    />
 
                     <Line
                     type="monotone"
@@ -557,11 +666,11 @@ export default function TeamAnalysisTab() {
                 <div>
 
                   <h3 className="text-xl font-bold">
-                    🏠 Home vs Away
+                    🏠 {t.home} vs {t.away}
                   </h3>
 
                   <p className="text-sm text-[var(--muted)] mt-1">
-                    Performance split comparison
+                    {t.statistics}
                   </p>
 
                 </div>
@@ -577,15 +686,15 @@ export default function TeamAnalysisTab() {
                     <tr className="border-b border-[var(--border)]">
 
                       <th className="text-left py-3">
-                        Stat
+                        {t.stat}
                       </th>
 
                       <th className="text-center py-3">
-                        🏠 Home
+                        🏠 {t.home}
                       </th>
 
                       <th className="text-center py-3">
-                        ✈️ Away
+                        ✈️ {t.away}
                       </th>
 
                     </tr>
@@ -597,7 +706,7 @@ export default function TeamAnalysisTab() {
                     <tr className="border-b border-[var(--border)]">
 
                       <td className="py-3">
-                        Matches
+                        {t.matches}
                       </td>
 
                       <td className="text-center">
@@ -613,7 +722,7 @@ export default function TeamAnalysisTab() {
                     <tr className="border-b border-[var(--border)]">
 
                       <td className="py-3">
-                        Wins
+                        {t.wins}
                       </td>
 
                       <td className="text-center font-semibold text-[var(--success)]">
@@ -629,7 +738,7 @@ export default function TeamAnalysisTab() {
                     <tr className="border-b border-[var(--border)]">
 
                       <td className="py-3">
-                        Goals scored
+                        {t.goalsScored}
                       </td>
 
                       <td className="text-center">
@@ -645,7 +754,7 @@ export default function TeamAnalysisTab() {
                     <tr className="border-b border-[var(--border)]">
 
                       <td className="py-3">
-                        Goals conceded
+                        {t.goalsConceded}
                       </td>
 
                       <td className="text-center">
@@ -708,11 +817,14 @@ export default function TeamAnalysisTab() {
                 </div>
 
                 <div className="font-semibold">
-                Strong attack
+                {t.strongAttack}
                 </div>
 
                 <div className="text-sm text-[var(--muted)] mt-1">
-                Scores {analysis.avg_goals_scored} goals per match
+                {t.strongAttackDescription.replace(
+                  "{value}",
+                  analysis.avg_goals_scored.toString()
+                )}
                 </div>
 
             </div>
@@ -724,11 +836,14 @@ export default function TeamAnalysisTab() {
                 </div>
 
                 <div className="font-semibold">
-                Goal trends
+                {t.goalTrends}
                 </div>
 
                 <div className="text-sm text-[var(--muted)] mt-1">
-                {analysis.over25}% Over 2.5 matches
+                {t.goalTrendsDescription.replace(
+                  "{value}",
+                  analysis.over25.toString()
+                )}
                 </div>
 
             </div>
@@ -740,11 +855,14 @@ export default function TeamAnalysisTab() {
                 </div>
 
                 <div className="font-semibold">
-                Defensive profile
+                {t.defensiveProfile}
                 </div>
 
                 <div className="text-sm text-[var(--muted)] mt-1">
-                {analysis.clean_sheets}% clean sheets
+                {t.defensiveProfileDescription.replace(
+                  "{value}",
+                  analysis.clean_sheets.toString()
+                )}
                 </div>
 
             </div>

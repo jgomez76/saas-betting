@@ -16,6 +16,7 @@ from app.core.config import (
     CURRENT_SEASON, 
     LEAGUES, 
     SELECTED_LEAGUES,
+    LEAGUES_ALL,
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
     GITHUB_CLIENT_ID,
@@ -49,6 +50,7 @@ from app.services.stats import get_team_stats, get_league_stats
 from app.services.team_analysis import get_team_analysis
 from app.services.h2h_analysis import get_h2h_analysis
 from app.services.match_analysis import get_match_analysis
+from app.services.fixtures import fetch_fixtures
 
 
 
@@ -116,11 +118,32 @@ def generate_reactivation_token():
     return secrets.token_urlsafe(32)
 
 
-@router.get("/fixtures/save/{league_id}/{season}")
+""" @router.get("/fixtures/save/{league_id}/{season}")
 def fetch_and_store(league_id: int, season: int, db: Session = Depends(get_db)):
     data = get_fixtures(league_id, season)
     save_fixtures(db, data)
-    return {"message": f"Fixtures saved for league {league_id}, season {season}"}
+    return {"message": f"Fixtures saved for league {league_id}, season {season}"} """
+
+@router.get("/fixtures/save/{league_id}/{season}")
+def fetch_and_store(
+    league_id: int,
+    season: int,
+    db: Session = Depends(get_db)
+):
+
+    fetch_fixtures(
+        db=db,
+        league=league_id,
+        season=season
+    )
+
+    return {
+        "message": (
+            f"Fixtures saved for "
+            f"league {league_id}, "
+            f"season {season}"
+        )
+    }
 
 
 @router.get("/value-bets")
@@ -1425,21 +1448,35 @@ def analysis_metadata(
 
     seasons = set()
 
+    league_names = {}
+
+    for region in LEAGUES_ALL.values():
+        league_names.update(region)
+
     for f in fixtures:
 
-        # 🔥 LEAGUES + TEAMS
-        if f.league not in league_teams:
-            league_teams[f.league] = set()
+        league_id = str(f.league_id)
 
-        league_teams[f.league].add(
+        if league_id not in league_teams:
+
+            league_teams[league_id] = {
+
+                "id": f.league_id,
+                "name": league_names.get(
+                    f.league_id,
+                    f.league
+                ),
+                "teams": set(),
+            }
+
+        league_teams[league_id]["teams"].add(
             f.home_team
         )
 
-        league_teams[f.league].add(
+        league_teams[league_id]["teams"].add(
             f.away_team
         )
 
-        # 🔥 SEASONS
         if f.season:
             seasons.add(f.season)
 
@@ -1447,11 +1484,21 @@ def analysis_metadata(
 
         "league_teams": {
 
-            league: sorted(list(teams))
+            league_id: {
 
-            for league, teams
+                "id": data["id"],
+                "name": data["name"],
+                "teams": sorted(
+                    list(data["teams"])
+                )
+            }
+
+            for league_id, data
             in league_teams.items()
+
         },
+
+        "league_groups": LEAGUES_ALL,
 
         "seasons": sorted(
             list(seasons),

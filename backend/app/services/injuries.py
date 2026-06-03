@@ -2,6 +2,7 @@ import requests
 from sqlalchemy.orm import Session
 from app.models.injury import Injury
 from app.core.config import API_FOOTBALL_KEY
+from app.services.api_football import get_api_key
 
 
 # -----------------------------
@@ -11,7 +12,7 @@ def fetch_injuries(db: Session, league: int, season: int):
     url = "https://v3.football.api-sports.io/injuries"
 
     headers = {
-        "x-apisports-key": API_FOOTBALL_KEY
+        "x-apisports-key": get_api_key(league)
     }
 
     params = {
@@ -70,41 +71,6 @@ def get_unavailable_players(db: Session, team: str, fixture_id: int):
 # -----------------------------
 # IMPACTO EN MODELO
 # -----------------------------
-# def get_team_injuries_impact(db: Session, team: str, fixture_id: int):
-
-#     injuries = get_unavailable_players(db, team, fixture_id)
-
-#     if not injuries:
-#         return {
-#             "attack_impact": 0,
-#             "defense_impact": 0
-#         }
-
-#     attack_impact = 0
-#     defense_impact = 0
-
-#     for inj in injuries:
-#         if not inj.player:
-#             continue
-
-#         name = inj.player.lower()
-
-#         # lógica básica (mejoraremos luego)
-#         if any(x in name for x in ["st", "fw", "wing"]):
-#             attack_impact -= 0.05
-
-#         elif any(x in name for x in ["cb", "back", "def"]):
-#             defense_impact += 0.05
-
-#     # límites
-#     attack_impact = max(attack_impact, -0.3)
-#     defense_impact = min(defense_impact, 0.3)
-
-#     return {
-#         "attack_impact": attack_impact,
-#         "defense_impact": defense_impact
-#     }
-
 
 def get_team_injuries_impact(db: Session, team: str, fixture_id: int):
 

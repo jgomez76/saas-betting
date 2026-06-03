@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
 
 type H2HAnalysis = {
 
@@ -33,6 +34,12 @@ type H2HAnalysis = {
   }[];
 };
 
+type LeagueGroups = {
+  [group: string]: {
+    [leagueId: string]: string;
+  };
+};
+
 const apiUrl =
   typeof window !== "undefined"
     ? window.location.hostname === "localhost"
@@ -41,9 +48,7 @@ const apiUrl =
     : "";
 
 export default function H2HAnalysisTab() {
-
-  const [leagueTeams, setLeagueTeams] =
-    useState<Record<string, string[]>>({});
+  const { t } = useLanguage();
 
   const [selectedLeague, setSelectedLeague] =
     useState("");
@@ -56,9 +61,27 @@ export default function H2HAnalysisTab() {
 
   const [analysis, setAnalysis] =
     useState<H2HAnalysis | null>(null);
+  
+  const [error, setError] =
+    useState("");
 
   const [loading, setLoading] =
     useState(false);
+
+  const [leagueTeams, setLeagueTeams] =
+    useState<
+      Record<
+        string,
+        {
+          id: number;
+          name: string;
+          teams: string[];
+        }
+      >
+    >({});
+
+    const [leagueGroups, setLeagueGroups] =
+      useState<LeagueGroups>({});
 
   // ---------------- METADATA ----------------
 
@@ -70,6 +93,10 @@ export default function H2HAnalysisTab() {
 
         setLeagueTeams(
           data.league_teams || {}
+        );
+
+        setLeagueGroups(
+          data.league_groups || {}
         );
 
       });
@@ -102,6 +129,17 @@ export default function H2HAnalysisTab() {
 
         const data = await res.json();
 
+        if (data.error) {
+
+          setError(data.error);
+
+          setAnalysis(null);
+
+          return;
+        }
+
+        setError("");
+
         setAnalysis(data);
 
       } finally {
@@ -128,11 +166,11 @@ export default function H2HAnalysisTab() {
       <div>
 
         <h2 className="text-2xl font-bold">
-          ⚔️ H2H Analysis
+          ⚔️ {t.h2hAnalysis}
         </h2>
 
         <p className="text-sm text-[var(--muted)] mt-1">
-          Head to head statistics and trends
+          {t.h2hStatistics}
         </p>
 
       </div>
@@ -157,19 +195,38 @@ export default function H2HAnalysisTab() {
         >
 
           <option value="">
-            Select league
+            {t.selectLeague}
           </option>
 
-          {Object.keys(leagueTeams).map((league) => (
+          {Object.entries(leagueGroups).map(
 
-            <option
-              key={league}
-              value={league}
-            >
-              {league}
-            </option>
+            ([groupName, leagues]) => (
 
-          ))}
+              <optgroup
+                key={groupName}
+                label={groupName}
+              >
+
+                {Object.entries(leagues).map(
+
+                  ([leagueId, leagueName]) => (
+
+                    <option
+                      key={leagueId}
+                      value={leagueId}
+                    >
+                      {leagueName}
+                    </option>
+
+                  )
+
+                )}
+
+              </optgroup>
+
+            )
+
+          )}
 
         </select>
 
@@ -186,10 +243,10 @@ export default function H2HAnalysisTab() {
         >
 
           <option value="">
-            Team 1
+            {t.team1}
           </option>
 
-          {(leagueTeams[selectedLeague] || []).map((team) => (
+          {(leagueTeams[selectedLeague]?.teams || []).map((team) => (
 
             <option
               key={team}
@@ -215,10 +272,10 @@ export default function H2HAnalysisTab() {
         >
 
           <option value="">
-            Team 2
+            {t.team2}
           </option>
 
-          {(leagueTeams[selectedLeague] || []).map((team) => (
+          {(leagueTeams[selectedLeague]?.teams || []).map((team) => (
 
             <option
               key={team}
@@ -237,7 +294,27 @@ export default function H2HAnalysisTab() {
       {loading && (
 
         <div className="text-center text-[var(--muted)]">
-          ⏳ Loading H2H analysis...
+          ⏳ {t.loadingH2HAnalysis}
+        </div>
+
+      )}
+
+      {error && !loading && (
+
+        <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-6 text-center">
+
+          <div className="text-4xl mb-3">
+            ⚔️
+          </div>
+
+          <h3 className="text-xl font-semibold">
+            {t.noH2HDataAvailable}
+          </h3>
+
+          <p className="text-[var(--muted)] mt-2">
+            {t.teamsNeverFaced}
+          </p>
+
         </div>
 
       )}
@@ -260,7 +337,7 @@ export default function H2HAnalysisTab() {
 
             <p className="text-[var(--muted)] mt-2">
 
-              {analysis.matches} historical matches
+              {analysis.matches} {t.historicalMatches}
 
             </p>
 
@@ -272,7 +349,7 @@ export default function H2HAnalysisTab() {
             <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 text-center">
 
               <div className="text-xs text-[var(--muted)]">
-                {analysis.team1} wins
+                {analysis.team1} {t.winsLabel}
               </div>
 
               <div className="text-3xl font-bold">
@@ -284,7 +361,7 @@ export default function H2HAnalysisTab() {
             <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 text-center">
 
               <div className="text-xs text-[var(--muted)]">
-                Draws
+                {t.drawLabel}
               </div>
 
               <div className="text-3xl font-bold">
@@ -296,7 +373,7 @@ export default function H2HAnalysisTab() {
             <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 text-center">
 
               <div className="text-xs text-[var(--muted)]">
-                {analysis.team2} wins
+                {analysis.team2} {t.winsLabel}
               </div>
 
               <div className="text-3xl font-bold">
@@ -308,7 +385,7 @@ export default function H2HAnalysisTab() {
             <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 text-center">
 
               <div className="text-xs text-[var(--muted)]">
-                Avg goals
+                {t.avgGoalsLabel}
               </div>
 
               <div className="text-3xl font-bold">
@@ -356,11 +433,11 @@ export default function H2HAnalysisTab() {
               <div>
 
                 <h3 className="text-xl font-bold">
-                  🕒 Recent H2H
+                  🕒 {t.recentH2H}
                 </h3>
 
                 <p className="text-sm text-[var(--muted)] mt-1">
-                  Latest historical clashes
+                  {t.latestClashes}
                 </p>
 
               </div>
@@ -369,7 +446,7 @@ export default function H2HAnalysisTab() {
 
             <div className="space-y-3">
 
-              {analysis.recent_matches.map((m, i) => (
+              {analysis?.recent_matches?.map((m, i) => (
 
                 <div
                   key={i}

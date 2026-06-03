@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
 
 const apiUrl =
   typeof window !== "undefined"
@@ -81,6 +82,12 @@ type MatchAnalysis = {
     }[];
 };
 
+type LeagueGroups = {
+  [group: string]: {
+    [leagueId: string]: string;
+  };
+};
+
 type UpcomingFixture = {
 
   id: number;
@@ -94,9 +101,10 @@ type UpcomingFixture = {
 };
 
 export default function MatchAnalysisTab() {
+  const { t } = useLanguage();
 
-  const [leagueTeams, setLeagueTeams] =
-    useState<Record<string, string[]>>({});
+  // const [leagueTeams, setLeagueTeams] =
+  //   useState<Record<string, string[]>>({});
 
   const [selectedLeague, setSelectedLeague] =
     useState("");
@@ -113,6 +121,21 @@ export default function MatchAnalysisTab() {
   const [loading, setLoading] =
     useState(false);
 
+  const [leagueTeams, setLeagueTeams] =
+    useState<
+      Record<
+        string,
+        {
+          id: number;
+          name: string;
+          teams: string[];
+        }
+      >
+    >({});
+
+    const [leagueGroups, setLeagueGroups] =
+      useState<LeagueGroups>({});
+
   // ---------------- METADATA
 
   useEffect(() => {
@@ -123,6 +146,10 @@ export default function MatchAnalysisTab() {
 
         setLeagueTeams(
           data.league_teams || {}
+        );
+
+        setLeagueGroups(
+          data.league_groups || {}
         );
 
       });
@@ -236,11 +263,11 @@ export default function MatchAnalysisTab() {
       <div>
 
         <h2 className="text-2xl font-bold">
-          🎯 Match Analysis
+          🎯 {t.matchAnalysis}
         </h2>
 
         <p className="text-sm text-[var(--muted)] mt-1">
-          Advanced pre-match betting analysis
+          {t.advancedPreMatchAnalysis}
         </p>
 
       </div>
@@ -266,19 +293,38 @@ export default function MatchAnalysisTab() {
         >
 
           <option value="">
-            Select league
+            {t.selectLeague}
           </option>
 
-          {Object.keys(leagueTeams).map((league) => (
+          {Object.entries(leagueGroups).map(
 
-            <option
-              key={league}
-              value={league}
-            >
-              {league}
-            </option>
+            ([groupName, leagues]) => (
 
-          ))}
+              <optgroup
+                key={groupName}
+                label={groupName}
+              >
+
+                {Object.entries(leagues).map(
+
+                  ([leagueId, leagueName]) => (
+
+                    <option
+                      key={leagueId}
+                      value={leagueId}
+                    >
+                      {leagueName}
+                    </option>
+
+                  )
+
+                )}
+
+              </optgroup>
+
+            )
+
+          )}
 
         </select>
 
@@ -303,7 +349,7 @@ export default function MatchAnalysisTab() {
         >
 
           <option value="">
-            Select fixture
+            {t.selectFixture}
           </option>
 
           {fixtures.map((fixture) => (
@@ -340,7 +386,7 @@ export default function MatchAnalysisTab() {
       {loading && (
 
         <div className="text-center text-[var(--muted)]">
-          ⏳ Loading match analysis...
+          ⏳ {t.loadingMatchAnalysis}
         </div>
 
       )}
@@ -363,7 +409,7 @@ export default function MatchAnalysisTab() {
 
         <p className="text-[var(--muted)] mt-2">
 
-            Advanced betting insights and trends
+            {t.advancedBettingInsights}
 
         </p>
 
@@ -435,7 +481,7 @@ export default function MatchAnalysisTab() {
             </h3>
 
             <p className="text-sm text-[var(--muted)] mt-1">
-                Recent form
+                {t.recentForm}
             </p>
 
             </div>
@@ -456,7 +502,7 @@ export default function MatchAnalysisTab() {
             </h3>
 
             <p className="text-sm text-[var(--muted)] mt-1">
-                Recent form
+                {t.recentForm}
             </p>
 
             </div>
@@ -478,11 +524,11 @@ export default function MatchAnalysisTab() {
                 <div className="mb-5">
 
                 <h3 className="text-xl font-bold">
-                    🏠 {analysis.home_team} Home
+                    🏠 {analysis.home_team} ({t.home})
                 </h3>
 
                 <p className="text-sm text-[var(--muted)] mt-1">
-                    Home performance stats
+                    {t.homePerformanceStats}
                 </p>
 
                 </div>
@@ -492,7 +538,7 @@ export default function MatchAnalysisTab() {
                 <div className="bg-[var(--bg)] rounded-xl p-4">
 
                     <div className="text-xs text-[var(--muted)]">
-                    Wins
+                    {t.wins}
                     </div>
 
                     <div className="text-2xl font-bold mt-1">
@@ -504,7 +550,7 @@ export default function MatchAnalysisTab() {
                 <div className="bg-[var(--bg)] rounded-xl p-4">
 
                     <div className="text-xs text-[var(--muted)]">
-                    Goals scored
+                    {t.goalsScored}
                     </div>
 
                     <div className="text-2xl font-bold mt-1">
@@ -547,11 +593,11 @@ export default function MatchAnalysisTab() {
                 <div className="mb-5">
 
                 <h3 className="text-xl font-bold">
-                    ✈️ {analysis.away_team} Away
+                    ✈️ {analysis.away_team} ({t.away})
                 </h3>
 
                 <p className="text-sm text-[var(--muted)] mt-1">
-                    Away performance stats
+                    {t.awayPerformanceStats}
                 </p>
 
                 </div>
@@ -561,7 +607,7 @@ export default function MatchAnalysisTab() {
                 <div className="bg-[var(--bg)] rounded-xl p-4">
 
                     <div className="text-xs text-[var(--muted)]">
-                    Wins
+                    {t.wins}
                     </div>
 
                     <div className="text-2xl font-bold mt-1">
@@ -573,7 +619,7 @@ export default function MatchAnalysisTab() {
                 <div className="bg-[var(--bg)] rounded-xl p-4">
 
                     <div className="text-xs text-[var(--muted)]">
-                    Goals scored
+                    {t.goalsScored}
                     </div>
 
                     <div className="text-2xl font-bold mt-1">
@@ -618,11 +664,11 @@ export default function MatchAnalysisTab() {
         <div className="mb-5">
 
             <h3 className="text-xl font-bold">
-            🧠 Smart Insights
+            🧠 {t.smartInsights}
             </h3>
 
             <p className="text-sm text-[var(--muted)] mt-1">
-            Automatically generated betting insights
+            {t.autoGeneratedInsights}
             </p>
 
         </div>
@@ -652,11 +698,11 @@ export default function MatchAnalysisTab() {
         <div className="mb-5">
 
             <h3 className="text-xl font-bold">
-            🎯 Market Confidence
+            🎯 {t.marketConfidence}
             </h3>
 
             <p className="text-sm text-[var(--muted)] mt-1">
-            Confidence engine based on historical data
+            {t.confidenceEngine}
             </p>
 
         </div>
@@ -694,7 +740,15 @@ export default function MatchAnalysisTab() {
                     </div>
 
                     <div className="text-sm text-[var(--muted)]">
-                        {m.strength}
+                        {
+                          m.strength === "VERY STRONG"
+                            ? t.veryStrong
+                            : m.strength === "STRONG"
+                            ? t.strong
+                            : m.strength === "MEDIUM"
+                            ? t.medium
+                            : t.low
+                        }
                     </div>
 
                     </div>
@@ -737,11 +791,11 @@ export default function MatchAnalysisTab() {
             <div className="mb-5">
 
             <h3 className="text-xl font-bold text-green-400">
-                🔥 Value Opportunities
+                🔥 {t.valueOpportunities}
             </h3>
 
             <p className="text-sm text-[var(--muted)] mt-1">
-                Real value detected using bookmaker odds
+                {t.realValueDetected}
             </p>
 
             </div>
@@ -777,7 +831,7 @@ export default function MatchAnalysisTab() {
                     </div>
 
                     <div className="text-xs text-[var(--muted)]">
-                        VALUE EDGE
+                        {t.valueEdge}
                     </div>
 
                     </div>
@@ -790,7 +844,7 @@ export default function MatchAnalysisTab() {
                     <div className="bg-[var(--card)] rounded-xl p-4">
 
                     <div className="text-xs text-[var(--muted)]">
-                        Market Odds
+                        {t.marketOdds}
                     </div>
 
                     <div className="text-2xl font-bold mt-1">
@@ -802,7 +856,7 @@ export default function MatchAnalysisTab() {
                     <div className="bg-[var(--card)] rounded-xl p-4">
 
                     <div className="text-xs text-[var(--muted)]">
-                        Fair Odds
+                        {t.fairOdds}
                     </div>
 
                     <div className="text-2xl font-bold mt-1">

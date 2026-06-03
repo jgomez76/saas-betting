@@ -3,13 +3,14 @@ from datetime import datetime, timedelta
 
 from app.core.database import SessionLocal
 from app.services.odds import fetch_odds
-from app.core.config import LEAGUES, SEASONS
+from app.core.config import LEAGUES
+from app.services.league_season import get_season
 
 
 # -----------------------------
 # CONFIG
 # -----------------------------
-DAYS_AHEAD = 2  # hoy + 2 días
+DAYS_AHEAD = 1  # hoy + 1 día
 
 
 # -----------------------------
@@ -40,7 +41,7 @@ def update_odds_only():
                 fetch_odds(
                     db,
                     league=league,
-                    season=SEASONS[-1],  # temporada actual
+                    season=get_season(league),  # temporada actual
                     date=str(date)
                 )
             except Exception as e:

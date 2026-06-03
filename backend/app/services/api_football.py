@@ -1,8 +1,28 @@
 import requests
 from datetime import datetime
 from sqlalchemy.orm import Session
-from app.core.config import API_FOOTBALL_KEY, BASE_URL
+# from app.core.config import API_FOOTBALL_KEY, BASE_URL
 from app.models.fixture import Fixture
+
+from app.core.config import (
+    API_FOOTBALL_KEY, 
+    BASE_URL,
+    API_KEY_EUROPE,
+    API_KEY_AMERICA,
+    LEAGUES_AMERICA
+)
+
+def get_api_key(league_id: int):
+    # print("leage id, dentro de api football:", league_id)
+
+    # print("LEAGUES_AMERICA:", LEAGUES_AMERICA)
+    # print("API_KEY_EUROPE:", API_KEY_EUROPE)
+    # print("API_KEY_AMERICA:", API_KEY_AMERICA)
+
+    if league_id in LEAGUES_AMERICA:
+        return API_KEY_AMERICA
+
+    return API_KEY_EUROPE
 
 headers = {
     "x-apisports-key": API_FOOTBALL_KEY

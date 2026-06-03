@@ -2,6 +2,7 @@ import requests
 from sqlalchemy.orm import Session
 from app.models.fixture import Fixture
 from app.core.config import API_FOOTBALL_KEY
+from app.services.api_football import get_api_key
 from datetime import datetime
 
 
@@ -10,7 +11,7 @@ def fetch_fixtures(db: Session, league: int, season: int):
     url = "https://v3.football.api-sports.io/fixtures"
 
     headers = {
-        "x-apisports-key": API_FOOTBALL_KEY
+        "x-apisports-key": get_api_key(league)
     }
 
     params = {
@@ -20,6 +21,9 @@ def fetch_fixtures(db: Session, league: int, season: int):
 
     response = requests.get(url, headers=headers, params=params)
     data = response.json()
+
+    # print(headers)
+    # print(params)
 
     for item in data.get("response", []):
 
@@ -49,6 +53,7 @@ def fetch_fixtures(db: Session, league: int, season: int):
         away_goals = goals_data.get("away")
 
         league_name = league_data.get("name")
+        round_name = league_data.get("round")
 
         # 🚨 Validación mínima
         if not fixture_id or not home_team or not away_team:
@@ -71,6 +76,7 @@ def fetch_fixtures(db: Session, league: int, season: int):
             # 🔥 CLAVE (AÑADIR ESTO)
             existing.home_team_id = home_team_id
             existing.away_team_id = away_team_id
+            existing.round = round_name
 
         else:
             # ✅ INSERT NUEVO
@@ -85,6 +91,9 @@ def fetch_fixtures(db: Session, league: int, season: int):
 
                 league=league_name,
                 league_id=league,
+
+                round=round_name,
+
                 date=date,
                 status=status,
                 home_goals=home_goals,

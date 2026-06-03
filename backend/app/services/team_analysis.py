@@ -35,7 +35,11 @@ def get_team_analysis(
             Fixture.season == season
         )
 
-    matches = query.all()
+    # matches = query.all()
+    matches = sorted(
+        query.all(),
+        key=lambda x: x.date
+    )
 
     if not matches:
         return None
@@ -72,6 +76,7 @@ def get_team_analysis(
     away_over25 = 0
 
     last_5 = []
+    goals_timeline = []
 
     # 🔥 ordenar recientes
     matches_sorted = sorted(
@@ -81,8 +86,7 @@ def get_team_analysis(
     )
 
     for match in matches:
-        goals_timeline = []
-
+        
         is_home = (
             match.home_team == team
         )
@@ -101,6 +105,15 @@ def get_team_analysis(
 
         goals_timeline.append({
             "date": match.date.strftime("%Y-%m-%d"),
+
+            "home_team": match.home_team,
+            "away_team": match.away_team,
+
+            "home_goals": match.home_goals,
+            "away_goals": match.away_goals,
+
+            "league": match.league,
+
             "scored": scored,
             "conceded": conceded,
         })
@@ -262,7 +275,7 @@ def get_team_analysis(
         "home_matches": home_matches,
         "away_matches": away_matches,
 
-        "last_5": "".join(last_5),
+        "last_5": "".join(reversed(last_5)),
 
         "home": {
 
