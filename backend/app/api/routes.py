@@ -1572,7 +1572,7 @@ def analysis_match(
 
 @router.get("/analysis/upcoming-fixtures")
 def analysis_upcoming_fixtures(
-    league: str | None = None,
+    league_id: int | None = None,
     db: Session = Depends(get_db),
 ):
 
@@ -1585,10 +1585,10 @@ def analysis_upcoming_fixtures(
 
     )
 
-    if league:
+    if league_id:
 
         query = query.filter(
-            Fixture.league == league
+            Fixture.league_id == league_id
         )
 
     fixtures = query.order_by(

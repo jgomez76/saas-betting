@@ -136,14 +136,25 @@ export default function Home() {
   const {
     marketFilter,
     setMarketFilter,
+
     leagueFilter,
     setLeagueFilter,
+
     dateFilter,
     setDateFilter,
+
     minValue,
     setMinValue,
+
+    maxValue,
+    setMaxValue,
+
     minOdd,
     setMinOdd,
+
+    maxOdd,
+    setMaxOdd,
+
   } = useFilters();
 
   // FUNCION PARA FECHA PARTIDOS
@@ -552,8 +563,15 @@ export default function Home() {
                 // 🔥 NUEVO
               minValue={minValue}
               setMinValue={setMinValue}
+
+              maxValue={maxValue}
+              setMaxValue={setMaxValue}
+
               minOdd={minOdd}
               setMinOdd={setMinOdd}
+
+              maxOdd={maxOdd}
+              setMaxOdd={setMaxOdd}
               isAdmin={isAdmin}
               email={email}
               name={name}
@@ -637,6 +655,10 @@ export default function Home() {
 
                 minOdd={minOdd}
 
+                maxValue={maxValue}
+
+                maxOdd={maxOdd}
+
                 setPendingBet={
                   setPendingBet
                 }
@@ -686,6 +708,8 @@ export default function Home() {
                   marketFilter={marketFilter}
                   minValue={minValue}
                   minOdd={minOdd}
+                  maxValue={maxValue}
+                  maxOdd={maxOdd}
                   setPendingBet={setPendingBet}
                   t={{
                     vs: t.vs,

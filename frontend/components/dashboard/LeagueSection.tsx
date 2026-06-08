@@ -37,6 +37,10 @@ type Props = {
 
   minOdd: number;
 
+  maxValue: number;
+  
+  maxOdd: number;
+
   setPendingBet: React.Dispatch<
     React.SetStateAction<
       PendingBet | null
@@ -62,6 +66,8 @@ export default function LeagueSection({
   marketFilter,
   minValue,
   minOdd,
+  maxValue,
+  maxOdd,
   setPendingBet,
   t,
 }: Props) {
@@ -120,6 +126,8 @@ export default function LeagueSection({
                 marketFilter={marketFilter}
                 minValue={minValue}
                 minOdd={minOdd}
+                maxValue={maxValue}
+                maxOdd={maxOdd}
                 setPendingBet={setPendingBet}
                 t={{
                   vs: t.vs,

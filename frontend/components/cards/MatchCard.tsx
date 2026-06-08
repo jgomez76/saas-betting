@@ -37,7 +37,11 @@ type Props = {
 
   minOdd: number;
 
-    setPendingBet: React.Dispatch<
+  maxValue: number;
+
+  maxOdd: number;
+
+  setPendingBet: React.Dispatch<
     React.SetStateAction<PendingBet | null>
     >;
 
@@ -55,6 +59,8 @@ export default function MatchCard({
   marketFilter,
   minValue,
   minOdd,
+  maxValue,
+  maxOdd,
   setPendingBet,
   t,
 }: Props) {
@@ -152,7 +158,9 @@ export default function MatchCard({
                     value !== null &&
                     value !== undefined &&
                     value >= minValue &&
-                    (odd?.odd ?? 0) >= minOdd;
+                    value <= maxValue &&
+                    (odd?.odd ?? 0) >= minOdd &&
+                    (odd?.odd ?? 0) <= maxOdd;
 
                 return (
                     <div
@@ -254,7 +262,9 @@ export default function MatchCard({
                     value !== null &&
                     value !== undefined &&
                     value >= minValue &&
-                    (odd?.odd ?? 0) >= minOdd;
+                    value <= maxValue &&
+                    (odd?.odd ?? 0) >= minOdd &&
+                    (odd?.odd ?? 0) <= maxOdd;
 
                 return (
                     <div
@@ -355,7 +365,9 @@ export default function MatchCard({
                     value !== null &&
                     value !== undefined &&
                     value >= minValue &&
-                    (odd?.odd ?? 0) >= minOdd;
+                    value <= maxValue &&
+                    (odd?.odd ?? 0) >= minOdd &&
+                    (odd?.odd ?? 0) <= maxOdd;
 
                 return (
                     <div
@@ -452,11 +464,20 @@ export default function MatchCard({
                     ? match.market_values?.BTTS?.yes_value
                     : match.market_values?.BTTS?.no_value;
 
+                console.log("MATCHCARD", {
+                    minValue,
+                    maxValue,
+                    minOdd,
+                    maxOdd,
+                    });
+
                 const isValue =
                     value !== null &&
                     value !== undefined &&
                     value >= minValue &&
-                    (odd?.odd ?? 0) >= minOdd;
+                    value <= maxValue &&
+                    (odd?.odd ?? 0) >= minOdd &&
+                    (odd?.odd ?? 0) <= maxOdd;
 
                 return (
                     <div

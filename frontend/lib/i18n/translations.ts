@@ -333,6 +333,10 @@ export const translations = {
     teamNotInSeason: "This team did not play in the selected season.",
     noH2HDataAvailable: "No H2H data available",
     teamsNeverFaced: "These teams have not faced each other in the available database.",
+    odds: "Odds",
+    from: "From",
+    to: "To",
+    notEnoughHistoricalData: "There is not enough historical data to generate a complete match analysis.",
   },
 
   es: {
@@ -668,5 +672,9 @@ export const translations = {
     teamNotInSeason: "Este equipo no participó en la temporada seleccionada.",
     noH2HDataAvailable: "No hay datos H2H disponibles",
     teamsNeverFaced: "Estos equipos no se han enfrentado anteriormente en la base de datos disponible.",
+    odds: "Cuotas",
+    from: "Desde",
+    to: "Hasta",
+    notEnoughHistoricalData: "No hay suficientes datos históricos para generar un análisis completo de este partido.",
   },
 }

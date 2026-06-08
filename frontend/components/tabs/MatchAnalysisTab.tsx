@@ -171,7 +171,7 @@ export default function MatchAnalysisTab() {
 
     fetch(
 
-      `${apiUrl}/analysis/upcoming-fixtures?league=${encodeURIComponent(selectedLeague)}`
+      `${apiUrl}/analysis/upcoming-fixtures?league_id=${encodeURIComponent(selectedLeague)}`
 
     )
       .then((res) => res.json())
@@ -254,6 +254,11 @@ export default function MatchAnalysisTab() {
         </div>
     );
     };
+
+  const hasAnalysisData =
+    analysis?.combined &&
+    analysis?.home_analysis &&
+    analysis?.away_analysis;
 
   return (
 
@@ -392,7 +397,7 @@ export default function MatchAnalysisTab() {
       )}
 
       {/* ANALYSIS */}
-      {analysis && !loading && (
+      {analysis && !loading && hasAnalysisData && (
 
         <>
 
@@ -878,6 +883,22 @@ export default function MatchAnalysisTab() {
         )}
 
         </>
+
+      )}
+
+      {analysis && !loading && !hasAnalysisData && (
+
+        <div className="bg-[var(--card)] border border-yellow-500/30 rounded-2xl p-6">
+
+          <h3 className="text-xl font-bold mb-2">
+            ⚠️ {t.noDataAvailable}
+          </h3>
+
+          <p className="text-[var(--muted)]">
+            {t.notEnoughHistoricalData}
+          </p>
+
+        </div>
 
       )}
 

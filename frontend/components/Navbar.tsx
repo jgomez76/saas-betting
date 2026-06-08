@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef, memo } from "react";
 import Image from "next/image";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
-import { LEAGUES } from "@/lib/config/leagues";
 
 type Props = {
   onOpenLogin: () => void;
@@ -27,9 +26,21 @@ type Props = {
   minOdd: number;
   setMinOdd: (v: number) => void;
 
+  maxValue: number;
+  setMaxValue: (v: number) => void;
+
+  maxOdd: number;
+  setMaxOdd: (v: number) => void;
+
   email: string;
   name: string;
   avatar: string;
+};
+
+type LeagueGroups = {
+  [group: string]: {
+    [leagueId: string]: string;
+  };
 };
 
 const Navbar = memo(function Navbar({
@@ -43,21 +54,24 @@ const Navbar = memo(function Navbar({
   dateFilter,
   setDateFilter,
   minValue,
+  maxValue,
   setMinValue,
+  setMaxValue,
   minOdd,
+  maxOdd,
   setMinOdd,
+  setMaxOdd,
   email,
   name,
   avatar,
 }: Props) {
   const { changeLang, t, lang } = useLanguage();
 
-  const [openMarkets, setOpenMarkets] = useState(false);
-  const [openLeagues, setOpenLeagues] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
 
-  const marketsRef = useRef<HTMLDivElement>(null);
-  const leaguesRef = useRef<HTMLDivElement>(null);
+  const [leagueGroups, setLeagueGroups] =
+    useState<LeagueGroups>({});
+
   const menuRef = useRef<HTMLDivElement>(null);
 
   const API =
@@ -75,13 +89,6 @@ const Navbar = memo(function Navbar({
         ? avatar
         : `${API}/${avatar.replace(/^\/+/, "").replace(/\\/g, "/")}`
       : null;
-    // console.log("avatar raw:", avatar);
-    // console.log("safeAvatar:", safeAvatar);
-
-  const currentLeague =
-    leagueFilter === "ALL"
-      ? t.all
-      : LEAGUES.find((l) => String(l.id) === leagueFilter)?.name;
 
   const marketLabels: Record<string, string> = {
     ALL: t.all,
@@ -93,15 +100,6 @@ const Navbar = memo(function Navbar({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        marketsRef.current &&
-        !marketsRef.current.contains(event.target as Node)
-      ) setOpenMarkets(false);
-
-      if (
-        leaguesRef.current &&
-        !leaguesRef.current.contains(event.target as Node)
-      ) setOpenLeagues(false);
 
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setOpenMenu(false);
@@ -112,211 +110,482 @@ const Navbar = memo(function Navbar({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+
+    fetch(`${API}/analysis/metadata`)
+      .then((res) => res.json())
+      .then((data) => {
+
+        setLeagueGroups(
+          data.league_groups || {}
+        );
+
+      });
+
+  }, [API]);
+
   return (
     <div className="w-full bg-[var(--bg)] border-b border-[var(--border)] text-[var(--text)] p-4 mb-6 rounded-xl shadow">
 
-      <div className="flex flex-wrap items-center gap-3">
+      {/* <div className="flex flex-wrap items-center gap-3"> */}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-center gap-3">
 
-        {/* USER */}
-        {email ? (
-          <div className="relative" ref={menuRef}>
-            <div
-              onClick={(e) => {
-                e.stopPropagation();
-                setOpenMenu(!openMenu);
-              }}
-              className="flex items-center gap-2 cursor-pointer"
-            >
-              {safeAvatar ? (
-                <Image
-                  src={safeAvatar}
-                  alt="avatar"
-                  width={32}
-                  height={32}
-                  className="rounded-full"
-                  unoptimized
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-[var(--card)] flex items-center justify-center text-xs">
-                  {email[0]?.toUpperCase() || "👤"}
-                </div>
-              )}
 
-              <span className="text-sm hidden md:block">
-                {name || email}
-              </span>
-            </div>
 
-            {openMenu && (
-              <div className="absolute top-full left-0 mt-2 w-56 bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-lg z-50">
-                <button
-                  onClick={onOpenProfile}
-                  className="w-full text-left px-3 py-2 text-sm hover:bg-[var(--hover)]"
+          {/* LEAGUES */}
+          <select
+            value={leagueFilter}
+            onChange={(e) =>
+              setLeagueFilter(e.target.value)
+            }
+            className="px-3 py-1 rounded text-sm bg-[var(--card)] border border-[var(--border)]"
+          >
+
+            <option value="ALL">
+              🌍 {t.all}
+            </option>
+
+            {Object.entries(leagueGroups).map(
+
+              ([groupName, leagues]) => (
+
+                <optgroup
+                  key={groupName}
+                  label={groupName}
                 >
-                  👤 {t.profile}
-                </button>
 
-                <button
-                  onClick={onLogout}
-                  className="w-full text-left px-3 py-2 text-sm text-[var(--danger)] hover:bg-[var(--hover)]"
-                >
-                  🚪 {t.logout}
-                </button>
-              </div>
+                  {Object.entries(leagues).map(
+
+                    ([leagueId, leagueName]) => (
+
+                      <option
+                        key={leagueId}
+                        value={leagueId}
+                      >
+                        {leagueName}
+                      </option>
+
+                    )
+
+                  )}
+
+                </optgroup>
+
+              )
+
             )}
-          </div>
-        ) : (
-          <button
-            onClick={onOpenLogin}
-            className="px-3 py-1 bg-[var(--card)] border border-[var(--border)] rounded"
-          >
-            🔐 {t.login}
-          </button>
-        )}
 
-        {/* LEAGUES */}
-        <div className="hidden md:block relative" ref={leaguesRef}>
-          <button
-            onClick={() => setOpenLeagues(!openLeagues)}
-            className="px-3 py-1 rounded text-sm bg-[var(--card)]"
-          >
-            🌍 {currentLeague} ▼
-          </button>
+          </select>
 
-          {openLeagues && (
-            <div className="absolute top-full mt-2 w-56 bg-[var(--card)] border border-[var(--border)] rounded shadow-lg z-50">
-              <div
-                onClick={() => setLeagueFilter("ALL")}
-                className="px-4 py-2 hover:bg-[var(--hover)] cursor-pointer"
+          {/* MARKETS */}
+          <select
+            value={marketFilter}
+            onChange={(e) =>
+              setMarketFilter(
+                e.target.value
+              )
+            }
+            className="px-3 py-1 rounded text-sm bg-[var(--card)] border border-[var(--border)]"
+          >
+
+            <option value="ALL">
+              🎯 {t.all}
+            </option>
+
+            <option value="1X2">
+              1X2
+            </option>
+
+            <option value="OU25">
+              Over 2.5
+            </option>
+
+            <option value="OU35">
+              Over 3.5
+            </option>
+
+            <option value="BTTS">
+              BTTS
+            </option>
+
+          </select>
+
+          {/* DATE */}
+          <select
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+            className="px-3 py-1 rounded text-sm bg-[var(--card)] border border-[var(--border)]"
+          >
+            <option value="TODAY">📅 {t.today}</option>
+            <option value="TODAY_TOMORROW">📅 {t.todayTomorrow}</option>
+            {/* <option value="NEXT_3_DAYS">📅 {t.next3Days}</option> */}
+            <option value="ALL">🌍 {t.all}</option>
+          </select>
+
+          <div className="ml-auto flex items-center gap-3">
+            {/* USER */}
+            {email ? (
+              <div className="relative" ref={menuRef}>
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenMenu(!openMenu);
+                  }}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  {safeAvatar ? (
+                    <Image
+                      src={safeAvatar}
+                      alt="avatar"
+                      width={32}
+                      height={32}
+                      className="rounded-full"
+                      unoptimized
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-[var(--card)] flex items-center justify-center text-xs">
+                      {email[0]?.toUpperCase() || "👤"}
+                    </div>
+                  )}
+
+                  <span className="text-sm hidden md:block">
+                    {name || email}
+                  </span>
+                </div>
+
+                {openMenu && (
+                  <div className="absolute top-full left-0 mt-2 w-56 bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-lg z-50">
+                    <button
+                      onClick={onOpenProfile}
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-[var(--hover)]"
+                    >
+                      👤 {t.profile}
+                    </button>
+
+                    <button
+                      onClick={onLogout}
+                      className="w-full text-left px-3 py-2 text-sm text-[var(--danger)] hover:bg-[var(--hover)]"
+                    >
+                      🚪 {t.logout}
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                onClick={onOpenLogin}
+                className="px-3 py-1 bg-[var(--card)] border border-[var(--border)] rounded"
               >
-                {t.all}
+                🔐 {t.login}
+              </button>
+            )}
+
+            {/* FLAGS RIGHT */}
+            <div className="flex items-center gap-2 ml-auto">
+              <div className="flex items-center gap-2 ml-auto">
+
+                <button
+                  onClick={() => changeLang("en")}
+                  className={`
+                    rounded-full p-0.5 transition-all
+                    ${lang === "en"
+                      ? "ring-2 ring-[var(--accent)] scale-110"
+                      : "opacity-60 hover:opacity-100"}
+                  `}
+                >
+                  <Image
+                    src="/flags/gb.svg"
+                    alt="EN"
+                    width={24}
+                    height={24}
+                    className="rounded-full"
+                  />
+                </button>
+
+                <button
+                  onClick={() => changeLang("es")}
+                  className={`
+                    rounded-full p-0.5 transition-all
+                    ${lang === "es"
+                      ? "ring-2 ring-[var(--accent)] scale-110"
+                      : "opacity-60 hover:opacity-100"}
+                  `}
+                >
+                  <Image
+                    src="/flags/es.svg"
+                    alt="ES"
+                    width={24}
+                    height={24}
+                    className="rounded-full"
+                  />
+                </button>
+
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+
+        {/* FILTERS */}
+        <div className="w-full flex justify-start">
+
+          <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl px-5 py-3 flex gap-6">
+
+            {/* VALUE */}
+            <div className="flex flex-col gap-1 border-r border-[var(--border)] pr-6">
+
+              <div className="text-sm font-medium">
+                📈 {t.value}
               </div>
 
-              {LEAGUES.map((l) => (
-                <div
-                  key={l.id}
-                  onClick={() => setLeagueFilter(String(l.id))}
-                  className="px-4 py-2 hover:bg-[var(--hover)] cursor-pointer"
-                >
-                  {l.name}
+              <div className="flex items-center gap-3">
+
+                <div className="flex flex-col">
+
+                  <span className="text-[10px] text-[var(--muted)]">
+                    {t.from}
+                  </span>
+
+                  <div className="flex items-center gap-2">
+
+                    <button
+                      onClick={() =>
+                        setMinValue(
+                          Math.max(
+                            0.05,
+                            minValue - 0.05
+                          )
+                        )
+                      }
+                      className="
+                        w-7 h-7
+                        rounded-full
+                        border border-[var(--border)]
+                        bg-[var(--bg)]
+                        hover:bg-[var(--hover)]
+                      "
+                    >
+                      −
+                    </button>
+
+                    <span className="w-12 text-center font-medium">
+                      {Math.round(minValue * 100)}%
+                    </span>
+
+                    <button
+                      onClick={() =>
+                        setMinValue(
+                          Math.min(
+                            maxValue,
+                            minValue + 0.05
+                          )
+                        )
+                      }
+                      className="
+                        w-7 h-7
+                        rounded-full
+                        border border-[var(--border)]
+                        bg-[var(--bg)]
+                        hover:bg-[var(--hover)]
+                      "
+                    >
+                      +
+                    </button>
+
+                  </div>
+
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
 
-        {/* MARKETS */}
-        <div className="hidden md:block relative" ref={marketsRef}>
-          <button
-            onClick={() => setOpenMarkets(!openMarkets)}
-            className="px-3 py-1 rounded text-sm bg-[var(--card)]"
-          >
-            🎯 {marketLabels[marketFilter]} ▼
-          </button>
+                <div className="flex flex-col">
 
-          {openMarkets && (
-            <div className="absolute top-full mt-2 w-56 bg-[var(--card)] border border-[var(--border)] rounded shadow-lg z-50">
-              {Object.entries(marketLabels).map(([key, label]) => (
-                <div
-                  key={key}
-                  onClick={() => setMarketFilter(key)}
-                  className="px-4 py-2 hover:bg-[var(--hover)] cursor-pointer"
-                >
-                  {label}
+                  <span className="text-[10px] text-[var(--muted)]">
+                    {t.to}
+                  </span>
+
+                  <div className="flex items-center gap-2">
+
+                    <button
+                      onClick={() =>
+                        setMaxValue(
+                          Math.max(
+                            minValue,
+                            maxValue - 0.05
+                          )
+                        )
+                      }
+                      className="
+                        w-7 h-7
+                        rounded-full
+                        border border-[var(--border)]
+                        bg-[var(--bg)]
+                        hover:bg-[var(--hover)]
+                      "
+                    >
+                      −
+                    </button>
+
+                    <span className="w-12 text-center font-medium">
+                      {Math.round(maxValue * 100)}%
+                    </span>
+
+                    <button
+                      onClick={() =>
+                        setMaxValue(
+                          Math.min(
+                            1,
+                            maxValue + 0.05
+                          )
+                        )
+                      }
+                      className="
+                        w-7 h-7
+                        rounded-full
+                        border border-[var(--border)]
+                        bg-[var(--bg)]
+                        hover:bg-[var(--hover)]
+                      "
+                    >
+                      +
+                    </button>
+
+                  </div>
+
                 </div>
-              ))}
+
+              </div>
+
             </div>
-          )}
-        </div>
 
-        {/* DATE */}
-        <select
-          value={dateFilter}
-          onChange={(e) => setDateFilter(e.target.value)}
-          className="px-3 py-1 rounded text-sm bg-[var(--card)] border border-[var(--border)]"
-        >
-          <option value="TODAY">📅 {t.today}</option>
-          <option value="TODAY_TOMORROW">📅 {t.todayTomorrow}</option>
-          <option value="NEXT_3_DAYS">📅 {t.next3Days}</option>
-          <option value="ALL">🌍 {t.all}</option>
-        </select>
+            {/* ODD */}
+            <div className="flex flex-col gap-1">
 
-        {/* VALUE */}
-        <div className="flex items-center gap-2 text-xs">
-          <span>{t.value}</span>
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={minValue}
-            onChange={(e) => setMinValue(Number(e.target.value))}
-          />
-          <span>{(minValue * 100).toFixed(0)}%</span>
-        </div>
+              <div className="text-sm font-medium">
+                🎲 {t.odds}
+              </div>
 
-        {/* ODD */}
-        <div className="flex items-center gap-1 text-xs">
-          <button onClick={() => setMinOdd(Math.max(1, minOdd - 0.1))}>
-            -
-          </button>
-          <input
-            type="number"
-            value={minOdd}
-            onChange={(e) => setMinOdd(Number(e.target.value))}
-            className="w-12"
-          />
-          <button onClick={() => setMinOdd(minOdd + 0.1)}>+</button>
-        </div>
+              <div className="flex items-center gap-3">
 
-        {/* FLAGS RIGHT */}
-        <div className="flex items-center gap-2 ml-auto">
-{/*           <button onClick={() => changeLang("en")}>
-            <Image src="/flags/gb.svg" alt="EN" width={24} height={24} />
-          </button>
-          <button onClick={() => changeLang("es")}>
-            <Image src="/flags/es.svg" alt="ES" width={24} height={24} />
-          </button> */}
-          <div className="flex items-center gap-2 ml-auto">
+                <div className="flex flex-col">
 
-            <button
-              onClick={() => changeLang("en")}
-              className={`
-                rounded-full p-0.5 transition-all
-                ${lang === "en"
-                  ? "ring-2 ring-[var(--accent)] scale-110"
-                  : "opacity-60 hover:opacity-100"}
-              `}
-            >
-              <Image
-                src="/flags/gb.svg"
-                alt="EN"
-                width={24}
-                height={24}
-                className="rounded-full"
-              />
-            </button>
+                  <span className="text-[10px] text-[var(--muted)]">
+                    {t.from}
+                  </span>
 
-            <button
-              onClick={() => changeLang("es")}
-              className={`
-                rounded-full p-0.5 transition-all
-                ${lang === "es"
-                  ? "ring-2 ring-[var(--accent)] scale-110"
-                  : "opacity-60 hover:opacity-100"}
-              `}
-            >
-              <Image
-                src="/flags/es.svg"
-                alt="ES"
-                width={24}
-                height={24}
-                className="rounded-full"
-              />
-            </button>
+                  <div className="flex items-center gap-2">
+
+                    <button
+                      onClick={() =>
+                        setMinOdd(
+                          Math.max(
+                            1,
+                            Number((minOdd - 0.5).toFixed(1))
+                          )
+                        )
+                      }
+                      className="
+                        w-7 h-7
+                        rounded-full
+                        border border-[var(--border)]
+                        bg-[var(--bg)]
+                        hover:bg-[var(--hover)]
+                      "
+                    >
+                      −
+                    </button>
+
+                    <span className="w-12 text-center font-medium">
+                      {minOdd.toFixed(1)}
+                    </span>
+
+                    <button
+                      onClick={() =>
+                        setMinOdd(
+                          Math.min(
+                            maxOdd,
+                            Number((minOdd + 0.5).toFixed(1))
+                          )
+                        )
+                      }
+                      className="
+                        w-7 h-7
+                        rounded-full
+                        border border-[var(--border)]
+                        bg-[var(--bg)]
+                        hover:bg-[var(--hover)]
+                      "
+                    >
+                      +
+                    </button>
+
+                  </div>
+
+                </div>
+
+                <div className="flex flex-col">
+
+                  <span className="text-[10px] text-[var(--muted)]">
+                    {t.to}
+                  </span>
+
+                  <div className="flex items-center gap-2">
+
+                    <button
+                      onClick={() =>
+                        setMaxOdd(
+                          Math.max(
+                            minOdd,
+                            Number((maxOdd - 0.5).toFixed(1))
+                          )
+                        )
+                      }
+                      className="
+                        w-7 h-7
+                        rounded-full
+                        border border-[var(--border)]
+                        bg-[var(--bg)]
+                        hover:bg-[var(--hover)]
+                      "
+                    >
+                      −
+                    </button>
+
+                    <span className="w-12 text-center font-medium">
+                      {maxOdd.toFixed(1)}
+                    </span>
+
+                    <button
+                      onClick={() =>
+                        setMaxOdd(
+                          Math.min(
+                            20,
+                            Number((maxOdd + 0.5).toFixed(1))
+                          )
+                        )
+                      }
+                      className="
+                        w-7 h-7
+                        rounded-full
+                        border border-[var(--border)]
+                        bg-[var(--bg)]
+                        hover:bg-[var(--hover)]
+                      "
+                    >
+                      +
+                    </button>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
 
           </div>
+
         </div>
 
       </div>
