@@ -15,19 +15,27 @@ from app.services.context import (
 )
 
 
-def calculate_match_probabilities(db, home_team: str, away_team: str, fixture_id: int, league_id: int):
+def calculate_match_probabilities(
+    db,
+    home_team: str,
+    away_team: str,
+    home_team_id: int,
+    away_team_id: int,
+    fixture_id: int,
+    league_id: int
+):
 
-    home_stats = get_team_stats(db, home_team)
-    away_stats = get_team_stats(db, away_team)
+    home_stats = get_team_stats(db, home_team_id, league_id)
+    away_stats = get_team_stats(db, away_team_id, league_id)
 
     if not home_stats or not away_stats:
         return None
 
-    home_split = get_team_stats_split(db, home_team)
-    away_split = get_team_stats_split(db, away_team)
+    home_split = get_team_stats_split(db, home_team_id, league_id)
+    away_split = get_team_stats_split(db, away_team_id, league_id)
 
-    home_recent = get_recent_stats(db, home_team)
-    away_recent = get_recent_stats(db, away_team)
+    home_recent = get_recent_stats(db, home_team_id, league_id)
+    away_recent = get_recent_stats(db, away_team_id, league_id)
 
     # -------------------------
     # ⚖️ PESOS

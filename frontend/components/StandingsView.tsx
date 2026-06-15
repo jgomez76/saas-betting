@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
-import { PRIORITY_LEAGUES } from "@/lib/config/leagues";
 
 type Team = {
   team: string;
@@ -15,13 +14,11 @@ type Team = {
   points: number;
 };
 
-// const PRIORITY_LEAGUES = [
-//   "Premier League",
-//   "La Liga",
-//   "Serie A",
-//   "Bundesliga",
-//   "Ligue 1",
-// ];
+type LeagueGroups = {
+  [group: string]: {
+    [leagueId: string]: string;
+  };
+};
 
 const apiUrl =
   typeof window !== "undefined"
@@ -32,25 +29,35 @@ const apiUrl =
 
 export default function StandingsView() {
   const [isMobile, setIsMobile] = useState(false);
-  const [leagues, setLeagues] = useState<string[]>([]);
-  const [selectedLeague, setSelectedLeague] = useState<string | null>(null);
+
+  const [leagueGroups, setLeagueGroups] = useState<LeagueGroups>({});
+  const [selectedLeagueId, setSelectedLeagueId] = useState<number | null>(null);
+
   const [table, setTable] = useState<Team[]>([]);
   const { t } = useLanguage();
 
   useEffect(() => {
     if (!apiUrl) return;
-    fetch(`${apiUrl}/leagues-selected`)
+
+    fetch(`${apiUrl}/analysis/metadata`)
       .then((res) => res.json())
-      .then(setLeagues);
+      .then((data) => {
+
+        setLeagueGroups(
+          data.league_groups || {}
+        );
+
+      });
+
   }, []);
 
   useEffect(() => {
-    if (!apiUrl || !selectedLeague) return;
+      if (!apiUrl || !selectedLeagueId) return;
 
-    fetch(`${apiUrl}/standings/${selectedLeague}`)
+      fetch(`${apiUrl}/standings/${selectedLeagueId}`)
       .then((res) => res.json())
       .then(setTable);
-  }, [selectedLeague]);
+  }, [selectedLeagueId]);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -59,23 +66,6 @@ export default function StandingsView() {
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
-
-  const sortedLeagues = [...leagues].sort((a, b) => {
-    const aIndex = PRIORITY_LEAGUES.indexOf(a);
-    const bIndex = PRIORITY_LEAGUES.indexOf(b);
-
-    // ambas en prioridad
-    if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
-
-    // solo A en prioridad
-    if (aIndex !== -1) return -1;
-
-    // solo B en prioridad
-    if (bIndex !== -1) return 1;
-
-    // resto alfabético
-    return a.localeCompare(b);
-  });
 
   return (
     <div className="flex flex-col md:flex-row gap-4 w-full">
@@ -86,20 +76,59 @@ export default function StandingsView() {
           🏆 {t.leagues}
         </h2>
 
-        <div className="flex flex-wrap md:block gap-2">
-          {sortedLeagues.map((l) => (
-            <div
-              key={l}
-              onClick={() => setSelectedLeague(l)}
-              className={`px-3 py-2 text-sm rounded cursor-pointer ${
-                selectedLeague === l
-                  ? "bg-[var(--primary)] text-white"
-                  : "hover:bg-[var(--hover)]"
-              }`}
-            >
-              {l}
-            </div>
-          ))}
+        <div className="space-y-4">
+
+          {Object.entries(
+            leagueGroups
+          ).map(
+            ([groupName, leagues]) => (
+
+              <div key={groupName}>
+
+                <h3 className="font-semibold text-sm mb-2 text-[var(--muted)]">
+
+                  {groupName === "Europe" && "🌍"}
+                  {groupName === "America" && "🌎"}
+                  {groupName === "International" && "🌐"}
+
+                  {" "}
+                  {groupName}
+
+                </h3>
+
+                <div className="space-y-1">
+
+                  {Object.entries(
+                    leagues
+                  ).map(
+                    ([id, name]) => (
+
+                      <div
+                        key={id}
+                        onClick={() =>
+                          setSelectedLeagueId(
+                            Number(id)
+                          )
+                        }
+                        className={`px-3 py-2 text-sm rounded cursor-pointer ${
+                          selectedLeagueId === Number(id)
+                            ? "bg-[var(--primary)] text-white"
+                            : "hover:bg-[var(--hover)]"
+                        }`}
+                      >
+                        {name}
+                      </div>
+
+                    )
+                  )}
+
+                </div>
+
+              </div>
+
+            )
+          )}
+
         </div>
       </div>
 
@@ -108,99 +137,6 @@ export default function StandingsView() {
 
         {table.length > 0 && (
           <div className="bg-[var(--card)] rounded-lg border border-[var(--border)] overflow-hidden">
-
-            {/* ================= DESKTOP ================= */}
-            {/* <div className="hidden md:block overflow-x-auto">
-              <table className="w-full text-sm">
-
-                <thead className="bg-[var(--hover)] text-[var(--muted)] text-xs">
-                  <tr>
-                    <th className="px-2 py-2 text-left">#</th>
-                    <th className="px-2 py-2 text-left">{t.team}</th>
-                    <th className="text-center">{t.played}</th>
-                    <th className="text-center">{t.wins}</th>
-                    <th className="text-center">{t.draws}</th>
-                    <th className="text-center">{t.losses}</th>
-                    <th className="text-center">{t.goals}</th>
-                    <th className="text-center">{t.goalDiff}</th>
-                    <th className="text-center">{t.points}</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {table.map((team, i) => (
-                    <tr
-                      key={team.team}
-                      className="border-t border-[var(--border)] hover:bg-[var(--hover)] transition"
-                    >
-                      <td className="px-2 py-2">{i + 1}</td>
-                      <td className="px-2 py-2 font-medium truncate">
-                        {team.team}
-                      </td>
-
-                      <td className="text-center">{team.played}</td>
-                      <td className="text-center">{team.wins}</td>
-                      <td className="text-center">{team.draws}</td>
-                      <td className="text-center">{team.losses}</td>
-
-                      <td className="text-center text-[var(--muted)]">
-                        {team.gf}:{team.ga}
-                      </td>
-
-                      <td className="text-center">
-                        {team.gf - team.ga}
-                      </td>
-
-                      <td className="text-center font-bold">
-                        {team.points}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div> */}
-
-            {/* ================= MOBILE ================= */}
-            {/* <div className="md:hidden overflow-x-auto">
-              <table className="w-full text-sm">
-
-                <thead className="bg-[var(--hover)] text-[var(--muted)] text-xs">
-                  <tr>
-                    <th className="px-2 py-2 text-left">#</th>
-                    <th className="px-2 py-2 text-left">{t.team}</th>
-                    <th className="text-center">{t.played}</th>
-                    <th className="text-center">{t.goals}</th>
-                    <th className="text-center">{t.points}</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {table.map((team, i) => (
-                    <tr
-                      key={team.team}
-                      className="border-t border-[var(--border)] hover:bg-[var(--hover)] transition"
-                    >
-                      <td className="px-2 py-2">{i + 1}</td>
-
-                      <td className="px-2 py-2 font-medium truncate max-w-[120px]">
-                        {team.team}
-                      </td>
-
-                      <td className="text-center">{team.played}</td>
-
-                      <td className="text-center text-[var(--muted)]">
-                        {team.gf}:{team.ga}
-                      </td>
-
-                      <td className="text-center font-bold">
-                        {team.points}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-
-              </table>
-            </div> */}
 
             {!isMobile ? (
               // ================= DESKTOP =================
@@ -301,7 +237,7 @@ export default function StandingsView() {
           </div>
         )}
 
-        {table.length === 0 && (
+        {!selectedLeagueId && (
           <div className="text-center text-sm text-[var(--muted)] mt-10">
             {t.selectLeague}
           </div>

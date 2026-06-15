@@ -36,12 +36,15 @@ def update_odds_only():
             date = today + timedelta(days=i)
 
             print(f"➡️ League {league} | Date {date}")
+            print (get_season(league))
+            
 
             try:
                 fetch_odds(
                     db,
                     league=league,
                     season=get_season(league),  # temporada actual
+                    
                     date=str(date)
                 )
             except Exception as e:

@@ -75,6 +75,8 @@ export default function Home() {
   const { plan, setPlan, isPremium } = useSubscription();
 
   const [view, setView] = useState("dashboard");
+  const [leagueNames, setLeagueNames] = useState<Record<string, string>>({});
+
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
 
@@ -243,6 +245,33 @@ export default function Home() {
 
     return () => cancelAnimationFrame(id);
   }, []);
+
+  useEffect(() => {
+
+    fetch(`${apiUrl}/analysis/metadata`)
+      .then((res) => res.json())
+      .then((data) => {
+
+        const map: Record<string, string> = {};
+
+        Object.values(data.league_groups || {})
+          .forEach((group: unknown) => {
+
+            Object.entries(
+              group as Record<string, string>
+            ).forEach(([id, name]) => {
+
+              map[id] = name;
+
+            });
+
+          });
+
+        setLeagueNames(map);
+
+      });
+
+  }, [apiUrl]);
 
   // ---------------- LOAD DATA ----------------
   const [now, setNow] = useState(() => new Date());
@@ -453,25 +482,25 @@ export default function Home() {
 
   const grouped = useMemo(() => {
     return matches.reduce((acc, match) => {
-      if (!acc[match.league]) {
-        acc[match.league] = [];
+
+      const leagueName =
+        leagueNames[
+          String(match.league_id)
+        ] || match.league;
+
+      if (!acc[leagueName]) {
+        acc[leagueName] = [];
       }
 
-      acc[match.league].push(match);
+      acc[leagueName].push(match);
 
       return acc;
+
     }, {} as Record<string, Match[]>);
-  }, [matches]);
 
-  const leagueIdToName = useMemo(() => {
-    const map: Record<string, string> = {};
+  }, [matches, leagueNames]);
 
-    allMatches.forEach((m) => {
-      map[String(m.league_id)] = m.league;
-    });
-
-    return map;
-  }, [allMatches]);
+ 
 
   // ---------------- RENDER ----------------
 
@@ -492,7 +521,7 @@ export default function Home() {
     }
 
     // 🎯 UNA LIGA → convertir ID a nombre
-    const leagueName = leagueIdToName[value];
+    const leagueName = leagueNames[value];
 
     if (!leagueName) return;
 
@@ -628,7 +657,7 @@ export default function Home() {
                 leagueMatches={leagueMatches}
 
                 isOpen={
-                  openLeagues[league]
+                  openLeagues[league] ?? true
                 }
 
                 toggleLeague={

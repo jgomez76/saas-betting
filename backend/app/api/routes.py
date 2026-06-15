@@ -13,7 +13,7 @@ from pydantic import BaseModel
 
 from app.core.database import SessionLocal
 from app.core.config import (
-    CURRENT_SEASON, 
+    # CURRENT_SEASON, 
     LEAGUES, 
     SELECTED_LEAGUES,
     LEAGUES_ALL,
@@ -22,6 +22,7 @@ from app.core.config import (
     GITHUB_CLIENT_ID,
     GITHUB_CLIENT_SECRET,
     FRONTEND_URL,
+    get_current_season,
 )
 
 from app.core.auth import create_token
@@ -197,9 +198,23 @@ def update_odds(db: Session = Depends(get_db)):
     ]
 
     for league in LEAGUES:
+
+        season = get_current_season(
+            league
+        )
+
         for date in dates:
-            print(f"Fetching odds for league {league} date {date}")
-            data = get_odds_by_date(league, date, CURRENT_SEASON)
+
+            print(
+                f"Fetching odds for league {league} season {season} date {date}"
+            )
+
+            data = get_odds_by_date(
+                league,
+                date,
+                season
+            )
+
             save_odds(db, data)
 
     return {"message": "Odds updated (today + next 2 days)"}
@@ -234,11 +249,25 @@ def get_team_matches(team_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/injuries/update")
-def update_injuries(db: Session = Depends(get_db)):
-    for league in LEAGUES:
-        fetch_injuries(db, league, CURRENT_SEASON)
+def update_injuries(
+    db: Session = Depends(get_db)
+):
 
-    return {"status": "injuries updated"}
+    for league in LEAGUES:
+
+        season = get_current_season(
+            league
+        )
+
+        fetch_injuries(
+            db,
+            league,
+            season
+        )
+
+    return {
+        "status": "injuries updated"
+    }
 
 
 # @router.get("/top-value")
@@ -368,23 +397,46 @@ def get_leagues(db: Session = Depends(get_db)):
     leagues = db.query(Fixture.league).distinct().all()
     return [l[0] for l in leagues]
 
-@router.get("/results/{league}")
-def get_results(league: str, db: Session = Depends(get_db)):
-    return db.query(Fixture).filter(
-        Fixture.league == league,
-        Fixture.status == "FT",
-        Fixture.season == CURRENT_SEASON
-    ).order_by(Fixture.date.desc()).all()
+@router.get("/results/{league_id}")
+def get_results(
+    league_id: int,
+    db: Session = Depends(get_db)
+):
+
+    season = get_current_season(
+        league_id
+    )
+
+    return (
+        db.query(Fixture)
+        .filter(
+            Fixture.league_id == league_id,
+            Fixture.status == "FT",
+            Fixture.season == season
+        )
+        .order_by(Fixture.date.desc())
+        .all()
+    )
 
 
-@router.get("/standings/{league}")
-def get_standings(league: str, db: Session = Depends(get_db)):
-    CURRENT_SEASON = 2025
+@router.get("/standings/{league_id}")
+def get_standings(
+    league_id: int,
+    db: Session = Depends(get_db)
+):
+
+    season = get_current_season(
+        league_id
+    )
 
     fixtures = (
         db.query(Fixture)
-        .filter(Fixture.league == league)
-        .filter(Fixture.season == CURRENT_SEASON)
+        .filter(
+            Fixture.league_id == league_id
+        )
+        .filter(
+            Fixture.season == season
+        )
         .all()
     )
 

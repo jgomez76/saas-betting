@@ -1,0 +1,21 @@
+./backend/app/core/config.py:19:CURRENT_SEASON = 2025
+Binary file ./backend/app/core/__pycache__/config.cpython-311.pyc matches
+Binary file ./backend/app/api/__pycache__/routes.cpython-311.pyc matches
+./backend/app/api/routes.py:16:    CURRENT_SEASON, 
+./backend/app/api/routes.py:202:            data = get_odds_by_date(league, date, CURRENT_SEASON)
+./backend/app/api/routes.py:239:        fetch_injuries(db, league, CURRENT_SEASON)
+./backend/app/api/routes.py:376:        Fixture.season == CURRENT_SEASON
+./backend/app/api/routes.py:384:        Fixture.season == CURRENT_SEASON
+./backend/app/api/routes.py:390:    CURRENT_SEASON = 2025
+./backend/app/api/routes.py:395:        .filter(Fixture.season == CURRENT_SEASON)
+Binary file ./backend/app/services/__pycache__/stats.cpython-311.pyc matches
+./backend/app/services/stats.py:3:from app.core.config import CURRENT_SEASON
+./backend/app/services/stats.py:13:        .filter(Fixture.season == CURRENT_SEASON)\
+./backend/app/services/stats.py:86:        Fixture.season == CURRENT_SEASON
+./backend/app/services/stats.py:92:        Fixture.season == CURRENT_SEASON
+./backend/app/services/stats.py:117:            Fixture.season == CURRENT_SEASON
+./backend/app/services/stats.py:149:            Fixture.season == CURRENT_SEASON
+./backend/app/services/stats.py:187:            Fixture.season == CURRENT_SEASON
+./backend/app/services/stats.py:238:            Fixture.season == CURRENT_SEASON
+./backend/scripts/update_results_err.py:6:from app.core.config import API_FOOTBALL_KEY, LEAGUES, CURRENT_SEASON
+./backend/scripts/update_results_err.py:37:            f"&season={CURRENT_SEASON}"

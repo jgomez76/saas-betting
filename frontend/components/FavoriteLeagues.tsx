@@ -1,74 +1,177 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { LEAGUES } from "@/lib/config/leagues";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 
-export type League = {
-  id: number;
-  name: string;
+type LeagueGroups = {
+  [group: string]: {
+    [leagueId: string]: string;
+  };
 };
 
-// const ALL_LEAGUES: League[] = [
-//   { id: 39, name: "Premier League" },
-//   { id: 140, name: "La Liga" },
-//   { id: 135, name: "Serie A" },
-//   { id: 78, name: "Bundesliga" },
-//   { id: 61, name: "Ligue 1" },
-// ];
+const GROUP_ICONS: Record<string, string> = {
+  Europe: "🌍",
+  America: "🌎",
+  International: "🌐",
+};
 
 export default function FavoriteLeagues() {
-    const { t } = useLanguage();
-    const [selected, setSelected] = useState<number[]>(() => {
+  const { t } = useLanguage();
+
+  const [selected, setSelected] = useState<number[]>(() => {
     if (typeof window === "undefined") return [];
 
-    const saved = localStorage.getItem("fav_leagues");
-    return saved ? JSON.parse(saved) : [];
-    });
+    const saved =
+      localStorage.getItem("fav_leagues");
 
-    // SAVE
-    useEffect(() => {
-        localStorage.setItem("fav_leagues", JSON.stringify(selected));
-    }, [selected]);
+    return saved
+      ? JSON.parse(saved)
+      : [];
+  });
 
-    const toggleLeague = (id: number) => {
-        setSelected((prev) =>
-        prev.includes(id)
-            ? prev.filter((l) => l !== id)
-            : [...prev, id]
+  const [leagueGroups, setLeagueGroups] =
+    useState<LeagueGroups>({});
+
+  const apiUrl =
+    process.env.NEXT_PUBLIC_API_URL ||
+    "http://localhost:8000";
+
+  // -------------------------
+  // SAVE FAVORITES
+  // -------------------------
+
+  useEffect(() => {
+    localStorage.setItem(
+      "fav_leagues",
+      JSON.stringify(selected)
+    );
+  }, [selected]);
+
+  // -------------------------
+  // LOAD LEAGUES
+  // -------------------------
+
+  useEffect(() => {
+    const loadMetadata = async () => {
+      try {
+        const res = await fetch(
+          `${apiUrl}/analysis/metadata`
         );
+
+        if (!res.ok) {
+          console.error(
+            "Error loading metadata"
+          );
+          return;
+        }
+
+        const data = await res.json();
+
+        setLeagueGroups(
+          data.league_groups || {}
+        );
+      } catch (err) {
+        console.error(
+          "Error loading league groups",
+          err
+        );
+      }
     };
 
-    return (
-        <div className="space-y-4">
+    loadMetadata();
+  }, [apiUrl]);
 
-        <h2 className="font-bold text-sm text-[var(--muted)] uppercase">
-            🏆 {t.favoriteLeagues}
-        </h2>
-
-        <div className="grid grid-cols-2 gap-2">
-            {LEAGUES.map((league) => {
-            const active = selected.includes(league.id);
-
-            return (
-                <button
-                key={league.id}
-                onClick={() => toggleLeague(league.id)}
-                className={`
-                    p-3 rounded-lg border text-sm transition
-                    ${
-                    active
-                        ? "bg-[var(--accent)] text-white border-transparent"
-                        : "bg-[var(--card)] border-[var(--border)] hover:bg-[var(--hover)]"
-                    }
-                `}
-                >
-                {league.name}
-                </button>
-            );
-            })}
-        </div>
-
-        </div>
+  const toggleLeague = (id: number) => {
+    setSelected((prev) =>
+      prev.includes(id)
+        ? prev.filter((l) => l !== id)
+        : [...prev, id]
     );
+  };
+
+  return (
+    <div className="space-y-4">
+
+      <h2 className="font-bold text-sm text-[var(--muted)] uppercase">
+        🏆 {t.favoriteLeagues}
+      </h2>
+
+      <div className="space-y-6">
+
+        {Object.entries(
+          leagueGroups
+        ).map(
+          ([groupName, leagues]) => (
+
+            <div
+              key={groupName}
+              className="space-y-3"
+            >
+
+              <h3 className="font-semibold text-lg">
+                {
+                  GROUP_ICONS[
+                    groupName
+                  ] || "🏆"
+                }{" "}
+                {groupName}
+              </h3>
+
+              <div className="grid grid-cols-2 gap-2">
+
+                {Object.entries(
+                  leagues
+                ).map(
+                  ([
+                    leagueId,
+                    leagueName,
+                  ]) => {
+
+                    const id =
+                      Number(
+                        leagueId
+                      );
+
+                    const active =
+                      selected.includes(
+                        id
+                      );
+
+                    return (
+
+                      <button
+                        key={
+                          leagueId
+                        }
+                        onClick={() =>
+                          toggleLeague(
+                            id
+                          )
+                        }
+                        className={`
+                          p-3 rounded-lg border text-sm transition
+                          ${
+                            active
+                              ? "bg-[var(--accent)] text-white border-transparent"
+                              : "bg-[var(--card)] border-[var(--border)] hover:bg-[var(--hover)]"
+                          }
+                        `}
+                      >
+                        {leagueName}
+                      </button>
+
+                    );
+                  }
+                )}
+
+              </div>
+
+            </div>
+          )
+        )}
+
+      </div>
+
+    </div>
+  );
 }

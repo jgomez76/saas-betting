@@ -78,10 +78,51 @@ LEAGUES_AMERICA = list(
     LEAGUES_ALL["America"].keys()
 )
 
+LEAGUES_INTERNATIONAL = list(
+    LEAGUES_ALL["International"].keys()
+)
+
+
 LEAGUES = (
     LEAGUES_EUROPE +
-    LEAGUES_AMERICA
+    LEAGUES_AMERICA +
+    LEAGUES_INTERNATIONAL
 )
+
+
+CURRENT_SEASON_BY_LEAGUE = {
+
+    # EUROPE
+    39: 2025,   # Premier League
+    61: 2025,   # Ligue 1
+    78: 2025,   # Bundesliga
+    88: 2025,   # Eredivisie
+    94: 2025,   # Primeira Liga
+    144: 2025,  # Jupiler
+
+    135: 2025,  # Serie A
+    140: 2025,  # La Liga EA Sports
+    141: 2025,  # La Liga Hypermotion
+
+    # AMERICA
+    71: 2025,   # Brasileirao
+    128: 2025,  # Argentina
+    253: 2026,  # MLS
+    262: 2026,  # Liga MX
+    268: 2025,  # Uruguay
+
+    # INTERNATIONAL
+    1: 2026,    # World Cup
+}
+
+# helper current season
+
+
+def get_current_season(league_id: int):
+    return CURRENT_SEASON_BY_LEAGUE.get(
+        league_id,
+        CURRENT_SEASON
+    )
 
 LEAGUES_BY_TOKEN = {
 
@@ -106,6 +147,8 @@ LEAGUES_BY_TOKEN = {
         11,
     ]
 }
+
+
 
 # ---------------- OAUTH ----------------
 

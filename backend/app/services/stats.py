@@ -1,8 +1,10 @@
 from sqlalchemy.orm import Session
 from app.models.fixture import Fixture
-from app.core.config import CURRENT_SEASON
+from app.core.config import get_current_season
 
-def get_team_stats(db: Session, team_id: int):
+def get_team_stats(db: Session, team_id: int, league_id: int):
+
+    season = get_current_season(league_id)
 
     matches = db.query(Fixture)\
         .filter(
@@ -10,7 +12,7 @@ def get_team_stats(db: Session, team_id: int):
             (Fixture.away_team_id == team_id)
         )\
         .filter(Fixture.status.in_(["FT", "AET", "PEN"]))\
-        .filter(Fixture.season == CURRENT_SEASON)\
+        .filter(Fixture.season == season)\
         .all()
 
     if not matches:
@@ -59,7 +61,7 @@ def get_team_stats(db: Session, team_id: int):
 
     total = len(matches)
 
-    form = get_team_form(db, team_id)
+    form = get_team_form(db, team_id, league_id)
 
     return {
         "matches": total,
@@ -79,17 +81,21 @@ def get_team_stats(db: Session, team_id: int):
     }
 
 ## Paso 3, Home/Away Split
-def get_team_stats_split(db: Session, team_id: int):
+def get_team_stats_split(db: Session, team_id: int, league_id: int):
+    season = get_current_season(
+        league_id
+    )
+
     home_matches = db.query(Fixture).filter(
         Fixture.home_team_id == team_id,
         Fixture.status == "FT",
-        Fixture.season == CURRENT_SEASON
+        Fixture.season == season
     ).all()
 
     away_matches = db.query(Fixture).filter(
         Fixture.away_team_id == team_id,
         Fixture.status == "FT",
-        Fixture.season == CURRENT_SEASON
+        Fixture.season == season
     ).all()
 
     # HOME
@@ -108,13 +114,16 @@ def get_team_stats_split(db: Session, team_id: int):
     }
 
 ## Paso 4, forma reciente
-def get_recent_stats(db: Session, team_id: int, limit: int = 5):
+def get_recent_stats(db: Session, team_id: int, league_id: int, limit: int = 5):
+    season = get_current_season(
+        league_id
+    )
     matches = (
         db.query(Fixture)
         .filter(
             ((Fixture.home_team_id == team_id) | (Fixture.away_team_id == team_id)),
             Fixture.status == "FT",
-            Fixture.season == CURRENT_SEASON
+            Fixture.season == season
         )
         .order_by(Fixture.date.desc())
         .limit(limit)
@@ -140,13 +149,16 @@ def get_recent_stats(db: Session, team_id: int, limit: int = 5):
         "conceded_avg": goals_conceded / len(matches),
     }
 
-def get_team_form(db: Session, team_id: int, limit: int = 5):
+def get_team_form(db: Session, team_id: int, league_id: int, limit: int = 5):
+    season = get_current_season(
+        league_id
+    )
     matches = (
         db.query(Fixture)
         .filter(
             ((Fixture.home_team_id == team_id) | (Fixture.away_team_id == team_id)),
             Fixture.status.in_(["FT", "AET", "PEN"]),
-            Fixture.season == CURRENT_SEASON
+            Fixture.season == season
         )
         .order_by(Fixture.date.desc())
         .limit(limit)
@@ -177,14 +189,18 @@ def get_team_form(db: Session, team_id: int, limit: int = 5):
     # 🔥 importante → orden correcto (más antiguo → más reciente)
     return form[::-1]
 
-def get_team_advanced_stats(db: Session, team_id: int):
+def get_team_advanced_stats(db: Session, team_id: int, league_id: int):
+
+    season = get_current_season(
+        league_id
+    )
 
     matches = db.query(Fixture)\
         .filter(
             (Fixture.home_team_id == team_id) |
             (Fixture.away_team_id == team_id),
             Fixture.status.in_(["FT", "AET", "PEN"]),
-            Fixture.season == CURRENT_SEASON
+            Fixture.season == season
         )\
         .all()
 
@@ -230,12 +246,15 @@ def get_team_advanced_stats(db: Session, team_id: int):
     }
 
 def get_league_stats(db: Session, league_id: int):
+    season = get_current_season(
+        league_id
+    )
 
     matches = db.query(Fixture)\
         .filter(
             Fixture.league_id == league_id,
             Fixture.status.in_(["FT", "AET", "PEN"]),
-            Fixture.season == CURRENT_SEASON
+            Fixture.season == season
         )\
         .all()
 

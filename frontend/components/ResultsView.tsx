@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 // import { API_URL } from "@/lib/api";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
-import { PRIORITY_LEAGUES } from "@/lib/config/leagues";
 
 // ---------------- TYPES ----------------
 
@@ -18,6 +17,12 @@ type Match = {
   round: string;
 };
 
+type LeagueGroups = {
+  [group: string]: {
+    [leagueId: string]: string;
+  };
+};
+
 const apiUrl =
   typeof window !== "undefined"
     ? window.location.hostname === "localhost"
@@ -29,30 +34,40 @@ const apiUrl =
 export default function ResultsView() {
   const { t } = useLanguage();
   const [matches, setMatches] = useState<Match[]>([]);
-  const [selectedLeague, setSelectedLeague] = useState<string | null>(null);
-  const [leagues, setLeagues] = useState<string[]>([]);
+
+  const [selectedLeagueId, setSelectedLeagueId] = useState<number | null>(null);
+  const [leagueGroups, setLeagueGroups] = useState<LeagueGroups>({});
 
   // ---------------- FETCH LIGAS ----------------
 
   useEffect(() => {
     if (!apiUrl) return;
-    fetch(`${apiUrl}/leagues-selected`)
+
+    fetch(`${apiUrl}/analysis/metadata`)
       .then((res) => res.json())
-      .then(setLeagues);
+      .then((data) => {
+
+        setLeagueGroups(
+          data.league_groups || {}
+        );
+
+      });
+
   }, []);
 
   // ---------------- FETCH PARTIDOS ----------------
 
   useEffect(() => {
     if (!apiUrl) return;
-    if (!selectedLeague) return;
+    if (!selectedLeagueId) return;
 
-    fetch(`${apiUrl}/results/${selectedLeague}`)
+    fetch(`${apiUrl}/results/${selectedLeagueId}`)
       .then((res) => res.json())
       .then((data: Match[]) => {
         setMatches(data);
       });
-  }, [selectedLeague]);
+
+  }, [selectedLeagueId]);
 
   // ---------------- HELPERS ----------------
 
@@ -92,22 +107,6 @@ export default function ResultsView() {
 
   // ---------------- UI ----------------
 
- const sortedLeagues = [...leagues].sort((a, b) => {
-    const aIndex = PRIORITY_LEAGUES.indexOf(a);
-    const bIndex = PRIORITY_LEAGUES.indexOf(b);
-
-    // ambas en prioridad
-    if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
-
-    // solo A en prioridad
-    if (aIndex !== -1) return -1;
-
-    // solo B en prioridad
-    if (bIndex !== -1) return 1;
-
-    // resto alfabético
-    return a.localeCompare(b);
-  });   
 
 return (
   <div className="flex flex-col md:flex-row gap-4 w-full">
@@ -118,21 +117,58 @@ return (
       <h2 className="mb-3 font-bold text-[var(--primary)] text-sm">🏆 {t.leagues}</h2>
 
       {/* 🔥 WRAP en vez de scroll */}
-      <div className="flex flex-wrap md:block gap-2">
+      <div className="space-y-4">
 
-        {sortedLeagues.map((l) => (
-          <div
-            key={l}
-            onClick={() => setSelectedLeague(l)}
-            className={`p-2 px-3 text-sm rounded cursor-pointer transition ${
-              selectedLeague === l
-                ? "bg-[var(--primary)] text-white"
-                : "bg-[var(--card)] hover:bg-[var(--hover)]"
-            }`}
-          >
-            {l}
-          </div>
-        ))}
+        {Object.entries(
+          leagueGroups
+        ).map(
+          ([groupName, leagues]) => (
+
+            <div key={groupName}>
+
+              <h3 className="font-semibold text-sm mb-2 text-[var(--muted)]">
+
+                {groupName === "Europe" && "🌍"}
+                {groupName === "America" && "🌎"}
+                {groupName === "International" && "🌐"}
+
+                {" "}
+                {groupName}
+
+              </h3>
+
+              <div className="space-y-1">
+
+                {Object.entries(
+                  leagues
+                ).map(
+                  ([id, name]) => (
+
+                    <div
+                      key={id}
+                      onClick={() =>
+                        setSelectedLeagueId(
+                          Number(id)
+                        )
+                      }
+                      className={`p-2 px-3 text-sm rounded cursor-pointer transition ${
+                        selectedLeagueId === Number(id)
+                          ? "bg-[var(--primary)] text-white"
+                          : "hover:bg-[var(--hover)]"
+                      }`}
+                    >
+                      {name}
+                    </div>
+
+                  )
+                )}
+
+              </div>
+
+            </div>
+
+          )
+        )}
 
       </div>
     </div>
@@ -140,13 +176,13 @@ return (
     {/* 📊 RESULTADOS */}
     <div className="flex-1 w-full">
 
-      {!selectedLeague && (
+      {!selectedLeagueId && (
         <div className="text-center text-[var(--muted)] text-sm mt-10">
           {t.selectLeague}
         </div>
       )}
 
-      {selectedLeague && matches.length === 0 && (
+      {selectedLeagueId && matches.length === 0 && (
         <div className="text-center text-[var(--muted)] text-sm mt-10">
           {t.noResults}
         </div>

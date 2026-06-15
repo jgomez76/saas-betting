@@ -153,10 +153,14 @@ def get_value_bets(db: Session, limit=50):
         # -----------------------------
         # PROBABILIDADES 1X2
         # -----------------------------
+    
+
         probs = calculate_match_probabilities(
             db, 
-            match.home_team, 
+            match.home_team,
             match.away_team,
+            match.home_team_id, 
+            match.away_team_id,
             match.api_id,
             match.league_id
         )
@@ -167,9 +171,11 @@ def get_value_bets(db: Session, limit=50):
         # -----------------------------
         # STATS EXTRA
         # -----------------------------
+
+
         if match.home_team_id and match.away_team_id:
-            home_stats = get_team_stats(db, match.home_team_id)
-            away_stats = get_team_stats(db, match.away_team_id)
+            home_stats = get_team_stats(db, match.home_team_id, match.league_id)
+            away_stats = get_team_stats(db, match.away_team_id, match.league_id)
         else:
             home_stats = None
             away_stats = None
@@ -179,6 +185,14 @@ def get_value_bets(db: Session, limit=50):
         else:
             extra_probs = None
 
+        if match.league_id == 1:
+            print(
+                "WORLD CUP",
+                match.home_team,
+                home_stats["matches"],
+                match.away_team,
+                away_stats["matches"]
+            )
         # -----------------------------
         # ODDS
         # -----------------------------
@@ -186,6 +200,7 @@ def get_value_bets(db: Session, limit=50):
 
         if not markets.get("1X2") or not any(markets["1X2"].values()):
             continue
+
 
         # print("ODDS:", markets)
 
