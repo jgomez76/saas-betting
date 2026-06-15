@@ -2,12 +2,15 @@ import time
 from datetime import datetime, timedelta
 
 from app.core.database import SessionLocal
+
 from app.services.fixtures import fetch_fixtures
 from app.services.odds import fetch_odds
 from app.services.injuries import fetch_injuries
-from app.core.config import LEAGUES
-from app.services.league_season import get_season
 
+from app.core.config import (
+    LEAGUES,
+    get_current_season
+)
 
 # -----------------------------
 # CONFIG
@@ -19,73 +22,108 @@ DAYS_AHEAD = 1  # hoy + 1 día
 # RATE LIMIT CONTROL
 # -----------------------------
 def wait():
-    time.sleep(7)  # 🔥 evita superar 10 calls/min
+    time.sleep(7)  # evita superar 10 calls/min
 
 
 # -----------------------------
 # MAIN UPDATE
 # -----------------------------
 def update_data():
+
     db = SessionLocal()
 
     today = datetime.utcnow().date()
 
     print("🚀 START UPDATE:", datetime.utcnow())
 
-    # -----------------------------
-    # 1. FIXTURES
-    # -----------------------------
-    print("\n📅 Updating fixtures...")
+    try:
 
-    for league in LEAGUES:
-        season = get_season(league)  # temporada actual
-        # for season in get_season(league):
+        # -----------------------------
+        # 1. FIXTURES
+        # -----------------------------
+        print("\n📅 Updating fixtures...")
 
-        print(f"➡️ League {league} | Season {season}")
+        for league in LEAGUES:
 
-        fetch_fixtures(db, league, season)
+            season = get_current_season(
+                league
+            )
 
-        wait()
+            print(
+                f"➡️ Fixtures | League {league} | Season {season}"
+            )
 
-    # -----------------------------
-    # 2. ODDS (solo próximos días)
-    # -----------------------------
-    print("\n💰 Updating odds...")
-
-    for league in LEAGUES:
-        for i in range(DAYS_AHEAD + 1):
-            date = today + timedelta(days=i)
-
-            print(f"➡️ Odds League {league} | Date {date}")
-
-            fetch_odds(
+            fetch_fixtures(
                 db,
-                league=league,
-                season=get_season(league),  # temporada actual
-                date=str(date)
+                league,
+                season
             )
 
             wait()
 
-    # -----------------------------
-    # 3. INJURIES
-    # -----------------------------
-    print("\n🏥 Updating injuries...")
+        # -----------------------------
+        # 2. ODDS
+        # -----------------------------
+        print("\n💰 Updating odds...")
 
-    for league in LEAGUES:
-        print(f"➡️ Injuries League {league}")
+        for league in LEAGUES:
 
-        fetch_injuries(
-            db,
-            league=league,
-            season=get_season(league)
-        )
+            season = get_current_season(
+                league
+            )
 
-        wait()
+            for i in range(
+                DAYS_AHEAD + 1
+            ):
 
-    db.close()
+                date = today + timedelta(
+                    days=i
+                )
 
-    print("\n✅ UPDATE FINISHED:", datetime.utcnow())
+                print(
+                    f"➡️ Odds | League {league} | Season {season} | Date {date}"
+                )
+
+                fetch_odds(
+                    db,
+                    league=league,
+                    season=season,
+                    date=str(date)
+                )
+
+                wait()
+
+        # -----------------------------
+        # 3. INJURIES
+        # -----------------------------
+        print("\n🏥 Updating injuries...")
+
+        for league in LEAGUES:
+
+            season = get_current_season(
+                league
+            )
+
+            print(
+                f"➡️ Injuries | League {league} | Season {season}"
+            )
+
+            fetch_injuries(
+                db,
+                league=league,
+                season=season
+            )
+
+            wait()
+
+    finally:
+
+        db.close()
+
+    print(
+        "\n✅ UPDATE FINISHED:",
+        datetime.utcnow()
+    )
 
 
 # -----------------------------

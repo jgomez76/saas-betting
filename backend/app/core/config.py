@@ -90,7 +90,7 @@ LEAGUES = (
 )
 
 
-CURRENT_SEASON_BY_LEAGUE = {
+""" CURRENT_SEASON_BY_LEAGUE = {
 
     # EUROPE
     39: 2025,   # Premier League
@@ -114,9 +114,12 @@ CURRENT_SEASON_BY_LEAGUE = {
     # INTERNATIONAL
     1: 2026,    # World Cup
 }
-
+ """
 # helper current season
 
+from app.core.league_seasons_cache import (
+    CURRENT_SEASON_BY_LEAGUE
+)
 
 def get_current_season(league_id: int):
     return CURRENT_SEASON_BY_LEAGUE.get(
