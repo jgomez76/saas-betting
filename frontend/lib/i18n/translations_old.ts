@@ -1,0 +1,768 @@
+export type Translation = typeof translations["en"];
+
+export const translations = {
+  en: {
+    topPicks: "Top Picks",
+    myBets: "My Bets",
+    pending: "Pending",
+    finished: "Finished",
+    today: "Today",
+    yesterday: "Yesterday",
+    stake: "Stake",
+    profit: "Profit",
+    delete: "Delete",
+    settings: "Settings",
+    language: "Language",
+    oneFreePick: "1 free pick",
+    upgrade: "See more picks",
+    probability: "probability",
+    tier: {
+      high: "HIGH CONFIDENCE",
+      medium: "MEDIUM",
+      low: "RISKY",
+    },
+    unlockPremium: "Unlock premium picks",
+    user: "User",
+    admin: "Admin",
+    profile: "Profile",
+    leagues: "Leagues",
+    markets: "Markets",
+    all: "All",
+    todayTomorrow: "Today + Tomorrow",
+    next3Days: "Next 3 days",
+    value: "Value",
+    odd: "Odd",
+    allDates: "All dates",
+    weekProfit: "Week €",
+    weekROI: "Week ROI",
+    monthProfit: "Month €",
+    monthROI: "Month ROI",
+    evolution: "Evolution",
+    cumulativeProfit: "Cumulative profit",
+    total: "Total",
+    day: "Day",
+    won: "Won",
+    lost: "Lost",
+    deleteBet: "Delete bet",
+    confirmDelete: "Are you sure you want to delete this bet?",
+    home: "Home",
+    draw: "Draw",
+    away: "Away",
+
+    over25: "Over 2.5 goals",
+    under25: "Under 2.5 goals",
+
+    over35: "Over 3.5 goals",
+    under35: "Under 3.5 goals",
+
+    bttsYes: "Both teams to score - Yes",
+    bttsNo: "Both teams to score - No",
+    favoriteLeagues: "Favorite leagues",
+
+    register: "Create account",
+    forgotPassword: "Recover password",
+
+    email: "Email",
+    password: "Password",
+
+    continueWithGoogle: "Continue with Google",
+    continueWithGithub: "Continue with GitHub",
+
+    forgotPasswordQuestion: "Forgot your password?",
+
+    sendEmail: "Send email",
+
+    noAccount: "Don't have an account?",
+    haveAccount: "Already have an account?",
+    signUp: "Sign up",
+
+    backToLogin: "Back to login",
+
+    fillAllFields: "Fill all fields",
+    invalidCredentials: "Invalid credentials",
+    verifyEmailFirst: "You must verify your email before logging in",
+    unexpectedError: "Unexpected error",
+    connectionError: "Connection error",
+    accountCreatedCheckEmail: "📧 Check your email to verify your account",
+    emailSentRecovery: "📧 We sent you a recovery email",
+    emailSentIfExists: "📧 If the email exists, you will receive a link",
+    accountAlreadyVerified: "✅ Your account is already verified",
+    networkError: "❌ Network error. Check your connection",
+    registerError: "Could not create account",
+    enterEmail: "Enter your email",
+    sendEmailError: "Error sending email",
+    resendVerification: "Resend verification email",
+
+    name: "Name",
+    changeAvatar: "Change avatar",
+
+    plan: "Plan",
+    provider: "Provider",
+    emailProvider: "Email",
+
+    currentPassword: "Current password",
+
+    editProfile: "Edit profile",
+
+    saving: "Saving...",
+    save: "Save",
+    savePassword: "Save password",
+
+    uploadAvatarError: "Error uploading avatar",
+    updateProfileError: "Error updating profile",
+    saveError: "Error saving changes",
+    profileUpdated: "Profile updated successfully",
+
+    error: "Error",
+    round: "Round",
+    noRound: "No round info",
+    selectLeague: "Select a league",
+    noResults: "No results available",
+    appearance: "Appearance",
+    freeThemes: "Free themes",
+    premiumThemes: "Premium themes",
+    preferences: "Preferences",
+    english: "English",
+    spanish: "Spanish",
+    manage: "Manage",
+    pro: "PRO",
+    stakeSettings: "Stake settings",
+    stakeDescription: "Define how much to bet based on odds. Higher odds → lower stake, lower odds → higher stake.",
+
+    highOddsHighRisk: "High odds (higher risk)",
+    mediumOdds: "Medium odds",
+    lowOddsSafe: "Low odds (safer)",
+
+    amount: "Amount",
+    minOdds: "Minimum odds",
+    maxOdds: "Maximum odds",
+
+    autoApplyStake: "Will be applied automatically when placing bets",
+    reset: "Reset to default",
+
+    settingsSaved: "Settings saved",
+    dashboard: "Dashboard",
+    analysis: "Analysis",
+    results: "Results",
+    standings: "Standings",
+    team: "Team",
+    played: "Played",
+    goals: "Goals",
+    points: "Pts",
+    wins: "W",
+    draws: "D",
+    losses: "L",
+    goalDiff: "GD",
+    topValueBets: "Top Value Bets",
+    loadingTopBets: "Loading top bets...",
+    selectAtLeastOne: "Select at least one bet",
+    processing: "Processing...",
+    downloaded: "Downloaded",
+    sent: "Sent",
+    selectAll: "Select all",
+    deselectAll: "Deselect all",
+    selectedCount: "selected",
+    match: "Match",
+    market: "Market",
+    pick: "Pick",
+    book: "Book",
+    oddMin: "Min odd",
+    oddMax: "Max odd",
+    valueMin: "Min value %",
+    valueMax: "Max value %",
+    bets: "Bets",
+    bestMarket: "Best market",
+    avoidLeague: "Avoid league",
+    win: "WIN",
+    loss: "LOSS",
+    pendingUpper: "PENDING",
+
+    google: "Google",
+    github: "GitHub",
+    resetError: "Error resetting password",
+    verifyingAccount: "Verifying account...",
+    accountVerified: "Account verified",
+    youCanLogin: "You can now log in",
+    invalidOrExpiredLink: "Invalid or expired link",
+    notLoggedIn: "You are not logged in",
+    myAccount: "My account",
+    deactivateAccount: "Deactivate account",
+    accountDeactivated: "Account deactivated",
+    // GENERAL
+    menu: "Menu",
+    close: "Close",
+    cancel: "Cancel",
+    confirm: "Confirm",
+
+    // PLANES
+    free: "Free",
+    premium: "Premium",
+
+    // DASHBOARD
+    loadingMatches: "Loading matches...",
+    matches: "matches",
+    vs: "vs",
+
+    // PICKS
+    nextPicksIn: "New picks in",
+    noMorePicks: "No more picks available",
+    picksLoading: "Loading today's picks...",
+    picksFinished: "All picks for today have been settled",
+    noPicksToday: "No picks met our value standards today",
+    picksAvailable: "Today's picks are now available",
+
+    // BETS
+    confirmBet: "Confirm bet",
+    recommendedStake: "Recommended stake",
+
+    // AUTH / ACCOUNT
+    login: "Login",
+    logout: "Logout",
+    account: "My account",
+    notLogged: "You are not logged in",
+    loading: "Loading...",
+
+    // VERIFY / RESET
+    verifying: "Verifying account...",
+    verified: "Account verified",
+    verificationError: "Verification error",
+    invalidLink: "The link is invalid or expired",
+    newPassword: "New password",
+    changePassword: "Change password",
+    passwordUpdated: "Password updated",
+    goToLogin: "Go to login",
+
+    // EXTRA FUTURO
+    back: "Back",
+    deleteAccount: "Delete account",
+    confirmDeleteAccount: "Are you sure you want to delete your account?",
+    deleteSuccess: "Account deleted",
+    deleteError: "Error deleting account",
+    favoriteMatches: "Favorites Matches",
+    // STATS
+    statistics: "Statistics",
+    avgGoals: "Goals",
+    conceded: "Conceded",
+    winRate: "Win rate",
+    form: "Form",
+    accountDeleted: "Your account has been deleted",
+    errorDeletingAccount: "Something went wrong while deleting your account",
+    premiumComingSoon: "Premium features coming soon 🚀",
+    upgradeToPremium: "Upgrade to Premium",
+    premiumActive: "Premium active",
+    deleteWarning: "This action cannot be undone.",
+    typeDelete: "Type DELETE to confirm",
+    accountDisabled: "Your account is disabled",
+    reactivateAccount: "Reactivate account",
+    accountReactivated: "Account reactivated successfully",
+    emailSentReactivation: "We’ve sent you an email to reactivate your account",
+
+    // ANALYSIS CENTER
+    analysisCenter: "Analysis Center",
+    advancedAnalytics: "Advanced football and betting analytics",
+
+    bettingAnalytics: "Betting Analytics",
+    teamAnalysis: "Team Analysis",
+    h2hAnalysis: "H2H Analysis",
+    matchAnalysis: "Match Analysis",
+
+    advancedPreMatchAnalysis: "Advanced pre-match betting analysis",
+    historicalTeamPerformance: "Historical team performance and trends",
+
+    selectTeam: "Select team",
+    selectOpponent: "Select opponent",
+    selectFixture: "Select fixture",
+
+    allSeasons: "All seasons",
+
+    recentForm: "Recent form",
+
+    homePerformanceStats: "Home performance stats",
+    awayPerformanceStats: "Away performance stats",
+
+    goalsScored: "Goals scored",
+    goalsConceded: "Goals conceded",
+
+    cleanSheets: "Clean sheets",
+
+    marketConfidence: "Market Confidence",
+    confidenceEngine: "Confidence engine based on historical data",
+
+    valueOpportunities: "Value Opportunities",
+    realValueDetected: "Real value detected using bookmaker odds",
+
+    smartInsights: "Smart Insights",
+    autoGeneratedInsights: "Automatically generated betting insights",
+
+    recommendedMarkets: "Recommended Markets",
+
+    marketOdds: "Market Odds",
+    fairOdds: "Fair Odds",
+
+    valueEdge: "Value Edge",
+
+    veryStrong: "Very Strong",
+    strong: "Strong",
+    medium: "Medium",
+    low: "Low",
+
+    loadingAnalysis: "Loading analysis...",
+    stat: "Stat",
+    strongAttack: "Strong attack",
+    goalTrends: "Goal trends",
+    defensiveProfile: "Defensive profile",
+    matchesAnalyzed: "matches analyzed",
+    average: "Avg",
+    goalsTrend: "Goals Trend",
+    strongAttackDescription: "Scores {value} goals per match",
+    goalTrendsDescription: "{value}% Over 2.5 matches",
+    defensiveProfileDescription: "{value}% clean sheets",
+    h2hStatistics: "Head to head statistics and trends",
+    team1: "Team 1",
+    team2: "Team 2",
+    loadingH2HAnalysis: "Loading H2H analysis...",
+    historicalMatches: "historical matches",
+    winsLabel: "wins",
+    drawLabel: "draws",
+    avgGoalsLabel: "Avg goals",
+    recentH2H: "Recent H2H",
+    latestClashes: "Latest historical clashes",
+    loadingMatchAnalysis: "Loading match analysis...",
+    advancedBettingInsights: "Advanced betting insights and trends",
+    noDataAvailable: "No data available",
+    teamNotInSeason: "This team did not play in the selected season.",
+    noH2HDataAvailable: "No H2H data available",
+    teamsNeverFaced: "These teams have not faced each other in the available database.",
+    odds: "Odds",
+    from: "From",
+    to: "To",
+    notEnoughHistoricalData: "There is not enough historical data to generate a complete match analysis.",
+    // BETS MODAL
+
+    filters: "Filters",
+    clearFilters: "Clear",
+
+    allStatuses: "All",
+    allLeagues: "All leagues",
+    allStakes: "All stakes",
+    allPicks: "All picks",
+
+    wonBets: "Won",
+    lostBets: "Lost",
+    pendingBets: "Pending",
+
+    advancedAnalyticsTitle: "Advanced Analytics",
+    analyticsDescription:
+      "Statistics calculated using the currently selected filters.",
+
+    bestPick: "Best Pick",
+    worstPick: "Worst Pick",
+
+    bestLeague: "Best League",
+    worstLeague: "Worst League",
+
+    performanceByPick: "Performance by Pick",
+    performanceByLeague: "Performance by League",
+
+    betHistory: "Bet History",
+
+    betsShort: "Bets",
+    league: "League",
+
+    bet: "bet",
+
+    betShort: "bet",
+    betsShortPlural: "bets",
+
+    smallSample: "Small sample",
+
+    last7Days: "Last 7 days",
+    last30Days: "Last 30 days",
+    thisMonth: "This month",
+    lastMonth: "Previous month",
+    thisYear: "This year",
+  },
+
+  es: {
+    topPicks: "Top Picks",
+    myBets: "Mis Apuestas",
+    pending: "Pendiente",
+    finished: "Finalizadas",
+    today: "Hoy",
+    yesterday: "Ayer",
+    stake: "Stake",
+    profit: "Beneficio",
+    delete: "Eliminar",
+    settings: "Ajustes",
+    oneFreePick: "1 pick gratis",
+    upgrade: "Ver más picks",
+    probability: "probabilidad",
+    tier: {
+      high: "ALTA CONFIANZA",
+      medium: "MEDIA",
+      low: "ARRIESGADA",
+    },
+    unlockPremium: "Desbloquea picks premium",
+    user: "Usuario",
+    admin: "Admin",
+    profile: "Perfil",
+    leagues: "Ligas",
+    markets: "Mercados",
+    all: "Todas",
+    todayTomorrow: "Hoy + mañana",
+    next3Days: "Próx. 3 días",
+    value: "Value",
+    odd: "Cuota",
+    allDates: "Todas las fechas",
+    weekProfit: "Semana €",
+    weekROI: "Semana ROI",
+    monthProfit: "Mes €",
+    monthROI: "Mes ROI",
+    evolution: "Evolución",
+    cumulativeProfit: "Beneficio acumulado",
+    total: "Total",
+    day: "Día",
+    won: "Ganada",
+    lost: "Perdida",
+    deleteBet: "Eliminar apuesta",
+    confirmDelete: "¿Seguro que quieres eliminar esta apuesta?",
+    home: "Local",
+    draw: "Empate",
+    away: "Visitante",
+
+    over25: "Más de 2.5 goles",
+    under25: "Menos de 2.5 goles",
+
+    over35: "Más de 3.5 goles",
+    under35: "Menos de 3.5 goles",
+
+    bttsYes: "Ambos marcan - Sí",
+    bttsNo: "Ambos marcan - No",
+    favoriteLeagues: "Ligas favoritas",
+
+    register: "Crear cuenta",
+    forgotPassword: "Recuperar contraseña",
+
+    email: "Email",
+    password: "Contraseña",
+
+    continueWithGoogle: "Continuar con Google",
+    continueWithGithub: "Continuar con GitHub",
+
+    forgotPasswordQuestion: "¿Olvidaste tu contraseña?",
+
+    sendEmail: "Enviar email",
+
+    noAccount: "¿No tienes cuenta?",
+    haveAccount: "¿Ya tienes cuenta?",
+    signUp: "Regístrate",
+
+    backToLogin: "Volver al login",
+
+    fillAllFields: "Completa todos los campos",
+    invalidCredentials: "Credenciales incorrectas",
+    verifyEmailFirst: "Debes verificar tu email antes de iniciar sesión",
+    unexpectedError: "Error inesperado",
+    connectionError: "Error de conexión con el servidor",
+    accountCreatedCheckEmail: "📧 Revisa tu email para verificar la cuenta",
+    emailSentRecovery: "📧 Te hemos enviado un email para recuperar tu contraseña",
+    emailSentIfExists: "📧 Si el email existe, recibirás el enlace",
+    accountAlreadyVerified: "✅ Tu cuenta ya está verificada",
+    networkError: "❌ Problema de conexión. Revisa tu internet",
+    registerError: "No se pudo crear la cuenta",
+    enterEmail: "Introduce tu email",
+    sendEmailError: "Error enviando email",
+    resendVerification: "Reenviar email de verificación",
+
+    name: "Nombre",
+    changeAvatar: "Cambiar avatar",
+
+    plan: "Plan",
+    provider: "Proveedor",
+    emailProvider: "Email",
+
+    currentPassword: "Contraseña actual",
+
+    editProfile: "Editar perfil",
+
+    saving: "Guardando...",
+    save: "Guardar",
+    savePassword: "Guardar contraseña",
+
+    uploadAvatarError: "Error subiendo avatar",
+    updateProfileError: "Error actualizando perfil",
+    saveError: "Error al guardar cambios",
+    profileUpdated: "Perfil actualizado correctamente",
+
+    error: "Error",
+    round: "Jornada",
+    noRound: "Sin jornada",
+    selectLeague: "Selecciona una liga",
+    noResults: "No hay resultados",
+    appearance: "Apariencia",
+    freeThemes: "Temas gratuitos",
+    premiumThemes: "Temas premium",
+    preferences: "Preferencias",
+    language: "Idioma",
+    english: "Inglés",
+    spanish: "Español",
+    manage: "Gestionar",
+    pro: "PRO",
+    stakeSettings: "Configuración de stake",
+    stakeDescription: "Define cuánto apostar según la cuota. Cuotas altas → menor stake, cuotas bajas → mayor stake.",
+
+    highOddsHighRisk: "Cuotas altas (más riesgo)",
+    mediumOdds: "Cuotas medias",
+    lowOddsSafe: "Cuotas bajas (más seguro)",
+
+    amount: "Cantidad",
+    minOdds: "Cuota mínima",
+    maxOdds: "Cuota máxima",
+
+    autoApplyStake: "Se aplicará automáticamente al apostar",
+    reset: "Restablecer",
+
+    settingsSaved: "Configuración guardada",
+    dashboard: "Dashboard",
+    analysis: "Análisis",
+    results: "Resultados",
+    standings: "Clasificaciones",
+    team: "Equipo",
+    played: "PJ",
+    goals: "Goles",
+    points: "Pts",
+    wins: "G",
+    draws: "E",
+    losses: "P",
+    goalDiff: "DG",
+    topValueBets: "Mejores apuestas de valor",
+    loadingTopBets: "Cargando apuestas top...",
+    selectAtLeastOne: "Selecciona al menos una apuesta",
+    processing: "Procesando...",
+    downloaded: "Descargado",
+    sent: "Enviado",
+    selectAll: "Seleccionar todo",
+    deselectAll: "Deseleccionar todo",
+    selectedCount: "seleccionadas",
+    match: "Partido",
+    market: "Mercado",
+    pick: "Pick",
+    book: "Book",
+    oddMin: "Cuota mín",
+    oddMax: "Cuota máx",
+    valueMin: "Value mín %",
+    valueMax: "Value máx %",
+    bets: "Apuestas",
+    bestMarket: "Mejor mercado",
+    avoidLeague: "Evita",
+    win: "GANADA",
+    loss: "PERDIDA",
+    pendingUpper: "PENDIENTE",
+
+    google: "Google",
+    github: "GitHub",
+    resetError: "Error al cambiar la contraseña",
+    verifyingAccount: "Verificando cuenta...",
+    accountVerified: "Cuenta verificada",
+    youCanLogin: "Ya puedes iniciar sesión",
+    invalidOrExpiredLink: "El enlace no es válido o ha expirado",
+    notLoggedIn: "No estás logueado",
+    myAccount: "Mi cuenta",
+    deactivateAccount: "Darse de baja",
+    accountDeactivated: "Cuenta desactivada",
+     // GENERAL
+    menu: "Menú",
+    close: "Cerrar",
+    cancel: "Cancelar",
+    confirm: "Confirmar",
+
+    // PLANES
+    free: "Gratis",
+    premium: "Premium",
+
+    // DASHBOARD
+    loadingMatches: "Cargando partidos...",
+    matches: "partidos",
+    vs: "vs",
+
+    // PICKS
+    nextPicksIn: "Nuevos picks en",
+    noMorePicks: "No hay más picks disponibles",
+    picksLoading: "Cargando Picks de hoy...",
+    picksFinished: "Todos los picks de hoy han finalizado",
+    noPicksToday: "Hoy no se han encontrado picks con suficiente valor",
+    picksAvailable: "Picks disponibles para hoy",
+
+    // BETS
+    confirmBet: "Confirmar apuesta",
+    recommendedStake: "Stake recomendado",
+
+    // AUTH / ACCOUNT (te adelanto para futuro)
+    login: "Iniciar sesión",
+    logout: "Cerrar sesión",
+    account: "Mi cuenta",
+    notLogged: "No estás logueado",
+    loading: "Cargando...",
+
+    // VERIFY / RESET
+    verifying: "Verificando cuenta...",
+    verified: "Cuenta verificada",
+    verificationError: "Error de verificación",
+    invalidLink: "El enlace no es válido o ha expirado",
+    newPassword: "Nueva contraseña",
+    changePassword: "Cambiar contraseña",
+    passwordUpdated: "Contraseña actualizada",
+    goToLogin: "Ir al login",
+
+    // EXTRA FUTURO (muy útil)
+    back: "Volver",
+    deleteAccount: "Darse de baja",
+    confirmDeleteAccount: "¿Seguro que quieres eliminar tu cuenta?",
+    deleteSuccess: "Cuenta desactivada",
+    deleteError: "Error al eliminar la cuenta",
+
+    favoriteMatches: "Partidos Favoritos",
+    // STATS
+    statistics: "Estadísticas",
+    avgGoals: "Goles",
+    conceded: "Encajados",
+    winRate: "Victorias",
+    form: "Forma",
+    accountDeleted: "Cuenta eliminada correctamente",
+    errorDeletingAccount: "Error al eliminar la cuenta",
+    premiumComingSoon: "Premium próximamente 🚀",
+    upgradeToPremium: "Upgrade to Premium",
+    premiumActive: "Premium activo",
+    deleteWarning: "Esta acción no se podrá deshacer.",
+    typeDelete: "Escribe DELETE para confirmar",
+    accountDisabled: "Tu cuenta está desactivada",
+    reactivateAccount: "Reactivar cuenta",
+    accountReactivated: "Cuenta reactivada correctamente",
+    emailSentReactivation: "Te hemos enviado un email para reactivar tu cuenta",
+
+    // ANALYSIS CENTER
+    analysisCenter: "Centro de Análisis",
+    advancedAnalytics: "Analítica avanzada de fútbol y apuestas",
+
+    bettingAnalytics: "Análisis de Apuestas",
+    teamAnalysis: "Análisis de Equipos",
+    h2hAnalysis: "Análisis H2H",
+    matchAnalysis: "Análisis de Partido",
+
+    advancedPreMatchAnalysis: "Análisis avanzado previo al partido",
+    historicalTeamPerformance: "Rendimiento histórico y tendencias del equipo",
+
+    selectTeam: "Seleccionar equipo",
+    selectOpponent: "Seleccionar rival",
+    selectFixture: "Seleccionar partido",
+
+    allSeasons: "Todas las temporadas",
+
+    recentForm: "Forma reciente",
+
+    homePerformanceStats: "Estadísticas como local",
+    awayPerformanceStats: "Estadísticas como visitante",
+
+    goalsScored: "Goles marcados",
+    goalsConceded: "Goles encajados",
+
+    cleanSheets: "Porterías a cero",
+
+    marketConfidence: "Confianza de Mercados",
+    confidenceEngine: "Motor de confianza basado en datos históricos",
+
+    valueOpportunities: "Oportunidades de Valor",
+    realValueDetected: "Valor real detectado usando cuotas de casas de apuestas",
+
+    smartInsights: "Insights Inteligentes",
+    autoGeneratedInsights: "Insights generados automáticamente",
+
+    recommendedMarkets: "Mercados Recomendados",
+
+    marketOdds: "Cuota de Mercado",
+    fairOdds: "Cuota Justa",
+
+    valueEdge: "Ventaja de Valor",
+
+    veryStrong: "Muy Fuerte",
+    strong: "Fuerte",
+    medium: "Media",
+    low: "Baja",
+
+    loadingAnalysis: "Cargando análisis...",
+    stat: "Dato",
+    strongAttack: "Ataque fuerte",
+    goalTrends: "Tendencias de goles",
+    defensiveProfile: "Perfil defensivo",
+    matchesAnalyzed: "partidos analizados",
+    average: "Media",
+    goalsTrend: "Tendencia de goles",
+    strongAttackDescription: "Marca {value} goles por partido",
+    goalTrendsDescription: "{value}% de partidos Over 2.5",
+    defensiveProfileDescription: "{value}% porterías a cero",
+    h2hStatistics: "Estadísticas y tendencias cara a cara",
+    team1: "Equipo 1",
+    team2: "Equipo 2",
+    loadingH2HAnalysis: "Cargando análisis H2H...",
+    historicalMatches: "partidos históricos",
+    winsLabel: "victorias",
+    drawLabel: "empates",
+    avgGoalsLabel: "media de goles",
+    recentH2H: "Últimos enfrentamientos",
+    latestClashes: "Últimos enfrentamientos históricos",
+    loadingMatchAnalysis: "Cargando análisis del partido...",
+    advancedBettingInsights: "Insights avanzados y tendencias de apuestas",
+    noDataAvailable: "No hay datos disponibles",
+    teamNotInSeason: "Este equipo no participó en la temporada seleccionada.",
+    noH2HDataAvailable: "No hay datos H2H disponibles",
+    teamsNeverFaced: "Estos equipos no se han enfrentado anteriormente en la base de datos disponible.",
+    odds: "Cuotas",
+    from: "Desde",
+    to: "Hasta",
+    notEnoughHistoricalData: "No hay suficientes datos históricos para generar un análisis completo de este partido.",
+    // BETS MODAL
+
+    filters: "Filtros",
+    clearFilters: "Limpiar",
+
+    allStatuses: "Todas",
+    allLeagues: "Todas las ligas",
+    allStakes: "Todos los stakes",
+    allPicks: "Todos los picks",
+
+    wonBets: "Ganadas",
+    lostBets: "Perdidas",
+    pendingBets: "Pendientes",
+
+    advancedAnalyticsTitle: "Analítica avanzada",
+    analyticsDescription:
+      "Estadísticas calculadas utilizando los filtros actualmente seleccionados.",
+
+    bestPick: "Mejor Pick",
+    worstPick: "Peor Pick",
+
+    bestLeague: "Mejor Liga",
+    worstLeague: "Peor Liga",
+
+    performanceByPick: "Rendimiento por Pick",
+    performanceByLeague: "Rendimiento por Liga",
+
+    betHistory: "Historial de apuestas",
+
+    betsShort: "Ap.",
+    league: "Liga",
+
+    bet: "apuesta",
+
+    betShort: "ap.",
+    betsShortPlural: "aps.",
+
+    smallSample: "Muestra pequeña",
+
+    last7Days: "Últimos 7 días",
+    last30Days: "Últimos 30 días",
+    thisMonth: "Este mes",
+    lastMonth: "Mes anterior",
+    thisYear: "Este año",
+  },
+}

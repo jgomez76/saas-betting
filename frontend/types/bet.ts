@@ -16,4 +16,9 @@ export type Bet = {
 
     stake?: number;
     stake_level?: number;
+
+    league?: string;
+    league_id?: number;
 }
+
+

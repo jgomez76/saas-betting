@@ -1332,12 +1332,61 @@ def get_bets(
     if not user:
         return []
 
-    bets = db.query(Bet)\
-        .filter(Bet.user_id == user.id)\
-        .order_by(Bet.created_at.desc())\
+    bets = (
+        db.query(Bet)
+        .filter(Bet.user_id == user.id)
+        .order_by(Bet.created_at.desc())
         .all()
+    )
 
-    return bets
+    fixture_map = {
+        f.api_id: {
+            "league_id": f.league_id,
+            "league": f.league,
+        }
+        for f in db.query(Fixture).all()
+    }
+
+    result = []
+
+    for bet in bets:
+
+        fixture = fixture_map.get(
+            bet.fixture_id,
+            {}
+        )
+
+        result.append({
+            "id": bet.id,
+
+            "match": bet.match,
+
+            "market": bet.market,
+            "selection": bet.selection,
+
+            "odd": bet.odd,
+            "bookmaker": bet.bookmaker,
+            "value": bet.value,
+
+            "date": bet.date,
+
+            "fixture_id": bet.fixture_id,
+
+            "status": bet.status,
+            "result": bet.result,
+
+            "stake": bet.stake,
+            "stake_level": bet.stake_level,
+
+            "user_id": bet.user_id,
+            "created_at": bet.created_at,
+
+            # NUEVOS CAMPOS
+            "league_id": fixture.get("league_id"),
+            "league": fixture.get("league"),
+        })
+
+    return result
 
 
 @router.post("/bets")
@@ -1481,8 +1530,44 @@ def remove_favorite(
     return {"status": "deleted"}
 
 @router.get("/team-stats/{team_id}")
-def team_stats(team_id: int, db: Session = Depends(get_db)):
-    return get_team_stats(db, team_id)
+def team_stats(
+    team_id: int,
+    db: Session = Depends(get_db)
+):
+
+    fixture = (
+        db.query(Fixture)
+        .filter(
+            (Fixture.home_team_id == team_id) |
+            (Fixture.away_team_id == team_id)
+        )
+        .order_by(Fixture.date.desc())
+        .first()
+    )
+
+    if not fixture:
+        return {
+            "matches": 0,
+            "avg_goals_scored": 0,
+            "avg_goals_conceded": 0,
+            "results": {
+                "win": 0,
+                "draw": 0,
+                "loss": 0
+            },
+            "markets": {
+                "over_2_5": 0,
+                "over_3_5": 0,
+                "btts": 0
+            },
+            "form": ""
+        }
+
+    return get_team_stats(
+        db,
+        team_id,
+        fixture.league_id
+    )
 
 @router.get("/league-stats/{league_id}")
 def league_stats(league_id: int, db: Session = Depends(get_db)):

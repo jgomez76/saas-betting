@@ -1,4 +1,4 @@
-import { Translation } from "./i18n/translations";
+import { Translation } from "./i18n/translations_old";
 
 export const formatBetLabel = (
   market: string,

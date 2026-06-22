@@ -322,6 +322,42 @@ const Navbar = memo(function Navbar({
                   />
                 </button>
 
+                <button
+                  onClick={() => changeLang("fr")}
+                  className={`
+                    rounded-full p-0.5 transition-all
+                    ${lang === "fr"
+                      ? "ring-2 ring-[var(--accent)] scale-110"
+                      : "opacity-60 hover:opacity-100"}
+                  `}
+                >
+                  <Image
+                    src="/flags/fr.svg"
+                    alt="FR"
+                    width={24}
+                    height={24}
+                    className="rounded-full"
+                  />
+                </button>
+
+                <button
+                  onClick={() => changeLang("it")}
+                  className={`
+                    rounded-full p-0.5 transition-all
+                    ${lang === "it"
+                      ? "ring-2 ring-[var(--accent)] scale-110"
+                      : "opacity-60 hover:opacity-100"}
+                  `}
+                >
+                  <Image
+                    src="/flags/it.svg"
+                    alt="IT"
+                    width={24}
+                    height={24}
+                    className="rounded-full"
+                  />
+                </button>
+
               </div>
             </div>
           </div>

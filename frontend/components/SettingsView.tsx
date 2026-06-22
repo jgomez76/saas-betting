@@ -217,6 +217,30 @@ export default function SettingsView({
               <Image src="/flags/es.svg" alt="ES" width={28} height={28} />
               {t.spanish}
             </button>
+            
+            <button
+              onClick={() => changeLang("fr")}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg border
+                ${lang === "fr"
+                  ? "border-[var(--accent)] bg-[var(--accent)]/10"
+                  : "border-[var(--border)] opacity-70"}
+              `}
+            >
+              <Image src="/flags/fr.svg" alt="FR" width={28} height={28} />
+              {t.french}
+            </button>
+
+            <button
+              onClick={() => changeLang("it")}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg border
+                ${lang === "it"
+                  ? "border-[var(--accent)] bg-[var(--accent)]/10"
+                  : "border-[var(--border)] opacity-70"}
+              `}
+            >
+              <Image src="/flags/it.svg" alt="IT" width={28} height={28} />
+              {t.italian}
+            </button>
 
           </div>
         </Section>

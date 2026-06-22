@@ -5,7 +5,7 @@ import { translations } from "./translations";
 import { ReactNode } from "react";
 import Cookies from "js-cookie";
 
-type Lang = "en" | "es";
+type Lang = "en" | "es" | "it" | "fr";
 
 type LanguageContextType = {
   lang: Lang;
