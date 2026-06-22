@@ -6,9 +6,10 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import { SubscriptionProvider } from "@/context/SubscriptionContext";
 import { LanguageProvider } from "@/lib/i18n/LanguageProvider";
 import { cookies } from "next/headers";
+import Footer from "@/components/Footer";
 
 // 🌍 Idiomas soportados (ESCALABLE)
-const SUPPORTED_LANGS = ["en", "es"] as const;
+const SUPPORTED_LANGS = ["en", "es", "fr", "it"] as const;
 type Lang = (typeof SUPPORTED_LANGS)[number];
 
 // 🧠 Helper seguro
@@ -27,11 +28,26 @@ export async function generateMetadata(): Promise<Metadata> {
   const metadataByLang: Record<Lang, Metadata> = {
     en: {
       title: "BetSaaS",
-      description: "Advanced sports betting analytics platform",
+      description:
+        "Advanced sports betting analytics platform",
     },
+
     es: {
       title: "BetSaaS",
-      description: "Plataforma avanzada de análisis de apuestas deportivas",
+      description:
+        "Plataforma avanzada de análisis de apuestas deportivas",
+    },
+
+    fr: {
+      title: "BetSaaS",
+      description:
+        "Plateforme avancée d'analyse des paris sportifs",
+    },
+
+    it: {
+      title: "BetSaaS",
+      description:
+        "Piattaforma avanzata di analisi delle scommesse sportive",
     },
   };
 
@@ -69,7 +85,13 @@ export default async function RootLayout({
           <ThemeProvider>
             <SubscriptionProvider>
               <LanguageProvider initialLang={lang}>
-                {children}
+
+                <main className="flex-1">
+                  {children}
+                </main>
+
+                <Footer />
+
               </LanguageProvider>
             </SubscriptionProvider>
           </ThemeProvider>
