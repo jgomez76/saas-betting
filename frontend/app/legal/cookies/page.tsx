@@ -3,7 +3,7 @@ import LegalPage from "@/components/legal/LegalPage";
 export default function CookiesPage() {
 return ( <LegalPage
    title="Cookies Policy"
-   updated="June 2026"
+   updated="2026-06-23"
  > <section> <h2 className="text-xl font-semibold mb-2">
 1. What Are Cookies? </h2>
 

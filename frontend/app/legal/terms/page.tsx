@@ -3,7 +3,7 @@ import LegalPage from "@/components/legal/LegalPage";
 export default function TermsPage() {
 return ( <LegalPage
    title="Terms and Conditions"
-   updated="June 2026"
+   updated="2026-06-23"
  > <section> <h2 className="text-xl font-semibold mb-2">
 1. Acceptance of Terms </h2>
 

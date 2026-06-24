@@ -3,7 +3,7 @@ import LegalPage from "@/components/legal/LegalPage";
 export default function SecurityPage() {
 return ( <LegalPage
    title="Security Policy"
-   updated="June 2026"
+   updated="2026-06-23"
  > <section> <h2 className="text-xl font-semibold mb-2">
 1. Our Commitment to Security </h2>
 

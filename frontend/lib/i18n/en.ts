@@ -379,4 +379,65 @@ export const en = {
     thisMonth: "This month",
     lastMonth: "Previous month",
     thisYear: "This year",
+
+    // FOOTER
+    privacy: "Privacy",
+    cookies: "Cookies",
+    security: "Security",
+    terms: "Terms",
+    contact: "Contact",
+
+    allRightsReserved: "All rights reserved",
+
+    // LEGAL-PAGE
+    backToBetSaas: "Back to BetSaaS",
+    lastUpdated: "Last updated",
+
+    // CONTACT
+    contactTitle: "Contact",
+
+    contactIntro:
+      "We'd love to hear from you.",
+
+    contactDescription:
+      "If you have questions, suggestions, bug reports, partnership proposals, or account-related issues, please contact us using the information below.",
+
+    support: "Support",
+
+    supportDescription:
+      "General support and account assistance:",
+
+    responseTime: "Response Time",
+
+    responseTimeDescription:
+      "We aim to respond to all inquiries within 48 hours.",
+
+    feedback: "Feedback",
+
+    feedbackDescription:
+      "We welcome feedback and suggestions to improve BetSaaS and deliver a better experience for all users.",
+
+    businessInquiries: "Business Inquiries",
+
+    businessDescription:
+      "For partnerships, commercial opportunities, or media inquiries, please contact:",
+    
+    // ERROR 404
+    pageNotFound: "Page not found",
+
+    pageNotFoundDescription:
+      "The page you are looking for does not exist or has been moved.",
+
+    goHome: "Go Home",
+
+    // COOKIE BANNER
+    cookieTitle: "We use cookies",
+
+    cookieDescription:
+      "We use cookies to improve your experience on BetSaaS.",
+
+    accept: "Accept",
+    reject: "Reject",
+    learnMore: "Learn More",
+      
 }

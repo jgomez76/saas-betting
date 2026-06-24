@@ -1,73 +1,93 @@
 import LegalPage from "@/components/legal/LegalPage";
+import { translations } from "@/lib/i18n/translations";
+import { cookies } from "next/headers";
 
-export default function ContactPage() {
-return ( <LegalPage
-   title="Contact"
-   updated="June 2026"
- > <section> <p>
-We&apos;d love to hear from you. </p>
+export default async function ContactPage() {
 
-    <p>
-      If you have questions, suggestions,
-      bug reports, partnership proposals,
-      or account-related issues, please
-      contact us using the information below.
-    </p>
-  </section>
+  const cookieStore = await cookies();
 
-  <section>
-    <h2 className="text-xl font-semibold mb-2">
-      Support
-    </h2>
+  const lang =
+    cookieStore.get("lang")?.value ?? "en";
 
-    <p>
-      General support and account assistance:
-    </p>
+  const t =
+    translations[
+      lang as keyof typeof translations
+    ] ?? translations.en;
 
-    <p className="font-medium">
-      support@betsaas.com
-    </p>
-  </section>
+  return (
+    <LegalPage
+      title={t.contactTitle}
+      updated="2026-06-23"
+    >
 
-  <section>
-    <h2 className="text-xl font-semibold mb-2">
-      Response Time
-    </h2>
+      <section>
 
-    <p>
-      We aim to respond to all inquiries
-      within 48 hours.
-    </p>
-  </section>
+        <p>
+          {t.contactIntro}
+        </p>
 
-  <section>
-    <h2 className="text-xl font-semibold mb-2">
-      Feedback
-    </h2>
+        <p>
+          {t.contactDescription}
+        </p>
 
-    <p>
-      We welcome feedback and suggestions
-      to improve BetSaaS and deliver a
-      better experience for all users.
-    </p>
-  </section>
+      </section>
 
-  <section>
-    <h2 className="text-xl font-semibold mb-2">
-      Business Inquiries
-    </h2>
+      <section>
 
-    <p>
-      For partnerships, commercial
-      opportunities, or media inquiries,
-      please contact:
-    </p>
+        <h2 className="text-xl font-semibold mb-2">
+          {t.support}
+        </h2>
 
-    <p className="font-medium">
-      support@betsaas.com
-    </p>
-  </section>
-</LegalPage>
+        <p>
+          {t.supportDescription}
+        </p>
 
-);
+        <p className="font-medium">
+          support@betsaas.com
+        </p>
+
+      </section>
+
+      <section>
+
+        <h2 className="text-xl font-semibold mb-2">
+          {t.responseTime}
+        </h2>
+
+        <p>
+          {t.responseTimeDescription}
+        </p>
+
+      </section>
+
+      <section>
+
+        <h2 className="text-xl font-semibold mb-2">
+          {t.feedback}
+        </h2>
+
+        <p>
+          {t.feedbackDescription}
+        </p>
+
+      </section>
+
+      <section>
+
+        <h2 className="text-xl font-semibold mb-2">
+          {t.businessInquiries}
+        </h2>
+
+        <p>
+          {t.businessDescription}
+        </p>
+
+        <p className="font-medium">
+          support@betsaas.com
+        </p>
+
+      </section>
+
+    </LegalPage>
+  );
 }

@@ -29,10 +29,15 @@ export const formatMatchDate = (
     d.getDate()
   );
 
+ const localeMap: Record<string, string> = {
+    en: "en-GB",
+    es: "es-ES",
+    fr: "fr-FR",
+    it: "it-IT",
+  };
+
   const locale =
-    lang === "es"
-      ? "es-ES"
-      : "en-GB";
+    localeMap[lang] ?? "en-GB";
 
   const time =
     d.toLocaleTimeString(locale, {
@@ -46,9 +51,17 @@ export const formatMatchDate = (
     matchDay.getTime() ===
     today.getTime()
   ) {
-    return lang === "es"
-      ? `Hoy • ${time}`
-      : `Today • ${time}`;
+
+    const todayLabel: Record<string, string> = {
+      en: "Today",
+      es: "Hoy",
+      fr: "Aujourd'hui",
+      it: "Oggi",
+    };
+
+    return `${
+      todayLabel[lang] ?? "Today"
+    } • ${time}`;
   }
 
   // 🇪🇸 MAÑANA / 🇬🇧 TOMORROW
@@ -56,9 +69,17 @@ export const formatMatchDate = (
     matchDay.getTime() ===
     tomorrow.getTime()
   ) {
-    return lang === "es"
-      ? `Mañana • ${time}`
-      : `Tomorrow • ${time}`;
+
+    const tomorrowLabel: Record<string, string> = {
+      en: "Tomorrow",
+      es: "Mañana",
+      fr: "Demain",
+      it: "Domani",
+    };
+
+    return `${
+      tomorrowLabel[lang] ?? "Tomorrow"
+    } • ${time}`;
   }
 
   const day =

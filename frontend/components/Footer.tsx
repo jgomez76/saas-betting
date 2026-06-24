@@ -1,6 +1,12 @@
+"use client";
+
 import Link from "next/link";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
 
 export default function Footer() {
+
+  const { t } = useLanguage();
+
   return (
     <footer
       className="
@@ -26,7 +32,8 @@ export default function Footer() {
         "
       >
         <div>
-          © {new Date().getFullYear()} BetSaaS. All rights reserved.
+          © {new Date().getFullYear()} BetSaaS.{" "}
+          {t.allRightsReserved}
         </div>
 
         <div
@@ -41,35 +48,35 @@ export default function Footer() {
             href="/legal/privacy"
             className="hover:underline"
           >
-            Privacy
+            {t.privacy}
           </Link>
 
           <Link
             href="/legal/cookies"
             className="hover:underline"
           >
-            Cookies
+            {t.cookies}
           </Link>
 
           <Link
             href="/legal/security"
             className="hover:underline"
           >
-            Security
+            {t.security}
           </Link>
 
           <Link
             href="/legal/terms"
             className="hover:underline"
           >
-            Terms
+            {t.terms}
           </Link>
 
           <Link
             href="/contact"
             className="hover:underline"
           >
-            Contact
+            {t.contact}
           </Link>
         </div>
       </div>

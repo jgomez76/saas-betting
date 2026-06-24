@@ -7,6 +7,7 @@ import { SubscriptionProvider } from "@/context/SubscriptionContext";
 import { LanguageProvider } from "@/lib/i18n/LanguageProvider";
 import { cookies } from "next/headers";
 import Footer from "@/components/Footer";
+import CookieBanner from "@/components/CookieBanner";
 
 // 🌍 Idiomas soportados (ESCALABLE)
 const SUPPORTED_LANGS = ["en", "es", "fr", "it"] as const;
@@ -89,6 +90,8 @@ export default async function RootLayout({
                 <main className="flex-1">
                   {children}
                 </main>
+
+                <CookieBanner />
 
                 <Footer />
 
