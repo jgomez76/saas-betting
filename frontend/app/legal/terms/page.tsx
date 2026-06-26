@@ -1,140 +1,44 @@
 import LegalPage from "@/components/legal/LegalPage";
+import LegalContent from "@/components/legal/LegalContent";
 
-export default function TermsPage() {
-return ( <LegalPage
-   title="Terms and Conditions"
-   updated="2026-06-23"
- > <section> <h2 className="text-xl font-semibold mb-2">
-1. Acceptance of Terms </h2>
+import { termsContent } from "@/lib/legal/terms";
 
-    <p>
-      By accessing or using BetSaaS, you agree to be
-      bound by these Terms and Conditions.
-    </p>
-  </section>
+import { cookies } from "next/headers";
 
-  <section>
-    <h2 className="text-xl font-semibold mb-2">
-      2. Service Description
-    </h2>
+const SUPPORTED_LANGS = ["en", "es", "fr", "it"] as const;
+type Lang = (typeof SUPPORTED_LANGS)[number];
 
-    <p>
-      BetSaaS provides football statistics, betting
-      analysis, historical data, predictions, and
-      educational information related to sports betting.
-    </p>
+function getLang(cookieLang?: string): Lang {
+  if (SUPPORTED_LANGS.includes(cookieLang as Lang)) {
+    return cookieLang as Lang;
+  }
 
-    <p>
-      All content is provided for informational and
-      entertainment purposes only.
-    </p>
-  </section>
+  return "en";
+}
 
-  <section>
-    <h2 className="text-xl font-semibold mb-2">
-      3. No Gambling Advice
-    </h2>
+export default async function TermsPage() {
 
-    <p>
-      BetSaaS does not provide financial, investment,
-      legal, or gambling advice.
-    </p>
+  const cookieStore = await cookies();
 
-    <p>
-      Any betting decision made by a user is entirely
-      their own responsibility.
-    </p>
-  </section>
+  const lang = getLang(
+    cookieStore.get("lang")?.value
+  );
 
-  <section>
-    <h2 className="text-xl font-semibold mb-2">
-      4. No Guarantee of Profit
-    </h2>
+  const content =
+    termsContent[lang].sections.length > 0
+      ? termsContent[lang]
+      : termsContent.en;
 
-    <p>
-      Past performance does not guarantee future results.
-    </p>
-
-    <p>
-      BetSaaS makes no guarantee regarding the accuracy
-      of predictions, profitability, or betting outcomes.
-    </p>
-  </section>
-
-  <section>
-    <h2 className="text-xl font-semibold mb-2">
-      5. User Responsibility
-    </h2>
-
-    <p>
-      Users are solely responsible for their betting
-      activities, financial decisions, and compliance
-      with local laws and regulations.
-    </p>
-  </section>
-
-  <section>
-    <h2 className="text-xl font-semibold mb-2">
-      6. Limitation of Liability
-    </h2>
-
-    <p>
-      BetSaaS shall not be liable for any direct,
-      indirect, incidental, or consequential losses
-      resulting from the use of the platform.
-    </p>
-  </section>
-
-  <section>
-    <h2 className="text-xl font-semibold mb-2">
-      7. Account Usage
-    </h2>
-
-    <p>
-      Users are responsible for maintaining the security
-      of their accounts and login credentials.
-    </p>
-  </section>
-
-  <section>
-    <h2 className="text-xl font-semibold mb-2">
-      8. Premium Features
-    </h2>
-
-    <p>
-      Premium features may be offered through paid
-      subscriptions. Pricing and functionality may
-      change at any time.
-    </p>
-  </section>
-
-  <section>
-    <h2 className="text-xl font-semibold mb-2">
-      9. Changes to These Terms
-    </h2>
-
-    <p>
-      BetSaaS reserves the right to update these Terms
-      and Conditions at any time.
-    </p>
-  </section>
-
-  <section>
-    <h2 className="text-xl font-semibold mb-2">
-      10. Contact
-    </h2>
-
-    <p>
-      For legal questions regarding these Terms,
-      please contact:
-    </p>
-
-    <p className="font-medium">
-      support@betsaas.com
-    </p>
-  </section>
-</LegalPage>
-
-
-);
+  return (
+    <LegalPage
+      title={content.title}
+      updated={content.updated}
+      locale={content.locale}
+      intro={content.intro}
+    >
+      <LegalContent
+        content={content}
+      />
+    </LegalPage>
+  );
 }

@@ -6,6 +6,8 @@ import { translations } from "@/lib/i18n/translations";
 type Props = {
   title: string;
   updated: string;
+  locale: string;
+  intro?: string;
   children: ReactNode;
 };
 
@@ -13,6 +15,8 @@ export default async function LegalPage({
   title,
   updated,
   children,
+  locale,
+  intro
 }: Props) {
 
   const cookieStore = await cookies();
@@ -26,8 +30,9 @@ export default async function LegalPage({
     ] ?? translations.en;
   
   const formattedDate = new Intl.DateTimeFormat(
-    lang,
+    locale,
     {
+      day: "numeric",
       month: "long",
       year: "numeric",
     }
@@ -72,6 +77,23 @@ export default async function LegalPage({
           <p className="text-sm opacity-60 mb-8">
             {t.lastUpdated}: {formattedDate}
           </p>
+
+          {intro && (
+            <p
+              className="
+                mb-8
+                text-base
+                leading-7
+                text-[var(--muted)]
+                border-l-4
+                border-[var(--accent)]
+                pl-4
+                italic
+              "
+            >
+              {intro}
+            </p>
+          )}
 
           <div className="space-y-6 leading-7">
             {children}

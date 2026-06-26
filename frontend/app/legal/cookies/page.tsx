@@ -1,82 +1,44 @@
 import LegalPage from "@/components/legal/LegalPage";
+import LegalContent from "@/components/legal/LegalContent";
 
-export default function CookiesPage() {
-return ( <LegalPage
-   title="Cookies Policy"
-   updated="2026-06-23"
- > <section> <h2 className="text-xl font-semibold mb-2">
-1. What Are Cookies? </h2>
+import { cookiesContent } from "@/lib/legal/cookies";
 
-    <p>
-      Cookies are small text files stored on your
-      device that help websites function correctly
-      and improve user experience.
-    </p>
-  </section>
+import { cookies } from "next/headers";
 
-  <section>
-    <h2 className="text-xl font-semibold mb-2">
-      2. How BetSaaS Uses Cookies
-    </h2>
+const SUPPORTED_LANGS = ["en", "es", "fr", "it"] as const;
+type Lang = (typeof SUPPORTED_LANGS)[number];
 
-    <p>
-      BetSaaS uses cookies to maintain user sessions,
-      remember preferences, and improve platform
-      functionality.
-    </p>
-  </section>
+function getLang(cookieLang?: string): Lang {
+  if (SUPPORTED_LANGS.includes(cookieLang as Lang)) {
+    return cookieLang as Lang;
+  }
 
-  <section>
-    <h2 className="text-xl font-semibold mb-2">
-      3. Essential Cookies
-    </h2>
+  return "en";
+}
 
-    <ul className="list-disc pl-6 space-y-2">
-      <li>User authentication.</li>
-      <li>Session management.</li>
-      <li>Security protection.</li>
-      <li>Language preferences.</li>
-    </ul>
-  </section>
+export default async function CookiesPage() {
 
-  <section>
-    <h2 className="text-xl font-semibold mb-2">
-      4. Analytics Cookies
-    </h2>
+  const cookieStore = await cookies();
 
-    <p>
-      BetSaaS may use analytics services in the future
-      to better understand platform usage and improve
-      user experience.
-    </p>
-  </section>
+  const lang = getLang(
+    cookieStore.get("lang")?.value
+  );
 
-  <section>
-    <h2 className="text-xl font-semibold mb-2">
-      5. Managing Cookies
-    </h2>
+  const content =
+    cookiesContent[lang].sections.length > 0
+      ? cookiesContent[lang]
+      : cookiesContent.en;
 
-    <p>
-      Most browsers allow users to control, block,
-      or delete cookies through browser settings.
-    </p>
-  </section>
-
-  <section>
-    <h2 className="text-xl font-semibold mb-2">
-      6. Contact
-    </h2>
-
-    <p>
-      For questions regarding cookies, contact:
-    </p>
-
-    <p className="font-medium">
-      support@betsaas.com
-    </p>
-  </section>
-</LegalPage>
-
-
-);
+  return (
+    <LegalPage
+      title={content.title}
+      updated={content.updated}
+      locale={content.locale}
+      intro={content.intro}
+    >
+      <LegalContent
+        content={content}
+      />
+    </LegalPage>
+  );
 }
