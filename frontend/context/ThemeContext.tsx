@@ -7,20 +7,24 @@ import { createContext, useContext, useEffect, useState } from "react";
 ========================= */
 
 export type Theme =
-  | "trader"
-  | "sportsbook"
-  | "datalab"
-  | "neon"
-  | "futuristic"
-  | "classic";
+  | "midnight"
+  | "stadium"
+  | "light"
+  | "carbon"
+  | "sapphire"
+  | "aurora"
+  | "crimson"
+  | "heritage";
 
 export const VALID_THEMES: Theme[] = [
-  "trader",
-  "sportsbook",
-  "datalab",
-  "neon",
-  "futuristic",
-  "classic",
+  "midnight",
+  "stadium",
+  "light",
+  "carbon",
+  "sapphire",
+  "aurora",
+  "crimson",
+  "heritage",
 ];
 
 /* =========================
@@ -42,7 +46,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   /* ✅ INIT SIN EFFECT */
   const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof window === "undefined") return "trader";
+    if (typeof window === "undefined") return "midnight";
 
     const saved = localStorage.getItem("theme");
 
@@ -50,7 +54,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       return saved as Theme;
     }
 
-    return "trader";
+    return "midnight";
   });
 
   /* ---------- APPLY THEME ---------- */

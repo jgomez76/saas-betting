@@ -8,13 +8,13 @@ export const privacyContent: Record<
         locale: "en-GB",
         title: "Privacy Policy",
         updated: "2026-06-23",
-        intro: "This Privacy Policy explains how BetSaaS collects, uses, stores and protects your personal information when you use our platform.",
+        intro: "This Privacy Policy explains how Luranix collects, uses, stores and protects your personal information when you use our platform.",
 
         sections: [
         {
             title: "1. Introduction",
             content: [
-            "BetSaaS is committed to protecting your privacy. This Privacy Policy explains what information we collect, how we use it, and the rights you have regarding your personal data."
+            "Luranix is committed to protecting your privacy. This Privacy Policy explains what information we collect, how we use it, and the rights you have regarding your personal data."
             ]
         },
 
@@ -69,7 +69,7 @@ export const privacyContent: Record<
 
             contact: {
                 label: "Email",
-                value: "support@betsaas.com"
+                value: "support@luranix.com"
         }
         }
         ]
@@ -79,14 +79,14 @@ export const privacyContent: Record<
     locale: "es-ES",
     title: "Política de Privacidad",
     updated: "2026-06-23",
-    intro: "Esta Política de Privacidad explica cómo BetSaaS recopila, utiliza, almacena y protege tu información personal cuando utilizas nuestra plataforma.",
+    intro: "Esta Política de Privacidad explica cómo Luranix recopila, utiliza, almacena y protege tu información personal cuando utilizas nuestra plataforma.",
 
     sections: [
         {
         title: "1. Introducción",
 
         content: [
-            "En BetSaaS nos comprometemos a proteger tu privacidad y a tratar tus datos personales de forma responsable y transparente. Esta Política de Privacidad explica qué información recopilamos, cómo la utilizamos y qué derechos tienes sobre tus datos personales."
+            "En Luranix nos comprometemos a proteger tu privacidad y a tratar tus datos personales de forma responsable y transparente. Esta Política de Privacidad explica qué información recopilamos, cómo la utilizamos y qué derechos tienes sobre tus datos personales."
         ]
         },
 
@@ -147,7 +147,7 @@ export const privacyContent: Record<
 
         contact: {
             label: "Correo electrónico",
-            value: "support@betsaas.com"
+            value: "support@luranix.com"
         }
         }
     ]
@@ -157,14 +157,14 @@ export const privacyContent: Record<
     locale: "fr-FR",
     title: "Politique de confidentialité",
     updated: "2026-06-23",
-    intro: "Cette Politique de confidentialité explique comment BetSaaS collecte, utilise, conserve et protège vos données personnelles lorsque vous utilisez notre plateforme.",
+    intro: "Cette Politique de confidentialité explique comment Luranix collecte, utilise, conserve et protège vos données personnelles lorsque vous utilisez notre plateforme.",
 
     sections: [
         {
         title: "1. Introduction",
 
         content: [
-            "Chez BetSaaS, nous nous engageons à protéger votre vie privée et à traiter vos données personnelles de manière responsable et transparente. Cette Politique de confidentialité explique quelles informations nous collectons, comment nous les utilisons et quels sont vos droits concernant vos données personnelles."
+            "Chez Luranix, nous nous engageons à protéger votre vie privée et à traiter vos données personnelles de manière responsable et transparente. Cette Politique de confidentialité explique quelles informations nous collectons, comment nous les utilisons et quels sont vos droits concernant vos données personnelles."
         ]
         },
 
@@ -225,7 +225,7 @@ export const privacyContent: Record<
 
         contact: {
             label: "Adresse e-mail",
-            value: "support@betsaas.com"
+            value: "support@luranix.com"
         }
         }
     ]
@@ -235,14 +235,14 @@ export const privacyContent: Record<
     locale: "it-IT",
     title: "Informativa sulla privacy",
     updated: "2026-06-23",
-    intro: "La presente Informativa sulla privacy spiega come BetSaaS raccoglie, utilizza, conserva e protegge i tuoi dati personali quando utilizzi la nostra piattaforma.",
+    intro: "La presente Informativa sulla privacy spiega come Luranix raccoglie, utilizza, conserva e protegge i tuoi dati personali quando utilizzi la nostra piattaforma.",
 
     sections: [
         {
         title: "1. Introduzione",
 
         content: [
-            "In BetSaaS ci impegniamo a proteggere la tua privacy e a trattare i tuoi dati personali in modo responsabile e trasparente. La presente Informativa sulla privacy spiega quali informazioni raccogliamo, come le utilizziamo e quali diritti hai in merito ai tuoi dati personali."
+            "In Luranix ci impegniamo a proteggere la tua privacy e a trattare i tuoi dati personali in modo responsabile e trasparente. La presente Informativa sulla privacy spiega quali informazioni raccogliamo, come le utilizziamo e quali diritti hai in merito ai tuoi dati personali."
         ]
         },
 
@@ -303,7 +303,7 @@ export const privacyContent: Record<
 
         contact: {
             label: "E-mail",
-            value: "support@betsaas.com"
+            value: "support@luranix.com"
         }
         }
     ]

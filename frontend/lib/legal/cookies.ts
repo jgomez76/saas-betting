@@ -13,7 +13,7 @@ export const cookiesContent: Record<
         updated: "2026-06-23",
 
         intro:
-        "This Cookie Policy explains how BetSaaS uses cookies and similar technologies to improve your browsing experience, remember your preferences and ensure the proper operation of our platform.",
+        "This Cookie Policy explains how Luranix uses cookies and similar technologies to improve your browsing experience, remember your preferences and ensure the proper operation of our platform.",
 
         sections: [
 
@@ -32,7 +32,7 @@ export const cookiesContent: Record<
             "Keep you securely logged into your account.",
             "Remember your language and personal preferences.",
             "Improve the performance and reliability of the platform.",
-            "Analyse how BetSaaS is used so we can continue improving our services.",
+            "Analyse how Luranix is used so we can continue improving our services.",
             "Provide a secure and consistent browsing experience."
             ]
         },
@@ -81,7 +81,7 @@ export const cookiesContent: Record<
 
             contact: {
             label: "Email",
-            value: "support@betsaas.com"
+            value: "support@luranix.com"
             }
         }
 
@@ -96,7 +96,7 @@ export const cookiesContent: Record<
     updated: "2026-06-23",
 
     intro:
-        "Esta Política de Cookies explica cómo BetSaaS utiliza cookies y tecnologías similares para mejorar tu experiencia de navegación, recordar tus preferencias y garantizar el correcto funcionamiento de nuestra plataforma.",
+        "Esta Política de Cookies explica cómo Luranix utiliza cookies y tecnologías similares para mejorar tu experiencia de navegación, recordar tus preferencias y garantizar el correcto funcionamiento de nuestra plataforma.",
 
     sections: [
 
@@ -115,7 +115,7 @@ export const cookiesContent: Record<
             "Mantener tu sesión iniciada de forma segura.",
             "Recordar tu idioma y tus preferencias personales.",
             "Mejorar el rendimiento y la estabilidad de la plataforma.",
-            "Analizar el uso de BetSaaS para seguir mejorando nuestros servicios.",
+            "Analizar el uso de Luranix para seguir mejorando nuestros servicios.",
             "Proporcionar una experiencia de navegación segura y consistente."
         ]
         },
@@ -159,12 +159,12 @@ export const cookiesContent: Record<
         title: "7. Contacto",
 
         content: [
-            "Si tienes cualquier duda sobre el uso de cookies en BetSaaS, puedes ponerte en contacto con nosotros."
+            "Si tienes cualquier duda sobre el uso de cookies en Luranix, puedes ponerte en contacto con nosotros."
         ],
 
         contact: {
             label: "Correo electrónico",
-            value: "support@betsaas.com"
+            value: "support@luranix.com"
         }
         }
 
@@ -179,7 +179,7 @@ export const cookiesContent: Record<
     updated: "2026-06-23",
 
     intro:
-        "Cette Politique relative aux cookies explique comment BetSaaS utilise les cookies et les technologies similaires afin d'améliorer votre expérience de navigation, de mémoriser vos préférences et d'assurer le bon fonctionnement de notre plateforme.",
+        "Cette Politique relative aux cookies explique comment Luranix utilise les cookies et les technologies similaires afin d'améliorer votre expérience de navigation, de mémoriser vos préférences et d'assurer le bon fonctionnement de notre plateforme.",
 
     sections: [
 
@@ -198,7 +198,7 @@ export const cookiesContent: Record<
             "Maintenir votre session connectée en toute sécurité.",
             "Mémoriser votre langue et vos préférences personnelles.",
             "Améliorer les performances et la fiabilité de la plateforme.",
-            "Analyser l'utilisation de BetSaaS afin d'améliorer continuellement nos services.",
+            "Analyser l'utilisation de Luranix afin d'améliorer continuellement nos services.",
             "Garantir une navigation sécurisée et cohérente."
         ]
         },
@@ -247,7 +247,7 @@ export const cookiesContent: Record<
 
         contact: {
             label: "Adresse e-mail",
-            value: "support@betsaas.com"
+            value: "support@luranix.com"
         }
         }
 
@@ -262,7 +262,7 @@ export const cookiesContent: Record<
     updated: "2026-06-23",
 
     intro:
-        "La presente Informativa sui Cookie spiega come BetSaaS utilizza i cookie e tecnologie simili per migliorare la tua esperienza di navigazione, ricordare le tue preferenze e garantire il corretto funzionamento della piattaforma.",
+        "La presente Informativa sui Cookie spiega come Luranix utilizza i cookie e tecnologie simili per migliorare la tua esperienza di navigazione, ricordare le tue preferenze e garantire il corretto funzionamento della piattaforma.",
 
     sections: [
 
@@ -281,7 +281,7 @@ export const cookiesContent: Record<
             "Mantenere il tuo account connesso in modo sicuro.",
             "Ricordare la lingua e le tue preferenze personali.",
             "Migliorare le prestazioni e l'affidabilità della piattaforma.",
-            "Analizzare l'utilizzo di BetSaaS per migliorare continuamente i nostri servizi.",
+            "Analizzare l'utilizzo di Luranix per migliorare continuamente i nostri servizi.",
             "Garantire un'esperienza di navigazione sicura e coerente."
         ]
         },
@@ -325,12 +325,12 @@ export const cookiesContent: Record<
         title: "7. Contatti",
 
         content: [
-            "Per qualsiasi domanda relativa all'utilizzo dei cookie da parte di BetSaaS, non esitare a contattarci."
+            "Per qualsiasi domanda relativa all'utilizzo dei cookie da parte di Luranix, non esitare a contattarci."
         ],
 
         contact: {
             label: "E-mail",
-            value: "support@betsaas.com"
+            value: "support@luranix.com"
         }
         }
 

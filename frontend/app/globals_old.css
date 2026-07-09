@@ -1,0 +1,782 @@
+@import "tailwindcss";
+
+/* =========================
+   🌍 BASE GLOBAL
+========================= */
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+}
+
+/* =========================
+   🎬 ANIMATIONS
+========================= */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-out;
+}
+
+/* =========================
+   🎨 DESIGN TOKENS (DEFAULT)
+========================= */
+
+:root {
+  /* BASE */
+  --bg: #0a0f1a;
+  --card: #121a2b;
+  --surface: var(--card);
+  --text: #e5e7eb;
+  --border: #263041;
+
+  /* BRAND */
+  --accent: #f59e0b;
+  --accent-soft: rgba(245, 158, 11, 0.15);
+  --accent-contrast: #000000; /* 🔥 NUEVO */
+
+  /* STATE */
+  --positive: #22c55e;
+  --success: #22c55e;
+  --negative: #ef4444;
+  --danger: #ef4444;
+  
+  --warning: #facc15;
+
+  /* UI */
+  --muted: #94a3b8;
+  --hover: rgba(255, 255, 255, 0.06);
+
+  --radius: 12px;
+  --font: system-ui;
+
+  /* Layout */
+  --sidebar: var(--card);
+  --sidebar-hover: var(--hover);
+  --sidebar-active: var(--accent);
+
+  /* Surface */
+  --input: var(--card);
+  --surface-2: var(--card);
+  --card-hover: rgba(255,255,255,.04);
+  --header: transparent;
+
+  /* Tables */
+  --table-row: transparent;
+  --table-hover: rgba(255,255,255,.03);
+
+  /* Effects */
+  --shadow: 0 8px 24px rgba(0,0,0,.20);
+
+  /* Component Style */
+
+  --card-radius: 12px;
+  --button-radius: 12px;
+  --input-radius: 10px;
+
+  --card-border-width: 1px;
+  --button-border-width: 1px;
+  --button-border-color: var(--border);
+
+  --card-shadow: var(--shadow);
+  --card-shadow-hover: 0 14px 36px rgba(0,0,0,.28);
+
+  --card-border-color: var(--border);
+  --sidebar-shadow: none;
+
+  --card-bg: var(--card);
+}
+
+/* =========================
+   🟢 1. MIDNIGHT MODE (FREE)
+========================= */
+
+html.midnight {
+  --bg: #0b0f14;
+  --card: #141c26;
+  --text: #e5e7eb;
+  --border: #263241;
+  --input: #1b2538;
+
+  --accent: #f59e0b;
+  --accent-soft: rgba(245, 158, 11, 0.18);
+  --accent-contrast: #000000; /* 🔥 clave */
+
+  --positive: #22c55e;
+  --success: #22c55e;
+  --negative: #ef4444;
+  --danger: #ef4444;
+
+  --muted: #94a3b8;
+  --hover: rgba(255, 255, 255, 0.06);
+  --card-shadow: 0 8px 20px rgba(0,0,0,.18);
+  --card-shadow-hover: 0 12px 28px rgba(0,0,0,.24);
+}
+
+/* =========================
+   🟢 2. SPORTSBOOK (FREE)
+========================= */
+
+html.stadium {
+  --bg: #0f1e17;
+  --card: #162a21;
+  --text: #ffffff;
+  --border: #1f3a2c;
+
+  --accent: #16a34a;
+  --accent-soft: rgba(22, 163, 74, 0.25);
+  --accent-contrast: #ffffff;
+
+  --positive: #22c55e;
+  --negative: #ef4444;
+  --success: #22c55e;
+  --danger: #ef4444;
+
+  --muted: #9ca3af;
+  --hover: rgba(255, 255, 255, 0.05);
+}
+
+/* =========================
+   🔵 3. DATA LAB (FREE)
+========================= */
+
+html.light {
+  --bg: #f1f5f9;
+  --card: #ffffff;
+  --text: #0f172a;
+  --border: #d1d5db;
+
+  --accent: #2563eb;
+  --accent-soft: rgba(37, 99, 235, 0.15);
+  --accent-contrast: #ffffff;
+
+  --positive: #16a34a;
+  --negative: #dc2626;
+  --success: #16a34a;
+  --danger: #dc2626;
+
+  --muted: #64748b;
+  --hover: rgba(0, 0, 0, 0.04);
+}
+
+/* =========================
+   🟣 4. NEON NIGHT (PREMIUM)
+========================= */
+
+html.aurora {
+  --bg: #05010a;
+  --card: #14032a;
+  --text: #e9d5ff;
+  --border: #3b0764;
+
+  --accent: #a855f7;
+  --accent-soft: rgba(168, 85, 247, 0.3);
+  --accent-contrast: #ffffff;
+
+  --positive: #22c55e;
+  --negative: #f43f5e;
+  --success: #22c55e;
+  --danger: #f43f5e;
+
+  --muted: #a78bfa;
+  --hover: rgba(168, 85, 247, 0.12);
+}
+
+/* =========================
+   🧪 5. FUTURISTIC (PREMIUM)
+========================= */
+
+html.sapphire {
+  --bg: #020617;
+  --card: #0f1b2d;
+  --text: #00f0ff;
+  --border: #164e63;
+
+  --accent: #00f0ff;
+  --accent-soft: rgba(0, 240, 255, 0.2);
+  --accent-contrast: #000000; /* 🔥 porque es cyan claro */
+
+  --positive: #00ff9f;
+  --negative: #ff006e;
+  --success: #00ff9f;
+  --danger: #ff006e;
+
+  --muted: #38bdf8;
+  --hover: rgba(0, 240, 255, 0.08);
+
+  --radius: 8px;
+  --font: "Orbitron", sans-serif;
+}
+
+/* =========================
+   🟡 6. CLASSIC (PREMIUM)
+========================= */
+
+html.heritage {
+  --bg: #fdf6e3;
+  --card: #eee8d5;
+  --text: #073642;
+  --border: #d6cbb3;
+
+  --accent: #b58900;
+  --accent-soft: rgba(181, 137, 0, 0.2);
+  --accent-contrast: #000000;
+
+  --positive: #859900;
+  --negative: #dc322f;
+  --success: #859900;
+  --danger: #dc322f;
+
+  --muted: #657b83;
+  --hover: rgba(0, 0, 0, 0.05);
+
+  --font: Georgia, serif;
+}
+
+/* =========================
+   ⚫ CARBON (PREMIUM)
+========================= */
+
+html.carbon {
+
+  /* Base */
+  --bg:
+    radial-gradient(
+        circle at top,
+        #161616 0%,
+        #0d0d0d 35%,
+        #080808 100%
+    );
+
+  --sidebar: #050505;
+  --surface:   #161616;
+  --surface-2: #1d1d1d;
+  --card: #2b2b2b;
+
+  --card-bg: linear-gradient(
+      180deg,
+      #313131 0%,
+      #262626 100%
+  );
+
+  --border: #2e2e2e;
+
+  --input: #161616;
+
+  --text: #f5f5f5;
+  --muted: #9ca3af;
+
+
+  /* Brand */
+  --accent: #f59e0b;
+  --accent-soft: rgba(245,158,11,.12);
+  --accent-contrast: #000000;
+
+  /* States */
+  --positive: #22c55e;
+  --negative: #ef4444;
+  --success: #22c55e;
+  --danger: #ef4444;
+
+  /* UI */
+  --hover: rgba(255,255,255,.025);
+
+  --card-hover: rgba(255,255,255,.03);
+  --table-hover: rgba(255,255,255,.04);
+
+  --shadow: 0 12px 36px rgba(0,0,0,.55);
+
+  --radius: 8px;
+
+  --font: system-ui;
+
+  --card-radius: 4px;
+
+
+  --button-bg: #353535;
+  --button-hover-bg: #404040;
+
+  --button-radius: 4px;
+  --input-radius: 4px;
+
+  --card-border-color: rgba(255,255,255,.05);
+  --button-border-color: rgba(255,255,255,.08);
+
+  --card-shadow: 0 14px 36px rgba(0,0,0,.42);
+  --card-shadow-hover: 0 20px 48px rgba(0,0,0,.58);
+
+  --sidebar-shadow: 6px 0 24px rgba(0,0,0,.45);
+
+ 
+
+}
+/* =========================
+   🔥 CRIMSON (PREMIUM)
+========================= */
+
+html.crimson {
+  --bg: #05010a;
+  --card: #14032a;
+  --text: #e9d5ff;
+  --border: #3b0764;
+
+  --accent: #a855f7;
+  --accent-soft: rgba(168, 85, 247, 0.3);
+  --accent-contrast: #ffffff;
+
+  --positive: #22c55e;
+  --negative: #f43f5e;
+  --success: #22c55e;
+  --danger: #f43f5e;
+
+  --muted: #a78bfa;
+  --hover: rgba(168, 85, 247, 0.12);
+
+  --font: system-ui;
+}
+
+
+/* =========================
+   🎨 THEME COMPONENTS
+========================= */
+.theme-card {
+  background: var(--card-bg);
+  border-radius: var(--card-radius);
+  border-width: var(--card-border-width);
+  border-style: solid;
+  border-color: var(--card-border-color);
+  box-shadow: var(--card-shadow);
+
+  transition:
+    background .20s,
+    border-color .20s,
+    box-shadow .20s,
+    transform .20s;
+}
+
+.theme-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.theme-card-active {
+
+    border-color: var(--accent);
+
+    box-shadow:
+        0 0 0 1px var(--accent),
+        var(--card-shadow-hover);
+}
+
+.theme-button {
+
+    border-radius: var(--button-radius);
+
+    border: 1px solid var(--button-border-color);
+
+    color: var(--text);
+
+    cursor: pointer;
+
+    transition:
+        background-color .20s,
+        border-color .20s,
+        color .20s,
+        transform .15s;
+}
+
+.theme-button:hover {
+
+    border-color: var(--accent);
+
+    transform: translateY(-1px);
+}
+
+.theme-button:active {
+
+    transform: translateY(0);
+}
+
+.theme-icon-button {
+
+    width: 28px;
+    height: 28px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: var(--button-radius);
+
+    border: 1px solid var(--button-border-color);
+
+    background: var(--button-bg, var(--card));
+
+    color: var(--text);
+
+    cursor: pointer;
+
+    transition:
+        background .2s,
+        border-color .2s,
+        transform .15s;
+}
+
+.theme-icon-button:hover {
+
+    background: var(--button-hover-bg, var(--hover));
+
+    border-color: var(--accent);
+
+    transform: translateY(-1px);
+}
+
+.theme-icon-button:active {
+
+    transform: translateY(0);
+}
+
+.theme-input {
+  border-radius: var(--input-radius);
+}
+
+.theme-select {
+
+    background: var(--button-bg);
+
+    border: 1px solid var(--button-border-color);
+
+    border-radius: var(--input-radius);
+
+    color: var(--text);
+
+    transition: all .2s;
+}
+
+.theme-select:hover {
+    background: var(--button-hover-bg);
+}
+
+.theme-select:focus {
+
+    outline: none;
+
+    border-color: var(--accent);
+
+    box-shadow: 0 0 0 2px rgba(245,158,11,.15);
+}
+/* =========================
+   📂 SIDEBAR COMPONENTS
+========================= */
+
+.theme-sidebar-button {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+
+  padding: 0.85rem 1rem;
+
+  border-radius: var(--button-radius);
+
+  transition:
+    background .20s,
+    color .20s,
+    transform .15s;
+}
+
+.theme-sidebar-button:hover {
+
+    background: rgba(255,255,255,.05);
+
+    transition: all .2s ease;
+}
+
+.theme-sidebar-active {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+
+.theme-bet {
+
+    background: var(--button-bg);
+
+    color: var(--text);
+
+    border-color: var(--button-border-color);
+}
+
+.theme-bet:hover {
+
+    background: var(--button-hover-bg);
+}
+
+.theme-bet-value {
+
+    background: var(--accent);
+
+    color: var(--accent-contrast);
+
+    border-color: transparent;
+}
+
+.theme-bet-value:hover {
+
+    filter: brightness(1.05);
+}
+/* =========================
+   ⚫ CARBON OVERRIDES
+========================= */
+
+html.carbon .theme-sidebar-button {
+
+    border-radius: 0;
+
+    transition: all .18s ease;
+}
+
+html.carbon .theme-sidebar-active {
+
+  background: rgba(245,158,11,.08);
+
+  color: #ffffff;
+
+  border-left: 3px solid var(--accent);
+
+  padding-left: calc(1rem - 3px);
+
+  font-weight: 600;
+}
+
+html.carbon .theme-sidebar-button:hover {
+
+    background: rgba(255,255,255,.04);
+
+}
+
+/* =========================
+   🎨 THEME PREVIEW
+========================= */
+.theme-preview-card{
+
+    backdrop-filter: blur(2px);
+
+    transition:
+        background .2s,
+        border-color .2s;
+}
+
+.preview-midnight .theme-preview-card{
+
+    background:#111827;
+
+    border-color:#263241;
+}
+
+.preview-stadium .theme-preview-card{
+
+    background:#163325;
+
+    border-color:#29513f;
+}
+
+.preview-light .theme-preview-card{
+
+    background:white;
+
+    border-color:#d7d7d7;
+
+    color:#111;
+}
+
+.preview-carbon .theme-preview-card{
+
+    background:#242424;
+
+    border-color:#3a3a3a;
+}
+
+.preview-sapphire .theme-preview-card{
+
+    background:#152c70;
+
+    border-color:#2f52b7;
+}
+
+.preview-aurora .theme-preview-card{
+
+    background:#45208d;
+
+    border-color:#7c3aed;
+}
+
+.preview-heritage .theme-preview-card{
+
+    background:#efe6cf;
+
+    border-color:#d3c3a3;
+}
+
+.preview-midnight{
+    background:#0B0F14;
+}
+
+.preview-stadium{
+    background:#0F1E17;
+}
+
+.preview-light{
+    background:#F1F5F9;
+}
+
+.preview-carbon{
+    background:#000000;
+}
+
+.preview-sapphire{
+    background:linear-gradient(135deg,#1d4ed8,#0f172a);
+}
+
+.preview-aurora{
+    background:linear-gradient(135deg,#7c3aed,#1e293b);
+}
+
+.preview-crimson{
+    background:linear-gradient(135deg,#b91c1c,#262626);
+}
+
+.preview-heritage{
+    background:#EFE5D2;
+}
+
+.preview-carbon .theme-preview-sidebar{
+    background:#050505;
+}
+
+.preview-carbon .theme-preview-navbar{
+    background:rgba(255,255,255,.03);
+}
+
+.preview-carbon .theme-preview-bet-highlight{
+    background:#f59e0b;
+}
+
+
+.preview-midnight .theme-preview-sidebar{
+    background:#111827;
+}
+
+.preview-midnight .theme-preview-navbar{
+    background:rgba(255,255,255,.05);
+}
+
+.preview-midnight .theme-preview-bet-highlight{
+    background:#f59e0b;
+}
+
+.preview-stadium .theme-preview-sidebar{
+    background:#14532d;
+}
+
+.preview-stadium .theme-preview-navbar{
+    background:rgba(255,255,255,.05);
+}
+
+.preview-stadium .theme-preview-bet-highlight{
+    background:#22c55e;
+}
+
+.preview-light{
+
+    color:#111827;
+}
+
+.preview-light .theme-preview-sidebar{
+    background:#dbe4ec;
+}
+
+.preview-light .theme-preview-navbar{
+    background:rgba(0,0,0,.05);
+}
+
+.preview-light .theme-preview-card{
+    background:white;
+}
+
+.preview-light .theme-preview-bet-highlight{
+    background:#2563eb;
+}
+
+.preview-sapphire .theme-preview-sidebar{
+    background:#082f49;
+}
+
+.preview-sapphire .theme-preview-navbar{
+    background:rgba(255,255,255,.05);
+}
+
+.preview-sapphire .theme-preview-bet-highlight{
+    background:#00f0ff;
+}
+
+.preview-aurora .theme-preview-sidebar{
+    background:#581c87;
+}
+
+.preview-aurora .theme-preview-navbar{
+    background:rgba(255,255,255,.05);
+}
+
+.preview-aurora .theme-preview-bet-highlight{
+    background:#a855f7;
+}
+
+.preview-crimson .theme-preview-sidebar{
+    background:#7f1d1d;
+}
+
+.preview-crimson .theme-preview-navbar{
+    background:rgba(255,255,255,.05);
+}
+
+.preview-crimson .theme-preview-bet-highlight{
+    background:#dc2626;
+}
+
+
+.preview-heritage{
+
+    color:#3b2f1f;
+}
+
+.preview-heritage .theme-preview-sidebar{
+    background:#d9ccb0;
+}
+
+.preview-heritage .theme-preview-navbar{
+    background:rgba(0,0,0,.04);
+}
+
+.preview-heritage .theme-preview-card{
+    background:#faf4e7;
+}
+
+.preview-heritage .theme-preview-bet-highlight{
+    background:#b58900;
+}
+
+

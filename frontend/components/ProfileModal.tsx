@@ -289,7 +289,7 @@ export default function ProfileModal({
               placeholder={t.currentPassword}
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full p-2 rounded bg-[var(--card)]"
+              className="w-full p-2 rounded bg-[var(--input)]"
             />
 
             <input
@@ -297,7 +297,7 @@ export default function ProfileModal({
               placeholder={t.newPassword}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full p-2 rounded bg-[var(--card)]"
+              className="w-full p-2 rounded bg-[var(--input)]"
             />
 
           </div>

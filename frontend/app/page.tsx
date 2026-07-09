@@ -60,9 +60,11 @@ type TopPick = {
   is_free: boolean;
 };
 
+// throw new Error("Testing error page");
 // ---------------- COMPONENT ----------------
 
 export default function Home() {
+  
 
   // ###########
   // CONSTANTES
@@ -553,7 +555,7 @@ export default function Home() {
       
 
       {!isMobile && (
-        <Sidebar view={view} setView={setView} isPremium={isPremium} />
+        <Sidebar view={view} setView={setView} />
       )}
       <main className="flex-1 p-6 bg-[var(--bg)] min-h-screen text-[var(--text)]">
         {isMobile && (
@@ -807,7 +809,7 @@ export default function Home() {
             onClose={() => setView("dashboard")}
           />
         )} */}
-        {view === "analysis" && !authLoading && isPremium && (
+        {view === "analysis" && !authLoading && (
           <AnalysisCenter />
         )}
 
@@ -838,7 +840,6 @@ export default function Home() {
                   setView(v);
                   setShowMenu(false); // cerrar al clicar
                 }}
-                isPremium={isPremium}
               />
             </div>
 

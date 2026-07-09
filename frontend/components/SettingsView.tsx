@@ -12,10 +12,70 @@ import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import { User } from "@/types/user";
 import Image from "next/image";
 import { useSubscription } from "@/context/SubscriptionContext";
+import ThemeCard from "@/components/settings/ThemeCard";
 
 /* THEMES */
-const FREE_THEMES: Theme[] = ["trader", "sportsbook", "datalab"];
-const PRO_THEMES: Theme[] = ["neon", "futuristic", "classic"];
+// const FREE_THEMES: Theme[] = ["trader", "sportsbook", "datalab"];
+// const PRO_THEMES: Theme[] = ["neon", "futuristic", "classic"];
+
+const THEMES = [
+  {
+    id: "midnight",
+    name: "🌙 Midnight",
+    description: "Professional dark theme",
+    premium: false,
+    previewClass: "preview-midnight",
+  },
+  {
+    id: "stadium",
+    name: "⚽ Stadium",
+    description: "Inspired by modern sportsbooks",
+    premium: false,
+    previewClass: "preview-stadium",
+  },
+  {
+    id: "light",
+    name: "☀️ Light",
+    description: "Clean and minimal interface",
+    premium: false,
+    previewClass: "preview-light",
+  },
+  {
+    id: "carbon",
+    name: "⚫ Carbon",
+    description: "The ultimate professional experience",
+    premium: true,
+    previewClass: "preview-carbon",
+  },
+  {
+    id: "sapphire",
+    name: "💙 Sapphire",
+    description: "Elegant blue interface",
+    premium: true,
+    previewClass: "preview-sapphire",
+  },
+  {
+    id: "aurora",
+    name: "💜 Aurora",
+    description: "Modern neon gradients",
+    premium: true,
+    previewClass: "preview-aurora",
+  },
+  {
+    id: "crimson",
+    name: "🔥 Crimson",
+    description: "Bold sports-inspired design",
+    premium: true,
+    previewClass: "preview-crimson",
+  },
+  {
+    id: "heritage",
+    name: "📜 Heritage",
+    description: "Classic premium edition",
+    premium: true,
+    previewClass: "preview-heritage",
+  },
+] as const;
 
 /* 🔥 COMPONENTE FUERA (CLAVE) */
 function Section({
@@ -30,10 +90,19 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl">
+    <div className="theme-card">
       <div
         onClick={toggle}
-        className="flex justify-between items-center p-4 cursor-pointer hover:bg-[var(--hover)]"
+        className="
+          flex
+          justify-between
+          items-center
+          px-5
+          py-4
+          cursor-pointer
+          transition-all
+          hover:bg-[var(--hover)]
+          "
       >
         <span className="font-semibold">{title}</span>
         <span>{open ? "▼" : "▶️"}</span>
@@ -116,7 +185,7 @@ export default function SettingsView({
     }
   };
 
-  const renderThemeButton = (tt: Theme, isPro: boolean = false) => {
+  /* const renderThemeButton = (tt: Theme, isPro: boolean = false) => {
     const isLocked = isPro && !isPremium;
 
     return (
@@ -144,7 +213,7 @@ export default function SettingsView({
         )}
       </button>
     );
-  };
+  }; */
 
   return (
     <div className="w-full max-w-3xl mx-auto text-[var(--text)] space-y-4">
@@ -160,21 +229,64 @@ export default function SettingsView({
         <div className="space-y-4">
 
           <div>
-            <p className="text-sm mb-2 text-[var(--muted)]">
-              {t.freeThemes}
+
+            <p className="text-sm mb-3 font-semibold text-[var(--muted)]">
+              🌟 Free Collection
             </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {FREE_THEMES.map((tt) => renderThemeButton(tt))}
+
+            <div className="grid md:grid-cols-3 gap-4">
+
+              {THEMES
+                .filter(theme => !theme.premium)
+                .map((themeItem) => (
+
+                  <ThemeCard
+                    key={themeItem.id}
+                    name={themeItem.name}
+                    description={themeItem.description}
+                    previewClass={themeItem.previewClass}
+                    premium={false}
+                    active={theme === themeItem.id}
+                    locked={false}
+                    onClick={() => setTheme(themeItem.id as Theme)}
+                  />
+
+                ))}
+
             </div>
+
           </div>
 
           <div>
-            <p className="text-sm mb-2 text-[var(--muted)]">
-              {t.premiumThemes}
+
+            <p className="text-sm mb-3 font-semibold text-[var(--muted)]">
+              ⭐ Premium Collection
             </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {PRO_THEMES.map((tt) => renderThemeButton(tt, true))}
+
+            <div className="grid md:grid-cols-3 gap-4">
+
+              {THEMES
+                .filter(theme => theme.premium)
+                .map((themeItem) => (
+
+                  <ThemeCard
+                    key={themeItem.id}
+                    name={themeItem.name}
+                    description={themeItem.description}
+                    previewClass={themeItem.previewClass}
+                    premium
+                    active={theme === themeItem.id}
+                    locked={!isPremium}
+                    onClick={() => {
+                      if (!isPremium) return;
+                      setTheme(themeItem.id as Theme);
+                    }}
+                  />
+
+                ))}
+
             </div>
+
           </div>
 
         </div>
@@ -269,30 +381,70 @@ export default function SettingsView({
         open={openAccount}
         toggle={() => setOpenAccount(!openAccount)}
       >
-        <div className="space-y-3">
+        <div className="overflow-hidden rounded-md">
 
           {/* PROFILE */}
           <button
             onClick={() => setShowProfileModal(true)}
-            className="w-full text-left p-2 hover:bg-[var(--hover)] rounded"
+            className="
+              w-full
+              flex
+              items-center
+              gap-3
+              text-left
+              px-5
+              py-4
+              transition-all
+              border-b
+              border-[var(--border)]
+              hover:bg-[var(--hover)]
+            "
           >
-            👤 {t.profile}
+            <span className="text-xl">👤</span>
+            <span>{t.profile}</span>
           </button>
 
           {/* PREMIUM */}
           <button
             onClick={handleUpgrade}
-            className="w-full text-left p-2 hover:bg-[var(--hover)] rounded"
+            className="
+              w-full
+              flex
+              items-center
+              gap-3
+              text-left
+              px-5
+              py-4
+              transition-all
+              border-b
+              border-[var(--border)]
+              hover:bg-[var(--hover)]
+            "
           >
-            ⭐ {isPremium ? t.premiumActive : t.upgradeToPremium}
+             
+            <span className="text-xl">⭐</span>
+            <span>{isPremium ? t.premiumActive : t.upgradeToPremium}</span>
           </button>
 
           {/* DELETE ACCOUNT */}
           <button
             onClick={() => setShowDeleteModal(true)}
-            className="w-full text-left p-2 hover:bg-[var(--hover)] rounded text-red-500"
+            className="
+              w-full
+              flex
+              items-center
+              gap-3
+              text-left
+              px-5
+              py-4
+              transition-all
+              border-b-0
+              border-[var(--border)]
+              hover:bg-[var(--hover)]
+            "
           >
-            ❌ {t.deleteAccount}
+            <span className="text-xl">❌</span>
+            <span>{t.deleteAccount}</span>
           </button>
 
         </div>

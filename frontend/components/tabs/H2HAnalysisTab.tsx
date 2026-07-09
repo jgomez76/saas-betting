@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
+import PremiumFeature from "@/components/premium/PremiumFeature";
 
 type H2HAnalysis = {
 
@@ -191,7 +192,7 @@ export default function H2HAnalysisTab() {
             setTeam2("");
 
           }}
-          className="p-3 rounded-xl bg-[var(--card)] border border-[var(--border)]"
+          className="p-3 rounded-xl bg-[var(--input)] border border-[var(--border)]"
         >
 
           <option value="">
@@ -239,7 +240,7 @@ export default function H2HAnalysisTab() {
             )
           }
           disabled={!selectedLeague}
-          className="p-3 rounded-xl bg-[var(--card)] border border-[var(--border)] disabled:opacity-50"
+          className="p-3 rounded-xl bg-[var(--input)] border border-[var(--border)] disabled:opacity-50"
         >
 
           <option value="">
@@ -268,7 +269,7 @@ export default function H2HAnalysisTab() {
             )
           }
           disabled={!selectedLeague}
-          className="p-3 rounded-xl bg-[var(--card)] border border-[var(--border)] disabled:opacity-50"
+          className="p-3 rounded-xl bg-[var(--input)] border border-[var(--border)] disabled:opacity-50"
         >
 
           <option value="">
@@ -301,7 +302,7 @@ export default function H2HAnalysisTab() {
 
       {error && !loading && (
 
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-6 text-center">
+        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-6 text-center">
 
           <div className="text-4xl mb-3">
             ⚔️
@@ -325,7 +326,7 @@ export default function H2HAnalysisTab() {
         <>
 
           {/* HEADER */}
-          <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6">
 
             <h3 className="text-3xl font-bold">
 
@@ -346,7 +347,7 @@ export default function H2HAnalysisTab() {
           {/* KPIS */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
 
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 text-center">
+            <div className="bg-[var(--surface-2)] border border-[var(--border)] rounded-xl p-4 text-center">
 
               <div className="text-xs text-[var(--muted)]">
                 {analysis.team1} {t.winsLabel}
@@ -358,7 +359,7 @@ export default function H2HAnalysisTab() {
 
             </div>
 
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 text-center">
+            <div className="bg-[var(--surface-2)] border border-[var(--border)] rounded-xl p-4 text-center">
 
               <div className="text-xs text-[var(--muted)]">
                 {t.drawLabel}
@@ -370,7 +371,7 @@ export default function H2HAnalysisTab() {
 
             </div>
 
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 text-center">
+            <div className="bg-[var(--surface-2)] border border-[var(--border)] rounded-xl p-4 text-center">
 
               <div className="text-xs text-[var(--muted)]">
                 {analysis.team2} {t.winsLabel}
@@ -382,7 +383,7 @@ export default function H2HAnalysisTab() {
 
             </div>
 
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 text-center">
+            <div className="bg-[var(--surface-2)] border border-[var(--border)] rounded-xl p-4 text-center">
 
               <div className="text-xs text-[var(--muted)]">
                 {t.avgGoalsLabel}
@@ -399,7 +400,7 @@ export default function H2HAnalysisTab() {
           {/* MARKET STATS */}
           <div className="grid md:grid-cols-2 gap-3">
 
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 text-center">
+            <div className="bg-[var(--surface-2)] border border-[var(--border)] rounded-xl p-5 text-center">
 
               <div className="text-sm text-[var(--muted)] mb-2">
                 BTTS
@@ -411,7 +412,7 @@ export default function H2HAnalysisTab() {
 
             </div>
 
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 text-center">
+            <div className="bg-[var(--surface-2)] border border-[var(--border)] rounded-xl p-5 text-center">
 
               <div className="text-sm text-[var(--muted)] mb-2">
                 Over 2.5
@@ -426,7 +427,7 @@ export default function H2HAnalysisTab() {
           </div>
 
           {/* RECENT MATCHES */}
-          <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5">
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5">
 
             <div className="flex items-center justify-between mb-5">
 
@@ -478,6 +479,20 @@ export default function H2HAnalysisTab() {
             </div>
 
           </div>
+
+          <PremiumFeature
+              icon="⚔️"
+              title="Luranix AI Insight"
+              badge="Premium"
+              description="Go beyond raw statistics with AI-powered insights that explain what the historical data really means."
+              features={[
+                  "Historical dominance",
+                  "Goal trends",
+                  "BTTS prediction",
+                  "Over/Under prediction",
+                  "AI match conclusion",
+              ]}
+          />
 
         </>
 

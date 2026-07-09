@@ -11,9 +11,6 @@ type Props = {
 
   isAdmin: boolean;
 
-  marketFilter: string;
-  setMarketFilter: (value: string) => void;
-
   leagueFilter: string;
   setLeagueFilter: (value: string) => void;
 
@@ -47,8 +44,6 @@ const Navbar = memo(function Navbar({
   onOpenLogin,
   onLogout,
   onOpenProfile,
-  marketFilter,
-  setMarketFilter,
   leagueFilter,
   setLeagueFilter,
   dateFilter,
@@ -90,13 +85,6 @@ const Navbar = memo(function Navbar({
         : `${API}/${avatar.replace(/^\/+/, "").replace(/\\/g, "/")}`
       : null;
 
-  const marketLabels: Record<string, string> = {
-    ALL: t.all,
-    "1X2": "1X2",
-    OU25: "Over 2.5",
-    OU35: "Over 3.5",
-    BTTS: "BTTS",
-  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -139,7 +127,13 @@ const Navbar = memo(function Navbar({
             onChange={(e) =>
               setLeagueFilter(e.target.value)
             }
-            className="px-3 py-1 rounded text-sm bg-[var(--card)] border border-[var(--border)]"
+            className="
+                theme-select
+                px-3
+                py-2
+                text-sm
+                min-w-[220px]
+            "
           >
 
             <option value="ALL">
@@ -178,44 +172,17 @@ const Navbar = memo(function Navbar({
 
           </select>
 
-          {/* MARKETS */}
-          <select
-            value={marketFilter}
-            onChange={(e) =>
-              setMarketFilter(
-                e.target.value
-              )
-            }
-            className="px-3 py-1 rounded text-sm bg-[var(--card)] border border-[var(--border)]"
-          >
-
-            <option value="ALL">
-              🎯 {t.all}
-            </option>
-
-            <option value="1X2">
-              1X2
-            </option>
-
-            <option value="OU25">
-              Over 2.5
-            </option>
-
-            <option value="OU35">
-              Over 3.5
-            </option>
-
-            <option value="BTTS">
-              BTTS
-            </option>
-
-          </select>
-
           {/* DATE */}
           <select
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
-            className="px-3 py-1 rounded text-sm bg-[var(--card)] border border-[var(--border)]"
+            className="
+                theme-select
+                px-3
+                py-2
+                text-sm
+                min-w-[180px]
+            "
           >
             <option value="TODAY">📅 {t.today}</option>
             <option value="TODAY_TOMORROW">📅 {t.todayTomorrow}</option>
@@ -276,15 +243,20 @@ const Navbar = memo(function Navbar({
             ) : (
               <button
                 onClick={onOpenLogin}
-                className="px-3 py-1 bg-[var(--card)] border border-[var(--border)] rounded"
+                className="
+                  theme-button
+                  px-5
+                  py-2.5
+                  font-semibold
+                "
               >
                 🔐 {t.login}
               </button>
             )}
 
             {/* FLAGS RIGHT */}
-            <div className="flex items-center gap-2 ml-auto">
-              <div className="flex items-center gap-2 ml-auto">
+            <div className="flex items-center gap-3">
+              {/* <div className="flex items-center gap-2 ml-auto"> */}
 
                 <button
                   onClick={() => changeLang("en")}
@@ -385,7 +357,7 @@ const Navbar = memo(function Navbar({
                     {t.from}
                   </span>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
 
                     <button
                       onClick={() =>
@@ -396,13 +368,7 @@ const Navbar = memo(function Navbar({
                           )
                         )
                       }
-                      className="
-                        w-7 h-7
-                        rounded-full
-                        border border-[var(--border)]
-                        bg-[var(--bg)]
-                        hover:bg-[var(--hover)]
-                      "
+                      className="theme-icon-button"
                     >
                       −
                     </button>
@@ -420,13 +386,7 @@ const Navbar = memo(function Navbar({
                           )
                         )
                       }
-                      className="
-                        w-7 h-7
-                        rounded-full
-                        border border-[var(--border)]
-                        bg-[var(--bg)]
-                        hover:bg-[var(--hover)]
-                      "
+                      className="theme-icon-button"
                     >
                       +
                     </button>
@@ -441,7 +401,7 @@ const Navbar = memo(function Navbar({
                     {t.to}
                   </span>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
 
                     <button
                       onClick={() =>
@@ -452,13 +412,7 @@ const Navbar = memo(function Navbar({
                           )
                         )
                       }
-                      className="
-                        w-7 h-7
-                        rounded-full
-                        border border-[var(--border)]
-                        bg-[var(--bg)]
-                        hover:bg-[var(--hover)]
-                      "
+                      className="theme-icon-button"
                     >
                       −
                     </button>
@@ -476,13 +430,7 @@ const Navbar = memo(function Navbar({
                           )
                         )
                       }
-                      className="
-                        w-7 h-7
-                        rounded-full
-                        border border-[var(--border)]
-                        bg-[var(--bg)]
-                        hover:bg-[var(--hover)]
-                      "
+                      className="theme-icon-button"
                     >
                       +
                     </button>
@@ -510,7 +458,7 @@ const Navbar = memo(function Navbar({
                     {t.from}
                   </span>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
 
                     <button
                       onClick={() =>
@@ -521,13 +469,7 @@ const Navbar = memo(function Navbar({
                           )
                         )
                       }
-                      className="
-                        w-7 h-7
-                        rounded-full
-                        border border-[var(--border)]
-                        bg-[var(--bg)]
-                        hover:bg-[var(--hover)]
-                      "
+                      className="theme-icon-button"
                     >
                       −
                     </button>
@@ -545,13 +487,7 @@ const Navbar = memo(function Navbar({
                           )
                         )
                       }
-                      className="
-                        w-7 h-7
-                        rounded-full
-                        border border-[var(--border)]
-                        bg-[var(--bg)]
-                        hover:bg-[var(--hover)]
-                      "
+                      className="theme-icon-button"
                     >
                       +
                     </button>
@@ -566,7 +502,7 @@ const Navbar = memo(function Navbar({
                     {t.to}
                   </span>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
 
                     <button
                       onClick={() =>
@@ -577,13 +513,7 @@ const Navbar = memo(function Navbar({
                           )
                         )
                       }
-                      className="
-                        w-7 h-7
-                        rounded-full
-                        border border-[var(--border)]
-                        bg-[var(--bg)]
-                        hover:bg-[var(--hover)]
-                      "
+                      className="theme-icon-button"
                     >
                       −
                     </button>
@@ -601,13 +531,7 @@ const Navbar = memo(function Navbar({
                           )
                         )
                       }
-                      className="
-                        w-7 h-7
-                        rounded-full
-                        border border-[var(--border)]
-                        bg-[var(--bg)]
-                        hover:bg-[var(--hover)]
-                      "
+                      className="theme-icon-button"
                     >
                       +
                     </button>
@@ -624,7 +548,7 @@ const Navbar = memo(function Navbar({
 
         </div>
 
-      </div>
+      {/* </div> */}
     </div>
   );
 });

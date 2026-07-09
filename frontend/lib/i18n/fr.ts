@@ -402,7 +402,7 @@ export const fr = {
     allRightsReserved: "Tous droits réservés",
 
     // LEGAL-PAGE
-    backToBetSaas: "Retour à BetSaaS",
+    backToBetSaas: "Retour à Luranix",
     lastUpdated: "Dernière mise à jour",
 
     // CONTACTO
@@ -427,7 +427,7 @@ export const fr = {
     feedback: "Commentaires",
 
     feedbackDescription:
-    "Nous accueillons avec plaisir vos suggestions et commentaires afin d'améliorer BetSaaS et d'offrir une meilleure expérience à tous les utilisateurs.",
+    "Nous accueillons avec plaisir vos suggestions et commentaires afin d'améliorer Luranix et d'offrir une meilleure expérience à tous les utilisateurs.",
 
     businessInquiries: "Demandes commerciales",
 
@@ -446,7 +446,7 @@ export const fr = {
     cookieTitle: "Nous utilisons des cookies",
 
     cookieDescription:
-    "Nous utilisons des cookies pour améliorer votre expérience sur BetSaaS.",
+    "Nous utilisons des cookies pour améliorer votre expérience sur Luranix.",
 
     accept: "Accepter",
     reject: "Refuser",

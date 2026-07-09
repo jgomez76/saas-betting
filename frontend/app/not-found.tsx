@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { translations } from "@/lib/i18n/translations";
+import { COMPANY } from "@/lib/branding";
 
 export default async function NotFound() {
 
@@ -30,10 +31,6 @@ export default async function NotFound() {
           text-center
         "
       >
-
-        <div className="text-6xl mb-6">
-          ⚽
-        </div>
 
         <h1
           className="
@@ -67,21 +64,33 @@ export default async function NotFound() {
         <Link
           href="/"
           className="
-            inline-flex
-            items-center
-            justify-center
-            px-6
-            py-3
-            rounded-xl
-            bg-[var(--primary)]
-            text-white
-            font-medium
-            hover:opacity-90
-            transition
+          inline-flex
+          items-center
+          justify-center
+          px-6
+          py-3
+          rounded-xl
+          bg-[var(--primary)]
+          text-white
+          font-medium
+          hover:opacity-90
+          transition
           "
         >
           {t.goHome}
         </Link>
+
+        <div className="mt-12 space-y-1">
+
+          <p className="text-sm font-medium opacity-70">
+            {COMPANY.name}
+          </p>
+
+          <p className="text-sm opacity-50">
+            {COMPANY.slogan}
+          </p>
+
+        </div>
 
       </div>
     </div>

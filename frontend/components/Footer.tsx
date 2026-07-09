@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
+import { COMPANY } from "@/lib/branding";
 
 export default function Footer() {
 
@@ -32,8 +33,7 @@ export default function Footer() {
         "
       >
         <div>
-          © {new Date().getFullYear()} BetSaaS.{" "}
-          {t.allRightsReserved}
+          © {new Date().getFullYear()} {COMPANY.name}. {t.allRightsReserved}
         </div>
 
         <div

@@ -258,7 +258,7 @@ export default function TeamAnalysisTab() {
 
             setSelectedTeam("");
           }}
-          className="p-3 rounded-xl bg-[var(--card)] border border-[var(--border)]"
+          className="p-3 rounded-xl bg-[var(--input)] border border-[var(--border)]"
         >
 
           <option value="">
@@ -274,22 +274,14 @@ export default function TeamAnalysisTab() {
                 label={groupName}
               >
 
-                {Object.entries(
-                  leagues
-                ).map(
-
-                  ([leagueId, leagueName]) => (
-
-                    <option
-                      key={leagueId}
-                      value={leagueId}
-                    >
-                      {leagueName}
-                    </option>
-
-                  )
-
-                )}
+              {Object.entries(leagues).map(([leagueId, leagueName]) => (
+                <option
+                  key={leagueId}
+                  value={leagueId}
+                >
+                  {leagueName}
+                </option>
+              ))}
 
               </optgroup>
 
@@ -312,7 +304,7 @@ export default function TeamAnalysisTab() {
 
           }}
           disabled={!selectedLeague}
-          className="p-3 rounded-xl bg-[var(--card)] border border-[var(--border)] disabled:opacity-50"
+          className="p-3 rounded-xl bg-[var(--input)] border border-[var(--border)] disabled:opacity-50"
         >
 
           <option value="">
@@ -350,7 +342,7 @@ export default function TeamAnalysisTab() {
             );
 
           }}
-          className="p-3 rounded-xl bg-[var(--card)] border border-[var(--border)]"
+          className="p-3 rounded-xl bg-[var(--input)] border border-[var(--border)]"
         >
 
           <option value="ALL">
@@ -383,7 +375,7 @@ export default function TeamAnalysisTab() {
 
       {error && !loading && (
 
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-6 text-center">
+        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-6 text-center">
 
           <div className="text-4xl mb-3">
             ⚽
@@ -407,7 +399,7 @@ export default function TeamAnalysisTab() {
         <>
 
           {/* TEAM HEADER */}
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
+            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6">
 
             <div className="flex items-center justify-between flex-wrap gap-4">
 
@@ -440,7 +432,7 @@ export default function TeamAnalysisTab() {
           {/* KPIS */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
 
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 text-center">
+            <div className="bg-[var(--surface-2)] border border-[var(--border)] rounded-xl p-4 text-center">
 
                 <div className="text-xs text-[var(--muted)]">
                 {t.wins}
@@ -452,7 +444,7 @@ export default function TeamAnalysisTab() {
 
             </div>
 
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 text-center">
+            <div className="bg-[var(--surface-2)] border border-[var(--border)] rounded-xl p-4 text-center">
 
                 <div className="text-xs text-[var(--muted)]">
                 {t.draws}
@@ -464,7 +456,7 @@ export default function TeamAnalysisTab() {
 
             </div>
 
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 text-center">
+            <div className="bg-[var(--surface-2)] border border-[var(--border)] rounded-xl p-4 text-center">
 
                 <div className="text-xs text-[var(--muted)]">
                 {t.losses}
@@ -476,7 +468,7 @@ export default function TeamAnalysisTab() {
 
             </div>
 
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 text-center">
+            <div className="bg-[var(--surface-2)] border border-[var(--border)] rounded-xl p-4 text-center">
 
                 <div className="text-xs text-[var(--muted)]">
                 BTTS
@@ -493,7 +485,7 @@ export default function TeamAnalysisTab() {
           {/* GOALS */}
             <div className="grid md:grid-cols-2 gap-3">
 
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5">
+            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5">
 
                 <div className="text-sm text-[var(--muted)] mb-2">
                 ⚽ {t.goalsScored}
@@ -509,7 +501,7 @@ export default function TeamAnalysisTab() {
 
             </div>
 
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5">
+            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5">
 
                 <div className="text-sm text-[var(--muted)] mb-2">
                 🥅 {t.goalsConceded}
@@ -530,7 +522,7 @@ export default function TeamAnalysisTab() {
           {/* MARKET STATS */}
             <div className="grid md:grid-cols-3 gap-3">
 
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 text-center">
+            <div className="bg-[var(--surface-2)] border border-[var(--border)] rounded-xl p-5 text-center">
 
                 <div className="text-sm text-[var(--muted)] mb-2">
                 Over 2.5
@@ -542,7 +534,7 @@ export default function TeamAnalysisTab() {
 
             </div>
 
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 text-center">
+            <div className="bg-[var(--surface-2)] border border-[var(--border)] rounded-xl p-5 text-center">
 
                 <div className="text-sm text-[var(--muted)] mb-2">
                 Over 3.5
@@ -554,7 +546,7 @@ export default function TeamAnalysisTab() {
 
             </div>
 
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 text-center">
+            <div className="bg-[var(--surface-2)] border border-[var(--border)] rounded-xl p-5 text-center">
 
                 <div className="text-sm text-[var(--muted)] mb-2">
                 {t.cleanSheets}
@@ -569,7 +561,7 @@ export default function TeamAnalysisTab() {
             </div>
 
           {/* GOALS CHART */}
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5">
+            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5">
 
             <div className="flex items-center justify-between mb-4">
 
@@ -659,7 +651,7 @@ export default function TeamAnalysisTab() {
             </div>
 
           {/* HOME vs AWAY */}
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5">
+            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5">
 
               <div className="flex items-center justify-between mb-5">
 
@@ -810,62 +802,62 @@ export default function TeamAnalysisTab() {
           {/* INSIGHTS */}
             <div className="grid md:grid-cols-3 gap-3">
 
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4">
+              <div className="bg-[var(--surface-2)] border border-[var(--border)] rounded-xl p-4">
+
+                  <div className="text-lg mb-2">
+                  🔥
+                  </div>
+
+                  <div className="font-semibold">
+                  {t.strongAttack}
+                  </div>
+
+                  <div className="text-sm text-[var(--muted)] mt-1">
+                  {t.strongAttackDescription.replace(
+                    "{value}",
+                    analysis.avg_goals_scored.toString()
+                  )}
+                  </div>
+
+              </div>
+
+              <div className="bg-[var(--surface-2)] border border-[var(--border)] rounded-xl p-4">
 
                 <div className="text-lg mb-2">
-                🔥
+                  📈
                 </div>
 
                 <div className="font-semibold">
-                {t.strongAttack}
+                  {t.goalTrends}
                 </div>
 
                 <div className="text-sm text-[var(--muted)] mt-1">
-                {t.strongAttackDescription.replace(
-                  "{value}",
-                  analysis.avg_goals_scored.toString()
-                )}
+                  {t.goalTrendsDescription.replace(
+                    "{value}",
+                    analysis.over25.toString()
+                  )}
                 </div>
 
-            </div>
+              </div>
 
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4">
+              <div className="bg-[var(--surface-2)] border border-[var(--border)] rounded-xl p-4">
 
-                <div className="text-lg mb-2">
-                📈
-                </div>
+                  <div className="text-lg mb-2">
+                  🧠
+                  </div>
 
-                <div className="font-semibold">
-                {t.goalTrends}
-                </div>
+                  <div className="font-semibold">
+                  {t.defensiveProfile}
+                  </div>
 
-                <div className="text-sm text-[var(--muted)] mt-1">
-                {t.goalTrendsDescription.replace(
-                  "{value}",
-                  analysis.over25.toString()
-                )}
-                </div>
+                  <div className="text-sm text-[var(--muted)] mt-1">
+                  {t.defensiveProfileDescription.replace(
+                    "{value}",
+                    analysis.clean_sheets.toString()
+                  )}
+                  </div>
 
-            </div>
-
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4">
-
-                <div className="text-lg mb-2">
-                🧠
-                </div>
-
-                <div className="font-semibold">
-                {t.defensiveProfile}
-                </div>
-
-                <div className="text-sm text-[var(--muted)] mt-1">
-                {t.defensiveProfileDescription.replace(
-                  "{value}",
-                  analysis.clean_sheets.toString()
-                )}
-                </div>
-
-            </div>
+              </div>
 
             </div>
 

@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
+import PremiumStat from "@/components/premium/PremiumStat";
+import PremiumFeature from "@/components/premium/PremiumFeature";
+import { useSubscription } from "@/context/SubscriptionContext";
 
 const apiUrl =
   typeof window !== "undefined"
@@ -102,6 +105,7 @@ type UpcomingFixture = {
 
 export default function MatchAnalysisTab() {
   const { t } = useLanguage();
+  const { isPremium } = useSubscription();
 
   // const [leagueTeams, setLeagueTeams] =
   //   useState<Record<string, string[]>>({});
@@ -294,7 +298,7 @@ export default function MatchAnalysisTab() {
             setAnalysis(null);
 
           }}
-          className="p-3 rounded-xl bg-[var(--card)] border border-[var(--border)]"
+          className="p-3 rounded-xl bg-[var(--input)] border border-[var(--border)]"
         >
 
           <option value="">
@@ -350,7 +354,7 @@ export default function MatchAnalysisTab() {
 
           }}
           disabled={!selectedLeague}
-          className="p-3 rounded-xl bg-[var(--card)] border border-[var(--border)] disabled:opacity-50"
+          className="p-3 rounded-xl bg-[var(--input)] border border-[var(--border)] disabled:opacity-50"
         >
 
           <option value="">
@@ -402,7 +406,7 @@ export default function MatchAnalysisTab() {
         <>
 
         {/* MATCH HEADER */}
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
+        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6">
 
         <h3 className="text-3xl font-bold">
 
@@ -423,53 +427,21 @@ export default function MatchAnalysisTab() {
         {/* MAIN KPIS */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
 
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 text-center">
-
-            <div className="text-sm text-[var(--muted)] mb-2">
-            BTTS
-            </div>
-
-            <div className="text-4xl font-bold">
+          <PremiumStat title="BTTS">
             {analysis.combined.btts}%
-            </div>
+          </PremiumStat>
 
-        </div>
-
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 text-center">
-
-            <div className="text-sm text-[var(--muted)] mb-2">
-            Over 2.5
-            </div>
-
-            <div className="text-4xl font-bold">
+          <PremiumStat title="Over 2.5">
             {analysis.combined.over25}%
-            </div>
+          </PremiumStat>
 
-        </div>
-
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 text-center">
-
-            <div className="text-sm text-[var(--muted)] mb-2">
-            H2H BTTS
-            </div>
-
-            <div className="text-4xl font-bold">
+          <PremiumStat title="H2H BTTS">
             {analysis.h2h?.btts || 0}%
-            </div>
+          </PremiumStat>
 
-        </div>
-
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 text-center">
-
-            <div className="text-sm text-[var(--muted)] mb-2">
-            H2H Over 2.5
-            </div>
-
-            <div className="text-4xl font-bold">
+          <PremiumStat title="H2H Over 2.5">
             {analysis.h2h?.over25 || 0}%
-            </div>
-
-        </div>
+          </PremiumStat>
 
         </div>
 
@@ -477,7 +449,7 @@ export default function MatchAnalysisTab() {
         <div className="grid md:grid-cols-2 gap-3">
 
         {/* HOME FORM */}
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5">
+        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5">
 
             <div className="mb-4">
 
@@ -498,7 +470,7 @@ export default function MatchAnalysisTab() {
         </div>
 
         {/* AWAY FORM */}
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5">
+        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5">
 
             <div className="mb-4">
 
@@ -524,7 +496,7 @@ export default function MatchAnalysisTab() {
         <div className="grid md:grid-cols-2 gap-3">
 
             {/* HOME */}
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5">
+            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5">
 
                 <div className="mb-5">
 
@@ -593,7 +565,7 @@ export default function MatchAnalysisTab() {
             </div>
 
             {/* AWAY */}
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5">
+            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5">
 
                 <div className="mb-5">
 
@@ -664,221 +636,273 @@ export default function MatchAnalysisTab() {
         </div>
 
         {/* INSIGHTS */}
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5">
 
-        <div className="mb-5">
+        {isPremium ? (
 
-            <h3 className="text-xl font-bold">
-            🧠 {t.smartInsights}
-            </h3>
-
-            <p className="text-sm text-[var(--muted)] mt-1">
-            {t.autoGeneratedInsights}
-            </p>
-
-        </div>
-
-        <div className="space-y-3">
-
-            {analysis.insights.map((insight, i) => (
-
-            <div
-                key={i}
-                className="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4"
-            >
-
-                🔥 {insight}
-
-            </div>
-
-            ))}
-
-        </div>
-
-        </div>
-
-        {/* MARKETS */}
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5">
-
-        <div className="mb-5">
-
-            <h3 className="text-xl font-bold">
-            🎯 {t.marketConfidence}
-            </h3>
-
-            <p className="text-sm text-[var(--muted)] mt-1">
-            {t.confidenceEngine}
-            </p>
-
-        </div>
-
-        <div className="space-y-4">
-
-            {analysis.markets.map((m, i) => {
-
-            const barColor =
-
-                m.confidence >= 80
-                ? "bg-green-500"
-
-                : m.confidence >= 65
-                ? "bg-yellow-500"
-
-                : m.confidence >= 55
-                ? "bg-orange-500"
-
-                : "bg-orange-500";
-
-            return (
-
-                <div
-                key={i}
-                className="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4"
-                >
-
-                <div className="flex items-center justify-between mb-3">
-
-                    <div>
-
-                    <div className="font-bold text-lg">
-                        {m.market}
-                    </div>
-
-                    <div className="text-sm text-[var(--muted)]">
-                        {
-                          m.strength === "VERY STRONG"
-                            ? t.veryStrong
-                            : m.strength === "STRONG"
-                            ? t.strong
-                            : m.strength === "MEDIUM"
-                            ? t.medium
-                            : t.low
-                        }
-                    </div>
-
-                    </div>
-
-                    <div className="text-2xl font-bold">
-
-                    {m.confidence}%
-
-                    </div>
-
-                </div>
-
-                {/* BAR */}
-                <div className="w-full h-4 bg-white/10 rounded-full overflow-hidden">
-
-                    <div
-                        className={`h-full ${barColor} transition-all duration-500`}
-                        style={{
-                        width: `${m.confidence}%`
-                        }}
-                    />
-
-                </div>
-
-
-            </div>
-
-            );
-            })}
-
-        </div>
-
-        </div>
-
-        {/* VALUE OPPORTUNITIES */}
-        {analysis.value_opportunities.length > 0 && (
-
-        <div className="bg-[var(--card)] border border-green-500/40 rounded-2xl p-5">
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5">
 
             <div className="mb-5">
 
-            <h3 className="text-xl font-bold text-green-400">
-                🔥 {t.valueOpportunities}
-            </h3>
+              <h3 className="text-xl font-bold">
+                🧠 {t.smartInsights}
+              </h3>
 
-            <p className="text-sm text-[var(--muted)] mt-1">
-                {t.realValueDetected}
-            </p>
+              <p className="text-sm text-[var(--muted)] mt-1">
+                {t.autoGeneratedInsights}
+              </p>
+
+            </div>
+
+            <div className="space-y-3">
+
+              {analysis.insights.map((insight, i) => (
+
+                <div
+                  key={i}
+                  className="bg-[var(--surface-2)] border border-[var(--border)] rounded-xl p-4"
+                >
+                  🔥 {insight}
+                </div>
+
+              ))}
+
+            </div>
+
+          </div>
+
+        ) : (
+
+          <PremiumFeature
+            icon="🧠"
+            title="Smart Insights"
+            description="Automatically generated betting insights based on historical statistics and team trends."
+            features={[
+              "AI-generated insights",
+              "Team strengths",
+              "Weakness detection",
+              "Key betting trends",
+              "Automatic recommendations",
+            ]}
+            buttonText="Explore Premium"
+          />
+
+        )}
+
+        {/* MARKETS */}
+
+        {isPremium ? (
+
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5">
+
+            <div className="mb-5">
+
+              <h3 className="text-xl font-bold">
+                🎯 {t.marketConfidence}
+              </h3>
+
+              <p className="text-sm text-[var(--muted)] mt-1">
+                {t.confidenceEngine}
+              </p>
 
             </div>
 
             <div className="space-y-4">
 
-            {analysis.value_opportunities.map((v, i) => (
+              {analysis.markets.map((m, i) => {
 
-                <div
-                key={i}
-                className="bg-[var(--bg)] border border-green-500/20 rounded-xl p-5"
-                >
+                const barColor =
+                  m.confidence >= 80
+                    ? "bg-green-500"
+                    : m.confidence >= 65
+                    ? "bg-yellow-500"
+                    : m.confidence >= 55
+                    ? "bg-orange-500"
+                    : "bg-orange-500";
 
-                {/* HEADER */}
-                <div className="flex items-center justify-between mb-4">
+                return (
 
-                    <div>
+                  <div
+                    key={i}
+                    className="bg-[var(--surface-2)] border border-[var(--border)] rounded-xl p-4"
+                  >
 
-                    <div className="text-xl font-bold">
-                        🎯 {v.market}
-                    </div>
+                    <div className="flex items-center justify-between mb-3">
 
-                    <div className="text-sm text-[var(--muted)] mt-1">
-                        {v.bookmaker}
-                    </div>
+                      <div>
 
-                    </div>
+                        <div className="font-bold text-lg">
+                          {m.market}
+                        </div>
 
-                    <div className="text-right">
+                        <div className="text-sm text-[var(--muted)]">
+                          {
+                            m.strength === "VERY STRONG"
+                              ? t.veryStrong
+                              : m.strength === "STRONG"
+                              ? t.strong
+                              : m.strength === "MEDIUM"
+                              ? t.medium
+                              : t.low
+                          }
+                        </div>
 
-                    <div className="text-3xl font-bold text-green-400">
-                        +{v.edge}%
-                    </div>
+                      </div>
 
-                    <div className="text-xs text-[var(--muted)]">
-                        {t.valueEdge}
-                    </div>
-
-                    </div>
-
-                </div>
-
-                {/* ODDS */}
-                <div className="grid grid-cols-2 gap-3">
-
-                    <div className="bg-[var(--card)] rounded-xl p-4">
-
-                    <div className="text-xs text-[var(--muted)]">
-                        {t.marketOdds}
-                    </div>
-
-                    <div className="text-2xl font-bold mt-1">
-                        {v.market_odds}
-                    </div>
+                      <div className="text-2xl font-bold">
+                        {m.confidence}%
+                      </div>
 
                     </div>
 
-                    <div className="bg-[var(--card)] rounded-xl p-4">
+                    <div className="w-full h-4 bg-white/10 rounded-full overflow-hidden">
 
-                    <div className="text-xs text-[var(--muted)]">
-                        {t.fairOdds}
+                      <div
+                        className={`h-full ${barColor} transition-all duration-500`}
+                        style={{
+                          width: `${m.confidence}%`
+                        }}
+                      />
+
                     </div>
 
-                    <div className="text-2xl font-bold mt-1">
-                        {v.fair_odds}
-                    </div>
+                  </div>
 
-                    </div>
+                );
 
-                </div>
-
-                </div>
-
-            ))}
+              })}
 
             </div>
 
-        </div>
+          </div>
+
+        ) : (
+
+          <PremiumFeature
+            icon="🎯"
+            title="Market Confidence"
+            description="See which betting markets have the highest statistical confidence before placing a bet."
+            features={[
+              "Confidence score",
+              "Strength classification",
+              "Probability bars",
+              "Recommended markets",
+              "Risk evaluation",
+            ]}
+            buttonText="Explore Premium"
+          />
+
+        )}
+
+        {/* VALUE OPPORTUNITIES */}
+
+        {analysis.value_opportunities.length > 0 && (
+
+          isPremium ? (
+
+            <div className="bg-[var(--surface)] border border-green-500/40 rounded-2xl p-5">
+
+              <div className="mb-5">
+
+                <h3 className="text-xl font-bold text-green-400">
+                  🔥 {t.valueOpportunities}
+                </h3>
+
+                <p className="text-sm text-[var(--muted)] mt-1">
+                  {t.realValueDetected}
+                </p>
+
+              </div>
+
+              <div className="space-y-4">
+
+                {analysis.value_opportunities.map((v, i) => (
+
+                  <div
+                    key={i}
+                    className="bg-[var(--surface-2)] border border-green-500/20 rounded-xl p-5"
+                  >
+
+                    <div className="flex items-center justify-between mb-4">
+
+                      <div>
+
+                        <div className="text-xl font-bold">
+                          🎯 {v.market}
+                        </div>
+
+                        <div className="text-sm text-[var(--muted)] mt-1">
+                          {v.bookmaker}
+                        </div>
+
+                      </div>
+
+                      <div className="text-right">
+
+                        <div className="text-3xl font-bold text-green-400">
+                          +{v.edge}%
+                        </div>
+
+                        <div className="text-xs text-[var(--muted)]">
+                          {t.valueEdge}
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+
+                      <div className="bg-[var(--card)] rounded-xl p-4">
+
+                        <div className="text-xs text-[var(--muted)]">
+                          {t.marketOdds}
+                        </div>
+
+                        <div className="text-2xl font-bold mt-1">
+                          {v.market_odds}
+                        </div>
+
+                      </div>
+
+                      <div className="bg-[var(--card)] rounded-xl p-4">
+
+                        <div className="text-xs text-[var(--muted)]">
+                          {t.fairOdds}
+                        </div>
+
+                        <div className="text-2xl font-bold mt-1">
+                          {v.fair_odds}
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                ))}
+
+              </div>
+
+            </div>
+
+          ) : (
+
+            <PremiumFeature
+              icon="💎"
+              title="Value Opportunities"
+              description="Discover bets where our model estimates the market odds are higher than the true probability."
+              features={[
+                "Value edge detection",
+                "Fair odds calculation",
+                "Best bookmaker",
+                "Positive EV opportunities",
+                "Value betting analysis",
+              ]}
+              buttonText="Explore Premium"
+            />
+
+          )
 
         )}
 
@@ -888,7 +912,7 @@ export default function MatchAnalysisTab() {
 
       {analysis && !loading && !hasAnalysisData && (
 
-        <div className="bg-[var(--card)] border border-yellow-500/30 rounded-2xl p-6">
+        <div className="bg-[var(--surface)] border border-yellow-500/30 rounded-2xl p-6">
 
           <h3 className="text-xl font-bold mb-2">
             ⚠️ {t.noDataAvailable}

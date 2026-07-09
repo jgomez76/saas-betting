@@ -346,7 +346,7 @@ export default function LoginModal({ onClose, onLogin }: Props) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder={t.email}
-          className="w-full mb-3 p-2 rounded bg-[var(--card)] text-[var(--text)] border border-[var(--border)]"
+          className="w-full mb-3 p-2 rounded bg-[var(--input)] text-[var(--text)] border border-[var(--border)]"
         />
 
         {/* PASSWORD */}
@@ -356,7 +356,7 @@ export default function LoginModal({ onClose, onLogin }: Props) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder={t.password}
-            className="w-full mb-4 p-2 rounded bg-[var(--card)] text-[var(--text)] border border-[var(--border)]"
+            className="w-full mb-4 p-2 rounded bg-[var(--input)] text-[var(--text)] border border-[var(--border)]"
           />
         )}
 

@@ -1,205 +1,1948 @@
 @import "tailwindcss";
 
-/* =========================
-   🌍 BASE GLOBAL
-========================= */
+/* ==========================================================
+   🌍 BASE
+========================================================== */
 
 body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font);
+
+    background: var(--bg);
+
+    color: var(--text);
+
+    font-family: var(--font);
+
 }
 
-/* =========================
+/* ==========================================================
    🎬 ANIMATIONS
-========================= */
+========================================================== */
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+
+    from {
+
+        opacity: 0;
+
+        transform: translateY(10px);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform: translateY(0);
+
+    }
+
 }
 
 .animate-fadeIn {
-  animation: fadeIn 0.4s ease-out;
+
+    animation: fadeIn .4s ease-out;
+
 }
 
-/* =========================
-   🎨 DESIGN TOKENS (DEFAULT)
-========================= */
-
+/* ==========================================================
+   🎨 ROOT DESIGN TOKENS
+========================================================== */
 :root {
-  /* BASE */
-  --bg: #0a0f1a;
-  --card: #121a2b;
-  --text: #e5e7eb;
-  --border: #263041;
 
-  /* BRAND */
-  --accent: #f59e0b;
-  --accent-soft: rgba(245, 158, 11, 0.15);
-  --accent-contrast: #000000; /* 🔥 NUEVO */
+    /* ======================================
+       COLORS
+    ====================================== */
 
-  /* STATE */
-  --positive: #22c55e;
-  --success: #22c55e;
-  --negative: #ef4444;
-  --danger: #ef4444;
-  
-  --warning: #facc15;
+    --bg: #0a0f1a;
 
-  /* UI */
-  --muted: #94a3b8;
-  --hover: rgba(255, 255, 255, 0.06);
+    --card: #121a2b;
 
-  --radius: 12px;
-  --font: system-ui;
+    --card-bg: var(--card);
+
+    --surface: var(--card);
+
+    --surface-2: var(--card);
+
+    --input: var(--card);
+
+    --header: transparent;
+
+    --text: #e5e7eb;
+
+    --muted: #94a3b8;
+
+    --border: #263041;
+
+    /* ======================================
+       BRAND
+    ====================================== */
+
+    --accent: #f59e0b;
+
+    --accent-soft: rgba(245,158,11,.15);
+
+    --accent-contrast: #000000;
+
+    /* ======================================
+       STATES
+    ====================================== */
+
+    --positive: #22c55e;
+
+    --success: #22c55e;
+
+    --negative: #ef4444;
+
+    --danger: #ef4444;
+
+    --warning: #facc15;
+
+    /* ======================================
+       BUTTONS
+    ====================================== */
+
+    --button-bg: var(--card);
+
+    --button-hover-bg: var(--hover);
+
+    --button-border-width: 1px;
+
+    --button-border-color: var(--border);
+
+    /* ======================================
+       CARDS
+    ====================================== */
+
+    --card-border-width: 1px;
+
+    --card-border-color: var(--border);
+
+    /* ======================================
+       LAYOUT
+    ====================================== */
+
+    --sidebar: var(--card);
+
+    --sidebar-hover: var(--hover);
+
+    --sidebar-active: var(--accent);
+
+    --sidebar-shadow: none;
+
+    /* ======================================
+       TABLES
+    ====================================== */
+
+    --table-row: transparent;
+
+    --table-hover: rgba(255,255,255,.03);
+
+    /* ======================================
+       EFFECTS
+    ====================================== */
+
+    --hover: rgba(255,255,255,.06);
+
+    --card-hover: rgba(255,255,255,.04);
+
+    --shadow: 0 8px 24px rgba(0,0,0,.20);
+
+    --card-shadow: var(--shadow);
+
+    --card-shadow-hover: 0 14px 36px rgba(0,0,0,.28);
+
+    /* ======================================
+       RADIUS
+    ====================================== */
+
+    --radius: 12px;
+
+    --card-radius: 12px;
+
+    --button-radius: 12px;
+
+    --input-radius: 10px;
+
+    /* ======================================
+       TYPOGRAPHY
+    ====================================== */
+
+    --font: system-ui;
+
 }
 
-/* =========================
-   🟢 1. TRADER MODE (FREE)
-========================= */
+/* ==========================================================
+   🧩 DESIGN SYSTEM
+========================================================== */
 
-html.trader {
-  --bg: #0b0f14;
-  --card: #141c26;
-  --text: #e5e7eb;
-  --border: #263241;
+/* ==========================================================
+   🎴 CARDS
+========================================================== */
 
-  --accent: #f59e0b;
-  --accent-soft: rgba(245, 158, 11, 0.18);
-  --accent-contrast: #000000; /* 🔥 clave */
+.theme-card {
 
-  --positive: #22c55e;
-  --success: #22c55e;
-  --negative: #ef4444;
-  --danger: #ef4444;
+    background: var(--card-bg);
 
-  --muted: #94a3b8;
-  --hover: rgba(255, 255, 255, 0.06);
+    border: var(--card-border-width) solid var(--card-border-color);
+
+    border-radius: var(--card-radius);
+
+    box-shadow: var(--card-shadow);
+
+    transition:
+        background .20s,
+        border-color .20s,
+        box-shadow .20s,
+        transform .20s;
 }
 
-/* =========================
-   🟢 2. SPORTSBOOK (FREE)
-========================= */
+.theme-card:hover {
 
-html.sportsbook {
-  --bg: #0f1e17;
-  --card: #162a21;
-  --text: #ffffff;
-  --border: #1f3a2c;
+    transform: translateY(-2px);
 
-  --accent: #16a34a;
-  --accent-soft: rgba(22, 163, 74, 0.25);
-  --accent-contrast: #ffffff;
-
-  --positive: #22c55e;
-  --negative: #ef4444;
-  --success: #22c55e;
-  --danger: #ef4444;
-
-  --muted: #9ca3af;
-  --hover: rgba(255, 255, 255, 0.05);
+    box-shadow: var(--card-shadow-hover);
 }
 
-/* =========================
-   🔵 3. DATA LAB (FREE)
-========================= */
+.theme-card-active {
 
-html.datalab {
-  --bg: #f1f5f9;
-  --card: #ffffff;
-  --text: #0f172a;
-  --border: #d1d5db;
+    border-color: var(--accent);
 
-  --accent: #2563eb;
-  --accent-soft: rgba(37, 99, 235, 0.15);
-  --accent-contrast: #ffffff;
-
-  --positive: #16a34a;
-  --negative: #dc2626;
-  --success: #16a34a;
-  --danger: #dc2626;
-
-  --muted: #64748b;
-  --hover: rgba(0, 0, 0, 0.04);
+    box-shadow:
+        0 0 0 1px var(--accent),
+        var(--card-shadow-hover);
 }
 
-/* =========================
-   🟣 4. NEON NIGHT (PREMIUM)
-========================= */
+/* ==========================================================
+   🔘 BUTTONS
+========================================================== */
 
-html.neon {
-  --bg: #05010a;
-  --card: #14032a;
-  --text: #e9d5ff;
-  --border: #3b0764;
+.theme-button {
 
-  --accent: #a855f7;
-  --accent-soft: rgba(168, 85, 247, 0.3);
-  --accent-contrast: #ffffff;
+    background: var(--button-bg);
 
-  --positive: #22c55e;
-  --negative: #f43f5e;
-  --success: #22c55e;
-  --danger: #f43f5e;
+    color: var(--text);
 
-  --muted: #a78bfa;
-  --hover: rgba(168, 85, 247, 0.12);
+    border: var(--button-border-width) solid var(--button-border-color);
+
+    border-radius: var(--button-radius);
+
+    cursor: pointer;
+
+    transition:
+        background .2s,
+        border-color .2s,
+        color .2s,
+        transform .15s;
 }
 
-/* =========================
-   🧪 5. FUTURISTIC (PREMIUM)
-========================= */
+.theme-button:hover {
 
-html.futuristic {
-  --bg: #020617;
-  --card: #0f1b2d;
-  --text: #00f0ff;
-  --border: #164e63;
+    background: var(--button-hover-bg);
 
-  --accent: #00f0ff;
-  --accent-soft: rgba(0, 240, 255, 0.2);
-  --accent-contrast: #000000; /* 🔥 porque es cyan claro */
+    border-color: var(--accent);
 
-  --positive: #00ff9f;
-  --negative: #ff006e;
-  --success: #00ff9f;
-  --danger: #ff006e;
-
-  --muted: #38bdf8;
-  --hover: rgba(0, 240, 255, 0.08);
-
-  --radius: 8px;
-  --font: "Orbitron", sans-serif;
+    transform: translateY(-1px);
 }
 
-/* =========================
-   🟡 6. CLASSIC (PREMIUM)
-========================= */
+.theme-button:active {
 
-html.classic {
-  --bg: #fdf6e3;
-  --card: #eee8d5;
-  --text: #073642;
-  --border: #d6cbb3;
+    transform: translateY(0);
+}
 
-  --accent: #b58900;
-  --accent-soft: rgba(181, 137, 0, 0.2);
-  --accent-contrast: #000000;
+/* ==========================================================
+   ⭕ ICON BUTTONS
+========================================================== */
 
-  --positive: #859900;
-  --negative: #dc322f;
-  --success: #859900;
-  --danger: #dc322f;
+.theme-icon-button {
 
-  --muted: #657b83;
-  --hover: rgba(0, 0, 0, 0.05);
+    width: 28px;
 
-  --font: Georgia, serif;
+    height: 28px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: var(--button-bg);
+
+    color: var(--text);
+
+    border: var(--button-border-width) solid var(--button-border-color);
+
+    border-radius: var(--button-radius);
+
+    cursor: pointer;
+
+    transition:
+        background .2s,
+        border-color .2s,
+        transform .15s;
+}
+
+.theme-icon-button:hover {
+
+    background: var(--button-hover-bg);
+
+    border-color: var(--accent);
+
+    transform: translateY(-1px);
+}
+
+.theme-icon-button:active {
+
+    transform: translateY(0);
+}
+
+/* ==========================================================
+   📝 INPUTS & SELECTS
+========================================================== */
+
+.theme-input {
+
+    background: var(--input);
+
+    color: var(--text);
+
+    border: 1px solid var(--button-border-color);
+
+    border-radius: var(--input-radius);
+
+    padding: .5rem .75rem;
+
+    transition:
+        border-color .2s,
+        box-shadow .2s;
+}
+
+.theme-input:focus{
+
+    outline:none;
+
+    border-color:var(--accent);
+
+    box-shadow:0 0 0 2px var(--accent-soft);
+
+}
+
+.theme-select {
+
+    background: var(--button-bg);
+
+    color: var(--text);
+
+    border: 1px solid var(--button-border-color);
+
+    border-radius: var(--input-radius);
+
+    transition: all .2s;
+}
+
+.theme-select:hover {
+
+    background: var(--button-hover-bg);
+}
+
+.theme-select:focus {
+
+    outline: none;
+
+    border-color: var(--accent);
+
+    box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+/* ==========================================================
+   📂 SIDEBAR
+========================================================== */
+
+.theme-sidebar-button {
+
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+
+    width: 100%;
+
+    padding: .75rem 1rem;
+
+    border-radius: var(--button-radius);
+
+    color: var(--text);
+
+    transition:
+        background .2s,
+        color .2s,
+        border-color .2s;
+}
+
+.theme-sidebar-button:hover {
+
+    background: var(--sidebar-hover);
+
+}
+
+.theme-sidebar-active {
+
+    background: var(--sidebar-active);
+
+    color: var(--accent-contrast);
+
+}
+
+/* ==========================================================
+   🎯 BET BUTTONS
+========================================================== */
+
+.theme-bet {
+
+    background: var(--button-bg);
+
+    color: var(--text);
+
+    border: 1px solid var(--button-border-color);
+
+}
+
+.theme-bet-value {
+
+    background: var(--accent);
+
+    color: var(--accent-contrast);
+
+    border-color: transparent;
+
+}
+
+/* ==========================================================
+   🎨 THEME PREVIEW
+========================================================== */
+
+.theme-preview-card{
+
+    backdrop-filter: blur(2px);
+
+    transition:
+        background .2s,
+        border-color .2s;
+
+}
+
+/* ==========================================================
+   🧰 UTILITIES
+========================================================== */
+
+.theme-glass{
+
+    backdrop-filter:blur(8px);
+
+}
+
+.theme-divider{
+
+    border-color:var(--border);
+
+}
+
+.theme-shadow{
+
+    box-shadow:var(--card-shadow);
+
+}
+
+/* ==========================================================
+   🎨 THEMES
+========================================================== */
+
+/* ==========================================================
+   ⚫ CARBON
+========================================================== */
+
+html.carbon {
+
+    /* ======================================
+       COLORS
+    ====================================== */
+
+    --bg:
+        radial-gradient(
+            circle at top,
+            #161616 0%,
+            #0d0d0d 35%,
+            #080808 100%
+        );
+
+    --card:#2b2b2b;
+
+    --card-bg:
+        linear-gradient(
+            180deg,
+            #313131 0%,
+            #262626 100%
+        );
+
+    --surface:#161616;
+
+    --surface-2:#1d1d1d;
+
+    --input:#161616;
+
+    --text:#f5f5f5;
+
+    --muted:#9ca3af;
+
+    --border:#2e2e2e;
+
+    /* ======================================
+       BRAND
+    ====================================== */
+
+    --accent:#f59e0b;
+
+    --accent-soft:rgba(245,158,11,.12);
+
+    --accent-contrast:#000;
+
+    /* ======================================
+       STATES
+    ====================================== */
+
+    --positive:#22c55e;
+
+    --negative:#ef4444;
+
+    --success:#22c55e;
+
+    --danger:#ef4444;
+
+    --warning:#facc15;
+
+    /* ======================================
+       BUTTONS
+    ====================================== */
+
+    --button-bg:#353535;
+
+    --button-hover-bg:#404040;
+
+    --button-border-color:rgba(255,255,255,.08);
+
+    --button-border-width:1px;
+
+    /* ======================================
+       CARDS
+    ====================================== */
+
+    --card-border-color:rgba(255,255,255,.05);
+
+    --card-border-width:1px;
+
+    /* ======================================
+       LAYOUT
+    ====================================== */
+
+    --sidebar:#050505;
+
+    --sidebar-hover:rgba(255,255,255,.04);
+
+    --sidebar-active:rgba(245,158,11,.08);
+
+    --sidebar-shadow:6px 0 24px rgba(0,0,0,.45);
+
+    /* ======================================
+       TABLES
+    ====================================== */
+
+    --table-row:transparent;
+
+    --table-hover:rgba(255,255,255,.04);
+
+    /* ======================================
+       EFFECTS
+    ====================================== */
+
+    --hover:rgba(255,255,255,.025);
+
+    --card-hover:rgba(255,255,255,.03);
+
+    --shadow:0 12px 36px rgba(0,0,0,.55);
+
+    --card-shadow:0 14px 36px rgba(0,0,0,.42);
+
+    --card-shadow-hover:0 20px 48px rgba(0,0,0,.58);
+
+    /* ======================================
+       RADIUS
+    ====================================== */
+
+    --radius:8px;
+
+    --card-radius:4px;
+
+    --button-radius:4px;
+
+    --input-radius:4px;
+
+    /* ======================================
+       TYPOGRAPHY
+    ====================================== */
+
+    --font:system-ui;
+
+}
+
+/* ======================================
+   SIDEBAR OVERRIDES
+====================================== */
+
+html.carbon .theme-sidebar-button{
+
+    border-radius:0;
+
+    transition:all .18s ease;
+
+}
+
+html.carbon .theme-sidebar-button:hover{
+
+    background:rgba(255,255,255,.04);
+
+}
+
+html.carbon .theme-sidebar-active{
+
+    background:var(--sidebar-active);
+
+    color:#fff;
+
+    border-left:3px solid var(--accent);
+
+    padding-left:calc(1rem - 3px);
+
+    font-weight:600;
+
+}
+
+/* ---------- Preview ---------- */
+
+.preview-carbon{
+
+    background:#000;
+
+}
+
+.preview-carbon .theme-preview-card{
+
+    background:#242424;
+
+    border-color:#3a3a3a;
+
+}
+
+.preview-carbon .theme-preview-sidebar{
+
+    background:#050505;
+
+}
+
+.preview-carbon .theme-preview-navbar{
+
+    background:rgba(255,255,255,.03);
+
+}
+
+.preview-carbon .theme-preview-bet-highlight{
+
+    background:var(--accent);
+
+}
+
+
+/* ==========================================================
+   🌙 MIDNIGHT
+========================================================== */
+
+html.midnight{
+
+    /* ======================================
+       COLORS
+    ====================================== */
+
+    --bg:#0f1725;
+
+    --card:#182233;
+
+    --card-bg:linear-gradient(
+        180deg,
+        #1d2a3f 0%,
+        #182233 100%
+    );
+
+    --surface:#182233;
+
+    --surface-2:#223049;
+
+    --input:#223049;
+
+    --text:#eef3ff;
+
+    --muted:#93a3bf;
+
+    --border:#31435f;
+
+    /* ======================================
+       BRAND
+    ====================================== */
+
+    --accent:#3b82f6;
+
+    --accent-soft:rgba(59,130,246,.16);
+
+    --accent-contrast:#ffffff;
+
+    /* ======================================
+       STATES
+    ====================================== */
+
+    --positive:#22c55e;
+
+    --negative:#ef4444;
+
+    --success:#22c55e;
+
+    --danger:#ef4444;
+
+    --warning:#facc15;
+
+    /* ======================================
+       BUTTONS
+    ====================================== */
+
+    --button-bg:#223049;
+
+    --button-hover-bg:#2a3b58;
+
+    --button-border-color:#31435f;
+
+    --button-border-width:1px;
+
+    /* ======================================
+       CARDS
+    ====================================== */
+
+    --card-border-color:#31435f;
+
+    --card-border-width:1px;
+
+    /* ======================================
+       LAYOUT
+    ====================================== */
+
+    --sidebar:#131d2d;
+
+    --sidebar-hover:rgba(59,130,246,.08);
+
+    --sidebar-active:rgba(59,130,246,.18);
+
+    --sidebar-shadow:none;
+
+    /* ======================================
+       TABLES
+    ====================================== */
+
+    --table-row:transparent;
+
+    --table-hover:rgba(255,255,255,.025);
+
+    /* ======================================
+       EFFECTS
+    ====================================== */
+
+    --hover:rgba(255,255,255,.03);
+
+    --card-hover:rgba(255,255,255,.025);
+
+    --shadow:0 8px 22px rgba(0,0,0,.22);
+
+    --card-shadow:var(--shadow);
+
+    --card-shadow-hover:0 14px 30px rgba(0,0,0,.28);
+
+    /* ======================================
+       RADIUS
+    ====================================== */
+
+    --radius:14px;
+
+    --card-radius:14px;
+
+    --button-radius:14px;
+
+    --input-radius:12px;
+
+    /* ======================================
+       TYPOGRAPHY
+    ====================================== */
+
+    --font:system-ui;
+
+}
+
+/* ======================================
+   SIDEBAR OVERRIDES
+====================================== */
+
+html.midnight .theme-sidebar-active{
+
+    background:rgba(59,130,246,.18);
+
+    color:#ffffff;
+
+    border:none;
+
+    border-radius:14px;
+
+    font-weight:600;
+
+}
+
+/* ======================================
+   PREVIEW
+====================================== */
+
+.preview-midnight{
+
+    background:#0f1725;
+
+}
+
+.preview-midnight .theme-preview-card{
+
+    background:#182233;
+
+    border-color:#31435f;
+
+}
+
+.preview-midnight .theme-preview-sidebar{
+
+    background:#131d2d;
+
+}
+
+.preview-midnight .theme-preview-navbar{
+
+    background:rgba(255,255,255,.03);
+
+}
+
+.preview-midnight .theme-preview-bet-highlight{
+
+    background:#3b82f6;
+
+}
+
+
+/* ==========================================================
+   ☀️ LIGHT
+========================================================== */
+
+html.light{
+
+    /* ======================================
+       COLORS
+    ====================================== */
+
+    --bg:#eef3f8;
+
+    --card:#ffffff;
+
+    --card-bg:#ffffff;
+
+    --surface:#ffffff;
+
+    --surface-2:#f8fafc;
+
+    --input:#ffffff;
+
+    --text:#162033;
+
+    --muted:#64748b;
+
+    --border:#d8e0ea;
+
+    /* ======================================
+       BRAND
+    ====================================== */
+
+    --accent:#2563eb;
+
+    --accent-soft:rgba(37,99,235,.14);
+
+    --accent-contrast:#ffffff;
+
+    /* ======================================
+       STATES
+    ====================================== */
+
+    --positive:#16a34a;
+
+    --negative:#dc2626;
+
+    --success:#16a34a;
+
+    --danger:#dc2626;
+
+    --warning:#d97706;
+
+    /* ======================================
+       BUTTONS
+    ====================================== */
+
+    --button-bg:#ffffff;
+
+    --button-hover-bg:#f3f6fb;
+
+    --button-border-color:#d8e0ea;
+
+    --button-border-width:1px;
+
+    /* ======================================
+       CARDS
+    ====================================== */
+
+    --card-border-color:#d8e0ea;
+
+    --card-border-width:1px;
+
+    /* ======================================
+       LAYOUT
+    ====================================== */
+
+    --sidebar:#ffffff;
+
+    --sidebar-hover:#f3f6fb;
+
+    --sidebar-active:#2563eb;
+
+    --sidebar-shadow:0 6px 20px rgba(0,0,0,.06);
+
+    /* ======================================
+       TABLES
+    ====================================== */
+
+    --table-row:transparent;
+
+    --table-hover:#f8fafc;
+
+    /* ======================================
+       EFFECTS
+    ====================================== */
+
+    --hover:#f3f6fb;
+
+    --card-hover:#fafcff;
+
+    --shadow:0 6px 18px rgba(15,23,42,.06);
+
+    --card-shadow:var(--shadow);
+
+    --card-shadow-hover:0 12px 24px rgba(15,23,42,.10);
+
+    /* ======================================
+       RADIUS
+    ====================================== */
+
+    --radius:16px;
+
+    --card-radius:16px;
+
+    --button-radius:16px;
+
+    --input-radius:14px;
+
+    /* ======================================
+       TYPOGRAPHY
+    ====================================== */
+
+    --font:system-ui;
+
+}
+
+/* ======================================
+   SIDEBAR OVERRIDES
+====================================== */
+
+html.light .theme-sidebar-active{
+
+    background:#2563eb;
+
+    color:#ffffff;
+
+    border-radius:16px;
+
+    font-weight:600;
+
+}
+
+/* ======================================
+   PREVIEW
+====================================== */
+
+.preview-light{
+
+    background:#eef3f8;
+
+}
+
+.preview-light .theme-preview-card{
+
+    background:#ffffff;
+
+    border-color:#d8e0ea;
+
+}
+
+.preview-light .theme-preview-sidebar{
+
+    background:#ffffff;
+
+}
+
+.preview-light .theme-preview-navbar{
+
+    background:#f8fafc;
+
+}
+
+.preview-light .theme-preview-bet-highlight{
+
+    background:#2563eb;
+
+}
+
+
+/* ==========================================================
+   ⚽ STADIUM
+========================================================== */
+
+html.stadium{
+
+    /* ======================================
+       COLORS
+    ====================================== */
+
+    --bg:#102019;
+
+    --card:#183126;
+
+    --card-bg:linear-gradient(
+        180deg,
+        #214033 0%,
+        #183126 100%
+    );
+
+    --surface:#183126;
+
+    --surface-2:#234637;
+
+    --input:#234637;
+
+    --text:#ffffff;
+
+    --muted:#b5c8bc;
+
+    --border:#2d5845;
+
+    /* ======================================
+       BRAND
+    ====================================== */
+
+    --accent:#22c55e;
+
+    --accent-soft:rgba(34,197,94,.18);
+
+    --accent-contrast:#ffffff;
+
+    /* ======================================
+       STATES
+    ====================================== */
+
+    --positive:#22c55e;
+
+    --negative:#ef4444;
+
+    --success:#22c55e;
+
+    --danger:#ef4444;
+
+    --warning:#facc15;
+
+    /* ======================================
+       BUTTONS
+    ====================================== */
+
+    --button-bg:#234637;
+
+    --button-hover-bg:#2b5644;
+
+    --button-border-color:#2d5845;
+
+    --button-border-width:1px;
+
+    /* ======================================
+       CARDS
+    ====================================== */
+
+    --card-border-color:#2d5845;
+
+    --card-border-width:1px;
+
+    /* ======================================
+       LAYOUT
+    ====================================== */
+
+    --sidebar:#143024;
+
+    --sidebar-hover:rgba(34,197,94,.12);
+
+    --sidebar-active:#22c55e;
+
+    --sidebar-shadow:0 6px 18px rgba(0,0,0,.18);
+
+    /* ======================================
+       TABLES
+    ====================================== */
+
+    --table-row:transparent;
+
+    --table-hover:rgba(34,197,94,.05);
+
+    /* ======================================
+       EFFECTS
+    ====================================== */
+
+    --hover:rgba(34,197,94,.08);
+
+    --card-hover:rgba(255,255,255,.03);
+
+    --shadow:0 8px 20px rgba(0,0,0,.22);
+
+    --card-shadow:var(--shadow);
+
+    --card-shadow-hover:0 14px 28px rgba(0,0,0,.28);
+
+    /* ======================================
+       RADIUS
+    ====================================== */
+
+    --radius:18px;
+
+    --card-radius:18px;
+
+    --button-radius:18px;
+
+    --input-radius:16px;
+
+    /* ======================================
+       TYPOGRAPHY
+    ====================================== */
+
+    --font:system-ui;
+
+}
+
+/* ======================================
+   SIDEBAR OVERRIDES
+====================================== */
+
+html.stadium .theme-sidebar-active{
+
+    background:#22c55e;
+
+    color:#ffffff;
+
+    border-radius:18px;
+
+    font-weight:700;
+
+}
+
+/* ======================================
+   PREVIEW
+====================================== */
+
+.preview-stadium{
+
+    background:#102019;
+
+}
+
+.preview-stadium .theme-preview-card{
+
+    background:#183126;
+
+    border-color:#2d5845;
+
+}
+
+.preview-stadium .theme-preview-sidebar{
+
+    background:#143024;
+
+}
+
+.preview-stadium .theme-preview-navbar{
+
+    background:rgba(255,255,255,.04);
+
+}
+
+.preview-stadium .theme-preview-bet-highlight{
+
+    background:#22c55e;
+
+}
+
+
+/* ==========================================================
+   💎 SAPPHIRE
+========================================================== */
+
+html.sapphire{
+
+    /* ======================================
+       COLORS
+    ====================================== */
+
+    --bg:#07111c;
+
+    --card:#112235;
+
+    --card-bg:linear-gradient(
+        180deg,
+        rgba(23,41,62,.96) 0%,
+        rgba(16,32,50,.96) 100%
+    );
+
+    --surface:#112235;
+
+    --surface-2:#172c45;
+
+    --input:#172c45;
+
+    --text:#eefcff;
+
+    --muted:#91b6c7;
+
+    --border:#29516b;
+
+    /* ======================================
+       BRAND
+    ====================================== */
+
+    --accent:#00d9ff;
+
+    --accent-soft:rgba(0,217,255,.18);
+
+    --accent-contrast:#04131a;
+
+    /* ======================================
+       STATES
+    ====================================== */
+
+    --positive:#3ddc97;
+
+    --negative:#ff5d73;
+
+    --success:#3ddc97;
+
+    --danger:#ff5d73;
+
+    --warning:#ffd166;
+
+    /* ======================================
+       BUTTONS
+    ====================================== */
+
+    --button-bg:rgba(255,255,255,.05);
+
+    --button-hover-bg:rgba(255,255,255,.09);
+
+    --button-border-color:#2d5f7e;
+
+    --button-border-width:1px;
+
+    /* ======================================
+       CARDS
+    ====================================== */
+
+    --card-border-color:rgba(0,217,255,.12);
+
+    --card-border-width:1px;
+
+    /* ======================================
+       LAYOUT
+    ====================================== */
+
+    --sidebar:#08131f;
+
+    --sidebar-hover:rgba(0,217,255,.08);
+
+    --sidebar-active:rgba(0,217,255,.18);
+
+    --sidebar-shadow:0 10px 30px rgba(0,0,0,.28);
+
+    /* ======================================
+       TABLES
+    ====================================== */
+
+    --table-row:transparent;
+
+    --table-hover:rgba(0,217,255,.04);
+
+    /* ======================================
+       EFFECTS
+    ====================================== */
+
+    --hover:rgba(255,255,255,.04);
+
+    --card-hover:rgba(255,255,255,.03);
+
+    --shadow:0 10px 26px rgba(0,0,0,.26);
+
+    --card-shadow:var(--shadow);
+
+    --card-shadow-hover:0 16px 36px rgba(0,0,0,.34);
+
+    /* ======================================
+       RADIUS
+    ====================================== */
+
+    --radius:10px;
+
+    --card-radius:10px;
+
+    --button-radius:10px;
+
+    --input-radius:10px;
+
+    /* ======================================
+       TYPOGRAPHY
+    ====================================== */
+
+    --font:system-ui;
+
+}
+
+/* ======================================
+   SIDEBAR OVERRIDES
+====================================== */
+
+html.sapphire .theme-sidebar-active{
+
+    background:rgba(0,217,255,.16);
+
+    color:#ffffff;
+
+    border-radius:10px;
+
+    font-weight:600;
+
+}
+
+/* ======================================
+   PREVIEW
+====================================== */
+
+.preview-sapphire{
+
+    background:#07111c;
+
+}
+
+.preview-sapphire .theme-preview-card{
+
+    background:#112235;
+
+    border-color:#29516b;
+
+}
+
+.preview-sapphire .theme-preview-sidebar{
+
+    background:#08131f;
+
+}
+
+.preview-sapphire .theme-preview-navbar{
+
+    background:rgba(255,255,255,.04);
+
+}
+
+.preview-sapphire .theme-preview-bet-highlight{
+
+    background:#00d9ff;
+
+}
+
+
+/* ==========================================================
+   💜 AURORA
+========================================================== */
+
+html.aurora{
+
+    /* ======================================
+       COLORS
+    ====================================== */
+
+    --bg:#14081f;
+
+    --card:#241239;
+
+    --card-bg:linear-gradient(
+        180deg,
+        #31204a 0%,
+        #241239 100%
+    );
+
+    --surface:#241239;
+
+    --surface-2:#34214d;
+
+    --input:#34214d;
+
+    --text:#f6efff;
+
+    --muted:#c4b5d8;
+
+    --border:#5b3f82;
+
+    /* ======================================
+       BRAND
+    ====================================== */
+
+    --accent:#b85cff;
+
+    --accent-soft:rgba(184,92,255,.22);
+
+    --accent-contrast:#ffffff;
+
+    /* ======================================
+       STATES
+    ====================================== */
+
+    --positive:#3ddc97;
+
+    --negative:#ff5d73;
+
+    --success:#3ddc97;
+
+    --danger:#ff5d73;
+
+    --warning:#ffd166;
+
+    /* ======================================
+       BUTTONS
+    ====================================== */
+
+    --button-bg:rgba(255,255,255,.06);
+
+    --button-hover-bg:rgba(184,92,255,.14);
+
+    --button-border-color:#664699;
+
+    --button-border-width:1px;
+
+    /* ======================================
+       CARDS
+    ====================================== */
+
+    --card-border-color:rgba(184,92,255,.20);
+
+    --card-border-width:1px;
+
+    /* ======================================
+       LAYOUT
+    ====================================== */
+
+    --sidebar:#1a0f29;
+
+    --sidebar-hover:rgba(184,92,255,.10);
+
+    --sidebar-active:rgba(184,92,255,.20);
+
+    --sidebar-shadow:0 12px 30px rgba(0,0,0,.32);
+
+    /* ======================================
+       TABLES
+    ====================================== */
+
+    --table-row:transparent;
+
+    --table-hover:rgba(184,92,255,.06);
+
+    /* ======================================
+       EFFECTS
+    ====================================== */
+
+    --hover:rgba(255,255,255,.04);
+
+    --card-hover:rgba(255,255,255,.03);
+
+    --shadow:0 10px 28px rgba(0,0,0,.30);
+
+    --card-shadow:var(--shadow);
+
+    --card-shadow-hover:0 18px 42px rgba(0,0,0,.38);
+
+    /* ======================================
+       RADIUS
+    ====================================== */
+
+    --radius:16px;
+
+    --card-radius:16px;
+
+    --button-radius:16px;
+
+    --input-radius:14px;
+
+    /* ======================================
+       TYPOGRAPHY
+    ====================================== */
+
+    --font:system-ui;
+
+}
+
+/* ======================================
+   SIDEBAR OVERRIDES
+====================================== */
+
+html.aurora .theme-sidebar-active{
+
+    background:linear-gradient(
+        90deg,
+        rgba(184,92,255,.28),
+        rgba(255,255,255,.06)
+    );
+
+    color:#ffffff;
+
+    border-radius:16px;
+
+    font-weight:600;
+
+}
+
+/* ======================================
+   PREVIEW
+====================================== */
+
+.preview-aurora{
+
+    background:#14081f;
+
+}
+
+.preview-aurora .theme-preview-card{
+
+    background:#241239;
+
+    border-color:#664699;
+
+}
+
+.preview-aurora .theme-preview-sidebar{
+
+    background:#1a0f29;
+
+}
+
+.preview-aurora .theme-preview-navbar{
+
+    background:rgba(255,255,255,.05);
+
+}
+
+.preview-aurora .theme-preview-bet-highlight{
+
+    background:#ff4fd8;
+
+}
+
+
+/* ==========================================================
+   🔥 CRIMSON
+========================================================== */
+
+html.crimson{
+
+    /* ======================================
+       COLORS
+    ====================================== */
+
+    --bg:#14090a;
+
+    --card:#2a1518;
+
+    --card-bg:linear-gradient(
+        180deg,
+        #3a1d21 0%,
+        #2a1518 100%
+    );
+
+    --surface:#2a1518;
+
+    --surface-2:#3b1f23;
+
+    --input:#3b1f23;
+
+    --text:#fff5f5;
+
+    --muted:#d3b4b4;
+
+    --border:#6b3138;
+
+    /* ======================================
+       BRAND
+    ====================================== */
+
+    --accent:#e63946;
+
+    --accent-soft:rgba(230,57,70,.18);
+
+    --accent-contrast:#ffffff;
+
+    /* ======================================
+       STATES
+    ====================================== */
+
+    --positive:#22c55e;
+
+    --negative:#ff4d4d;
+
+    --success:#22c55e;
+
+    --danger:#ff4d4d;
+
+    --warning:#ff9f1c;
+
+    /* ======================================
+       BUTTONS
+    ====================================== */
+
+    --button-bg:#3b1f23;
+
+    --button-hover-bg:#4b262b;
+
+    --button-border-color:#6b3138;
+
+    --button-border-width:1px;
+
+    /* ======================================
+       CARDS
+    ====================================== */
+
+    --card-border-color:#6b3138;
+
+    --card-border-width:1px;
+
+    /* ======================================
+       LAYOUT
+    ====================================== */
+
+    --sidebar:#1a0d0f;
+
+    --sidebar-hover:rgba(230,57,70,.12);
+
+    --sidebar-active:rgba(230,57,70,.22);
+
+    --sidebar-shadow:0 10px 24px rgba(0,0,0,.35);
+
+    /* ======================================
+       TABLES
+    ====================================== */
+
+    --table-row:transparent;
+
+    --table-hover:rgba(230,57,70,.05);
+
+    /* ======================================
+       EFFECTS
+    ====================================== */
+
+    --hover:rgba(255,255,255,.05);
+
+    --card-hover:rgba(255,255,255,.03);
+
+    --shadow:0 10px 26px rgba(0,0,0,.30);
+
+    --card-shadow:var(--shadow);
+
+    --card-shadow-hover:0 18px 38px rgba(0,0,0,.40);
+
+    /* ======================================
+       RADIUS
+    ====================================== */
+
+    --radius:8px;
+
+    --card-radius:8px;
+
+    --button-radius:8px;
+
+    --input-radius:8px;
+
+    /* ======================================
+       TYPOGRAPHY
+    ====================================== */
+
+    --font:system-ui;
+
+}
+
+/* ======================================
+   SIDEBAR OVERRIDES
+====================================== */
+
+html.crimson .theme-sidebar-active{
+
+    background:linear-gradient(
+        90deg,
+        rgba(230,57,70,.30),
+        rgba(255,255,255,.03)
+    );
+
+    color:#ffffff;
+
+    border-radius:8px;
+
+    font-weight:700;
+
+}
+
+/* ======================================
+   PREVIEW
+====================================== */
+
+.preview-crimson{
+
+    background:#14090a;
+
+}
+
+.preview-crimson .theme-preview-card{
+
+    background:#2a1518;
+
+    border-color:#6b3138;
+
+}
+
+.preview-crimson .theme-preview-sidebar{
+
+    background:#1a0d0f;
+
+}
+
+.preview-crimson .theme-preview-navbar{
+
+    background:rgba(255,255,255,.04);
+
+}
+
+.preview-crimson .theme-preview-bet-highlight{
+
+    background:#ff7a18;
+
+}
+
+
+/* ==========================================================
+   📜 HERITAGE
+========================================================== */
+
+html.heritage{
+
+    /* ======================================
+       COLORS
+    ====================================== */
+
+    --bg:#f6f0e5;
+
+    --card:#fcf8f0;
+
+    --card-bg:linear-gradient(
+        180deg,
+        #fffdf9 0%,
+        #f6efe2 100%
+    );
+
+    --surface:#fcf8f0;
+
+    --surface-2:#efe6d5;
+
+    --input:#ffffff;
+
+    --text:#3a3228;
+
+    --muted:#7b7468;
+
+    --border:#d7ccb7;
+
+    /* ======================================
+       BRAND
+    ====================================== */
+
+    --accent:#9b7b2f;
+
+    --accent-soft:rgba(155,123,47,.15);
+
+    --accent-contrast:#ffffff;
+
+    /* ======================================
+       STATES
+    ====================================== */
+
+    --positive:#6b8f3a;
+
+    --negative:#b23a3a;
+
+    --success:#6b8f3a;
+
+    --danger:#b23a3a;
+
+    --warning:#c7962d;
+
+    /* ======================================
+       BUTTONS
+    ====================================== */
+
+    --button-bg:#f8f3ea;
+
+    --button-hover-bg:#efe7d8;
+
+    --button-border-color:#d7ccb7;
+
+    --button-border-width:1px;
+
+    /* ======================================
+       CARDS
+    ====================================== */
+
+    --card-border-color:#d7ccb7;
+
+    --card-border-width:1px;
+
+    /* ======================================
+       LAYOUT
+    ====================================== */
+
+    --sidebar:#ece3d3;
+
+    --sidebar-hover:#e5dbc8;
+
+    --sidebar-active:#9b7b2f;
+
+    --sidebar-shadow:0 6px 18px rgba(60,50,35,.10);
+
+    /* ======================================
+       TABLES
+    ====================================== */
+
+    --table-row:transparent;
+
+    --table-hover:#f2ebdf;
+
+    /* ======================================
+       EFFECTS
+    ====================================== */
+
+    --hover:#f2ebdf;
+
+    --card-hover:#fffdf8;
+
+    --shadow:0 5px 14px rgba(60,50,35,.08);
+
+    --card-shadow:var(--shadow);
+
+    --card-shadow-hover:0 8px 20px rgba(60,50,35,.12);
+
+    /* ======================================
+       RADIUS
+    ====================================== */
+
+    --radius:2px;
+
+    --card-radius:2px;
+
+    --button-radius:2px;
+
+    --input-radius:2px;
+
+    /* ======================================
+       TYPOGRAPHY
+    ====================================== */
+
+    --font:Georgia, serif;
+
+}
+
+/* ======================================
+   SIDEBAR OVERRIDES
+====================================== */
+
+html.heritage .theme-sidebar-active{
+
+    background:#9b7b2f;
+
+    color:#ffffff;
+
+    border-radius:2px;
+
+    font-weight:700;
+
+}
+
+/* ======================================
+   PREVIEW
+====================================== */
+
+.preview-heritage{
+
+    background:#f6f0e5;
+
+}
+
+.preview-heritage .theme-preview-card{
+
+    background:#fcf8f0;
+
+    border-color:#d7ccb7;
+
+}
+
+.preview-heritage .theme-preview-sidebar{
+
+    background:#ece3d3;
+
+}
+
+.preview-heritage .theme-preview-navbar{
+
+    background:#ffffff;
+
+}
+
+.preview-heritage .theme-preview-bet-highlight{
+
+    background:#6b8f3a;
+
 }

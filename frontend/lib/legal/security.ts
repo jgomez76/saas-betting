@@ -12,7 +12,7 @@ export const securityContent: Record<
     updated: "2026-06-23",
 
     intro:
-        "At BetSaaS, security is a fundamental priority. We are committed to protecting our platform, our users and their data by applying industry best practices and continuously improving our security measures.",
+        "At Luranix, security is a fundamental priority. We are committed to protecting our platform, our users and their data by applying industry best practices and continuously improving our security measures.",
 
     sections: [
 
@@ -81,7 +81,7 @@ export const securityContent: Record<
 
         contact: {
             label: "Email",
-            value: "support@betsaas.com"
+            value: "support@luranix.com"
         }
         }
 
@@ -95,7 +95,7 @@ export const securityContent: Record<
         updated: "2026-06-23",
 
         intro:
-        "En BetSaaS, la seguridad es una prioridad fundamental. Nos comprometemos a proteger nuestra plataforma, a nuestros usuarios y sus datos aplicando las mejores prácticas del sector y mejorando continuamente nuestras medidas de seguridad.",
+        "En Luranix, la seguridad es una prioridad fundamental. Nos comprometemos a proteger nuestra plataforma, a nuestros usuarios y sus datos aplicando las mejores prácticas del sector y mejorando continuamente nuestras medidas de seguridad.",
 
         sections: [
 
@@ -164,7 +164,7 @@ export const securityContent: Record<
 
             contact: {
             label: "Correo electrónico",
-            value: "support@betsaas.com"
+            value: "support@luranix.com"
             }
         }
 
@@ -178,7 +178,7 @@ export const securityContent: Record<
     updated: "2026-06-23",
 
     intro:
-        "Chez BetSaaS, la sécurité est une priorité essentielle. Nous nous engageons à protéger notre plateforme, nos utilisateurs et leurs données en appliquant les meilleures pratiques du secteur et en améliorant continuellement nos mesures de sécurité.",
+        "Chez Luranix, la sécurité est une priorité essentielle. Nous nous engageons à protéger notre plateforme, nos utilisateurs et leurs données en appliquant les meilleures pratiques du secteur et en améliorant continuellement nos mesures de sécurité.",
 
     sections: [
 
@@ -247,7 +247,7 @@ export const securityContent: Record<
 
         contact: {
             label: "Adresse e-mail",
-            value: "support@betsaas.com"
+            value: "support@luranix.com"
         }
         }
 
@@ -261,7 +261,7 @@ export const securityContent: Record<
     updated: "2026-06-23",
 
     intro:
-        "In BetSaaS la sicurezza è una priorità fondamentale. Ci impegniamo a proteggere la nostra piattaforma, i nostri utenti e i loro dati applicando le migliori pratiche del settore e migliorando continuamente le nostre misure di sicurezza.",
+        "In Luranix la sicurezza è una priorità fondamentale. Ci impegniamo a proteggere la nostra piattaforma, i nostri utenti e i loro dati applicando le migliori pratiche del settore e migliorando continuamente le nostre misure di sicurezza.",
 
     sections: [
 
@@ -330,7 +330,7 @@ export const securityContent: Record<
 
         contact: {
             label: "E-mail",
-            value: "support@betsaas.com"
+            value: "support@luranix.com"
         }
         }
 

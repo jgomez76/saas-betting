@@ -5,48 +5,38 @@ import Providers from "./providers";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { SubscriptionProvider } from "@/context/SubscriptionContext";
 import { LanguageProvider } from "@/lib/i18n/LanguageProvider";
-import { cookies } from "next/headers";
 import Footer from "@/components/Footer";
 import CookieBanner from "@/components/CookieBanner";
+import { getServerLanguage } from "@/lib/i18n/server";
+import type { Lang } from "@/lib/i18n/server";
+import { BASE_METADATA } from "@/lib/branding";
 
-// 🌍 Idiomas soportados (ESCALABLE)
-const SUPPORTED_LANGS = ["en", "es", "fr", "it"] as const;
-type Lang = (typeof SUPPORTED_LANGS)[number];
-
-// 🧠 Helper seguro
-function getLang(cookieLang?: string): Lang {
-  if (SUPPORTED_LANGS.includes(cookieLang as Lang)) {
-    return cookieLang as Lang;
-  }
-  return "en"; // fallback
-}
 
 // 🌍 Metadata dinámica (ESCALABLE)
 export async function generateMetadata(): Promise<Metadata> {
-  const cookieStore = await cookies();
-  const lang = getLang(cookieStore.get("lang")?.value);
+  const lang = await getServerLanguage();
 
   const metadataByLang: Record<Lang, Metadata> = {
     en: {
-      title: "BetSaaS",
+      title: "Luranix",
       description:
         "Advanced sports betting analytics platform",
     },
 
     es: {
-      title: "BetSaaS",
+      title: "Luranix",
       description:
         "Plataforma avanzada de análisis de apuestas deportivas",
     },
 
     fr: {
-      title: "BetSaaS",
+      title: "Luranix",
       description:
         "Plateforme avancée d'analyse des paris sportifs",
     },
 
     it: {
-      title: "BetSaaS",
+      title: "Luranix",
       description:
         "Piattaforma avanzata di analisi delle scommesse sportive",
     },
@@ -72,8 +62,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const cookieStore = await cookies();
-  const lang = getLang(cookieStore.get("lang")?.value);
+  const lang = await getServerLanguage();
 
   return (
     <html

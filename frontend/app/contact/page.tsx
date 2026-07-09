@@ -1,13 +1,18 @@
 import LegalPage from "@/components/legal/LegalPage";
 import { translations } from "@/lib/i18n/translations";
-import { cookies } from "next/headers";
+import { cookiesContent } from "@/lib/legal/cookies";
+import { getServerLanguage } from "@/lib/i18n/server";
+import { COMPANY } from "@/lib/branding";
+
 
 export default async function ContactPage() {
 
-  const cookieStore = await cookies();
+  const lang = await getServerLanguage();
 
-  const lang =
-    cookieStore.get("lang")?.value ?? "en";
+  const content =
+    cookiesContent[lang].sections.length > 0
+      ? cookiesContent[lang]
+      : cookiesContent.en;
 
   const t =
     translations[
@@ -15,10 +20,11 @@ export default async function ContactPage() {
     ] ?? translations.en;
 
   return (
-    <LegalPage
-      title={t.contactTitle}
-      updated="2026-06-23"
-    >
+      <LegalPage
+        locale={lang}
+        title={t.contactTitle}
+        updated="2026-06-23"
+      >
 
       <section>
 
@@ -43,7 +49,7 @@ export default async function ContactPage() {
         </p>
 
         <p className="font-medium">
-          support@betsaas.com
+          {COMPANY.email}
         </p>
 
       </section>
@@ -83,7 +89,7 @@ export default async function ContactPage() {
         </p>
 
         <p className="font-medium">
-          support@betsaas.com
+          {COMPANY.email}
         </p>
 
       </section>
