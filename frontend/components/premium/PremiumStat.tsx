@@ -1,4 +1,5 @@
 import { useSubscription } from "@/context/SubscriptionContext";
+import { canUseAdvancedStats } from "@/lib/premium";
 
 type Props = {
     title: string;
@@ -26,7 +27,7 @@ export default function PremiumStat({
         {title}
     </div>
 
-    {isPremium ? (
+    {canUseAdvancedStats(isPremium) ? (
         <div className="text-4xl font-bold">
         {children}
         </div>

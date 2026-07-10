@@ -25,7 +25,8 @@ from app.core.config import (
     get_current_season,
 )
 
-from app.core.auth import create_token
+from app.core.auth import create_token, get_current_user
+from app.core.database import get_db
 from app.core.security import SECRET_KEY, ALGORITHM, create_access_token, hash_password, verify_password
 from app.core.email import send_verification_email, send_reset_email, send_reactivation_email
 
@@ -52,8 +53,8 @@ from app.services.team_analysis import get_team_analysis
 from app.services.h2h_analysis import get_h2h_analysis
 from app.services.match_analysis import get_match_analysis
 from app.services.fixtures import fetch_fixtures
-
-
+from app.services.subscription import get_subscription
+from app.api.subscription import router as subscription_router
 
 
 from uuid import uuid4
@@ -107,13 +108,6 @@ oauth.register(
 class RegisterRequest(BaseModel):
     email: str
     password: str
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 def generate_reactivation_token():
     return secrets.token_urlsafe(32)
@@ -813,31 +807,6 @@ def login(data: LoginRequest, response: Response, db: Session = Depends(get_db))
     except Exception as e:
         print("💥 LOGIN ERROR:", str(e))
         raise HTTPException(status_code=500, detail="Internal server error")
-
-def get_current_user(
-    access_token: str = Cookie(None),
-    db: Session = Depends(get_db),
-):
-    if not access_token:
-        return None
-
-    try:
-        payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
-
-        user_id = payload.get("sub")
-
-        if not user_id:
-            return None
-
-        user = db.query(User).filter(User.id == user_id).first()
-
-        if not user or not user.is_active:
-            return None
-
-        return user
-
-    except Exception:
-        return None
     
 
 @router.get("/me")
@@ -851,7 +820,7 @@ def get_me(user: User = Depends(get_current_user)):
     return {
         "email": user.email,
         "is_admin": user.is_admin,
-        "subscription": user.subscription,
+        "subscription": get_subscription(user),
         "name": user.name,
         "avatar": user.avatar,
         "provider": user.provider,
@@ -1748,3 +1717,6 @@ def analysis_upcoming_fixtures(
 
         for f in fixtures
     ]
+
+
+router.include_router(subscription_router)

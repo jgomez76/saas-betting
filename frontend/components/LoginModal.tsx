@@ -330,10 +330,20 @@ export default function LoginModal({ onClose, onLogin }: Props) {
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-[var(--card)] p-6 rounded-2xl w-[320px] shadow-2xl border border-[var(--border)] text-[var(--text)] animate-in fade-in zoom-in duration-200">
-
+      <div
+        className="
+          theme-card
+          w-[340px]
+          p-6
+          text-[var(--text)]
+          animate-in
+          fade-in
+          zoom-in
+          duration-200
+        "
+      >
         {/* TITLE */}
-        <h2 className="text-lg font-bold mb-4 text-center text-white">
+        <h2 className="text-lg font-bold mb-4 text-center text-[var(--text)]">
           {mode === "login"
             ? `🔐 ${t.login}`
             : mode === "register"
@@ -346,7 +356,12 @@ export default function LoginModal({ onClose, onLogin }: Props) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder={t.email}
-          className="w-full mb-3 p-2 rounded bg-[var(--input)] text-[var(--text)] border border-[var(--border)]"
+          className="
+              theme-input
+              w-full
+              mb-3
+              p-2
+          "
         />
 
         {/* PASSWORD */}
@@ -356,7 +371,12 @@ export default function LoginModal({ onClose, onLogin }: Props) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder={t.password}
-            className="w-full mb-4 p-2 rounded bg-[var(--input)] text-[var(--text)] border border-[var(--border)]"
+            className="
+                theme-input
+                w-full
+                mb-4
+                p-2
+            "
           />
         )}
 
@@ -365,7 +385,18 @@ export default function LoginModal({ onClose, onLogin }: Props) {
           window.location.href =
             `${apiUrl}/auth/google`;
         }}
-          className="w-full bg-white text-black py-2 rounded mb-2"
+          className="
+              w-full
+              py-2
+              mb-2
+              rounded-[var(--button-radius)]
+              border
+              border-[var(--border)]
+              bg-white
+              text-black
+              hover:opacity-90
+              transition
+          "
         >
           🔵 {t.continueWithGoogle}
         </button>
@@ -375,7 +406,17 @@ export default function LoginModal({ onClose, onLogin }: Props) {
             window.location.href =
               `${apiUrl}/auth/github`;
           }}
-          className="w-full bg-black text-white py-2 rounded"
+          className="
+              w-full
+              py-2
+              rounded-[var(--button-radius)]
+              border
+              border-[var(--border)]
+              bg-[#24292f]
+              text-white
+              hover:opacity-90
+              transition
+          "
         >
           ⚫ {t.continueWithGithub}
         </button>
@@ -386,7 +427,13 @@ export default function LoginModal({ onClose, onLogin }: Props) {
             setMode("forgot");
             setError("");
           }}
-          className="w-full text-xs text-cyan-400 hover:underline mb-3"
+          className="
+              w-full
+              text-xs
+              text-[var(--accent)]
+              hover:underline
+              mb-3
+          "
         >
           {t.forgotPasswordQuestion}
         </button>
@@ -418,7 +465,15 @@ export default function LoginModal({ onClose, onLogin }: Props) {
                 : handleForgotPassword
             }
             disabled={loading}
-            className="w-full bg-[var(--primary)] py-2 rounded font-bold hover:opacity-90 text-white disabled:opacity-50"
+            className="
+                theme-button
+                w-full
+                py-2
+                font-bold
+                bg-[var(--accent)]
+                text-[var(--accent-contrast)]
+                disabled:opacity-50
+            "
           >
           {loading
             ? t.loading
@@ -440,7 +495,7 @@ export default function LoginModal({ onClose, onLogin }: Props) {
                   setMode("register");
                   setError("");
                 }}
-                className="text-cyan-400 hover:underline"
+                className="text-[var(--accent)] hover:underline"
               >
                 {t.signUp}
               </button>
@@ -453,7 +508,7 @@ export default function LoginModal({ onClose, onLogin }: Props) {
                   setMode("login");
                   setError("");
                 }}
-                className="text-cyan-400 hover:underline"
+                className="text-[var(--accent)] hover:underline"
               >
                 {t.login}
               </button>
@@ -465,7 +520,13 @@ export default function LoginModal({ onClose, onLogin }: Props) {
                 setMode("login");
                 setError("");
               }}
-              className="text-sm text-gray-400 mt-2"
+              className="
+                  text-sm
+                  text-[var(--muted)]
+                  mt-2
+                  hover:text-[var(--text)]
+                  transition
+              "
             >
               ← {t.backToLogin}
             </button>
@@ -475,7 +536,14 @@ export default function LoginModal({ onClose, onLogin }: Props) {
         {/* CANCEL */}
         <button
           onClick={onClose}
-          className="w-full mt-3 text-sm text-gray-400"
+          className="
+              w-full
+              mt-3
+              text-sm
+              text-[var(--muted)]
+              hover:text-[var(--text)]
+              transition
+          "
         >
           {t.cancel}
         </button>

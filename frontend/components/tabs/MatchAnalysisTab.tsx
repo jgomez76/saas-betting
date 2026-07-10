@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import PremiumStat from "@/components/premium/PremiumStat";
-import PremiumFeature from "@/components/premium/PremiumFeature";
 import { useSubscription } from "@/context/SubscriptionContext";
+import PremiumPanel from "@/components/premium/PremiumPanel";
 
 const apiUrl =
   typeof window !== "undefined"
@@ -672,7 +672,7 @@ export default function MatchAnalysisTab() {
 
         ) : (
 
-          <PremiumFeature
+          <PremiumPanel
             icon="🧠"
             title="Smart Insights"
             description="Automatically generated betting insights based on historical statistics and team trends."
@@ -777,7 +777,7 @@ export default function MatchAnalysisTab() {
 
         ) : (
 
-          <PremiumFeature
+          <PremiumPanel
             icon="🎯"
             title="Market Confidence"
             description="See which betting markets have the highest statistical confidence before placing a bet."
@@ -888,7 +888,7 @@ export default function MatchAnalysisTab() {
 
           ) : (
 
-            <PremiumFeature
+            <PremiumPanel
               icon="💎"
               title="Value Opportunities"
               description="Discover bets where our model estimates the market odds are higher than the true probability."

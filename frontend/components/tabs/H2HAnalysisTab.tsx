@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
-import PremiumFeature from "@/components/premium/PremiumFeature";
+import PremiumPanel from "@/components/premium/PremiumPanel";
 
 type H2HAnalysis = {
 
@@ -480,7 +480,7 @@ export default function H2HAnalysisTab() {
 
           </div>
 
-          <PremiumFeature
+          <PremiumPanel
               icon="⚔️"
               title="Luranix AI Insight"
               badge="Premium"

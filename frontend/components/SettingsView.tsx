@@ -13,6 +13,7 @@ import { User } from "@/types/user";
 import Image from "next/image";
 import { useSubscription } from "@/context/SubscriptionContext";
 import ThemeCard from "@/components/settings/ThemeCard";
+import PremiumModal from "@/components/premium/PremiumModal";
 
 /* THEMES */
 // const FREE_THEMES: Theme[] = ["trader", "sportsbook", "datalab"];
@@ -140,6 +141,8 @@ export default function SettingsView({
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+
   const API =
     typeof window !== "undefined"
       ? window.location.hostname === "localhost"
@@ -161,7 +164,7 @@ export default function SettingsView({
 
   // ⭐ PREMIUM (placeholder limpio)
   const handleUpgrade = () => {
-    alert(t.premiumComingSoon);
+      setShowPremiumModal(true);
   };
 
    // ❌ DELETE ACCOUNT
@@ -480,6 +483,14 @@ export default function SettingsView({
           {successMsg}
         </div>
       )}
+
+      <PremiumModal
+          open={showPremiumModal}
+          onClose={() => setShowPremiumModal(false)}
+          onUpgrade={() => {
+              alert("Stripe integration coming soon 🚀");
+          }}
+      />
 
     </div>
   );
