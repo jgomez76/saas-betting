@@ -1,49 +1,72 @@
-"""
-==========================================================
-💳 STRIPE SERVICE
-==========================================================
+import stripe
 
-This service is the ONLY place allowed to communicate
-with the Stripe SDK.
+from app.core.config import (
+    STRIPE_SECRET_KEY,
+    STRIPE_PREMIUM_PRICE_ID,
+    FRONTEND_URL,
+)
 
-Routes must never import Stripe directly.
 
-subscription.py contains business logic.
-stripe.py contains Stripe integration.
-"""
+
+# ==========================================================
+# STRIPE CLIENT
+# ==========================================================
+
+stripe.api_key = STRIPE_SECRET_KEY
+
+
+# ==========================================================
+# STRIPE SERVICE
+# ==========================================================
+
+def test_connection():
+    """
+    Tests the connection with Stripe.
+    """
+
+    account = stripe.Account.retrieve()
+
+    return {
+        "id": account.id,
+        "country": account.country,
+        "email": account.email,
+    }
 
 
 def create_checkout_session(user):
     """
-    Creates a Stripe Checkout session.
-
-    (Implementation coming soon)
+    Creates a Stripe Checkout Session.
     """
-    raise NotImplementedError
+
+    checkout = stripe.checkout.Session.create(
+
+        mode="subscription",
+
+        customer_email=user.email,
+
+        line_items=[
+            {
+                "price": STRIPE_PREMIUM_PRICE_ID,
+                "quantity": 1,
+            }
+        ],
+
+        success_url=f"{FRONTEND_URL}/",
+
+        cancel_url=f"{FRONTEND_URL}/",
+
+    )
+
+    return checkout.url
 
 
 def create_customer_portal(user):
-    """
-    Opens the Stripe Customer Portal.
-
-    (Implementation coming soon)
-    """
     raise NotImplementedError
 
 
 def handle_webhook(payload, signature):
-    """
-    Handles Stripe webhook events.
-
-    (Implementation coming soon)
-    """
     raise NotImplementedError
 
 
 def cancel_subscription(user):
-    """
-    Cancels a Premium subscription.
-
-    (Implementation coming soon)
-    """
     raise NotImplementedError

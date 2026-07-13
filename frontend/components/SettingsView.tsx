@@ -14,6 +14,7 @@ import Image from "next/image";
 import { useSubscription } from "@/context/SubscriptionContext";
 import ThemeCard from "@/components/settings/ThemeCard";
 import PremiumModal from "@/components/premium/PremiumModal";
+import { upgradeToPremium } from "@/lib/stripe";
 
 /* THEMES */
 // const FREE_THEMES: Theme[] = ["trader", "sportsbook", "datalab"];
@@ -487,8 +488,22 @@ export default function SettingsView({
       <PremiumModal
           open={showPremiumModal}
           onClose={() => setShowPremiumModal(false)}
-          onUpgrade={() => {
-              alert("Stripe integration coming soon 🚀");
+          onUpgrade={async () => {
+
+              const res = await fetch(`${API}/subscription/checkout`, {
+                  method: "POST",
+                  credentials: "include",
+              });
+
+              if (!res.ok) {
+                  alert("Unable to connect with Stripe.");
+                  return;
+              }
+
+              const data = await res.json();
+
+              window.location.href = data.url;
+
           }}
       />
 
