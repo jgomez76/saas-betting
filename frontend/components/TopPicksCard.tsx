@@ -1,6 +1,7 @@
 import PremiumLock from "@/components/PremiumLock";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import { LOCALES } from "@/lib/i18n/config";
+import { usePremium } from "@/context/PremiumContext";
 
 type TopPick = {
   fixture_id: number;
@@ -79,6 +80,7 @@ export default function TopPicksCard({
   onSelectPick,
 }: Props) {
   const { t, lang } = useLanguage();
+  const { showPremium } = usePremium();
 
   // 🔥 Unificar FREE + PREMIUM
   // const allPicks = freePick
@@ -157,7 +159,14 @@ return (
   <PremiumLock key={p.fixture_id} locked={locked}>
     <div
       onClick={() => {
-        if (!locked) onSelectPick(p);
+
+          if (locked) {
+              showPremium();
+              return;
+          }
+
+          onSelectPick(p);
+
       }}
       className={`
         relative bg-gradient-to-br from-[var(--bg)] to-black/60 

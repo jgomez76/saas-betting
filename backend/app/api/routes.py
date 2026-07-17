@@ -821,6 +821,10 @@ def get_me(user: User = Depends(get_current_user)):
         "email": user.email,
         "is_admin": user.is_admin,
         "subscription": get_subscription(user),
+
+        "subscription_status": user.subscription_status,
+        "subscription_end": user.subscription_end,
+
         "name": user.name,
         "avatar": user.avatar,
         "provider": user.provider,

@@ -3,5 +3,7 @@ export type User = {
   name?: string;
   avatar?: string;
   subscription?: string;
+  subscription_status?: string;
+  subscription_end?: string;
   provider?: string;
 };

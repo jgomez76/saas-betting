@@ -69,12 +69,10 @@ export default function Home() {
   // ###########
   // CONSTANTES
   // ###########
-  const { t, lang } = useLanguage();
-
-  // const { data: session } = useSession();
-  // const oauthDone = useRef(false);
   
-  const { plan, setPlan, isPremium } = useSubscription();
+  const { t, lang } = useLanguage();
+  
+  const { isPremium } = useSubscription();
 
   const [view, setView] = useState("dashboard");
   const [leagueNames, setLeagueNames] = useState<Record<string, string>>({});
@@ -190,11 +188,8 @@ export default function Home() {
 
   const {
     isAdmin,
-    email,
     authLoading,
-    name,
-    avatar,
-    provider,
+    user,
     refreshUser,
     handleLogout,
   } = useAuth(apiUrl);
@@ -226,7 +221,7 @@ export default function Home() {
       : apiUrl
   );
 
-  const isLogged = !!email && !authLoading;
+  const isLogged = !!user.email && !authLoading;
   const { bets, addBet, deleteBet } = useBets(isLogged);
   const { favorites, addFavorite, removeFavorite } = useFavorites(isLogged);
 
@@ -429,9 +424,6 @@ export default function Home() {
     );
   }, [allMatches, favorites]);
 
-
-
-
   const getCountdown = (now: Date) => {
     const target = getTodayGenerationTime();
 
@@ -502,8 +494,6 @@ export default function Home() {
 
   }, [matches, leagueNames]);
 
- 
-
   // ---------------- RENDER ----------------
 
   const handleLeagueChange = (value: string) => {
@@ -532,24 +522,10 @@ export default function Home() {
 
   const countdown = mounted ? getCountdown(now) : null;
 
+  console.log("USER", user);
+  
   return (
     <>
-  
-    <div className="mb-4 flex gap-2">
-      <button
-        onClick={() => setPlan("free")}
-        className={`px-3 py-1 rounded ${plan === "free" ? "bg-[var(--accent)] text-black" : "bg-[var(--card)]"}`}
-      >
-        {t.free}
-      </button>
-
-      <button
-        onClick={() => setPlan("premium")}
-        className={`px-3 py-1 rounded ${plan === "premium" ? "bg-[var(--accent)] text-black" : "bg-[var(--card)]"}`}
-      >
-        {t.premium}
-      </button>
-    </div>
 
     <div className="flex relative">
       
@@ -584,8 +560,6 @@ export default function Home() {
               // onOpenAnalysis={() => setView("analysis")}
               onOpenProfile={() => setShowProfile(true)}
 
-              marketFilter={marketFilter}
-              setMarketFilter={setMarketFilter}
               leagueFilter={leagueFilter}
               setLeagueFilter={handleLeagueChange}
               dateFilter={dateFilter}
@@ -604,9 +578,9 @@ export default function Home() {
               maxOdd={maxOdd}
               setMaxOdd={setMaxOdd}
               isAdmin={isAdmin}
-              email={email}
-              name={name}
-              avatar={avatar}
+              email={user.email}
+              name={user.name ?? ""}
+              avatar={user.avatar ?? ""}
               
             />
           )}
@@ -756,15 +730,10 @@ export default function Home() {
         {/* SETTINGS */}
         {view === "settings" && (
           <SettingsView
-            user={{
-              email,
-              name,
-              avatar,
-              subscription: isPremium ? "premium" : "free",
-              provider,
-            }}
+            user={user}
             onLogout={handleLogout}
             onRefreshUser={refreshUser}
+            onLogin={() => setShowLoginModal(true)}
           />
         )}
         
@@ -855,18 +824,14 @@ export default function Home() {
 
     {showProfile && (
       <ProfileModal
-        user={{
-          email,
-          name,
-          avatar,
-          subscription: isPremium ? "premium" : "free",
-          provider,
-        }}
+        user={user}
         onClose={() => setShowProfile(false)}
         onLogout={handleLogout}
-        onRefreshUser={refreshUser} // 🔥 CLAVE
+        onRefreshUser={refreshUser}
+        onLogin={() => setShowLoginModal(true)}
       />
     )}
+
     </>
 
   );

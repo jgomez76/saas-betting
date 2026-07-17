@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import PremiumPanel from "@/components/premium/PremiumPanel";
+import { usePremium } from "@/context/PremiumContext";
+import { upgradeToPremium } from "@/lib/stripe";
 
 type H2HAnalysis = {
 
@@ -50,6 +52,7 @@ const apiUrl =
 
 export default function H2HAnalysisTab() {
   const { t } = useLanguage();
+  const { showPremium } = usePremium();
 
   const [selectedLeague, setSelectedLeague] =
     useState("");
@@ -492,6 +495,7 @@ export default function H2HAnalysisTab() {
                   "Over/Under prediction",
                   "AI match conclusion",
               ]}
+              onClick={() => upgradeToPremium(apiUrl)}
           />
 
         </>

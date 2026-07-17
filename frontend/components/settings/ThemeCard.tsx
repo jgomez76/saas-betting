@@ -22,7 +22,6 @@ export default function ThemeCard({
   return (
     <button
       onClick={onClick}
-      disabled={locked}
       className={`
         relative
         overflow-hidden

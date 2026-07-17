@@ -8,6 +8,15 @@ type Props = {
     onUpgrade?: () => void;
 };
 
+const PREMIUM_FEATURES = [
+    "🎨 8 Exclusive Themes",
+    "🤖 AI Match Analysis",
+    "⭐ Unlimited Favorites",
+    "📊 Advanced Statistics",
+    "🚀 Early Access Features",
+    "💎 Future Premium Updates",
+];
+
 export default function PremiumModal({
     open,
     onClose,
@@ -61,11 +70,13 @@ export default function PremiumModal({
                     </button>
 
                     <PremiumPanel
+                        variant="modal"
                         title="💎 Luranix Premium"
                         description="Unlock the complete Luranix experience and access every Premium feature."
                         buttonText="🚀 Upgrade to Premium"
                         badge="Premium"
                         onClick={onUpgrade}
+                        features={PREMIUM_FEATURES}
                     />
 
                 </div>

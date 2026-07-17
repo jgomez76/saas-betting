@@ -1,34 +1,19 @@
 type Props = {
-    compact?: boolean;
+    features: string[];
 };
 
-const BENEFITS = [
-    "🎨 8 Exclusive Themes",
-    "🤖 AI Match Analysis",
-    "⭐ Unlimited Favorites",
-    "📊 Advanced Statistics",
-    "🚀 Early Access Features",
-    "💎 Future Premium Updates",
-];
-
 export default function PremiumBenefits({
-    compact = false,
+    features,
 }: Props) {
 
     return (
 
-        <div
-            className={
-                compact
-                    ? "space-y-2"
-                    : "grid md:grid-cols-2 gap-3"
-            }
-        >
+        <div className="grid md:grid-cols-2 gap-3">
 
-            {BENEFITS.map((benefit) => (
+            {features.map((feature) => (
 
                 <div
-                    key={benefit}
+                    key={feature}
                     className="flex items-center gap-3"
                 >
 
@@ -37,7 +22,7 @@ export default function PremiumBenefits({
                     </span>
 
                     <span>
-                        {benefit}
+                        {feature}
                     </span>
 
                 </div>

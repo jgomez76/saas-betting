@@ -4,25 +4,39 @@ type Props = {
   icon?: string;
   title: string;
   description?: string;
+  features: string[];
   buttonText?: string;
   onClick?: () => void;
   badge?: string;
+  variant?: "inline" | "modal";
 };
 
 export default function PremiumPanel({
+  variant = "inline",
   icon = "💎",
   title,
   description,
+  features,
   buttonText = "Explore Premium →",
   onClick,
   badge = "Premium",
 }: Props) {
   return (
       <div
-        className="
-        theme-card
-        p-8
-        "
+          className={
+              variant === "inline"
+                  ? `
+                      theme-card
+                      p-8
+                    `
+                  : `
+                      theme-card
+                      p-8
+                      relative
+                      max-w-4xl
+                      w-full
+                    `
+          }
       >
       {/* Header */}
 
@@ -72,7 +86,9 @@ export default function PremiumPanel({
       <div className="my-8 border-t border-[var(--border)]" />
 
       {/* Features */}
-      <PremiumBenefits />
+      <PremiumBenefits
+          features={features}
+      />
 
       {/* CTA */}
 

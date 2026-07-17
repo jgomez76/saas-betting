@@ -1,5 +1,6 @@
 import { useSubscription } from "@/context/SubscriptionContext";
 import { canUseAdvancedStats } from "@/lib/premium";
+import { usePremium } from "@/context/PremiumContext";
 
 type Props = {
     title: string;
@@ -11,17 +12,28 @@ export default function PremiumStat({
   children,
 }: Props) {
     const { isPremium } = useSubscription();    
+    const { showPremium } = usePremium();
     
   return (
     <div
-    className="
-        bg-[var(--card)]
-        border
-        border-[var(--border)]
-        rounded-xl
-        p-5
-        text-center
-    "
+        onClick={() => {
+            if (!canUseAdvancedStats(isPremium)) {
+                showPremium();
+            }
+        }}
+        className={`
+            bg-[var(--card)]
+            border
+            border-[var(--border)]
+            rounded-xl
+            p-5
+            text-center
+            ${
+                !canUseAdvancedStats(isPremium)
+                    ? "cursor-pointer hover:border-blue-500 transition"
+                    : ""
+            }
+        `}
     >
     <div className="text-sm text-[var(--muted)] mb-2">
         {title}

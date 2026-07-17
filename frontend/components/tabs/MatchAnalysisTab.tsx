@@ -5,6 +5,7 @@ import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import PremiumStat from "@/components/premium/PremiumStat";
 import { useSubscription } from "@/context/SubscriptionContext";
 import PremiumPanel from "@/components/premium/PremiumPanel";
+import { upgradeToPremium } from "@/lib/stripe";
 
 const apiUrl =
   typeof window !== "undefined"
@@ -684,6 +685,7 @@ export default function MatchAnalysisTab() {
               "Automatic recommendations",
             ]}
             buttonText="Explore Premium"
+            onClick={() => upgradeToPremium(apiUrl)}
           />
 
         )}
@@ -789,6 +791,7 @@ export default function MatchAnalysisTab() {
               "Risk evaluation",
             ]}
             buttonText="Explore Premium"
+            onClick={() => upgradeToPremium(apiUrl)}
           />
 
         )}
@@ -900,6 +903,7 @@ export default function MatchAnalysisTab() {
                 "Value betting analysis",
               ]}
               buttonText="Explore Premium"
+              onClick={() => upgradeToPremium(apiUrl)}
             />
 
           )

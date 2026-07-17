@@ -10,6 +10,7 @@ import CookieBanner from "@/components/CookieBanner";
 import { getServerLanguage } from "@/lib/i18n/server";
 import type { Lang } from "@/lib/i18n/server";
 import { BASE_METADATA } from "@/lib/branding";
+import { PremiumProvider } from "@/context/PremiumContext";
 
 
 // 🌍 Metadata dinámica (ESCALABLE)
@@ -76,13 +77,17 @@ export default async function RootLayout({
             <SubscriptionProvider>
               <LanguageProvider initialLang={lang}>
 
-                <main className="flex-1">
-                  {children}
-                </main>
+                <PremiumProvider>
 
-                <CookieBanner />
+                  <main className="flex-1">
+                    {children}
+                  </main>
 
-                <Footer />
+                  <CookieBanner />
+
+                  <Footer />
+
+                </PremiumProvider>
 
               </LanguageProvider>
             </SubscriptionProvider>

@@ -4,6 +4,8 @@ import { createPortal } from "react-dom";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
+import SubscriptionInfo from "@/components/profile/SubscriptionInfo";
+import { manageSubscription } from "@/lib/stripe";
 
 type Props = {
   user: {
@@ -15,7 +17,8 @@ type Props = {
   };
   onClose: () => void;
   onLogout: () => void;
-  onRefreshUser: () => void; // 🔥 NUEVO
+  onRefreshUser: () => void;
+  onLogin: () => void;
 };
 
 export default function ProfileModal({
@@ -23,6 +26,7 @@ export default function ProfileModal({
   onClose,
   onLogout,
   onRefreshUser,
+  onLogin,
 }: Props) {
   const { t } = useLanguage();
   const [isEditing, setIsEditing] = useState(false);
@@ -51,6 +55,14 @@ export default function ProfileModal({
         : `http://${window.location.hostname}:8000`
       : "";
 
+  const handleManageSubscription = async () => {
+    await manageSubscription(apiUrl);
+  };
+
+  const handleUpgrade = () => {
+    onClose();
+    alert("TODO: Abrir Upgrade a Premium");
+  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -165,24 +177,155 @@ export default function ProfileModal({
   }, []);
 
   if (!mounted) return null;
+  const isLogged = !!user.email;
 
+  if (!isLogged) {
 
-  return createPortal(
-    <div className="fixed inset-0 bg-black/80 flex justify-center z-[9999]">
+    return createPortal(
 
-      <div className="mt-4 w-[95%] max-w-md max-h-[90vh] overflow-y-auto bg-[var(--card)] text-[var(--text)] p-6 rounded-2xl shadow-xl border border-[var(--border)]">
-        {/* HEADER */}
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-bold">👤 {t.profile}</h2>
-          <button onClick={onClose} aria-label={t.close}>
-            ✖
-          </button>
+      <div className="fixed inset-0 bg-black/80 flex justify-center z-[9999]">
+
+        <div className="mt-4 w-[95%] max-w-md bg-[var(--card)] text-[var(--text)] p-6 rounded-2xl shadow-xl border border-[var(--border)]">
+
+          <div className="flex justify-between items-center mb-6">
+
+            <h2 className="text-lg font-bold">
+              👋 Bienvenido a Luranix
+            </h2>
+
+            <button onClick={onClose}>
+              ✖
+            </button>
+
+          </div>
+
+          <div className="text-center space-y-6">
+
+            <div className="text-6xl">
+              👤
+            </div>
+
+            <div>
+
+              <p className="text-lg font-semibold">
+                No has iniciado sesión
+              </p>
+
+              <p className="text-[var(--muted)] mt-2">
+                Inicia sesión para sincronizar tus favoritos, acceder a Premium y personalizar tu experiencia.
+              </p>
+
+            </div>
+
+            <button
+              onClick={() => {
+                onClose();
+                onLogin();
+              }}
+              className="w-full bg-[var(--primary)] py-3 rounded-lg"
+            >
+              🔑 Iniciar sesión
+            </button>
+
+          </div>
+
         </div>
 
-        {/* AVATAR */}
-        <div className="flex flex-col items-center mb-4">
+      </div>,
+
+      document.body
+
+    );
+
+  }
+
+
+return createPortal(
+  <div className="fixed inset-0 bg-black/80 flex justify-center items-start z-[9999]">
+
+    <div className="mt-4 w-[95%] max-w-4xl max-h-[95vh] overflow-y-auto bg-[var(--card)] text-[var(--text)] p-6 rounded-2xl shadow-xl border border-[var(--border)]">
+
+      {/* HEADER */}
+
+      <div className="flex justify-between items-center mb-8">
+
+        <h2 className="text-xl font-bold">
+          👤 {t.profile}
+        </h2>
+
+        <button
+          onClick={onClose}
+          aria-label={t.close}
+        >
+          ✖
+        </button>
+
+      </div>
+
+      {/* PROFILE + PREMIUM */}
+
+      {!isEditing && !isPasswordMode ? (
+
+        <div className="flex flex-col md:flex-row gap-8 mb-8">
+
+          {/* USER */}
+
+          <div className="md:w-1/3 flex flex-col items-center text-center">
+
+            {(isEditing ? editAvatar : user.avatar) ? (
+
+              <Image
+                src={
+                  (isEditing ? editAvatar : user.avatar)?.startsWith("http") ||
+                  (isEditing ? editAvatar : user.avatar)?.startsWith("data:")
+                    ? (isEditing ? editAvatar : user.avatar)!
+                    : `${apiUrl}${isEditing ? editAvatar : user.avatar}`
+                }
+                alt="avatar"
+                width={96}
+                height={96}
+                className="rounded-full mb-4"
+                unoptimized
+              />
+
+            ) : (
+
+              <div className="w-24 h-24 rounded-full bg-[var(--muted)] flex items-center justify-center text-3xl mb-4">
+                {user.email?.[0]?.toUpperCase()}
+              </div>
+
+            )}
+
+            <p className="text-xl font-bold">
+              {user.name || t.user}
+            </p>
+
+            <p className="text-sm text-[var(--muted)] break-all mt-1">
+              {user.email}
+            </p>
+
+          </div>
+
+          {/* PREMIUM */}
+
+          <div className="md:w-2/3">
+
+            <SubscriptionInfo
+              user={user}
+              onManageSubscription={handleManageSubscription}
+              onUpgrade={handleUpgrade}
+            />
+
+          </div>
+
+        </div>
+
+      ) : (
+
+        <div className="flex flex-col items-center mb-6">
 
           {(isEditing ? editAvatar : user.avatar) ? (
+
             <Image
               src={
                 (isEditing ? editAvatar : user.avatar)?.startsWith("http") ||
@@ -191,205 +334,203 @@ export default function ProfileModal({
                   : `${apiUrl}${isEditing ? editAvatar : user.avatar}`
               }
               alt="avatar"
-              width={80}
-              height={80}
-              className="rounded-full mb-2"
+              width={96}
+              height={96}
+              className="rounded-full mb-4"
               unoptimized
             />
+
           ) : (
-            <div className="w-20 h-20 rounded-full bg-[var(--muted)] flex items-center justify-center text-xl">
+
+            <div className="w-24 h-24 rounded-full bg-[var(--muted)] flex items-center justify-center text-3xl mb-4">
               {user.email?.[0]?.toUpperCase()}
             </div>
+
           )}
 
-          {isEditing ? (
-            <input
-              value={editName}
-              onChange={(e) => setEditName(e.target.value)}
-              className="w-full p-2 rounded bg-[var(--card)] text-[var(--text)] mb-2"
-              placeholder={t.name}
-            />
-          ) : (
-            <>
-              <p className="text-lg font-semibold">
-                {user.name || t.user}
-              </p>
-              <p className="text-sm text-[var(--muted)]">
-                {user.email}
-              </p>
-            </>
-          )}
+          <input
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+            className="w-full p-2 rounded bg-[var(--card)] text-[var(--text)]"
+            placeholder={t.name}
+          />
 
         </div>
 
-        {isEditing && (
-          <label className="cursor-pointer text-sm text-[var(--primary)] mb-2">
-            📸 {t.changeAvatar}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
+      )}
 
-                setSelectedFile(file);
+    {isEditing && (
+      <label className="cursor-pointer text-sm text-[var(--primary)] mb-4 block">
+        📸 {t.changeAvatar}
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
 
-                const reader = new FileReader();
+            setSelectedFile(file);
 
-                reader.onloadend = () => {
-                  setEditAvatar(reader.result as string); // 🔥 base64
-                };
+            const reader = new FileReader();
 
-                reader.readAsDataURL(file);
-              }}
-              className="hidden"
-            />
-          </label>
-        )}
+            reader.onloadend = () => {
+              setEditAvatar(reader.result as string);
+            };
 
-        {/* INFO */}
-        {!isEditing && (
-          <div className="space-y-3 text-sm">
+            reader.readAsDataURL(file);
+          }}
+          className="hidden"
+        />
+      </label>
+    )}
 
-            <div className="flex justify-between">
-              <span className="text-[var(--muted)]">{t.plan}</span>
-              <span className="font-semibold">
-                {user.subscription || t.free}
-              </span>
-            </div>
+    {error && (
+      <div className="bg-[var(--danger)]/20 text-[var(--danger)] p-3 rounded-lg text-sm mb-4">
+        {error}
+      </div>
+    )}
 
-            <div className="flex justify-between">
-              <span className="text-[var(--muted)]">{t.provider}</span>
-              <span className="font-semibold">
-                {user.provider ?? t.emailProvider}
-              </span>
-            </div>
+    {success && (
+      <div className="flex items-center gap-2 bg-[var(--success)]/10 border border-[var(--success)]/30 text-[var(--success)] p-3 rounded-lg text-sm mb-4">
+        <span>✅</span>
+        <span>{success}</span>
+      </div>
+    )}
 
-          </div>
-        )}
+    {isPasswordMode && (
+      <div className="space-y-3 mb-6">
 
-        {error && (
-          <div className="bg-[var(--danger)]/20 text-[var(--danger)] p-2 rounded text-sm mb-2">
-            {error}
-          </div>
-        )}
+        <input
+          type="password"
+          placeholder={t.currentPassword}
+          value={currentPassword}
+          onChange={(e) => setCurrentPassword(e.target.value)}
+          className="w-full p-3 rounded-lg bg-[var(--input)]"
+        />
 
-        {success && (
-          <div className="flex items-center gap-2 bg-[var(--success)]/10 border border-[var(--success)]/30 text-[var(--success)] p-3 rounded-lg text-sm mb-3">
-            <span>✅</span>
-            <span>{success}</span>
-          </div>
-        )}
+        <input
+          type="password"
+          placeholder={t.newPassword}
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          className="w-full p-3 rounded-lg bg-[var(--input)]"
+        />
 
-        {isPasswordMode && (
-          <div className="space-y-3 mb-4">
+      </div>
+    )}
 
-            <input
-              type="password"
-              placeholder={t.currentPassword}
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full p-2 rounded bg-[var(--input)]"
-            />
+    {/* ACTIONS */}
 
-            <input
-              type="password"
-              placeholder={t.newPassword}
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full p-2 rounded bg-[var(--input)]"
-            />
+    <div className="mt-6">
 
-          </div>
-        )}
+      {!isEditing && !isPasswordMode && (
 
-        {/* ACTIONS */}
-        <div className="mt-6 space-y-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
 
-          {/* 🧠 NORMAL */}
-          {!isEditing && !isPasswordMode && (
-            <>
-              <button
-                onClick={() => {
-                  setIsPasswordMode(false);
-                  setIsEditing(true);
-                }}
-                className="w-full bg-[var(--primary)] py-2 rounded hover:opacity-90"
-              >
-                ✏️ {t.editProfile}
-              </button>
-
-              <button
-                onClick={() => {
-                  setIsEditing(false);
-                  setIsPasswordMode(true);
-                }}
-                className="w-full bg-[var(--card)] py-2 rounded hover:bg-[var(--hover)]"
-              >
-                🔑 {t.changePassword}
-              </button>
-            </>
-          )}
-
-          {/* ✏️ EDIT PROFILE */}
-          {isEditing && !isPasswordMode && (
-            <>
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="w-full bg-[var(--success)] py-2 rounded"
-              >
-                {saving ? t.saving : `💾 ${t.save}`}
-              </button>
-
-              <button
-                onClick={() => {
-                  setIsEditing(false);
-                  setSelectedFile(null);
-                  setEditAvatar(user.avatar || "");
-                }}
-                className="w-full bg-[var(--muted)] py-2 rounded"
-              >
-                {t.cancel}
-              </button>
-            </>
-          )}
-
-          {/* 🔑 PASSWORD MODE */}
-          {isPasswordMode && !isEditing && (
-            <>
-              <button
-                onClick={handleChangePassword}
-                disabled={savingPassword}
-                className="w-full bg-[var(--success)] py-2 rounded"
-              >
-                {savingPassword ? t.saving : `💾 ${t.savePassword}`}
-              </button>
-
-              <button
-                onClick={() => setIsPasswordMode(false)}
-                className="w-full bg-[var(--muted)] py-2 rounded"
-              >
-                {t.cancel}
-              </button>
-            </>
-          )}
-
-          {/* 🚪 LOGOUT */}
           <button
             onClick={() => {
-              onLogout();
-              onClose();
+              setIsPasswordMode(false);
+              setIsEditing(true);
             }}
-            className="w-full bg-[var(--danger)] py-2 rounded mt-3"
+            className="rounded-xl bg-[var(--primary)] py-3 font-semibold hover:opacity-90 transition"
           >
-            🚪 {t.logout}
+            ✏️ {t.editProfile}
+          </button>
+
+          <button
+            onClick={() => {
+              setIsEditing(false);
+              setIsPasswordMode(true);
+            }}
+            className="rounded-xl bg-[var(--hover)] py-3 font-semibold transition"
+          >
+            🔑 {t.changePassword}
           </button>
 
         </div>
 
+      )}
+
+      {isEditing && !isPasswordMode && (
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="rounded-xl bg-[var(--success)] py-3 font-semibold"
+          >
+            {saving ? t.saving : `💾 ${t.save}`}
+          </button>
+
+          <button
+            onClick={() => {
+              setIsEditing(false);
+              setSelectedFile(null);
+              setEditAvatar(user.avatar || "");
+            }}
+            className="rounded-xl bg-[var(--muted)] py-3 font-semibold"
+          >
+            {t.cancel}
+          </button>
+
+        </div>
+
+      )}
+
+      {isPasswordMode && !isEditing && (
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+          <button
+            onClick={handleChangePassword}
+            disabled={savingPassword}
+            className="rounded-xl bg-[var(--success)] py-3 font-semibold"
+          >
+            {savingPassword ? t.saving : `💾 ${t.savePassword}`}
+          </button>
+
+          <button
+            onClick={() => setIsPasswordMode(false)}
+            className="rounded-xl bg-[var(--muted)] py-3 font-semibold"
+          >
+            {t.cancel}
+          </button>
+
+        </div>
+
+      )}
+
+      {/* MOBILE PREMIUM */}
+
+      {!isEditing && !isPasswordMode && (
+        <div className="md:hidden mt-6">
+          <SubscriptionInfo
+            user={user}
+            onManageSubscription={handleManageSubscription}
+            onUpgrade={handleUpgrade}
+          />
+        </div>
+      )}
+
+      <div className="mt-6 border-t border-[var(--border)] pt-6">
+
+        <button
+          onClick={() => {
+            onLogout();
+            onClose();
+          }}
+          className="w-full rounded-xl bg-[var(--danger)] py-3 font-semibold hover:opacity-90 transition"
+        >
+          🚪 {t.logout}
+        </button>
+
       </div>
-    </div>,
-    document.body
-  );
+
+    </div>
+
+        </div>
+      </div>,
+      document.body
+    );
 }

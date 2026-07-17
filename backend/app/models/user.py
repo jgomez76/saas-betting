@@ -43,6 +43,6 @@ class User(Base):
     reactivation_expires = Column(DateTime, nullable=True)
     
     # Para mas tarde
-    # subscription_status = Column(String, default="inactive")
-    # subscription_end = Column(DateTime, nullable=True)
-    # stripe_customer_id = Column(String, nullable=True)
+    subscription_status = Column(String, default="inactive")
+    subscription_end = Column(DateTime, nullable=True)
+    stripe_customer_id = Column(String, nullable=True)

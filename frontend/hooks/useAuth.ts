@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { useSubscription } from "@/context/SubscriptionContext";
+import type { User } from "@/types/user";
 
 type Plan = "free" | "premium";
 
@@ -10,6 +11,10 @@ type UserResponse = {
   email: string | null;
   is_admin: boolean;
   subscription?: Plan;
+
+  subscription_status?: string;
+  subscription_end?: string;
+
   name?: string;
   avatar?: string;
   provider?: string;
@@ -17,11 +22,9 @@ type UserResponse = {
 
 type UseAuthReturn = {
   isAdmin: boolean;
-  email: string;
   authLoading: boolean;
-  name: string;
-  avatar: string;
-  provider: string;
+
+  user: User;
 
   refreshUser: () => void;
   handleLogout: () => Promise<void>;
@@ -31,12 +34,17 @@ export function useAuth(apiUrl: string): UseAuthReturn {
   const { setPlan } = useSubscription();
 
   const [isAdmin, setIsAdmin] = useState(false);
-  const [email, setEmail] = useState("");
   const [authLoading, setAuthLoading] = useState(true);
 
-  const [name, setName] = useState("");
-  const [avatar, setAvatar] = useState("");
-  const [provider, setProvider] = useState("");
+  const [user, setUser] = useState<User>({
+    email: "",
+    name: "",
+    avatar: "",
+    provider: "email",
+    subscription: "free",
+    subscription_status: undefined,
+    subscription_end: undefined,
+  });
 
   const refreshUser = useCallback(() => {
     if (!apiUrl) return;
@@ -46,26 +54,40 @@ export function useAuth(apiUrl: string): UseAuthReturn {
     })
       .then((res) => res.json())
       .then((data: UserResponse) => {
-        if (!data.email) {
-          setIsAdmin(false);
-          setEmail("");
-          setPlan("free");
 
-          setName("");
-          setAvatar("");
-          setProvider("");
+        if (!data.email) {
+
+          setIsAdmin(false);
+
+          setUser({
+            email: "",
+            name: "",
+            avatar: "",
+            provider: "email",
+            subscription: "free",
+            subscription_status: undefined,
+            subscription_end: undefined,
+          });
+
+          setPlan("free");
 
           return;
         }
 
         setIsAdmin(data.is_admin);
-        setEmail(data.email);
+
+        setUser({
+          email: data.email,
+          name: data.name || "",
+          avatar: data.avatar || "",
+          provider: data.provider || "email",
+          subscription: data.subscription ?? "free",
+          subscription_status: data.subscription_status,
+          subscription_end: data.subscription_end,
+        });
 
         setPlan(data.subscription ?? "free");
 
-        setName(data.name || "");
-        setAvatar(data.avatar || "");
-        setProvider(data.provider || "email");
       })
       .catch((err) => {
 
@@ -74,12 +96,11 @@ export function useAuth(apiUrl: string): UseAuthReturn {
           err
         );
 
-        // ❌ NO resetear usuario
-        // si backend aún está arrancando
       })
       .finally(() => {
         setAuthLoading(false);
       });
+
   }, [apiUrl, setPlan]);
 
   useEffect(() => {
@@ -87,30 +108,32 @@ export function useAuth(apiUrl: string): UseAuthReturn {
   }, [refreshUser]);
 
   const handleLogout = async () => {
+
     await fetch(`${apiUrl}/logout`, {
       method: "POST",
       credentials: "include",
     });
 
-    // await signOut({ redirect: false });
-
     setIsAdmin(false);
-    setEmail("");
 
-    setName("");
-    setAvatar("");
-    setProvider("");
+    setUser({
+      email: "",
+      name: "",
+      avatar: "",
+      provider: "email",
+      subscription: "free",
+      subscription_status: undefined,
+      subscription_end: undefined,
+    });
 
     setPlan("free");
+
   };
 
   return {
     isAdmin,
-    email,
     authLoading,
-    name,
-    avatar,
-    provider,
+    user,
 
     refreshUser,
     handleLogout,

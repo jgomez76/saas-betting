@@ -13,12 +13,12 @@ import { User } from "@/types/user";
 import Image from "next/image";
 import { useSubscription } from "@/context/SubscriptionContext";
 import ThemeCard from "@/components/settings/ThemeCard";
-import PremiumModal from "@/components/premium/PremiumModal";
-import { upgradeToPremium } from "@/lib/stripe";
+import {
+    // upgradeToPremium,
+    manageSubscription,
+} from "@/lib/stripe";
 
-/* THEMES */
-// const FREE_THEMES: Theme[] = ["trader", "sportsbook", "datalab"];
-// const PRO_THEMES: Theme[] = ["neon", "futuristic", "classic"];
+import { usePremium } from "@/context/PremiumContext";
 
 const THEMES = [
   {
@@ -119,14 +119,18 @@ export default function SettingsView({
   user,
   onLogout,
   onRefreshUser,
+  onLogin,
 }: {
   user: User;
   onLogout: () => void;
   onRefreshUser: () => void;
+  onLogin: () => void;
 }) {
   const { theme, setTheme } = useTheme();
   const { lang, changeLang, t } = useLanguage();
   const { isPremium } = useSubscription();
+  const { showPremium } = usePremium();
+  const isLogged = !!user.email;
 
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -142,7 +146,6 @@ export default function SettingsView({
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
-  const [showPremiumModal, setShowPremiumModal] = useState(false);
 
   const API =
     typeof window !== "undefined"
@@ -150,22 +153,22 @@ export default function SettingsView({
         ? "http://localhost:8000"
         : `http://${window.location.hostname}:8000`
       : "";
-
-  // // 🔓 LOGOUT (usa el que ya tienes)
-  // const handleLogout = async () => {
-  //   await fetch(`${API}/logout`, {
-  //     method: "POST",
-  //     credentials: "include",
-  //   });
-  //   window.location.reload();
-  // };
-
  
+  const handleUpgrade = async () => {
 
+      if (isPremium) {
+          await manageSubscription(
+              typeof window !== "undefined"
+                  ? window.location.hostname === "localhost"
+                      ? "http://localhost:8000"
+                      : `http://${window.location.hostname}:8000`
+                  : ""
+          );
+          return;
+      }
 
-  // ⭐ PREMIUM (placeholder limpio)
-  const handleUpgrade = () => {
-      setShowPremiumModal(true);
+      showPremium();
+
   };
 
    // ❌ DELETE ACCOUNT
@@ -188,36 +191,6 @@ export default function SettingsView({
       setErrorMsg(t.errorDeletingAccount);
     }
   };
-
-  /* const renderThemeButton = (tt: Theme, isPro: boolean = false) => {
-    const isLocked = isPro && !isPremium;
-
-    return (
-      <button
-        key={tt}
-        onClick={() => {
-          if (isLocked) return;
-          setTheme(tt);
-        }}
-        className={`relative p-3 rounded-lg border transition text-sm capitalize flex items-center justify-center
-          ${
-            theme === tt
-              ? "bg-[var(--accent)] text-white border-transparent"
-              : "bg-[var(--bg)] border-[var(--border)] hover:bg-[var(--hover)]"
-          }
-          ${isLocked ? "opacity-50 cursor-not-allowed" : ""}
-        `}
-      >
-        {tt}
-
-        {isPro && !isPremium && (
-          <span className="absolute top-1 right-1 text-[9px] px-1 py-0.5 rounded bg-yellow-500 text-black">
-            PRO
-          </span>
-        )}
-      </button>
-    );
-  }; */
 
   return (
     <div className="w-full max-w-3xl mx-auto text-[var(--text)] space-y-4">
@@ -282,8 +255,12 @@ export default function SettingsView({
                     active={theme === themeItem.id}
                     locked={!isPremium}
                     onClick={() => {
-                      if (!isPremium) return;
-                      setTheme(themeItem.id as Theme);
+                        if (!isPremium) {
+                            showPremium();
+                            return;
+                        }
+
+                        setTheme(themeItem.id as Theme);
                     }}
                   />
 
@@ -408,48 +385,29 @@ export default function SettingsView({
             <span>{t.profile}</span>
           </button>
 
-          {/* PREMIUM */}
-          <button
-            onClick={handleUpgrade}
-            className="
-              w-full
-              flex
-              items-center
-              gap-3
-              text-left
-              px-5
-              py-4
-              transition-all
-              border-b
-              border-[var(--border)]
-              hover:bg-[var(--hover)]
-            "
-          >
-             
-            <span className="text-xl">⭐</span>
-            <span>{isPremium ? t.premiumActive : t.upgradeToPremium}</span>
-          </button>
 
           {/* DELETE ACCOUNT */}
-          <button
-            onClick={() => setShowDeleteModal(true)}
-            className="
-              w-full
-              flex
-              items-center
-              gap-3
-              text-left
-              px-5
-              py-4
-              transition-all
-              border-b-0
-              border-[var(--border)]
-              hover:bg-[var(--hover)]
-            "
-          >
-            <span className="text-xl">❌</span>
-            <span>{t.deleteAccount}</span>
-          </button>
+          {isLogged && (
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="
+                w-full
+                flex
+                items-center
+                gap-3
+                text-left
+                px-5
+                py-4
+                transition-all
+                border-b-0
+                border-[var(--border)]
+                hover:bg-[var(--hover)]
+              "
+            >
+              <span className="text-xl">❌</span>
+              <span>{t.deleteAccount}</span>
+            </button>
+          )}
 
         </div>
       </Section>
@@ -460,6 +418,7 @@ export default function SettingsView({
           onClose={() => setShowProfileModal(false)}
           onLogout={onLogout}
           onRefreshUser={onRefreshUser}
+          onLogin={onLogin}
         />
       )}
 
@@ -485,27 +444,6 @@ export default function SettingsView({
         </div>
       )}
 
-      <PremiumModal
-          open={showPremiumModal}
-          onClose={() => setShowPremiumModal(false)}
-          onUpgrade={async () => {
-
-              const res = await fetch(`${API}/subscription/checkout`, {
-                  method: "POST",
-                  credentials: "include",
-              });
-
-              if (!res.ok) {
-                  alert("Unable to connect with Stripe.");
-                  return;
-              }
-
-              const data = await res.json();
-
-              window.location.href = data.url;
-
-          }}
-      />
 
     </div>
   );
