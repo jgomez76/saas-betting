@@ -9,7 +9,8 @@ from authlib.integrations.starlette_client import OAuth
 from starlette.config import Config
 
 from collections import defaultdict
-from pydantic import BaseModel
+from typing import Literal
+from pydantic import BaseModel, EmailStr
 
 from app.core.database import SessionLocal
 from app.core.config import (
@@ -28,7 +29,11 @@ from app.core.config import (
 from app.core.auth import create_token, get_current_user
 from app.core.database import get_db
 from app.core.security import SECRET_KEY, ALGORITHM, create_access_token, hash_password, verify_password
-from app.core.email import send_verification_email, send_reset_email, send_reactivation_email
+from app.emails.service import (
+    send_verification_email,
+    send_reset_password_email,
+    send_reactivation_email,
+)
 
 from app.models.fixture import Fixture
 from app.models.user import User
@@ -55,7 +60,6 @@ from app.services.match_analysis import get_match_analysis
 from app.services.fixtures import fetch_fixtures
 from app.services.subscription import get_subscription
 from app.api.subscription import router as subscription_router
-
 
 from uuid import uuid4
 
@@ -106,18 +110,13 @@ oauth.register(
 )
 
 class RegisterRequest(BaseModel):
-    email: str
+    email: EmailStr
     password: str
+    language: Literal["es", "en", "fr", "it"] = "en"
+
 
 def generate_reactivation_token():
     return secrets.token_urlsafe(32)
-
-
-""" @router.get("/fixtures/save/{league_id}/{season}")
-def fetch_and_store(league_id: int, season: int, db: Session = Depends(get_db)):
-    data = get_fixtures(league_id, season)
-    save_fixtures(db, data)
-    return {"message": f"Fixtures saved for league {league_id}, season {season}"} """
 
 @router.get("/fixtures/save/{league_id}/{season}")
 def fetch_and_store(
@@ -830,7 +829,33 @@ def get_me(user: User = Depends(get_current_user)):
         "provider": user.provider,
     }
 
-# # REGISTER
+
+# CAMBIO IDIOMA
+class UpdateLanguageRequest(BaseModel):
+    language: Literal["es", "en", "fr", "it"]
+
+
+@router.put("/me/language")
+def update_language(
+    data: UpdateLanguageRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if not user:
+        raise HTTPException(
+            status_code=401,
+            detail="Not authenticated",
+        )
+
+    user.language = data.language
+    db.commit()
+
+    return {
+        "message": "Language updated",
+    }
+
+
+# REGISTER
 @router.post("/register")
 def register(
     data: RegisterRequest,
@@ -840,10 +865,21 @@ def register(
     print("🔥 REGISTER HIT:", data.email)
 
     # 🔍 comprobar si ya existe
-    existing = db.query(User).filter(User.email == data.email).first()
+    existing = (
+        db.query(User)
+        .filter(User.email == data.email)
+        .first()
+    )
+
     if existing:
         print("❌ USER EXISTS")
-        raise HTTPException(status_code=400, detail="User already exists")
+        raise HTTPException(
+            status_code=400,
+            detail="User already exists",
+        )
+
+    # 🌍 idioma del usuario
+    language = data.language
 
     # 🔐 generar token
     token = secrets.token_urlsafe(32)
@@ -853,40 +889,27 @@ def register(
         email=data.email,
         password=hash_password(data.password),
         name=data.email.split("@")[0],
+        language=data.language,
         is_verified=False,
         verification_token=token,
     )
-    # print(user)
-
 
     db.add(user)
     db.commit()
 
     print("✅ USER CREATED")
 
-    # 📧 enviar email en background (NO bloquea request)
+    # 📧 enviar email en background
     background_tasks.add_task(
         send_verification_email,
         user.email,
-        token
+        token,
+        language,
     )
 
-    return {"message": "user created"}
-
-# LOGOUT
-@router.post("/logout")
-def logout():
-
-    response = JSONResponse({
-        "message": "logout ok"
-    })
-
-    response.delete_cookie(
-        key="access_token",
-        path="/",
-    )
-
-    return response
+    return {
+        "message": "user created",
+    }
 
 # VERIFY
 @router.get("/verify")
@@ -903,26 +926,34 @@ def verify_email(token: str, db: Session = Depends(get_db)):
     return {"message": "verified"}
 
 @router.post("/forgot-password")
-def forgot_password(data: ForgotRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
-    
+def forgot_password(
+    data: ForgotRequest,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+):
+
     user = db.query(User).filter(User.email == data.email).first()
 
-    # 🔥 SI existe → generar token + enviar email
+    # 🔥 Si existe → generar token + enviar email
     if user:
+
         token = secrets.token_urlsafe(32)
 
         user.reset_token = token
-        user.reset_token_expiry = datetime.utcnow() + timedelta(hours=1)
+        user.reset_token_expiry = (
+            datetime.utcnow() + timedelta(hours=1)
+        )
 
         db.commit()
 
         background_tasks.add_task(
-            send_reset_email,
+            send_reset_password_email,
             user.email,
-            token
+            token,
+            data.language,
         )
 
-    # 🔥 SIEMPRE misma respuesta (seguridad)
+    # 🔥 Siempre la misma respuesta (seguridad)
     return {
         "message": "📧 Si el email existe, te hemos enviado instrucciones"
     }
@@ -987,9 +1018,9 @@ def deactivate_account(
     return {"message": "account deactivated"}
 
 # REACTIVAR CUENTA
-
 class ReactivateRequest(BaseModel):
-    email: str
+    email: EmailStr
+    language: Literal["es", "en", "fr", "it"] = "en"
 
 @router.post("/request-reactivation")
 def request_reactivation(
@@ -1015,7 +1046,8 @@ def request_reactivation(
     background_tasks.add_task(
         send_reactivation_email,
         user.email,
-        token
+        token,
+        data.language,
     )
 
     return {"message": "sent"}

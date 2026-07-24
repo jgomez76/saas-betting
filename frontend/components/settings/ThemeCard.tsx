@@ -1,4 +1,5 @@
 import ThemePreview from "./ThemePreview";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
 
 type Props = {
   name: string;
@@ -19,6 +20,7 @@ export default function ThemeCard({
   locked = false,
   onClick,
 }: Props) {
+  const { t } = useLanguage();
   return (
     <button
       onClick={onClick}
@@ -74,7 +76,7 @@ export default function ThemeCard({
                 whitespace-nowrap
               "
             >
-              ✓ Current
+              ✓ {t.current}
             </span>
           )}
 
@@ -123,15 +125,15 @@ export default function ThemeCard({
         >
           {active ? (
             <div className="text-sm font-semibold text-[var(--positive)]">
-              ✓ Current Theme
+              ✓ {t.currentTheme}
             </div>
           ) : locked ? (
             <div className="text-sm text-[var(--muted)]">
-              🔒 Premium required
+              🔒 {t.premiumRequired}
             </div>
           ) : (
             <div className="text-sm font-medium text-[var(--accent)]">
-              Apply theme →
+              {t.applyTheme} →
             </div>
           )}
         </div>

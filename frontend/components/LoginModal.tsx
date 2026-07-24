@@ -25,7 +25,7 @@ const apiUrl =
 // ---------------- COMPONENT ----------------
 
 export default function LoginModal({ onClose, onLogin }: Props) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -180,7 +180,10 @@ export default function LoginModal({ onClose, onLogin }: Props) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email }), // 🔥 CLAVE
+        body: JSON.stringify({ 
+          email, 
+          language: lang, 
+        }),
       });
 
       if (!res.ok) {
@@ -221,7 +224,11 @@ export default function LoginModal({ onClose, onLogin }: Props) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({
+          email,
+          password,
+          language: lang,
+        }),
       });
 
       // console.log("📡 RESPONSE:", res.status);
@@ -265,7 +272,10 @@ export default function LoginModal({ onClose, onLogin }: Props) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({
+          email,
+          language: lang,
+        }),
       });
       
       if (!res.ok) {

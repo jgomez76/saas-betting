@@ -14,6 +14,12 @@ from app.models.user import User
 from fastapi.responses import JSONResponse
 from datetime import datetime
 
+from app.emails.service import (
+    send_premium_cancelled_email,
+    send_premium_reactivated_email,
+    send_premium_expired_email,
+    send_premium_activated_email,
+)
 
 # ==========================================================
 # STRIPE CLIENT
@@ -84,6 +90,139 @@ def create_customer_portal(user):
 
     return session.url
 
+# ==========================================================
+# SUBSCRIPTION UPDATED
+# ==========================================================
+
+def handle_subscription_updated(subscription):
+
+    customer_id = subscription["customer"]
+
+    db = SessionLocal()
+
+    try:
+
+        user = (
+            db.query(User)
+            .filter(User.stripe_customer_id == customer_id)
+            .first()
+        )
+
+        if user is None:
+
+            print("❌ Usuario no encontrado")
+
+        else:
+
+            previous_status = user.subscription_status
+            previous_end = user.subscription_end
+
+            print("------------")
+            print(subscription["status"])
+            print(subscription["cancel_at"])
+            print("------------")
+
+            user.subscription = "premium"
+
+            if subscription["cancel_at"]:
+                user.subscription_status = "cancelled"
+
+            else:
+                user.subscription_status = "active"
+
+
+            if subscription["cancel_at"]:
+                user.subscription_end = datetime.fromtimestamp(
+                    subscription["cancel_at"]
+                )
+
+            else:
+                user.subscription_end = None
+
+            db.commit()
+
+  
+
+            # Solo enviar email si realmente cambia el estado
+
+            if (
+                previous_status != "cancelled"
+                and user.subscription_status == "cancelled"
+            ):
+
+                send_premium_cancelled_email(
+                    user.email,
+                    user.subscription_end.strftime("%d/%m/%Y"),
+                    user.language,
+                )
+
+            elif (
+                previous_status == "cancelled"
+                and user.subscription_status == "active"
+            ):
+
+                send_premium_reactivated_email(
+                    user.email,
+                    user.language,
+                )
+
+            db.refresh(user)
+
+            print("======== AFTER COMMIT ========")
+            print("Email:", user.email)
+            print("Subscription:", user.subscription)
+            print("Status:", user.subscription_status)
+            print("End:", user.subscription_end)
+            print("==============================")
+
+    finally:
+
+        db.close()
+
+# ==========================================================
+# SUBSCRIPTION DELETED
+# ==========================================================
+
+def handle_subscription_deleted(
+    subscription,
+):
+
+    customer_id = subscription["customer"]
+
+    db = SessionLocal()
+
+    try:
+
+        user = (
+            db.query(User)
+            .filter(User.stripe_customer_id == customer_id)
+            .first()
+        )
+
+        if user is None:
+
+            print("❌ Usuario no encontrado")
+
+        else:
+
+            print(f"🗑️ Premium expirado para {user.email}")
+
+            user.subscription = "free"
+            user.subscription_status = None
+            user.subscription_end = None
+
+            db.commit()
+
+            send_premium_expired_email(
+                user.email,
+                user.language,
+            )
+
+            print("✅ Usuario actualizado a FREE")
+
+    finally:
+
+        db.close()
 
 def handle_webhook(payload, signature):
 
@@ -112,59 +251,9 @@ def handle_webhook(payload, signature):
 
         subscription = event["data"]["object"]
 
-        customer_id = subscription["customer"]
-
-        db = SessionLocal()
-
-        try:
-
-            user = (
-                db.query(User)
-                .filter(User.stripe_customer_id == customer_id)
-                .first()
-            )
-
-            if user is None:
-
-                print("❌ Usuario no encontrado")
-
-            else:
-                print("------------")
-                print(subscription["status"])
-                print(subscription["cancel_at"])
-                print("------------")
-
-                user.subscription = "premium"
-
-                if subscription["cancel_at"]:
-                    user.subscription_status = "cancelled"
-
-                else:
-                    user.subscription_status = "active"
-
-
-                if subscription["cancel_at"]:
-                    user.subscription_end = datetime.fromtimestamp(
-                        subscription["cancel_at"]
-                    )
-
-                else:
-                    user.subscription_end = None
-
-                db.commit()
-
-                db.refresh(user)
-
-                print("======== AFTER COMMIT ========")
-                print("Email:", user.email)
-                print("Subscription:", user.subscription)
-                print("Status:", user.subscription_status)
-                print("End:", user.subscription_end)
-                print("==============================")
-
-        finally:
-
-            db.close()
+        handle_subscription_updated(
+            subscription,
+        )
 
         return JSONResponse(
             {
@@ -180,37 +269,9 @@ def handle_webhook(payload, signature):
 
         subscription = event["data"]["object"]
 
-        customer_id = subscription["customer"]
-
-        db = SessionLocal()
-
-        try:
-
-            user = (
-                db.query(User)
-                .filter(User.stripe_customer_id == customer_id)
-                .first()
-            )
-
-            if user is None:
-
-                print("❌ Usuario no encontrado")
-
-            else:
-
-                print(f"🗑️ Premium expirado para {user.email}")
-
-                user.subscription = "free"
-                user.subscription_status = None
-                user.subscription_end = None
-
-                db.commit()
-
-                print("✅ Usuario actualizado a FREE")
-
-        finally:
-
-            db.close()
+        handle_subscription_deleted(
+            subscription,
+        )
 
         return JSONResponse(
             {
@@ -218,6 +279,10 @@ def handle_webhook(payload, signature):
             }
         )
     
+    # ==========================================================
+    # CHECKOUT COMPLETED
+    # ==========================================================
+
     if event["type"] != "checkout.session.completed":
 
         return JSONResponse(
@@ -226,15 +291,17 @@ def handle_webhook(payload, signature):
             }
         )
 
-        session = event["data"]["object"]
+    session = event["data"]["object"]
 
-        print("🎉 CHECKOUT COMPLETED")
+    print("🎉 CHECKOUT COMPLETED")
 
-        user_id = int(session.metadata["user_id"])
+    user_id = int(session.metadata["user_id"])
 
-        print(f"Activando Premium para User ID: {user_id}")
+    print(f"Activando Premium para User ID: {user_id}")
 
-        db = SessionLocal()
+    db = SessionLocal()
+
+
 
     try:
 
@@ -254,6 +321,13 @@ def handle_webhook(payload, signature):
             user.subscription = "premium"
 
             db.commit()
+
+            
+
+            send_premium_activated_email(
+                user.email,
+                user.language,
+            )
 
             print(f"✅ Usuario {user.email} actualizado a PREMIUM")
             print(f"💳 Stripe Customer: {user.stripe_customer_id}")

@@ -33,17 +33,6 @@ export default function AnalysisCenter() {
       {/* TABS */}
       <div className="flex gap-2 flex-wrap">
 
-        {/* <button
-          onClick={() => setTab("betting")}
-          className={`px-4 py-2 rounded-lg text-sm ${
-            tab === "betting"
-              ? "bg-[var(--accent)] text-black"
-              : "bg-[var(--card)] border border-[var(--border)]"
-          }`}
-        >
-          📈 Betting Analytics
-        </button> */}
-
         <button
           onClick={() => setTab("teams")}
           className={`px-4 py-2 rounded-lg text-sm ${

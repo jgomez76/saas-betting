@@ -13,7 +13,7 @@ export default function AccountPage() {
 
   // 🔥 cargar usuario
   useEffect(() => {
-    fetch(`${API_URL}/me`, {
+    fetch(`${API_URL()}/me`, {
       credentials: "include",
     })
       .then((res) => res.json())
@@ -30,7 +30,7 @@ export default function AccountPage() {
 
   // 🔥 logout
   const handleLogout = async () => {
-    await fetch(`${API_URL}/logout`, {
+    await fetch(`${API_URL()}/logout`, {
       method: "POST",
       credentials: "include",
     });
@@ -45,7 +45,7 @@ export default function AccountPage() {
 
     if (!confirmDelete) return;
 
-    const res = await fetch(`${API_URL}/deactivate-account`, {
+    const res = await fetch(`${API_URL()}/deactivate-account`, {
       method: "POST",
       credentials: "include",
     });

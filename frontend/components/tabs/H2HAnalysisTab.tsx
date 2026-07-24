@@ -485,16 +485,17 @@ export default function H2HAnalysisTab() {
 
           <PremiumPanel
               icon="⚔️"
-              title="Luranix AI Insight"
+              title={t.aiInsightTitle}
               badge="Premium"
-              description="Go beyond raw statistics with AI-powered insights that explain what the historical data really means."
+              description={t.aiInsightDescription}
               features={[
-                  "Historical dominance",
-                  "Goal trends",
-                  "BTTS prediction",
-                  "Over/Under prediction",
-                  "AI match conclusion",
+                  t.aiHistoricalDominance,
+                  t.aiGoalTrends,
+                  t.aiBTTSPrediction,
+                  t.aiOverUnderPrediction,
+                  t.aiMatchConclusion,
               ]}
+              buttonText={t.explorePremium}
               onClick={() => upgradeToPremium(apiUrl)}
           />
 

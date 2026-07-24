@@ -1,4 +1,5 @@
 import type { User } from "@/types/user";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
 
 type Props = {
     user: User;
@@ -11,7 +12,7 @@ export default function SubscriptionInfo({
     onManageSubscription,
     onUpgrade,
 }: Props) {
-
+    const { t } = useLanguage();
     const isPremium = user.subscription === "premium";
 
     const endDate = user.subscription_end
@@ -37,7 +38,7 @@ export default function SubscriptionInfo({
 
                 {isPremium
                     ? "💎 Luranix Premium"
-                    : "⭐ Plan Free"}
+                    : `⭐ ${t.freePlan}`}
 
             </h3>
 
@@ -78,8 +79,8 @@ export default function SubscriptionInfo({
                         >
 
                             {user.subscription_status === "cancelled"
-                                ? "🟠 Cancelada"
-                                : "🟢 Premium Activo"}
+                                ? `🟠 ${t.subscriptionCancelled}`
+                                : `🟢 ${t.premiumActive}`}
 
                         </span>
 
@@ -93,7 +94,7 @@ export default function SubscriptionInfo({
 
                             <div className="text-sm text-gray-400">
 
-                                Acceso Premium hasta
+                                {t.premiumAccessUntil}
 
                             </div>
 
@@ -113,9 +114,9 @@ export default function SubscriptionInfo({
 
                         {user.subscription_status === "cancelled"
 
-                            ? `Tu acceso Premium seguirá activo hasta el ${endDate}. Después tu cuenta volverá automáticamente al plan Free.`
+                            ? t.premiumEndsDescription.replace("{date}", endDate)
 
-                            : "Tu suscripción se renovará automáticamente cada mes hasta que decidas cancelarla."}
+                            : t.premiumRenewDescription}
 
                     </p>
 
@@ -139,7 +140,7 @@ export default function SubscriptionInfo({
                             shadow-blue-900/40
                         "
                     >
-                        💳 Gestionar suscripción
+                        💳 {t.manageSubscription}
                     </button>
 
                 </>
@@ -150,11 +151,11 @@ export default function SubscriptionInfo({
 
                     <p className="text-sm text-center text-gray-400 leading-6">
 
-                        Actualmente utilizas el plan gratuito.
+                        {t.freePlanDescription}
 
                         <br /><br />
 
-                        Hazte Premium para desbloquear todas las funciones avanzadas de Luranix.
+                        {t.upgradeDescription}
 
                     </p>
 
@@ -176,7 +177,7 @@ export default function SubscriptionInfo({
                             shadow-yellow-700/30
                         "
                     >
-                        ⭐ Hazte Premium
+                        ⭐ {t.upgradeToPremium}
                     </button>
 
                 </>

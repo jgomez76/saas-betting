@@ -248,7 +248,7 @@ export const en = {
     errorDeletingAccount: "Something went wrong while deleting your account",
     premiumComingSoon: "Premium features coming soon 🚀",
     upgradeToPremium: "Upgrade to Premium",
-    premiumActive: "Premium active",
+    premiumActive: "Premium Active",
     deleteWarning: "This action cannot be undone.",
     typeDelete: "Type DELETE to confirm",
     accountDisabled: "Your account is disabled",
@@ -439,5 +439,81 @@ export const en = {
     accept: "Accept",
     reject: "Reject",
     learnMore: "Learn More",
-      
+    
+    activatingAccount: "Activating account...",
+    redirectingToDashboard: "Redirecting to Luranix...",
+    reactivationError: "Unable to reactivate your account",  
+
+    noFavoriteMatches: "You don't have any favorite matches yet.",
+    addFavoriteMatches: "Tap the ⭐ on any match to add it to your favorites.",
+
+    aiInsightTitle: "Luranix AI Insight",
+    aiInsightDescription:
+      "Go beyond raw statistics with AI-powered insights that explain what the historical data really means.",
+    aiHistoricalDominance: "Historical dominance",
+    aiGoalTrends: "Goal trends",
+    aiBTTSPrediction: "BTTS prediction",
+    aiOverUnderPrediction: "Over/Under prediction",
+    aiMatchConclusion: "AI match conclusion",
+
+    explorePremium: "Explore Premium",
+
+    smartInsightsTitle: "Smart Insights",
+    smartInsightsDescription:
+      "Automatically generated betting insights based on historical statistics and team trends.",
+    aiGeneratedInsights: "AI-generated insights",
+    teamStrengths: "Team strengths",
+    weaknessDetection: "Weakness detection",
+    keyBettingTrends: "Key betting trends",
+    automaticRecommendations: "Automatic recommendations",
+
+    marketConfidenceTitle: "Market Confidence",
+    marketConfidenceDescription:
+      "See which betting markets have the highest statistical confidence before placing a bet.",
+    confidenceScore: "Confidence score",
+    strengthClassification: "Strength classification",
+    probabilityBars: "Probability bars",
+    riskEvaluation: "Risk evaluation",
+
+
+    valueOpportunitiesTitle: "Value Opportunities",
+    valueOpportunitiesDescription:
+      "Discover bets where our model estimates the market odds are higher than the true probability.",
+    valueEdgeDetection: "Value edge detection",
+    fairOddsCalculation: "Fair odds calculation",
+    bestBookmaker: "Best bookmaker",
+    positiveEVOpportunities: "Positive EV opportunities",
+    valueBettingAnalysis: "Value betting analysis",
+
+    current: "Current",
+    currentTheme: "Current theme",
+    premiumRequired: "Premium required",
+    applyTheme: "Apply theme",
+
+
+    freeCollection: "Free Collection",
+    premiumCollection: "Premium Collection",
+
+    themeMidnightDescription: "Professional dark theme",
+    themeStadiumDescription: "Inspired by modern sportsbooks",
+    themeLightDescription: "Clean and minimal interface",
+    themeCarbonDescription: "The ultimate professional experience",
+    themeSapphireDescription: "Elegant blue interface",
+    themeAuroraDescription: "Modern neon gradients",
+    themeCrimsonDescription: "Bold sports-inspired design",
+    themeHeritageDescription: "Classic premium edition",
+
+    freePlan: "Free Plan",
+    subscriptionCancelled: "Cancelled",
+    premiumAccessUntil: "Premium access until",
+    premiumEndsDescription:
+      "Your Premium access will remain active until {date}. After that, your account will automatically return to the Free plan.",
+    premiumRenewDescription:
+      "Your subscription will automatically renew every month until you decide to cancel it.",
+    manageSubscription: "Manage subscription",
+    freePlanDescription:
+      "You are currently using the Free plan.",
+    upgradeDescription:
+      "Upgrade to Premium to unlock all advanced Luranix features.",
+
 }

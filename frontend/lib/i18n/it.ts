@@ -250,7 +250,7 @@ export const it = {
     errorDeletingAccount: "Si è verificato un errore durante l'eliminazione del tuo account",
     premiumComingSoon: "Funzionalità Premium in arrivo 🚀",
     upgradeToPremium: "Passa a Premium",
-    premiumActive: "Premium attivo",
+    premiumActive: "Premium Attivo",
     deleteWarning: "Questa azione non può essere annullata.",
     typeDelete: "Digita DELETE per confermare",
     accountDisabled: "Il tuo account è disattivato",
@@ -441,4 +441,79 @@ export const it = {
     accept: "Accetta",
     reject: "Rifiuta",
     learnMore: "Scopri di più",
+
+    activatingAccount: "Attivazione dell'account...",
+    redirectingToDashboard: "Reindirizzamento a Luranix...",
+    reactivationError: "Impossibile riattivare l'account",
+
+    noFavoriteMatches: "Non hai ancora partite preferite.",
+    addFavoriteMatches: "Premi la ⭐ su qualsiasi partita per aggiungerla ai preferiti.",
+
+    aiInsightTitle: "Luranix AI Insight",
+    aiInsightDescription:
+    "Vai oltre le semplici statistiche con analisi basate sull'IA che spiegano il vero significato dei dati storici.",
+    aiHistoricalDominance: "Dominio storico",
+    aiGoalTrends: "Tendenze dei gol",
+    aiBTTSPrediction: "Previsione BTTS",
+    aiOverUnderPrediction: "Previsione Over/Under",
+    aiMatchConclusion: "Conclusione dell'IA",
+
+    explorePremium: "Scopri Premium",
+
+    smartInsightsTitle: "Analisi Intelligenti",
+    smartInsightsDescription:
+    "Analisi delle scommesse generate automaticamente dall'IA sulla base delle statistiche storiche e delle tendenze delle squadre.",
+    aiGeneratedInsights: "Analisi generate dall'IA",
+    teamStrengths: "Punti di forza della squadra",
+    weaknessDetection: "Rilevamento delle debolezze",
+    keyBettingTrends: "Principali tendenze di scommessa",
+    automaticRecommendations: "Raccomandazioni automatiche",
+
+    marketConfidenceTitle: "Affidabilità del Mercato",
+    marketConfidenceDescription:
+    "Scopri quali mercati di scommessa offrono il più alto livello di affidabilità statistica prima di piazzare una scommessa.",
+    confidenceScore: "Livello di affidabilità",
+    strengthClassification: "Classificazione della solidità",
+    probabilityBars: "Barre di probabilità",
+    riskEvaluation: "Valutazione del rischio",
+
+    valueOpportunitiesTitle: "Opportunità di Valore",
+    valueOpportunitiesDescription:
+    "Scopri le scommesse in cui il nostro modello stima che le quote offerte siano superiori alla probabilità reale.",
+    valueEdgeDetection: "Rilevamento del valore",
+    fairOddsCalculation: "Calcolo della quota equa",
+    bestBookmaker: "Miglior bookmaker",
+    positiveEVOpportunities: "Opportunità a valore atteso positivo",
+    valueBettingAnalysis: "Analisi delle scommesse di valore",
+
+    current: "Attuale",
+    currentTheme: "Tema attuale",
+    premiumRequired: "Premium richiesto",
+    applyTheme: "Applica tema",
+
+    freeCollection: "Collezione Gratuita",
+    premiumCollection: "Collezione Premium",
+
+    themeMidnightDescription: "Tema scuro professionale",
+    themeStadiumDescription: "Ispirato ai moderni bookmaker",
+    themeLightDescription: "Interfaccia pulita e minimale",
+    themeCarbonDescription: "L'esperienza professionale definitiva",
+    themeSapphireDescription: "Elegante interfaccia dalle tonalità blu",
+    themeAuroraDescription: "Moderni gradienti con effetto neon",
+    themeCrimsonDescription: "Design audace ispirato allo sport",
+    themeHeritageDescription: "Edizione Premium classica",
+
+    freePlan: "Piano Free",
+    subscriptionCancelled: "Annullato",
+    premiumAccessUntil: "Accesso Premium fino al",
+    premiumEndsDescription:
+    "Il tuo accesso Premium resterà attivo fino al {date}. Successivamente, il tuo account tornerà automaticamente al piano Free.",
+    premiumRenewDescription:
+    "Il tuo abbonamento si rinnoverà automaticamente ogni mese finché non deciderai di annullarlo.",
+    manageSubscription: "Gestisci abbonamento",
+    freePlanDescription:
+    "Attualmente stai utilizzando il piano Free.",
+    upgradeDescription:
+    "Passa a Premium per sbloccare tutte le funzionalità avanzate di Luranix.",
+
 }

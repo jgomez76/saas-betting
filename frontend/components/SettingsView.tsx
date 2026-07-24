@@ -20,64 +20,7 @@ import {
 
 import { usePremium } from "@/context/PremiumContext";
 
-const THEMES = [
-  {
-    id: "midnight",
-    name: "🌙 Midnight",
-    description: "Professional dark theme",
-    premium: false,
-    previewClass: "preview-midnight",
-  },
-  {
-    id: "stadium",
-    name: "⚽ Stadium",
-    description: "Inspired by modern sportsbooks",
-    premium: false,
-    previewClass: "preview-stadium",
-  },
-  {
-    id: "light",
-    name: "☀️ Light",
-    description: "Clean and minimal interface",
-    premium: false,
-    previewClass: "preview-light",
-  },
-  {
-    id: "carbon",
-    name: "⚫ Carbon",
-    description: "The ultimate professional experience",
-    premium: true,
-    previewClass: "preview-carbon",
-  },
-  {
-    id: "sapphire",
-    name: "💙 Sapphire",
-    description: "Elegant blue interface",
-    premium: true,
-    previewClass: "preview-sapphire",
-  },
-  {
-    id: "aurora",
-    name: "💜 Aurora",
-    description: "Modern neon gradients",
-    premium: true,
-    previewClass: "preview-aurora",
-  },
-  {
-    id: "crimson",
-    name: "🔥 Crimson",
-    description: "Bold sports-inspired design",
-    premium: true,
-    previewClass: "preview-crimson",
-  },
-  {
-    id: "heritage",
-    name: "📜 Heritage",
-    description: "Classic premium edition",
-    premium: true,
-    previewClass: "preview-heritage",
-  },
-] as const;
+
 
 /* 🔥 COMPONENTE FUERA (CLAVE) */
 function Section({
@@ -146,6 +89,73 @@ export default function SettingsView({
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
+  const THEMES = [
+
+    {
+      id: "midnight",
+      name: "🌙 Midnight",
+      description: t.themeMidnightDescription,
+      premium: false,
+      previewClass: "preview-midnight",
+    },
+
+    {
+      id: "stadium",
+      name: "⚽ Stadium",
+      description: t.themeStadiumDescription,
+      premium: false,
+      previewClass: "preview-stadium",
+    },
+
+    {
+      id: "light",
+      name: "☀️ Light",
+      description: t.themeLightDescription,
+      premium: false,
+      previewClass: "preview-light",
+    },
+
+    {
+      id: "carbon",
+      name: "⚫ Carbon",
+      description: t.themeCarbonDescription,
+      premium: true,
+      previewClass: "preview-carbon",
+    },
+
+    {
+      id: "sapphire",
+      name: "💙 Sapphire",
+      description: t.themeSapphireDescription,
+      premium: true,
+      previewClass: "preview-sapphire",
+    },
+
+    {
+      id: "aurora",
+      name: "💜 Aurora",
+      description: t.themeAuroraDescription,
+      premium: true,
+      previewClass: "preview-aurora",
+    },
+
+    {
+      id: "crimson",
+      name: "🔥 Crimson",
+      description: t.themeCrimsonDescription,
+      premium: true,
+      previewClass: "preview-crimson",
+    },
+
+    {
+      id: "heritage",
+      name: "📜 Heritage",
+      description: t.themeHeritageDescription,
+      premium: true,
+      previewClass: "preview-heritage",
+    },
+
+  ];
 
   const API =
     typeof window !== "undefined"
@@ -208,7 +218,7 @@ export default function SettingsView({
           <div>
 
             <p className="text-sm mb-3 font-semibold text-[var(--muted)]">
-              🌟 Free Collection
+              🌟 {t.freeCollection}
             </p>
 
             <div className="grid md:grid-cols-3 gap-4">
@@ -237,7 +247,7 @@ export default function SettingsView({
           <div>
 
             <p className="text-sm mb-3 font-semibold text-[var(--muted)]">
-              ⭐ Premium Collection
+              ⭐ {t.premiumCollection}
             </p>
 
             <div className="grid md:grid-cols-3 gap-4">

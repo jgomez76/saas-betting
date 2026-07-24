@@ -695,34 +695,58 @@ export default function Home() {
 
             {/* HEADER */}
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold">⭐ Favoritos</h2>
+              <h2 className="text-xl font-bold">
+                ⭐ {t.favoriteMatches}
+              </h2>
 
               <span className="text-sm text-[var(--muted)]">
-                {favoriteMatches.length} partidos
+                {favoriteMatches.length} {t.matches}
               </span>
             </div>
 
-            <div className="grid mt-4 gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-              {favoriteMatches.map((match) => (
-                <MatchCard
-                  key={match.fixture_id}
-                  match={match}
-                  favorites={favorites}
-                  toggleFavorite={toggleFavorite}
-                  openTeamModal={openTeamModal}
-                  marketFilter={marketFilter}
-                  minValue={minValue}
-                  minOdd={minOdd}
-                  maxValue={maxValue}
-                  maxOdd={maxOdd}
-                  setPendingBet={setPendingBet}
-                  t={{
-                    vs: t.vs,
-                    lang,
-                  }}
-                />
-              ))}
-            </div>
+            {favoriteMatches.length === 0 ? (
+
+              <div className="mt-16 text-center text-[var(--muted)]">
+
+                <div className="text-6xl mb-4">
+                  ⭐
+                </div>
+
+                <h3 className="text-xl font-semibold mb-2">
+                  {t.noFavoriteMatches}
+                </h3>
+
+                <p>
+                  {t.addFavoriteMatches}
+                </p>
+
+              </div>
+
+            ) : (
+
+              <div className="grid mt-4 gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+                {favoriteMatches.map((match) => (
+                  <MatchCard
+                    key={match.fixture_id}
+                    match={match}
+                    favorites={favorites}
+                    toggleFavorite={toggleFavorite}
+                    openTeamModal={openTeamModal}
+                    marketFilter={marketFilter}
+                    minValue={minValue}
+                    minOdd={minOdd}
+                    maxValue={maxValue}
+                    maxOdd={maxOdd}
+                    setPendingBet={setPendingBet}
+                    t={{
+                      vs: t.vs,
+                      lang,
+                    }}
+                  />
+                ))}
+              </div>
+
+            )}
 
           </div>
         )}

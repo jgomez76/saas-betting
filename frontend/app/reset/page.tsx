@@ -15,7 +15,6 @@ export default function ResetPage() {
   const [status, setStatus] = useState("");
 
   const handleReset = async () => {
-    // console.log("🔥 CLICK RESET"); // 👈 1
 
      if (!token) {
       setStatus("error");
@@ -23,18 +22,15 @@ export default function ResetPage() {
     }
 
     if (!password) {
-      // console.log("❌ NO PASSWORD"); // 👈 2
       setStatus("error");
       return;
     }
 
-    // console.log("📦 TOKEN:", token);       // 👈 3
-    // console.log("🔑 PASSWORD:", password); // 👈 4
 
     try {
       setStatus("loading");
 
-      const res = await fetch(`${API_URL}/reset-password`, {
+      const res = await fetch(`${API_URL()}/reset-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -18,7 +18,7 @@ export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    fetch(`${API_URL}/me`, {
+    fetch(`${API_URL()}/me`, {
       credentials: "include",
     })
       .then((res) => res.json())

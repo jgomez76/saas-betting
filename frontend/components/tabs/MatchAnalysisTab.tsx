@@ -675,16 +675,16 @@ export default function MatchAnalysisTab() {
 
           <PremiumPanel
             icon="🧠"
-            title="Smart Insights"
-            description="Automatically generated betting insights based on historical statistics and team trends."
+            title={t.smartInsightsTitle}
+            description={t.smartInsightsDescription}
             features={[
-              "AI-generated insights",
-              "Team strengths",
-              "Weakness detection",
-              "Key betting trends",
-              "Automatic recommendations",
+              t.aiGeneratedInsights,
+              t.teamStrengths,
+              t.weaknessDetection,
+              t.keyBettingTrends,
+              t.automaticRecommendations,
             ]}
-            buttonText="Explore Premium"
+            buttonText={t.explorePremium}
             onClick={() => upgradeToPremium(apiUrl)}
           />
 
@@ -781,16 +781,16 @@ export default function MatchAnalysisTab() {
 
           <PremiumPanel
             icon="🎯"
-            title="Market Confidence"
-            description="See which betting markets have the highest statistical confidence before placing a bet."
+            title={t.marketConfidenceTitle}
+            description={t.marketConfidenceDescription}
             features={[
-              "Confidence score",
-              "Strength classification",
-              "Probability bars",
-              "Recommended markets",
-              "Risk evaluation",
+              t.confidenceScore,
+              t.strengthClassification,
+              t.probabilityBars,
+              t.recommendedMarkets,
+              t.riskEvaluation,
             ]}
-            buttonText="Explore Premium"
+            buttonText={t.explorePremium}
             onClick={() => upgradeToPremium(apiUrl)}
           />
 
@@ -893,16 +893,16 @@ export default function MatchAnalysisTab() {
 
             <PremiumPanel
               icon="💎"
-              title="Value Opportunities"
-              description="Discover bets where our model estimates the market odds are higher than the true probability."
+              title={t.valueOpportunitiesTitle}
+              description={t.valueOpportunitiesDescription}
               features={[
-                "Value edge detection",
-                "Fair odds calculation",
-                "Best bookmaker",
-                "Positive EV opportunities",
-                "Value betting analysis",
+                t.valueEdgeDetection,
+                t.fairOddsCalculation,
+                t.bestBookmaker,
+                t.positiveEVOpportunities,
+                t.valueBettingAnalysis,
               ]}
-              buttonText="Explore Premium"
+              buttonText={t.explorePremium}
               onClick={() => upgradeToPremium(apiUrl)}
             />
 

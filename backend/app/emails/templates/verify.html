@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>{{ t.verify_title }} 👋</h2>
+
+<p>
+{{ t.verify_text }}
+</p>
+
+<p style="text-align:center;">
+
+    <a
+        href="{{ verify_link }}"
+        class="button"
+    >
+        {{ t.verify_button }}
+    </a>
+
+</p>
+
+<p>
+{{ t.verify_footer }}
+</p>
+
+{% endblock %}

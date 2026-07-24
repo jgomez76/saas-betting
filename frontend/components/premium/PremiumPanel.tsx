@@ -17,7 +17,7 @@ export default function PremiumPanel({
   title,
   description,
   features,
-  buttonText = "Explore Premium →",
+  buttonText = "Explore Premium",
   onClick,
   badge = "Premium",
 }: Props) {
@@ -107,7 +107,7 @@ export default function PremiumPanel({
             transition
           "
         >
-          {buttonText}
+          {buttonText} →
         </button>
 
       </div>

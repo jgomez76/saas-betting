@@ -249,7 +249,7 @@ export const es = {
     errorDeletingAccount: "Error al eliminar la cuenta",
     premiumComingSoon: "Premium próximamente 🚀",
     upgradeToPremium: "Upgrade to Premium",
-    premiumActive: "Premium activo",
+    premiumActive: "Premium Activo",
     deleteWarning: "Esta acción no se podrá deshacer.",
     typeDelete: "Escribe DELETE para confirmar",
     accountDisabled: "Tu cuenta está desactivada",
@@ -441,4 +441,78 @@ export const es = {
     accept: "Aceptar",
     reject: "Rechazar",
     learnMore: "Más información",
+
+    activatingAccount: "Activando cuenta...",
+    redirectingToDashboard: "Redirigiendo a Luranix...",
+    reactivationError: "No se ha podido reactivar la cuenta",
+
+    noFavoriteMatches: "Todavía no tienes partidos favoritos.",
+    addFavoriteMatches: "Pulsa la ⭐ en cualquier partido para añadirlo aquí.",
+
+    aiInsightTitle: "Luranix AI Insight",
+    aiInsightDescription:
+      "Ve más allá de las estadísticas con análisis impulsados por IA que explican el verdadero significado de los datos históricos.",
+    aiHistoricalDominance: "Dominio histórico",
+    aiGoalTrends: "Tendencias de goles",
+    aiBTTSPrediction: "Predicción BTTS",
+    aiOverUnderPrediction: "Predicción Over/Under",
+    aiMatchConclusion: "Conclusión de la IA",
+
+    explorePremium: "Descubrir Premium",
+
+    smartInsightsTitle: "Análisis Inteligente",
+    smartInsightsDescription:
+      "Análisis de apuestas generados automáticamente mediante IA a partir de estadísticas históricas y tendencias de los equipos.",
+    aiGeneratedInsights: "Análisis generados por IA",
+    teamStrengths: "Fortalezas del equipo",
+    weaknessDetection: "Detección de debilidades",
+    keyBettingTrends: "Tendencias clave de apuestas",
+    automaticRecommendations: "Recomendaciones automáticas",
+
+    marketConfidenceTitle: "Confianza del Mercado",
+    marketConfidenceDescription:
+      "Descubre qué mercados de apuestas presentan la mayor confianza estadística antes de realizar una apuesta.",
+    confidenceScore: "Nivel de confianza",
+    strengthClassification: "Clasificación de fortaleza",
+    probabilityBars: "Barras de probabilidad",
+    riskEvaluation: "Evaluación del riesgo",
+
+    valueOpportunitiesTitle: "Oportunidades de Valor",
+    valueOpportunitiesDescription:
+      "Descubre apuestas en las que nuestro modelo estima que las cuotas ofrecidas son superiores a la probabilidad real.",
+    valueEdgeDetection: "Detección de valor",
+    fairOddsCalculation: "Cálculo de cuota justa",
+    bestBookmaker: "Mejor casa de apuestas",
+    positiveEVOpportunities: "Oportunidades de valor esperado positivo",
+    valueBettingAnalysis: "Análisis de apuestas de valor",
+
+    current: "Actual",
+    currentTheme: "Tema actual",
+    premiumRequired: "Se requiere Premium",
+    applyTheme: "Aplicar tema",
+
+    freeCollection: "Colección Gratuita",
+    premiumCollection: "Colección Premium",
+
+    themeMidnightDescription: "Tema oscuro profesional",
+    themeStadiumDescription: "Inspirado en las modernas casas de apuestas",
+    themeLightDescription: "Interfaz limpia y minimalista",
+    themeCarbonDescription: "La experiencia profesional definitiva",
+    themeSapphireDescription: "Elegante interfaz en tonos azules",
+    themeAuroraDescription: "Modernos degradados con efecto neón",
+    themeCrimsonDescription: "Diseño atrevido inspirado en el deporte",
+    themeHeritageDescription: "Edición clásica Premium",
+
+    freePlan: "Plan Free",
+    subscriptionCancelled: "Cancelada",
+    premiumAccessUntil: "Acceso Premium hasta",
+    premiumEndsDescription:
+      "Tu acceso Premium seguirá activo hasta el {date}. Después, tu cuenta volverá automáticamente al plan Free.",
+    premiumRenewDescription:
+      "Tu suscripción se renovará automáticamente cada mes hasta que decidas cancelarla.",
+    manageSubscription: "Gestionar suscripción",
+    freePlanDescription:
+      "Actualmente utilizas el plan gratuito.",
+    upgradeDescription:
+      "Hazte Premium para desbloquear todas las funciones avanzadas de Luranix.",
 }

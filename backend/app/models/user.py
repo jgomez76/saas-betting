@@ -16,6 +16,9 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     password = Column(String, nullable=True)
 
+    # 🌍 PREFERENCIAS
+    language = Column(String, default="en", nullable=False)
+
     # 🔐 AUTH CLÁSICA
     is_verified = Column(Boolean, default=False)
     verification_token = Column(String, nullable=True)

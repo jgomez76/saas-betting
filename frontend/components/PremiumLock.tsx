@@ -1,26 +1,57 @@
+"use client";
+
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
+import { usePremium } from "@/context/PremiumContext";
+
 type Props = {
-  locked: boolean;
-  children: React.ReactNode;
+    locked: boolean;
+    children: React.ReactNode;
 };
 
+export default function PremiumLock({
+    locked,
+    children,
+}: Props) {
 
+    const { t } = useLanguage();
+    const { showPremium } = usePremium();
 
-export default function PremiumLock({ locked, children }: Props) {
-  const { t } = useLanguage();
-  return (
-    <div className="relative">
-      <div className={locked ? "opacity-40 blur-[2px] pointer-events-none" : ""}>
-        {children}
-      </div>
+    return (
+        <div className="relative">
 
-      {locked && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="bg-black/80 px-4 py-2 rounded-lg text-sm font-semibold">
-            🔒 {t.unlockPremium}
-          </div>
+            <div className={locked ? "opacity-40 blur-[2px] pointer-events-none" : ""}>
+                {children}
+            </div>
+
+            {locked && (
+              <button
+                  onClick={showPremium}
+                  className="
+                      absolute inset-0
+                      flex items-center justify-center
+                      cursor-pointer
+                      group
+                  "
+              >
+                <div
+                    className="
+                        bg-black/80
+                        text-white
+                        border border-transparent
+                        px-4 py-2
+                        rounded-lg
+                        text-sm font-semibold
+                        transition-all duration-200
+                        group-hover:border-yellow-400
+                        group-hover:shadow-[0_0_20px_rgba(250,204,21,0.45)]
+                        group-hover:scale-105
+                    "
+                >
+                    🔒 {t.unlockPremium}
+                </div>
+              </button>
+            )}
+
         </div>
-      )}
-    </div>
-  );
+    );
 }

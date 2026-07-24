@@ -22,12 +22,21 @@ export default function VerifyPage() {
 
     const verify = async () => {
       try {
-        await fetch(`${API_URL}/verify?token=${token}`);
+        const response = await fetch(
+            `${API_URL()}/verify?token=${token}`
+        );
+
+        console.log("VERIFY STATUS:", response.status);
+
+        if (!response.ok) {
+          throw new Error("Verification failed");
+        }
+
         setStatus("ok");
-      } catch {
-        setStatus("error");
-      }
-    };
+              } catch {
+                setStatus("error");
+              }
+            };
 
     verify();
   }, [token]);

@@ -85,7 +85,7 @@ export default function Sidebar({ view, setView }: Props) {
         💰 {t.myBets}
       </button>
 
-      {/* APUESTAS */}
+      {/* FAVORITOS */}
       <button
         onClick={() => setView("favorites")}
         className={`

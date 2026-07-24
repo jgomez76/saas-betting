@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>{{ t.premium_activated_title }}</h2>
+
+<p>
+{{ t.premium_activated_text }}
+</p>
+
+<p>
+<strong>{{ t.premium_activated_features_title }}</strong>
+</p>
+
+<ul>
+    <li>{{ t.premium_activated_feature_1 }}</li>
+    <li>{{ t.premium_activated_feature_2 }}</li>
+    <li>{{ t.premium_activated_feature_3 }}</li>
+    <li>{{ t.premium_activated_feature_4 }}</li>
+</ul>
+
+<p>
+{{ t.premium_activated_footer }}
+</p>
+
+{% endblock %}

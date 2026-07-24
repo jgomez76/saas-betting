@@ -4,12 +4,13 @@ import { createContext, useContext, useState } from "react";
 import { translations } from "./translations";
 import { ReactNode } from "react";
 import Cookies from "js-cookie";
+import { API_URL } from "@/lib/api";
 
 type Lang = "en" | "es" | "it" | "fr";
 
 type LanguageContextType = {
   lang: Lang;
-  changeLang: (l: Lang) => void;
+  changeLang: (l: Lang) => Promise<void>;
   t: typeof translations["en"];
 };
 
@@ -25,11 +26,28 @@ export const LanguageProvider = ({ children, initialLang }: Props) => {
   // ✅ mismo valor que SSR → sin hydration mismatch
   const [lang, setLang] = useState<Lang>(initialLang);
 
-  const changeLang = (l: Lang) => {
+  const changeLang = async (l: Lang) => {
     setLang(l);
 
-    // ✅ guardar en cookie (persistente)
+    // Cookie (siempre)
     Cookies.set("lang", l, { expires: 365 });
+
+    try {
+      await fetch(`${API_URL()}/me/language`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          language: l,
+        }),
+      });
+    } catch {
+      // No hacemos nada.
+      // Si el usuario no está logueado o hay un error,
+      // el idioma visual ya ha cambiado y la cookie ya está guardada.
+    }
   };
 
   const t = translations[lang];

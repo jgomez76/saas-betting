@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>{{ t.premium_cancelled_title }}</h2>
+
+<p>
+{{ t.premium_cancelled_text }}
+</p>
+
+<p>
+<strong>{{ t.premium_cancelled_until }}</strong>
+</p>
+
+<p style="font-size:22px;font-weight:bold;text-align:center;">
+{{ end_date }}
+</p>
+
+<p>
+{{ t.premium_cancelled_features }}
+</p>
+
+<p>
+{{ t.premium_cancelled_reactivate }}
+</p>
+
+{% endblock %}

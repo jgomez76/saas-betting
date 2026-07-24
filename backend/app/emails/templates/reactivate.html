@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>{{ t.reactivate_title }}</h2>
+
+<p>
+
+{{ t.reactivate_text }}
+
+</p>
+
+<p style="text-align:center;">
+
+    <a
+        href="{{ reactivate_link }}"
+        class="button"
+    >
+        {{ t.reactivate_button }}
+    </a>
+
+</p>
+
+<p>
+
+{{ t.reactivate_footer }}
+
+</p>
+
+{% endblock %}

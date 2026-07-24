@@ -1,0 +1,1631 @@
+app/robots.ts:1:import type { MetadataRoute } from "next";
+app/robots.ts:3:import { COMPANY } from "@/lib/branding";
+app/contact/page.tsx:1:import LegalPage from "@/components/legal/LegalPage";
+app/contact/page.tsx:3:import { cookiesContent } from "@/lib/legal/cookies";
+app/contact/page.tsx:5:import { COMPANY } from "@/lib/branding";
+app/reactivate/page.tsx:1:"use client";
+app/reactivate/page.tsx:3:import { useEffect } from "react";
+app/reactivate/page.tsx:4:import { useSearchParams, useRouter } from "next/navigation";
+app/reactivate/page.tsx:11:    const token = params.get("token");
+app/reactivate/page.tsx:16:      credentials: "include",
+app/verify/page.tsx:1:"use client";
+app/verify/page.tsx:3:import { useSearchParams } from "next/navigation";
+app/verify/page.tsx:4:import { useEffect, useState } from "react";
+app/verify/page.tsx:5:import { API_URL } from "@/lib/api";
+app/verify/page.tsx:7:import Link from "next/link";
+app/verify/page.tsx:12:  const token = params.get("token");
+app/verify/page.tsx:15:    "loading" | "ok" | "error"
+app/verify/page.tsx:16:  >(token ? "loading" : "error");
+app/verify/page.tsx:19:    // const token = params.get("token");
+app/verify/page.tsx:32:          throw new Error("Verification failed");
+app/verify/page.tsx:35:        setStatus("ok");
+app/verify/page.tsx:37:                setStatus("error");
+app/verify/page.tsx:48:        {status === "loading" && (
+app/verify/page.tsx:55:        {status === "ok" && (
+app/verify/page.tsx:72:        {status === "error" && (
+app/reset/page.tsx:1:"use client";
+app/reset/page.tsx:3:import { useSearchParams } from "next/navigation";
+app/reset/page.tsx:4:import { useState } from "react";
+app/reset/page.tsx:5:import { API_URL } from "@/lib/api";
+app/reset/page.tsx:7:import Link from "next/link";
+app/reset/page.tsx:12:  const token = params.get("token");
+app/reset/page.tsx:20:      setStatus("error");
+app/reset/page.tsx:25:      setStatus("error");
+app/reset/page.tsx:31:      setStatus("loading");
+app/reset/page.tsx:34:        method: "POST",
+app/reset/page.tsx:36:          "Content-Type": "application/json",
+app/reset/page.tsx:49:        setStatus("error");
+app/reset/page.tsx:55:      setStatus("success");
+app/reset/page.tsx:59:      setStatus("error");
+app/reset/page.tsx:71:        {status !== "success" ? (
+app/reset/page.tsx:74:              type="password"
+app/oauth-success/page.tsx:1:"use client";
+app/oauth-success/page.tsx:3:import { useEffect } from "react";
+app/oauth-disabled/page.tsx:1:"use client";
+app/oauth-disabled/page.tsx:3:import { useEffect } from "react";
+app/oauth-disabled/page.tsx:14:      params.get("email");
+app/oauth-disabled/page.tsx:18:        "reactivate_email",
+app/oauth-disabled/page.tsx:24:      "oauth_disabled",
+app/oauth-disabled/page.tsx:29:      "oauth_disabled_email",
+app/profile/page.tsx:1:"use client";
+app/profile/page.tsx:3:import { useEffect, useState } from "react";
+app/profile/page.tsx:4:import { API_URL } from "@/lib/api";
+app/profile/page.tsx:5:import Image from "next/image";
+app/profile/page.tsx:22:      credentials: "include",
+app/profile/page.tsx:40:          alt="avatar" 
+app/sitemap.ts:1:import type { MetadataRoute } from "next";
+app/sitemap.ts:3:import { COMPANY } from "@/lib/branding";
+app/sitemap.ts:12:      changeFrequency: "daily",
+app/sitemap.ts:19:      changeFrequency: "monthly",
+app/sitemap.ts:26:      changeFrequency: "monthly",
+app/sitemap.ts:33:      changeFrequency: "yearly",
+app/sitemap.ts:40:      changeFrequency: "yearly",
+app/sitemap.ts:47:      changeFrequency: "yearly",
+app/sitemap.ts:54:      changeFrequency: "monthly",
+app/globals_old.css:1:@import "tailwindcss";
+app/globals_old.css:219:  --font: "Orbitron", sans-serif;
+app/layout.tsx:1:import type { Metadata } from "next";
+app/layout.tsx:2:import { Geist, Geist_Mono } from "next/font/google";
+app/layout.tsx:3:import "./globals.css";
+app/layout.tsx:4:import Providers from "./providers";
+app/layout.tsx:5:import { ThemeProvider } from "@/context/ThemeContext";
+app/layout.tsx:6:import { SubscriptionProvider } from "@/context/SubscriptionContext";
+app/layout.tsx:8:import Footer from "@/components/Footer";
+app/layout.tsx:9:import CookieBanner from "@/components/CookieBanner";
+app/layout.tsx:12:import { BASE_METADATA } from "@/lib/branding";
+app/layout.tsx:13:import { PremiumProvider } from "@/context/PremiumContext";
+app/layout.tsx:22:      title: "Luranix",
+app/layout.tsx:24:        "Advanced sports betting analytics platform",
+app/layout.tsx:28:      title: "Luranix",
+app/layout.tsx:30:        "Plataforma avanzada de análisis de apuestas deportivas",
+app/layout.tsx:34:      title: "Luranix",
+app/layout.tsx:36:        "Plateforme avancée d'analyse des paris sportifs",
+app/layout.tsx:40:      title: "Luranix",
+app/layout.tsx:42:        "Piattaforma avanzata di analisi delle scommesse sportive",
+app/layout.tsx:51:  variable: "--font-geist-sans",
+app/layout.tsx:52:  subsets: ["latin"],
+app/layout.tsx:56:  variable: "--font-geist-mono",
+app/layout.tsx:57:  subsets: ["latin"],
+app/layout.tsx:71:      dir="ltr" // preparado para futuro RTL si quieres
+app/error.tsx:1:"use client";
+app/error.tsx:3:import { useEffect } from "react";
+app/error.tsx:4:import Link from "next/link";
+app/error.tsx:6:import { COMPANY } from "@/lib/branding";
+app/manifest.ts:1:import type { MetadataRoute } from "next";
+app/manifest.ts:3:import { COMPANY } from "@/lib/branding";
+app/manifest.ts:15:    display: "standalone",
+app/manifest.ts:17:    background_color: "#FFFFFF",
+app/manifest.ts:19:    theme_color: "#2563EB",
+app/manifest.ts:21:    orientation: "portrait",
+app/manifest.ts:25:        src: "/favicon.ico",
+app/manifest.ts:26:        sizes: "any",
+app/manifest.ts:27:        type: "image/x-icon",
+app/account/page.tsx:1:"use client";
+app/account/page.tsx:3:import { useEffect, useState } from "react";
+app/account/page.tsx:4:import { API_URL } from "@/lib/api";
+app/account/page.tsx:5:import { useRouter } from "next/navigation";
+app/account/page.tsx:17:      credentials: "include",
+app/account/page.tsx:34:      method: "POST",
+app/account/page.tsx:35:      credentials: "include",
+app/account/page.tsx:49:      method: "POST",
+app/account/page.tsx:50:      credentials: "include",
+app/legal/privacy/page.tsx:1:import LegalPage from "@/components/legal/LegalPage";
+app/legal/privacy/page.tsx:2:import LegalContent from "@/components/legal/LegalContent";
+app/legal/privacy/page.tsx:4:import { privacyContent } from "@/lib/legal/privacy";
+app/legal/security/page.tsx:1:import LegalPage from "@/components/legal/LegalPage";
+app/legal/security/page.tsx:2:import LegalContent from "@/components/legal/LegalContent";
+app/legal/security/page.tsx:4:import { securityContent } from "@/lib/legal/security";
+app/legal/terms/page.tsx:1:import LegalPage from "@/components/legal/LegalPage";
+app/legal/terms/page.tsx:2:import LegalContent from "@/components/legal/LegalContent";
+app/legal/terms/page.tsx:4:import { termsContent } from "@/lib/legal/terms";
+app/legal/cookies/page.tsx:1:import LegalPage from "@/components/legal/LegalPage";
+app/legal/cookies/page.tsx:2:import LegalContent from "@/components/legal/LegalContent";
+app/legal/cookies/page.tsx:4:import { cookiesContent } from "@/lib/legal/cookies";
+app/page.tsx:1:"use client";
+app/page.tsx:3:import { useEffect, useState, useMemo } from "react";
+app/page.tsx:4:import Navbar from "@/components/Navbar";
+app/page.tsx:5:import Sidebar from "@/components/Sidebar";
+app/page.tsx:6:import TopValueModal from "@/components/TopValueModal";
+app/page.tsx:7:import BetsModal from "@/components/BetsModal";
+app/page.tsx:8:import LoginModal from "@/components/LoginModal";
+app/page.tsx:9:// import AnalysisModal from "@/components/AnalysisModal";
+app/page.tsx:10:import AnalysisCenter from "@/components/analysys/AnalysisCenter";
+app/page.tsx:11:import ResultsView from "@/components/ResultsView";
+app/page.tsx:12:import StandingsView from "@/components/StandingsView";
+app/page.tsx:13:import ProfileModal from "@/components/ProfileModal";
+app/page.tsx:14:import SettingsView from "@/components/SettingsView";
+app/page.tsx:19:} from "@/components/ui/match-ui";
+app/page.tsx:21:import TeamModal from "@/components/modals/TeamModal";
+app/page.tsx:22:import PendingBetModal from "@/components/modals/PendingBetModal";
+app/page.tsx:24:import MatchCard from "@/components/cards/MatchCard";
+app/page.tsx:26:import DashboardHeader from "@/components/dashboard/DashboardHeader";
+app/page.tsx:27:import LeagueSection from "@/components/dashboard/LeagueSection";
+app/page.tsx:29:import { Match } from "@/types/match";
+app/page.tsx:30:import { Bet } from "@/types/bet";
+app/page.tsx:32:// import { signOut, useSession } from "next-auth/react";
+app/page.tsx:33:import { useSearchParams } from "next/navigation";
+app/page.tsx:35:import { useSubscription } from "@/context/SubscriptionContext"; 
+app/page.tsx:37:import { getStakeFromOdd } from "@/lib/stake";
+app/page.tsx:40:import { useBets } from "@/hooks/useBets";
+app/page.tsx:41:import { useFavorites } from "@/hooks/useFavorites";
+app/page.tsx:42:import { useFilters } from "@/hooks/useFilters";
+app/page.tsx:43:import { useAuth } from "@/hooks/useAuth";
+app/page.tsx:44:import { useMatches } from "@/hooks/useMatches";
+app/page.tsx:45:import { useTopPicks } from "@/hooks/useTopPicks";
+app/page.tsx:63:// throw new Error("Testing error page");
+app/page.tsx:77:  const [view, setView] = useState("dashboard");
+app/page.tsx:90:  type PendingBet = Omit<Bet, "id">;
+app/page.tsx:108:        "oauth_disabled"
+app/page.tsx:128:      bookmaker: "TOP PICK", // 👈 puedes mejorar luego
+app/page.tsx:131:      status: "pending",
+app/page.tsx:170:    if (typeof window === "undefined") return [];
+app/page.tsx:173:      const saved = localStorage.getItem("fav_leagues");
+app/page.tsx:183:    typeof window !== "undefined"
+app/page.tsx:184:      ? window.location.hostname === "localhost"
+app/page.tsx:198:    params.get("oauth_error") === "ACCOUNT_DISABLED";
+app/page.tsx:291:      const matchDate = new Date(m.date + "Z");
+app/page.tsx:297:    if (leagueFilter !== "ALL") {
+app/page.tsx:308:    if (marketFilter !== "ALL") {
+app/page.tsx:310:        if (marketFilter === "1X2") return !!m.markets?.["1X2"];
+app/page.tsx:311:        // if (marketFilter === "OU15") return !!m.markets?.OU15;
+app/page.tsx:312:        if (marketFilter === "OU25") return !!m.markets?.OU25;
+app/page.tsx:313:        if (marketFilter === "OU35") return !!m.markets?.OU35;
+app/page.tsx:314:        if (marketFilter === "BTTS") return !!m.markets?.BTTS;
+app/page.tsx:320:    if (dateFilter !== "ALL") {
+app/page.tsx:338:          new Date(m.date + "Z");
+app/page.tsx:342:        if (dateFilter === "TODAY") {
+app/page.tsx:350:        if (dateFilter === "TODAY_TOMORROW") {
+app/page.tsx:358:        if (dateFilter === "NEXT_3_DAYS") {
+app/page.tsx:377:      if (markets["1X2"]) {
+app/page.tsx:384:          const odds = markets["1X2"];
+app/page.tsx:503:    if (value === "ALL") {
+app/page.tsx:551:        {view === "dashboard" && (
+app/page.tsx:557:              // onOpenBets={() => setView("bets")}
+app/page.tsx:560:              // onOpenAnalysis={() => setView("analysis")}
+app/page.tsx:682:        {view === "results" && (
+app/page.tsx:687:        {view === "standings" && (
+app/page.tsx:693:        {view === "favorites" && (
+app/page.tsx:731:        {view === "settings" && (
+app/page.tsx:756:        {view === "bets" && (
+app/page.tsx:759:            onClose={() => setView("dashboard")}
+app/page.tsx:776:{/*         {view === "analysis" && !authLoading && isAdmin && (
+app/page.tsx:778:            onClose={() => setView("dashboard")}
+app/page.tsx:781:        {view === "analysis" && !authLoading && (
+app/globals.css:1:@import "tailwindcss";
+app/not-found.tsx:1:import Link from "next/link";
+app/not-found.tsx:2:import { cookies } from "next/headers";
+app/not-found.tsx:4:import { COMPANY } from "@/lib/branding";
+app/not-found.tsx:11:    cookieStore.get("lang")?.value ?? "en";
+app/providers.tsx:1:"use client";
+components/tabs/BettingAnalyticsTab.tsx:1:"use client";
+components/tabs/BettingAnalyticsTab.tsx:3:import { useEffect, useState, useMemo } from "react";
+components/tabs/BettingAnalyticsTab.tsx:14:} from "recharts";
+components/tabs/BettingAnalyticsTab.tsx:40:  typeof window !== "undefined"
+components/tabs/BettingAnalyticsTab.tsx:41:    ? window.location.hostname === "localhost"
+components/tabs/BettingAnalyticsTab.tsx:60:    useState("ALL");
+components/tabs/BettingAnalyticsTab.tsx:75:    useState("ALL");
+components/tabs/BettingAnalyticsTab.tsx:103:    if (m === "BTTS") {
+components/tabs/BettingAnalyticsTab.tsx:104:      return s === "yes"
+components/tabs/BettingAnalyticsTab.tsx:105:        ? "btts_yes"
+components/tabs/BettingAnalyticsTab.tsx:106:        : "btts_no";
+components/tabs/BettingAnalyticsTab.tsx:109:    if (m === "OU25") {
+components/tabs/BettingAnalyticsTab.tsx:110:      return s === "over"
+components/tabs/BettingAnalyticsTab.tsx:111:        ? "over_2_5"
+components/tabs/BettingAnalyticsTab.tsx:112:        : "under_2_5";
+components/tabs/BettingAnalyticsTab.tsx:115:    if (m === "OU35") {
+components/tabs/BettingAnalyticsTab.tsx:116:      return s === "over"
+components/tabs/BettingAnalyticsTab.tsx:117:        ? "over_3_5"
+components/tabs/BettingAnalyticsTab.tsx:118:        : "under_3_5";
+components/tabs/BettingAnalyticsTab.tsx:121:    if (m === "1X2") {
+components/tabs/BettingAnalyticsTab.tsx:132:    if (b.market === "OU25") {
+components/tabs/BettingAnalyticsTab.tsx:133:      return b.selection === "over"
+components/tabs/BettingAnalyticsTab.tsx:138:    if (b.market === "OU35") {
+components/tabs/BettingAnalyticsTab.tsx:139:      return b.selection === "over"
+components/tabs/BettingAnalyticsTab.tsx:144:    if (b.market === "BTTS") {
+components/tabs/BettingAnalyticsTab.tsx:145:      return b.selection === "yes"
+components/tabs/BettingAnalyticsTab.tsx:150:    if (b.market === "1X2") {
+components/tabs/BettingAnalyticsTab.tsx:177:      "ALL",
+components/tabs/BettingAnalyticsTab.tsx:194:        leagueFilter !== "ALL" &&
+components/tabs/BettingAnalyticsTab.tsx:243:        statusFilter === "pending" &&
+components/tabs/BettingAnalyticsTab.tsx:244:        b.status !== "pending"
+components/tabs/BettingAnalyticsTab.tsx:250:        statusFilter === "finished" &&
+components/tabs/BettingAnalyticsTab.tsx:251:        b.status === "pending"
+components/tabs/BettingAnalyticsTab.tsx:282:      if (b.status === "won") {
+components/tabs/BettingAnalyticsTab.tsx:288:        b.status === "lost"
+components/tabs/BettingAnalyticsTab.tsx:311:        (b) => b.status === "won"
+components/tabs/BettingAnalyticsTab.tsx:352:      if (b.status === "won") {
+components/tabs/BettingAnalyticsTab.tsx:359:        b.status === "lost"
+components/tabs/BettingAnalyticsTab.tsx:409:      if (b.status === "won") {
+components/tabs/BettingAnalyticsTab.tsx:416:        b.status === "lost"
+components/tabs/BettingAnalyticsTab.tsx:461:      b.status === "won" &&
+components/tabs/BettingAnalyticsTab.tsx:470:    if (b.status === "lost") {
+components/tabs/BettingAnalyticsTab.tsx:508:                ? "bg-[var(--accent)] text-black"
+components/tabs/BettingAnalyticsTab.tsx:509:                : "bg-[var(--card)] border border-[var(--border)] hover:bg-[var(--hover)]"
+components/tabs/BettingAnalyticsTab.tsx:526:            ["btts_yes", t.bttsYes],
+components/tabs/BettingAnalyticsTab.tsx:527:            ["btts_no", t.bttsNo],
+components/tabs/BettingAnalyticsTab.tsx:528:            ["over_2_5", t.over25],
+components/tabs/BettingAnalyticsTab.tsx:529:            ["under_2_5", t.under25],
+components/tabs/BettingAnalyticsTab.tsx:530:            ["over_3_5", t.over35],
+components/tabs/BettingAnalyticsTab.tsx:531:            ["under_3_5", t.under35],
+components/tabs/BettingAnalyticsTab.tsx:532:            ["home", t.home],
+components/tabs/BettingAnalyticsTab.tsx:533:            ["draw", t.draw],
+components/tabs/BettingAnalyticsTab.tsx:534:            ["away", t.away],
+components/tabs/BettingAnalyticsTab.tsx:546:                  ? "bg-[var(--accent)] text-black"
+components/tabs/BettingAnalyticsTab.tsx:547:                  : "bg-[var(--card)] border border-[var(--border)] hover:bg-[var(--hover)]"
+components/tabs/BettingAnalyticsTab.tsx:561:            type="number"
+components/tabs/BettingAnalyticsTab.tsx:576:            type="number"
+components/tabs/BettingAnalyticsTab.tsx:596:            type="number"
+components/tabs/BettingAnalyticsTab.tsx:611:            type="number"
+components/tabs/BettingAnalyticsTab.tsx:638:          <option value="ALL">
+components/tabs/BettingAnalyticsTab.tsx:642:          <option value="pending">
+components/tabs/BettingAnalyticsTab.tsx:646:          <option value="finished">
+components/tabs/BettingAnalyticsTab.tsx:767:              <XAxis dataKey="bet" />
+components/tabs/BettingAnalyticsTab.tsx:774:                dataKey="bankroll"
+components/tabs/BettingAnalyticsTab.tsx:775:                stroke="#22c55e"
+components/tabs/BettingAnalyticsTab.tsx:779:                dataKey="roi"
+components/tabs/BettingAnalyticsTab.tsx:780:                stroke="#3b82f6"
+components/tabs/BettingAnalyticsTab.tsx:807:            <XAxis dataKey="market" />
+components/tabs/BettingAnalyticsTab.tsx:814:              dataKey="roi"
+components/tabs/BettingAnalyticsTab.tsx:815:              fill="#3b82f6"
+components/tabs/BettingAnalyticsTab.tsx:847:                    ? "text-[var(--success)]"
+components/tabs/BettingAnalyticsTab.tsx:848:                    : "text-[var(--danger)]"
+components/tabs/MatchAnalysisTab.tsx:1:"use client";
+components/tabs/MatchAnalysisTab.tsx:3:import { useEffect, useState } from "react";
+components/tabs/MatchAnalysisTab.tsx:5:import PremiumStat from "@/components/premium/PremiumStat";
+components/tabs/MatchAnalysisTab.tsx:6:import { useSubscription } from "@/context/SubscriptionContext";
+components/tabs/MatchAnalysisTab.tsx:7:import PremiumPanel from "@/components/premium/PremiumPanel";
+components/tabs/MatchAnalysisTab.tsx:8:import { upgradeToPremium } from "@/lib/stripe";
+components/tabs/MatchAnalysisTab.tsx:11:  typeof window !== "undefined"
+components/tabs/MatchAnalysisTab.tsx:12:    ? window.location.hostname === "localhost"
+components/tabs/MatchAnalysisTab.tsx:247:                r === "W"
+components/tabs/MatchAnalysisTab.tsx:248:                    ? "bg-[var(--success)] text-white"
+components/tabs/MatchAnalysisTab.tsx:249:                    : r === "L"
+components/tabs/MatchAnalysisTab.tsx:250:                    ? "bg-[var(--danger)] text-white"
+components/tabs/MatchAnalysisTab.tsx:251:                    : "bg-[var(--muted)] text-black"
+components/tabs/MatchAnalysisTab.tsx:373:              {" vs "}
+components/tabs/MatchAnalysisTab.tsx:377:                "es-ES",
+components/tabs/MatchAnalysisTab.tsx:379:                    day: "2-digit",
+components/tabs/MatchAnalysisTab.tsx:380:                    month: "2-digit",
+components/tabs/MatchAnalysisTab.tsx:381:                    year: "numeric",
+components/tabs/MatchAnalysisTab.tsx:382:                    hour: "2-digit",
+components/tabs/MatchAnalysisTab.tsx:383:                    minute: "2-digit",
+components/tabs/MatchAnalysisTab.tsx:415:            {" vs "}
+components/tabs/MatchAnalysisTab.tsx:431:          <PremiumStat title="BTTS">
+components/tabs/MatchAnalysisTab.tsx:435:          <PremiumStat title="Over 2.5">
+components/tabs/MatchAnalysisTab.tsx:439:          <PremiumStat title="H2H BTTS">
+components/tabs/MatchAnalysisTab.tsx:443:          <PremiumStat title="H2H Over 2.5">
+components/tabs/MatchAnalysisTab.tsx:678:            title="Smart Insights"
+components/tabs/MatchAnalysisTab.tsx:679:            description="Automatically generated betting insights based on historical statistics and team trends."
+components/tabs/MatchAnalysisTab.tsx:681:              "AI-generated insights",
+components/tabs/MatchAnalysisTab.tsx:682:              "Team strengths",
+components/tabs/MatchAnalysisTab.tsx:683:              "Weakness detection",
+components/tabs/MatchAnalysisTab.tsx:684:              "Key betting trends",
+components/tabs/MatchAnalysisTab.tsx:685:              "Automatic recommendations",
+components/tabs/MatchAnalysisTab.tsx:687:            buttonText="Explore Premium"
+components/tabs/MatchAnalysisTab.tsx:717:                    ? "bg-green-500"
+components/tabs/MatchAnalysisTab.tsx:719:                    ? "bg-yellow-500"
+components/tabs/MatchAnalysisTab.tsx:721:                    ? "bg-orange-500"
+components/tabs/MatchAnalysisTab.tsx:722:                    : "bg-orange-500";
+components/tabs/MatchAnalysisTab.tsx:741:                            m.strength === "VERY STRONG"
+components/tabs/MatchAnalysisTab.tsx:743:                              : m.strength === "STRONG"
+components/tabs/MatchAnalysisTab.tsx:745:                              : m.strength === "MEDIUM"
+components/tabs/MatchAnalysisTab.tsx:784:            title="Market Confidence"
+components/tabs/MatchAnalysisTab.tsx:785:            description="See which betting markets have the highest statistical confidence before placing a bet."
+components/tabs/MatchAnalysisTab.tsx:787:              "Confidence score",
+components/tabs/MatchAnalysisTab.tsx:788:              "Strength classification",
+components/tabs/MatchAnalysisTab.tsx:789:              "Probability bars",
+components/tabs/MatchAnalysisTab.tsx:790:              "Recommended markets",
+components/tabs/MatchAnalysisTab.tsx:791:              "Risk evaluation",
+components/tabs/MatchAnalysisTab.tsx:793:            buttonText="Explore Premium"
+components/tabs/MatchAnalysisTab.tsx:896:              title="Value Opportunities"
+components/tabs/MatchAnalysisTab.tsx:897:              description="Discover bets where our model estimates the market odds are higher than the true probability."
+components/tabs/MatchAnalysisTab.tsx:899:                "Value edge detection",
+components/tabs/MatchAnalysisTab.tsx:900:                "Fair odds calculation",
+components/tabs/MatchAnalysisTab.tsx:901:                "Best bookmaker",
+components/tabs/MatchAnalysisTab.tsx:902:                "Positive EV opportunities",
+components/tabs/MatchAnalysisTab.tsx:903:                "Value betting analysis",
+components/tabs/MatchAnalysisTab.tsx:905:              buttonText="Explore Premium"
+components/tabs/H2HAnalysisTab.tsx:1:"use client";
+components/tabs/H2HAnalysisTab.tsx:3:import { useEffect, useState } from "react";
+components/tabs/H2HAnalysisTab.tsx:5:import PremiumPanel from "@/components/premium/PremiumPanel";
+components/tabs/H2HAnalysisTab.tsx:6:import { usePremium } from "@/context/PremiumContext";
+components/tabs/H2HAnalysisTab.tsx:7:import { upgradeToPremium } from "@/lib/stripe";
+components/tabs/H2HAnalysisTab.tsx:47:  typeof window !== "undefined"
+components/tabs/H2HAnalysisTab.tsx:48:    ? window.location.hostname === "localhost"
+components/tabs/H2HAnalysisTab.tsx:337:              {" vs "}
+components/tabs/H2HAnalysisTab.tsx:488:              title="Luranix AI Insight"
+components/tabs/H2HAnalysisTab.tsx:489:              badge="Premium"
+components/tabs/H2HAnalysisTab.tsx:490:              description="Go beyond raw statistics with AI-powered insights that explain what the historical data really means."
+components/tabs/H2HAnalysisTab.tsx:492:                  "Historical dominance",
+components/tabs/H2HAnalysisTab.tsx:493:                  "Goal trends",
+components/tabs/H2HAnalysisTab.tsx:494:                  "BTTS prediction",
+components/tabs/H2HAnalysisTab.tsx:495:                  "Over/Under prediction",
+components/tabs/H2HAnalysisTab.tsx:496:                  "AI match conclusion",
+components/tabs/TeamAnalysisTab.tsx:1:"use client";
+components/tabs/TeamAnalysisTab.tsx:3:import { useEffect, useState } from "react";
+components/tabs/TeamAnalysisTab.tsx:11:} from "recharts";
+components/tabs/TeamAnalysisTab.tsx:86:  typeof window !== "undefined"
+components/tabs/TeamAnalysisTab.tsx:87:    ? window.location.hostname === "localhost"
+components/tabs/TeamAnalysisTab.tsx:96:  const [selectedSeason, setSelectedSeason] = useState<number | "ALL">("ALL");
+components/tabs/TeamAnalysisTab.tsx:157:        if (selectedSeason !== "ALL") {
+components/tabs/TeamAnalysisTab.tsx:209:                r === "W"
+components/tabs/TeamAnalysisTab.tsx:210:                  ? "bg-[var(--success)] text-white"
+components/tabs/TeamAnalysisTab.tsx:211:                  : r === "L"
+components/tabs/TeamAnalysisTab.tsx:212:                  ? "bg-[var(--danger)] text-white"
+components/tabs/TeamAnalysisTab.tsx:213:                  : "bg-[var(--muted)] text-black"
+components/tabs/TeamAnalysisTab.tsx:337:              e.target.value === "ALL"
+components/tabs/TeamAnalysisTab.tsx:338:                ? "ALL"
+components/tabs/TeamAnalysisTab.tsx:348:          <option value="ALL">
+components/tabs/TeamAnalysisTab.tsx:592:                    <XAxis dataKey="date" />
+components/tabs/TeamAnalysisTab.tsx:632:                    type="monotone"
+components/tabs/TeamAnalysisTab.tsx:633:                    dataKey="scored"
+components/tabs/TeamAnalysisTab.tsx:634:                    stroke="#22c55e"
+components/tabs/TeamAnalysisTab.tsx:639:                    type="monotone"
+components/tabs/TeamAnalysisTab.tsx:640:                    dataKey="conceded"
+components/tabs/TeamAnalysisTab.tsx:641:                    stroke="#ef4444"
+components/tabs/TeamAnalysisTab.tsx:817:                    "{value}",
+components/tabs/TeamAnalysisTab.tsx:836:                    "{value}",
+components/tabs/TeamAnalysisTab.tsx:855:                    "{value}",
+components/LoginModal.tsx:1:"use client";
+components/LoginModal.tsx:3:import { useState, useEffect } from "react";
+components/LoginModal.tsx:4:// import { API_URL } from "@/lib/api";
+components/LoginModal.tsx:6:import { useSearchParams } from "next/navigation";
+components/LoginModal.tsx:20:  typeof window !== "undefined"
+components/LoginModal.tsx:21:    ? window.location.hostname === "localhost"
+components/LoginModal.tsx:32:  const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
+components/LoginModal.tsx:40:        "oauth_disabled"
+components/LoginModal.tsx:47:          "oauth_disabled_email"
+components/LoginModal.tsx:61:        "oauth_disabled"
+components/LoginModal.tsx:65:        "oauth_disabled_email"
+components/LoginModal.tsx:77:    if (typeof window === "undefined") {
+components/LoginModal.tsx:83:        "reactivate_email"
+components/LoginModal.tsx:89:    const errorParam = params.get("error");
+components/LoginModal.tsx:91:    if (errorParam === "ACCOUNT_DISABLED") {
+components/LoginModal.tsx:109:        method: "POST",
+components/LoginModal.tsx:111:          "Content-Type": "application/json",
+components/LoginModal.tsx:113:        credentials: "include",
+components/LoginModal.tsx:124:        if (data.detail === "ACCOUNT_DISABLED") {
+components/LoginModal.tsx:153:      if (data.message === "ok") {
+components/LoginModal.tsx:179:        method: "POST",
+components/LoginModal.tsx:181:          "Content-Type": "application/json",
+components/LoginModal.tsx:220:        method: "POST",
+components/LoginModal.tsx:222:          "Content-Type": "application/json",
+components/LoginModal.tsx:240:      setMode("login");
+components/LoginModal.tsx:264:        method: "POST",
+components/LoginModal.tsx:266:          "Content-Type": "application/json",
+components/LoginModal.tsx:278:      setMode("login");
+components/LoginModal.tsx:300:        method: "POST",
+components/LoginModal.tsx:302:          "Content-Type": "application/json",
+components/LoginModal.tsx:310:      if (data.message === "sent") {
+components/LoginModal.tsx:313:      else if (data.message === "already_verified") {
+components/LoginModal.tsx:347:          {mode === "login"
+components/LoginModal.tsx:349:            : mode === "register"
+components/LoginModal.tsx:368:        {mode !== "forgot" && (
+components/LoginModal.tsx:370:            type="password"
+components/LoginModal.tsx:427:            setMode("forgot");
+components/LoginModal.tsx:461:              mode === "login"
+components/LoginModal.tsx:463:                : mode === "register"
+components/LoginModal.tsx:480:            : mode === "login"
+components/LoginModal.tsx:482:            : mode === "register"
+components/LoginModal.tsx:490:          {mode === "login" ? (
+components/LoginModal.tsx:495:                  setMode("register");
+components/LoginModal.tsx:508:                  setMode("login");
+components/LoginModal.tsx:517:          {mode === "forgot" && (
+components/LoginModal.tsx:520:                setMode("login");
+components/ui/format-match-date.ts:10:  const d = new Date(date + "Z");
+components/ui/format-match-date.ts:33:    en: "en-GB",
+components/ui/format-match-date.ts:34:    es: "es-ES",
+components/ui/format-match-date.ts:35:    fr: "fr-FR",
+components/ui/format-match-date.ts:36:    it: "it-IT",
+components/ui/format-match-date.ts:40:    localeMap[lang] ?? "en-GB";
+components/ui/format-match-date.ts:44:      hour: "2-digit",
+components/ui/format-match-date.ts:45:      minute: "2-digit",
+components/ui/format-match-date.ts:46:      timeZone: "Europe/Madrid",
+components/ui/format-match-date.ts:56:      en: "Today",
+components/ui/format-match-date.ts:57:      es: "Hoy",
+components/ui/format-match-date.ts:58:      fr: "Aujourd'hui",
+components/ui/format-match-date.ts:59:      it: "Oggi",
+components/ui/format-match-date.ts:63:      todayLabel[lang] ?? "Today"
+components/ui/format-match-date.ts:74:      en: "Tomorrow",
+components/ui/format-match-date.ts:75:      es: "Mañana",
+components/ui/format-match-date.ts:76:      fr: "Demain",
+components/ui/format-match-date.ts:77:      it: "Domani",
+components/ui/format-match-date.ts:81:      tomorrowLabel[lang] ?? "Tomorrow"
+components/ui/format-match-date.ts:87:      day: "2-digit",
+components/ui/format-match-date.ts:92:      month: "short",
+components/ui/match-ui.tsx:7:  if (label.includes("Partidos")) return "📊";
+components/ui/match-ui.tsx:8:  if (label.includes("Goles")) return "⚽";
+components/ui/match-ui.tsx:9:  if (label.includes("Encajados")) return "🛡️";
+components/ui/match-ui.tsx:10:  if (label.includes("Victorias")) return "🏆";
+components/ui/match-ui.tsx:11:  if (label.includes("Empates")) return "🤝";
+components/ui/match-ui.tsx:12:  if (label.includes("Derrotas")) return "❌";
+components/ui/match-ui.tsx:13:  if (label.includes("BTTS")) return "🎯";
+components/ui/match-ui.tsx:14:  if (label.includes("Over 2.5")) return "🔥";
+components/ui/match-ui.tsx:15:  if (label.includes("Over 3.5")) return "🚀";
+components/ui/match-ui.tsx:66:          let color = "bg-[var(--muted)]";
+components/ui/match-ui.tsx:68:          if (f === "W") {
+components/ui/match-ui.tsx:69:            color = "bg-[var(--positive)]";
+components/ui/match-ui.tsx:70:          } else if (f === "D") {
+components/ui/match-ui.tsx:71:            color = "bg-[var(--warning)]";
+components/ui/match-ui.tsx:72:          } else if (f === "L") {
+components/ui/match-ui.tsx:73:            color = "bg-[var(--negative)]";
+components/Navbar.tsx:1:"use client";
+components/Navbar.tsx:3:import { useState, useEffect, useRef, memo } from "react";
+components/Navbar.tsx:4:import Image from "next/image";
+components/Navbar.tsx:73:    typeof window !== "undefined"
+components/Navbar.tsx:74:      ? window.location.hostname === "localhost"
+components/Navbar.tsx:81:    avatar !== "null" &&
+components/Navbar.tsx:82:    avatar !== "undefined"
+components/Navbar.tsx:83:      ? avatar.startsWith("http")
+components/Navbar.tsx:85:        : `${API}/${avatar.replace(/^\/+/, "").replace(/\\/g, "/")}`
+components/Navbar.tsx:97:    document.addEventListener("mousedown", handleClickOutside);
+components/Navbar.tsx:98:    return () => document.removeEventListener("mousedown", handleClickOutside);
+components/Navbar.tsx:139:            <option value="ALL">
+components/Navbar.tsx:187:            <option value="TODAY">📅 {t.today}</option>
+components/Navbar.tsx:188:            <option value="TODAY_TOMORROW">📅 {t.todayTomorrow}</option>
+components/Navbar.tsx:189:            {/* <option value="NEXT_3_DAYS">📅 {t.next3Days}</option> */}
+components/Navbar.tsx:190:            <option value="ALL">🌍 {t.all}</option>
+components/Navbar.tsx:207:                      alt="avatar"
+components/Navbar.tsx:212:                      referrerPolicy="no-referrer"
+components/Navbar.tsx:262:                  onClick={() => changeLang("en")}
+components/Navbar.tsx:265:                    ${lang === "en"
+components/Navbar.tsx:266:                      ? "ring-2 ring-[var(--accent)] scale-110"
+components/Navbar.tsx:267:                      : "opacity-60 hover:opacity-100"}
+components/Navbar.tsx:271:                    src="/flags/gb.svg"
+components/Navbar.tsx:272:                    alt="EN"
+components/Navbar.tsx:280:                  onClick={() => changeLang("es")}
+components/Navbar.tsx:283:                    ${lang === "es"
+components/Navbar.tsx:284:                      ? "ring-2 ring-[var(--accent)] scale-110"
+components/Navbar.tsx:285:                      : "opacity-60 hover:opacity-100"}
+components/Navbar.tsx:289:                    src="/flags/es.svg"
+components/Navbar.tsx:290:                    alt="ES"
+components/Navbar.tsx:298:                  onClick={() => changeLang("fr")}
+components/Navbar.tsx:301:                    ${lang === "fr"
+components/Navbar.tsx:302:                      ? "ring-2 ring-[var(--accent)] scale-110"
+components/Navbar.tsx:303:                      : "opacity-60 hover:opacity-100"}
+components/Navbar.tsx:307:                    src="/flags/fr.svg"
+components/Navbar.tsx:308:                    alt="FR"
+components/Navbar.tsx:316:                  onClick={() => changeLang("it")}
+components/Navbar.tsx:319:                    ${lang === "it"
+components/Navbar.tsx:320:                      ? "ring-2 ring-[var(--accent)] scale-110"
+components/Navbar.tsx:321:                      : "opacity-60 hover:opacity-100"}
+components/Navbar.tsx:325:                    src="/flags/it.svg"
+components/Navbar.tsx:326:                    alt="IT"
+components/settings/ThemePreview.tsx:172:                            color:"var(--accent-contrast)"
+components/settings/ThemePreview.tsx:179:                                color: "var(--accent-contrast)"
+components/settings/ThemePreview.tsx:188:                                color: "var(--accent-contrast)"
+components/settings/ThemePreview.tsx:197:                                color: "var(--accent-contrast)"
+components/settings/ThemeCard.tsx:1:import ThemePreview from "./ThemePreview";
+components/settings/ThemeCard.tsx:35:            ? "theme-card-active"
+components/settings/ThemeCard.tsx:36:            : "border-[var(--border)] hover:border-[var(--accent)]"
+components/settings/ThemeCard.tsx:41:            ? "opacity-75"
+components/settings/ThemeCard.tsx:42:            : "hover:-translate-y-1"
+components/BetsModal.tsx:1:"use client";
+components/BetsModal.tsx:3:import { useMemo, useState, useEffect } from "react";
+components/BetsModal.tsx:4:import { Bet } from "@/types/bet";
+components/BetsModal.tsx:5:import { ReferenceLine } from "recharts";
+components/BetsModal.tsx:6:import { formatBetLabel } from "@/lib/format";
+components/BetsModal.tsx:18:} from "recharts";
+components/BetsModal.tsx:37:  if (bet.market === "BTTS") {
+components/BetsModal.tsx:38:    return bet.selection === "yes"
+components/BetsModal.tsx:39:      ? "BTTS Yes"
+components/BetsModal.tsx:40:      : "BTTS No";
+components/BetsModal.tsx:43:  if (bet.market === "OU25") {
+components/BetsModal.tsx:44:    return bet.selection === "over"
+components/BetsModal.tsx:45:      ? "Over 2.5"
+components/BetsModal.tsx:46:      : "Under 2.5";
+components/BetsModal.tsx:49:  if (bet.market === "OU35") {
+components/BetsModal.tsx:50:    return bet.selection === "over"
+components/BetsModal.tsx:51:      ? "Over 3.5"
+components/BetsModal.tsx:52:      : "Under 3.5";
+components/BetsModal.tsx:55:  if (bet.market === "1X2") {
+components/BetsModal.tsx:57:    if (bet.selection === "home") {
+components/BetsModal.tsx:58:      return "Home";
+components/BetsModal.tsx:61:    if (bet.selection === "draw") {
+components/BetsModal.tsx:62:      return "Draw";
+components/BetsModal.tsx:65:    if (bet.selection === "away") {
+components/BetsModal.tsx:66:      return "Away";
+components/BetsModal.tsx:70:  return "Unknown";
+components/BetsModal.tsx:79:          ? "text-[var(--danger)]"
+components/BetsModal.tsx:81:          ? "text-[var(--success)]"
+components/BetsModal.tsx:112:  if (!item || typeof item.value !== "number") return null;
+components/BetsModal.tsx:138:  const [statusFilter, setStatusFilter] = useState("ALL");
+components/BetsModal.tsx:139:  const [dateFilter, setDateFilter] = useState("ALL");
+components/BetsModal.tsx:140:  const [stakeFilter, setStakeFilter] = useState("ALL");
+components/BetsModal.tsx:141:  const [pickFilter, setPickFilter] = useState("ALL");
+components/BetsModal.tsx:142:  const [leagueFilter, setLeagueFilter] = useState("ALL");
+components/BetsModal.tsx:176:        statusFilter !== "ALL" &&
+components/BetsModal.tsx:224:      if (dateFilter === "TODAY" && !isToday) return false;
+components/BetsModal.tsx:225:      if (dateFilter === "YESTERDAY" && !isYesterday) return false;
+components/BetsModal.tsx:228:        dateFilter === "LAST_7" &&
+components/BetsModal.tsx:235:        dateFilter === "LAST_30" &&
+components/BetsModal.tsx:242:        dateFilter === "THIS_MONTH" &&
+components/BetsModal.tsx:249:        dateFilter === "LAST_MONTH" &&
+components/BetsModal.tsx:259:        dateFilter === "THIS_YEAR" &&
+components/BetsModal.tsx:268:        stakeFilter !== "ALL" &&
+components/BetsModal.tsx:277:      pickFilter !== "ALL" &&
+components/BetsModal.tsx:286:      leagueFilter !== "ALL" &&
+components/BetsModal.tsx:298:    const d = new Date(date + "Z");
+components/BetsModal.tsx:299:    const locale = LOCALES[lang] || "en-GB";
+components/BetsModal.tsx:300:    // const time = d.toLocaleTimeString("es-ES", {
+components/BetsModal.tsx:302:      hour: "2-digit",
+components/BetsModal.tsx:303:      minute: "2-digit",
+components/BetsModal.tsx:304:      hour12: lang === "en",
+components/BetsModal.tsx:306:    if (lang === "en") {
+components/BetsModal.tsx:310:    const day = d.toLocaleDateString(locale, { day: "2-digit" });
+components/BetsModal.tsx:312:      .toLocaleDateString(locale, { month: "short" })
+components/BetsModal.tsx:331:    return d.toLocaleDateString("es-ES", {
+components/BetsModal.tsx:332:      day: "2-digit",
+components/BetsModal.tsx:333:      month: "short",
+components/BetsModal.tsx:340:    if (b.status === "won" && b.odd) {
+components/BetsModal.tsx:344:    if (b.status === "lost") {
+components/BetsModal.tsx:376:        if (b.status === "won" && b.odd) {
+components/BetsModal.tsx:413:      (b) => b.status !== "pending"
+components/BetsModal.tsx:423:        if (b.status === "won" && b.odd) {
+components/BetsModal.tsx:440:      (b) => b.status === "won"
+components/BetsModal.tsx:472:      .filter((b) => b.status !== "pending")
+components/BetsModal.tsx:494:          bet.status === "won" &&
+components/BetsModal.tsx:557:      .filter((b) => b.status !== "pending")
+components/BetsModal.tsx:561:          bet.league || "Sin liga";
+components/BetsModal.tsx:580:          bet.status === "won" &&
+components/BetsModal.tsx:637:      if (b.status === "pending") return;
+components/BetsModal.tsx:639:      const key = new Date(b.date).toISOString().split("T")[0];
+components/BetsModal.tsx:647:      if (b.status === "won" && b.odd) {
+components/BetsModal.tsx:649:      } else if (b.status === "lost") {
+components/BetsModal.tsx:679:            "es-ES",
+components/BetsModal.tsx:681:              day: "2-digit",
+components/BetsModal.tsx:682:              month: "short",
+components/BetsModal.tsx:740:                    setStatusFilter("ALL");
+components/BetsModal.tsx:741:                    setDateFilter("ALL");
+components/BetsModal.tsx:742:                    setLeagueFilter("ALL");
+components/BetsModal.tsx:743:                    setStakeFilter("ALL");
+components/BetsModal.tsx:744:                    setPickFilter("ALL");
+components/BetsModal.tsx:778:                  <option value="ALL">{t.allStatuses}</option>
+components/BetsModal.tsx:779:                  <option value="pending">{t.pendingBets}</option>
+components/BetsModal.tsx:780:                  <option value="won">{t.wonBets}</option>
+components/BetsModal.tsx:781:                  <option value="lost">{t.lostBets}</option>
+components/BetsModal.tsx:791:                  <option value="ALL">{t.allDates}</option>
+components/BetsModal.tsx:793:                  <option value="TODAY">{t.today}</option>
+components/BetsModal.tsx:794:                  <option value="YESTERDAY">{t.yesterday}</option>
+components/BetsModal.tsx:796:                  <option value="LAST_7">{t.last7Days}</option>
+components/BetsModal.tsx:797:                  <option value="LAST_30">{t.last30Days}</option>
+components/BetsModal.tsx:799:                  <option value="THIS_MONTH">{t.thisMonth}</option>
+components/BetsModal.tsx:800:                  <option value="LAST_MONTH">{t.lastMonth}</option>
+components/BetsModal.tsx:802:                  <option value="THIS_YEAR">{t.thisYear}</option>
+components/BetsModal.tsx:814:                  <option value="ALL">{t.allLeagues}</option>
+components/BetsModal.tsx:833:                  <option value="ALL">{t.allStakes}</option>
+components/BetsModal.tsx:847:                  <option value="ALL">{t.allPicks}</option>
+components/BetsModal.tsx:849:                  <option value="BTTS Yes">BTTS Yes</option>
+components/BetsModal.tsx:850:                  <option value="BTTS No">BTTS No</option>
+components/BetsModal.tsx:852:                  <option value="Over 2.5">Over 2.5</option>
+components/BetsModal.tsx:853:                  <option value="Under 2.5">Under 2.5</option>
+components/BetsModal.tsx:855:                  <option value="Over 3.5">Over 3.5</option>
+components/BetsModal.tsx:856:                  <option value="Under 3.5">Under 3.5</option>
+components/BetsModal.tsx:858:                  <option value="Home">Home</option>
+components/BetsModal.tsx:859:                  <option value="Draw">Draw</option>
+components/BetsModal.tsx:860:                  <option value="Away">Away</option>
+components/BetsModal.tsx:877:                label="ROI"
+components/BetsModal.tsx:907:                    ? "text-[var(--success)]"
+components/BetsModal.tsx:908:                    : "text-[var(--danger)]"
+components/BetsModal.tsx:919:                <ResponsiveContainer width="100%" height="100%">
+components/BetsModal.tsx:922:                      dataKey="label"
+components/BetsModal.tsx:928:                      type="monotone" 
+components/BetsModal.tsx:929:                      dataKey="profit" 
+components/BetsModal.tsx:930:                      stroke="var(--accent)" 
+components/BetsModal.tsx:934:                    <ReferenceLine y={0} stroke="var(--border)" strokeDasharray="3 3" />    
+components/BetsModal.tsx:1181:                                    ? "text-green-500"
+components/BetsModal.tsx:1182:                                    : "text-red-500"
+components/BetsModal.tsx:1191:                                    ? "text-green-500"
+components/BetsModal.tsx:1192:                                    : "text-red-500"
+components/BetsModal.tsx:1300:                                    ? "text-green-500"
+components/BetsModal.tsx:1301:                                    : "text-red-500"
+components/BetsModal.tsx:1310:                                    ? "text-green-500"
+components/BetsModal.tsx:1311:                                    : "text-red-500"
+components/BetsModal.tsx:1432:                                ? "text-green-500"
+components/BetsModal.tsx:1433:                                : "text-red-500"
+components/BetsModal.tsx:1445:                                ? "text-green-500"
+components/BetsModal.tsx:1446:                                : "text-red-500"
+components/BetsModal.tsx:1533:                                      b.status === "won"
+components/BetsModal.tsx:1534:                                        ? "bg-[var(--success)]/20 text-[var(--success)]"
+components/BetsModal.tsx:1535:                                        : b.status === "lost"
+components/BetsModal.tsx:1536:                                        ? "bg-[var(--danger)]/20 text-[var(--danger)]"
+components/BetsModal.tsx:1537:                                        : "bg-[var(--muted)]/20 text-[var(--muted)]"
+components/BetsModal.tsx:1541:                                    {b.status === "won"
+components/BetsModal.tsx:1543:                                      : b.status === "lost"
+components/BetsModal.tsx:1552:                                        ? "text-[var(--success)]"
+components/BetsModal.tsx:1554:                                        ? "text-[var(--danger)]"
+components/BetsModal.tsx:1555:                                        : "text-[var(--muted)]"
+components/ProfileSettingsModal.tsx:1:"use client";
+components/ProfileSettingsModal.tsx:3:import { useState } from "react";
+components/ProfileSettingsModal.tsx:22:    form.append("name", name);
+components/ProfileSettingsModal.tsx:25:      form.append("avatar", avatar);
+components/ProfileSettingsModal.tsx:29:      method: "POST",
+components/ProfileSettingsModal.tsx:31:      credentials: "include",
+components/ProfileSettingsModal.tsx:47:          placeholder="Nombre"
+components/ProfileSettingsModal.tsx:52:          type="file"
+components/TopValueModal.tsx:1:"use client";
+components/TopValueModal.tsx:3:import { useEffect, useState } from "react";
+components/TopValueModal.tsx:4:import { API_URL } from "@/lib/api";
+components/TopValueModal.tsx:88:    if (action === "csv" || action === "excel") {
+components/TopValueModal.tsx:92:      const a = document.createElement("a");
+components/TopValueModal.tsx:94:      a.download = action === "csv" ? "top_bets.csv" : "top_bets.xlsx";
+components/TopValueModal.tsx:107:    "bg-[var(--primary)] hover:opacity-90 text-white px-4 py-2 rounded-lg font-semibold";
+components/TopValueModal.tsx:179:                    const [home, away] = b.match.split(" vs ");
+components/TopValueModal.tsx:188:                            type="checkbox"
+components/TopValueModal.tsx:222:                const [home, away] = b.match.split(" vs ");
+components/TopValueModal.tsx:232:                        type="checkbox"
+components/cards/MatchCard.tsx:1:"use client";
+components/cards/MatchCard.tsx:3:import React, { useState } from "react";
+components/cards/MatchCard.tsx:4:import { Match } from "@/types/match";
+components/cards/MatchCard.tsx:5:import { Bet } from "@/types/bet";
+components/cards/MatchCard.tsx:7:import { formatMatchDate } from "@/components/ui/format-match-date";
+components/cards/MatchCard.tsx:12:} from "@/components/ui/match-ui";
+components/cards/MatchCard.tsx:16:} from "@/lib/stake";
+components/cards/MatchCard.tsx:18:type PendingBet = Omit<Bet, "id">;
+components/cards/MatchCard.tsx:69:  const [activeMarket, setActiveMarket] = useState<"1X2" | "OU" | "BTTS">("1X2");
+components/cards/MatchCard.tsx:158:                    onClick={() => setActiveMarket("1X2")}
+components/cards/MatchCard.tsx:168:                            activeMarket === "1X2"
+components/cards/MatchCard.tsx:169:                                ? "text-[var(--accent)] border-[var(--accent)]"
+components/cards/MatchCard.tsx:170:                                : "text-[var(--muted)] hover:text-[var(--text)]"
+components/cards/MatchCard.tsx:178:                    onClick={() => setActiveMarket("OU")}
+components/cards/MatchCard.tsx:188:                            activeMarket === "OU"
+components/cards/MatchCard.tsx:189:                                ? "text-[var(--accent)] border-[var(--accent)]"
+components/cards/MatchCard.tsx:190:                                : "text-[var(--muted)] hover:text-[var(--text)]"
+components/cards/MatchCard.tsx:198:                    onClick={() => setActiveMarket("BTTS")}
+components/cards/MatchCard.tsx:208:                            activeMarket === "BTTS"
+components/cards/MatchCard.tsx:209:                                ? "text-[var(--accent)] border-[var(--accent)]"
+components/cards/MatchCard.tsx:210:                                : "text-[var(--muted)] hover:text-[var(--text)]"
+components/cards/MatchCard.tsx:222:        {activeMarket === "1X2" &&
+components/cards/MatchCard.tsx:223:        match.markets?.["1X2"] && (
+components/cards/MatchCard.tsx:227:            {(["home", "draw", "away"] as const).map((k) => {
+components/cards/MatchCard.tsx:229:                const odd = match.markets?.["1X2"]?.[k];
+components/cards/MatchCard.tsx:270:                            market: "1X2",
+components/cards/MatchCard.tsx:278:                            status: "pending",
+components/cards/MatchCard.tsx:299:                            ? "theme-bet-value"
+components/cards/MatchCard.tsx:300:                            : "theme-bet"
+components/cards/MatchCard.tsx:324:                                ? "text-[var(--accent-contrast)]"
+components/cards/MatchCard.tsx:325:                                : "text-[var(--text)]"
+components/cards/MatchCard.tsx:342:        {activeMarket === "OU" &&
+components/cards/MatchCard.tsx:346:            {(["over", "under"] as const)
+components/cards/MatchCard.tsx:353:                    k === "over"
+components/cards/MatchCard.tsx:376:                                market: "1X2",
+components/cards/MatchCard.tsx:382:                                status: "pending",
+components/cards/MatchCard.tsx:402:                                ? "theme-bet-value"
+components/cards/MatchCard.tsx:403:                                : "theme-bet"
+components/cards/MatchCard.tsx:428:                                ? "text-[var(--accent-contrast)]"
+components/cards/MatchCard.tsx:429:                                : "text-[var(--text)]"
+components/cards/MatchCard.tsx:445:        {activeMarket === "OU" &&
+components/cards/MatchCard.tsx:449:            {(["over", "under"] as const)
+components/cards/MatchCard.tsx:456:                    k === "over"
+components/cards/MatchCard.tsx:481:                            market: "OU35",
+components/cards/MatchCard.tsx:489:                            status: "pending",
+components/cards/MatchCard.tsx:511:                                ? "theme-bet-value"
+components/cards/MatchCard.tsx:512:                                : "theme-bet"
+components/cards/MatchCard.tsx:537:                                ? "text-[var(--accent-contrast)]"
+components/cards/MatchCard.tsx:538:                                : "text-[var(--text)]"
+components/cards/MatchCard.tsx:554:        {activeMarket === "BTTS" &&
+components/cards/MatchCard.tsx:558:            {(["yes", "no"] as const)
+components/cards/MatchCard.tsx:565:                    k === "yes"
+components/cards/MatchCard.tsx:597:                            market: "BTTS",
+components/cards/MatchCard.tsx:605:                            status: "pending",
+components/cards/MatchCard.tsx:627:                                ? "theme-bet-value"
+components/cards/MatchCard.tsx:628:                                : "theme-bet"
+components/cards/MatchCard.tsx:653:                                ? "text-[var(--accent-contrast)]"
+components/cards/MatchCard.tsx:654:                                : "text-[var(--text)]"
+components/TopValueTable.tsx:1:"use client";
+components/TopValueTable.tsx:3:import { useEffect, useState } from "react";
+components/TopValueTable.tsx:4:import { API_URL } from "@/lib/api";
+components/TopValueTable.tsx:72:                    ? "bg-[var(--success)]/20"
+components/TopValueTable.tsx:74:                    ? "bg-[var(--success)]/10"
+components/TopValueTable.tsx:75:                    : "hover:bg-[var(--hover)]"
+components/TopValueTable.tsx:87:                      ? "text-[var(--success)]"
+components/TopValueTable.tsx:89:                      ? "text-[var(--success)]"
+components/TopValueTable.tsx:90:                      : "text-[var(--muted)]"
+components/SettingsView.tsx:1:"use client";
+components/SettingsView.tsx:3:import { useState } from "react";
+components/SettingsView.tsx:4:import { useTheme } from "@/context/ThemeContext";
+components/SettingsView.tsx:5:import type { Theme } from "@/context/ThemeContext";
+components/SettingsView.tsx:6:import FavoriteLeagues from "@/components/FavoriteLeagues";
+components/SettingsView.tsx:7:import StakeSettings from "@/components/StakeSettings";
+components/SettingsView.tsx:8:import ProfileModal from "@/components/ProfileModal";
+components/SettingsView.tsx:9:import DeleteAccountModal from "@/components/DeleteAccountModal";
+components/SettingsView.tsx:12:import { User } from "@/types/user";
+components/SettingsView.tsx:13:import Image from "next/image";
+components/SettingsView.tsx:14:import { useSubscription } from "@/context/SubscriptionContext";
+components/SettingsView.tsx:15:import ThemeCard from "@/components/settings/ThemeCard";
+components/SettingsView.tsx:19:} from "@/lib/stripe";
+components/SettingsView.tsx:21:import { usePremium } from "@/context/PremiumContext";
+components/SettingsView.tsx:25:    id: "midnight",
+components/SettingsView.tsx:26:    name: "🌙 Midnight",
+components/SettingsView.tsx:27:    description: "Professional dark theme",
+components/SettingsView.tsx:29:    previewClass: "preview-midnight",
+components/SettingsView.tsx:32:    id: "stadium",
+components/SettingsView.tsx:33:    name: "⚽ Stadium",
+components/SettingsView.tsx:34:    description: "Inspired by modern sportsbooks",
+components/SettingsView.tsx:36:    previewClass: "preview-stadium",
+components/SettingsView.tsx:39:    id: "light",
+components/SettingsView.tsx:40:    name: "☀️ Light",
+components/SettingsView.tsx:41:    description: "Clean and minimal interface",
+components/SettingsView.tsx:43:    previewClass: "preview-light",
+components/SettingsView.tsx:46:    id: "carbon",
+components/SettingsView.tsx:47:    name: "⚫ Carbon",
+components/SettingsView.tsx:48:    description: "The ultimate professional experience",
+components/SettingsView.tsx:50:    previewClass: "preview-carbon",
+components/SettingsView.tsx:53:    id: "sapphire",
+components/SettingsView.tsx:54:    name: "💙 Sapphire",
+components/SettingsView.tsx:55:    description: "Elegant blue interface",
+components/SettingsView.tsx:57:    previewClass: "preview-sapphire",
+components/SettingsView.tsx:60:    id: "aurora",
+components/SettingsView.tsx:61:    name: "💜 Aurora",
+components/SettingsView.tsx:62:    description: "Modern neon gradients",
+components/SettingsView.tsx:64:    previewClass: "preview-aurora",
+components/SettingsView.tsx:67:    id: "crimson",
+components/SettingsView.tsx:68:    name: "🔥 Crimson",
+components/SettingsView.tsx:69:    description: "Bold sports-inspired design",
+components/SettingsView.tsx:71:    previewClass: "preview-crimson",
+components/SettingsView.tsx:74:    id: "heritage",
+components/SettingsView.tsx:75:    name: "📜 Heritage",
+components/SettingsView.tsx:76:    description: "Classic premium edition",
+components/SettingsView.tsx:78:    previewClass: "preview-heritage",
+components/SettingsView.tsx:151:    typeof window !== "undefined"
+components/SettingsView.tsx:152:      ? window.location.hostname === "localhost"
+components/SettingsView.tsx:161:              typeof window !== "undefined"
+components/SettingsView.tsx:162:                  ? window.location.hostname === "localhost"
+components/SettingsView.tsx:178:        method: "POST",
+components/SettingsView.tsx:179:        credentials: "include",
+components/SettingsView.tsx:291:              onClick={() => changeLang("en")}
+components/SettingsView.tsx:293:                ${lang === "en"
+components/SettingsView.tsx:294:                  ? "border-[var(--accent)] bg-[var(--accent)]/10"
+components/SettingsView.tsx:295:                  : "border-[var(--border)] opacity-70"}
+components/SettingsView.tsx:298:              <Image src="/flags/gb.svg" alt="EN" width={28} height={28} />
+components/SettingsView.tsx:303:              onClick={() => changeLang("es")}
+components/SettingsView.tsx:305:                ${lang === "es"
+components/SettingsView.tsx:306:                  ? "border-[var(--accent)] bg-[var(--accent)]/10"
+components/SettingsView.tsx:307:                  : "border-[var(--border)] opacity-70"}
+components/SettingsView.tsx:310:              <Image src="/flags/es.svg" alt="ES" width={28} height={28} />
+components/SettingsView.tsx:315:              onClick={() => changeLang("fr")}
+components/SettingsView.tsx:317:                ${lang === "fr"
+components/SettingsView.tsx:318:                  ? "border-[var(--accent)] bg-[var(--accent)]/10"
+components/SettingsView.tsx:319:                  : "border-[var(--border)] opacity-70"}
+components/SettingsView.tsx:322:              <Image src="/flags/fr.svg" alt="FR" width={28} height={28} />
+components/SettingsView.tsx:327:              onClick={() => changeLang("it")}
+components/SettingsView.tsx:329:                ${lang === "it"
+components/SettingsView.tsx:330:                  ? "border-[var(--accent)] bg-[var(--accent)]/10"
+components/SettingsView.tsx:331:                  : "border-[var(--border)] opacity-70"}
+components/SettingsView.tsx:334:              <Image src="/flags/it.svg" alt="IT" width={28} height={28} />
+components/DeleteAccountModal.tsx:1:"use client";
+components/DeleteAccountModal.tsx:3:import { createPortal } from "react-dom";
+components/DeleteAccountModal.tsx:4:import { useState } from "react";
+components/DeleteAccountModal.tsx:16:  const isValid = text === "DELETE";
+components/DeleteAccountModal.tsx:53:              isValid ? "bg-red-600" : "bg-gray-500 cursor-not-allowed"
+components/CookieBanner.tsx:1:"use client";
+components/CookieBanner.tsx:3:import { useEffect, useState } from "react";
+components/CookieBanner.tsx:4:import Cookies from "js-cookie";
+components/CookieBanner.tsx:5:import Link from "next/link";
+components/CookieBanner.tsx:15:    const consent = Cookies.get("cookie_consent");
+components/CookieBanner.tsx:28:      "cookie_consent",
+components/CookieBanner.tsx:29:      "accepted",
+components/CookieBanner.tsx:38:      "cookie_consent",
+components/CookieBanner.tsx:39:      "rejected",
+components/CookieBanner.tsx:59:        bottom: "16px",
+components/CookieBanner.tsx:60:        right: "16px",
+components/CookieBanner.tsx:139:            href="/legal/cookies"
+components/modals/TeamModal.tsx:1:"use client";
+components/modals/TeamModal.tsx:3:import { useEffect, useState } from "react";
+components/modals/TeamModal.tsx:5:import { TeamStats } from "@/types/stats";
+components/modals/TeamModal.tsx:9:} from "@/components/ui/match-ui";
+components/modals/TeamModal.tsx:65:          "TEAM MODAL ERROR",
+components/modals/TeamModal.tsx:137:                            ? "var(--success)"
+components/modals/TeamModal.tsx:139:                            ? "var(--warning)"
+components/modals/TeamModal.tsx:141:                            ? "var(--danger)"
+components/modals/TeamModal.tsx:142:                            : "var(--text)"
+components/modals/TeamModal.tsx:165:                  label="Partidos"
+components/modals/TeamModal.tsx:170:                  label="Goles"
+components/modals/TeamModal.tsx:175:                  label="Encajados"
+components/modals/TeamModal.tsx:180:                  label="Victorias"
+components/modals/TeamModal.tsx:185:                  label="Empates"
+components/modals/TeamModal.tsx:190:                  label="Derrotas"
+components/modals/TeamModal.tsx:195:                  label="BTTS"
+components/modals/TeamModal.tsx:200:                  label="Over 2.5"
+components/modals/TeamModal.tsx:205:                  label="Over 3.5"
+components/modals/PendingBetModal.tsx:1:"use client";
+components/modals/PendingBetModal.tsx:3:import { Bet } from "@/types/bet";
+components/modals/PendingBetModal.tsx:7:} from "@/lib/stake";
+components/modals/PendingBetModal.tsx:9:type PendingBet = Omit<Bet, "id">;
+components/PremiumLock.tsx:1:"use client";
+components/PremiumLock.tsx:4:import { usePremium } from "@/context/PremiumContext";
+components/ProfileModal.tsx:1:"use client";
+components/ProfileModal.tsx:3:import { createPortal } from "react-dom";
+components/ProfileModal.tsx:4:import { useState, useEffect } from "react";
+components/ProfileModal.tsx:5:import Image from "next/image";
+components/ProfileModal.tsx:7:import SubscriptionInfo from "@/components/profile/SubscriptionInfo";
+components/ProfileModal.tsx:8:import { manageSubscription } from "@/lib/stripe";
+components/ProfileModal.tsx:52:    typeof window !== "undefined"
+components/ProfileModal.tsx:53:      ? window.location.hostname === "localhost"
+components/ProfileModal.tsx:64:    alert("TODO: Abrir Upgrade a Premium");
+components/ProfileModal.tsx:78:        formData.append("file", selectedFile);
+components/ProfileModal.tsx:81:          method: "POST",
+components/ProfileModal.tsx:83:          credentials: "include",
+components/ProfileModal.tsx:95:        method: "PUT",
+components/ProfileModal.tsx:97:          "Content-Type": "application/json",
+components/ProfileModal.tsx:99:        credentials: "include",
+components/ProfileModal.tsx:129:        method: "PUT",
+components/ProfileModal.tsx:131:          "Content-Type": "application/json",
+components/ProfileModal.tsx:133:        credentials: "include",
+components/ProfileModal.tsx:146:      // alert("✅ Contraseña actualizada");
+components/ProfileModal.tsx:279:                  (isEditing ? editAvatar : user.avatar)?.startsWith("http") ||
+components/ProfileModal.tsx:280:                  (isEditing ? editAvatar : user.avatar)?.startsWith("data:")
+components/ProfileModal.tsx:284:                alt="avatar"
+components/ProfileModal.tsx:331:                (isEditing ? editAvatar : user.avatar)?.startsWith("http") ||
+components/ProfileModal.tsx:332:                (isEditing ? editAvatar : user.avatar)?.startsWith("data:")
+components/ProfileModal.tsx:336:              alt="avatar"
+components/ProfileModal.tsx:366:          type="file"
+components/ProfileModal.tsx:367:          accept="image/*"
+components/ProfileModal.tsx:404:          type="password"
+components/ProfileModal.tsx:412:          type="password"
+components/Footer.tsx:1:"use client";
+components/Footer.tsx:3:import Link from "next/link";
+components/Footer.tsx:5:import { COMPANY } from "@/lib/branding";
+components/Footer.tsx:48:            href="/legal/privacy"
+components/Footer.tsx:55:            href="/legal/cookies"
+components/Footer.tsx:62:            href="/legal/security"
+components/Footer.tsx:69:            href="/legal/terms"
+components/Footer.tsx:76:            href="/contact"
+components/dashboard/LeagueSection.tsx:1:"use client";
+components/dashboard/LeagueSection.tsx:3:import MatchCard from "@/components/cards/MatchCard";
+components/dashboard/LeagueSection.tsx:5:import { Match } from "@/types/match";
+components/dashboard/LeagueSection.tsx:6:import { Bet } from "@/types/bet";
+components/dashboard/LeagueSection.tsx:8:type PendingBet = Omit<Bet, "id">;
+components/dashboard/LeagueSection.tsx:111:            ? "max-h-[2000px] opacity-100 translate-y-0"
+components/dashboard/LeagueSection.tsx:112:            : "max-h-0 opacity-0 -translate-y-2 overflow-hidden"
+components/dashboard/DashboardHeader.tsx:1:"use client";
+components/dashboard/DashboardHeader.tsx:3:import TopPicksCard from "@/components/TopPicksCard";
+components/profile/SubscriptionInfo.tsx:1:import type { User } from "@/types/user";
+components/profile/SubscriptionInfo.tsx:15:    const isPremium = user.subscription === "premium";
+components/profile/SubscriptionInfo.tsx:18:        ? new Date(user.subscription_end).toLocaleDateString("es-ES")
+components/profile/SubscriptionInfo.tsx:39:                    ? "💎 Luranix Premium"
+components/profile/SubscriptionInfo.tsx:40:                    : "⭐ Plan Free"}
+components/profile/SubscriptionInfo.tsx:54:                                user.subscription_status === "cancelled"
+components/profile/SubscriptionInfo.tsx:80:                            {user.subscription_status === "cancelled"
+components/profile/SubscriptionInfo.tsx:81:                                ? "🟠 Cancelada"
+components/profile/SubscriptionInfo.tsx:82:                                : "🟢 Premium Activo"}
+components/profile/SubscriptionInfo.tsx:114:                        {user.subscription_status === "cancelled"
+components/profile/SubscriptionInfo.tsx:118:                            : "Tu suscripción se renovará automáticamente cada mes hasta que decidas cancelarla."}
+components/StakeSettings.tsx:1:"use client";
+components/StakeSettings.tsx:3:import { useState } from "react";
+components/StakeSettings.tsx:4:import { DEFAULT_STAKES, getStakeRules, StakeRule } from "@/lib/stake";
+components/StakeSettings.tsx:24:    localStorage.setItem("stake_rules", JSON.stringify(rules));
+components/StakeSettings.tsx:32:        localStorage.removeItem("stake_rules");
+components/StakeSettings.tsx:69:                        type="number"
+components/StakeSettings.tsx:72:                            updateRule(i, "amount", Number(e.target.value))
+components/StakeSettings.tsx:86:                            type="number"
+components/StakeSettings.tsx:90:                            updateRule(i, "minOdd", Number(e.target.value))
+components/StakeSettings.tsx:101:                            type="number"
+components/StakeSettings.tsx:105:                            updateRule(i, "maxOdd", Number(e.target.value))
+components/TopPicksCard.tsx:1:import PremiumLock from "@/components/PremiumLock";
+components/TopPicksCard.tsx:4:import { usePremium } from "@/context/PremiumContext";
+components/TopPicksCard.tsx:27:  if (p.market === "1X2") {
+components/TopPicksCard.tsx:28:    if (p.selection === "home") return "HOME WIN";
+components/TopPicksCard.tsx:29:    if (p.selection === "away") return "AWAY WIN";
+components/TopPicksCard.tsx:30:    if (p.selection === "draw") return "DRAW";
+components/TopPicksCard.tsx:33:  if (p.market === "OU25") {
+components/TopPicksCard.tsx:34:    return p.selection === "over"
+components/TopPicksCard.tsx:35:      ? "OVER 2.5 GOALS"
+components/TopPicksCard.tsx:36:      : "UNDER 2.5 GOALS";
+components/TopPicksCard.tsx:39:  if (p.market === "OU35") {
+components/TopPicksCard.tsx:40:    return p.selection === "over"
+components/TopPicksCard.tsx:41:      ? "OVER 3.5 GOALS"
+components/TopPicksCard.tsx:42:      : "UNDER 3.5 GOALS";
+components/TopPicksCard.tsx:45:  if (p.market === "BTTS") {
+components/TopPicksCard.tsx:46:    return p.selection === "yes"
+components/TopPicksCard.tsx:47:      ? "BTTS YES"
+components/TopPicksCard.tsx:48:      : "BTTS NO";
+components/TopPicksCard.tsx:57:      color: "var(--positive)",
+components/TopPicksCard.tsx:58:      size: "text-3xl",
+components/TopPicksCard.tsx:64:      color: "var(--accent)",
+components/TopPicksCard.tsx:65:      size: "text-2xl",
+components/TopPicksCard.tsx:70:    color: "var(--warning)",
+components/TopPicksCard.tsx:71:    size: "text-xl",
+components/TopPicksCard.tsx:125:    const d = new Date(date + "Z");
+components/TopPicksCard.tsx:127:    return d.toLocaleTimeString(LOCALES[lang] || "en-GB", {
+components/TopPicksCard.tsx:128:      hour: "2-digit",
+components/TopPicksCard.tsx:129:      minute: "2-digit",
+components/TopPicksCard.tsx:130:      hour12: lang === "en",
+components/TopPicksCard.tsx:177:            ? "cursor-not-allowed opacity-60"
+components/TopPicksCard.tsx:178:            : "cursor-pointer hover:scale-[1.02] hover:shadow-xl"
+components/Sidebar.tsx:1:"use client";
+components/Sidebar.tsx:4:import { COMPANY } from "@/lib/branding";
+components/Sidebar.tsx:28:        boxShadow: "var(--sidebar-shadow)"
+components/Sidebar.tsx:54:            borderColor: "rgba(255,255,255,.08)"
+components/Sidebar.tsx:60:        onClick={() => setView("dashboard")}
+components/Sidebar.tsx:65:          ${view === "dashboard"
+components/Sidebar.tsx:66:              ? "theme-sidebar-active"
+components/Sidebar.tsx:75:        onClick={() => setView("bets")}
+components/Sidebar.tsx:80:          ${view === "bets"
+components/Sidebar.tsx:81:              ? "theme-sidebar-active"
+components/Sidebar.tsx:90:        onClick={() => setView("favorites")}
+components/Sidebar.tsx:95:          ${view === "favorites"
+components/Sidebar.tsx:96:              ? "theme-sidebar-active"
+components/Sidebar.tsx:105:        onClick={() => setView("analysis")}
+components/Sidebar.tsx:110:          ${view === "analysis"
+components/Sidebar.tsx:111:              ? "theme-sidebar-active"
+components/Sidebar.tsx:121:        onClick={() => setView("results")}
+components/Sidebar.tsx:126:          ${view === "results"
+components/Sidebar.tsx:127:              ? "theme-sidebar-active"
+components/Sidebar.tsx:136:        onClick={() => setView("standings")}
+components/Sidebar.tsx:141:          ${view === "standings"
+components/Sidebar.tsx:142:              ? "theme-sidebar-active"
+components/Sidebar.tsx:151:        onClick={() => setView("settings")}
+components/Sidebar.tsx:156:          ${view === "settings"
+components/Sidebar.tsx:157:              ? "theme-sidebar-active"
+components/StandingsView.tsx:1:"use client";
+components/StandingsView.tsx:3:import { useEffect, useState } from "react";
+components/StandingsView.tsx:24:  typeof window !== "undefined"
+components/StandingsView.tsx:25:    ? window.location.hostname === "localhost"
+components/StandingsView.tsx:66:    window.addEventListener("resize", check);
+components/StandingsView.tsx:67:    return () => window.removeEventListener("resize", check);
+components/StandingsView.tsx:90:                  {groupName === "Europe" && "🌍"}
+components/StandingsView.tsx:91:                  {groupName === "America" && "🌎"}
+components/StandingsView.tsx:92:                  {groupName === "International" && "🌐"}
+components/StandingsView.tsx:115:                            ? "bg-[var(--primary)] text-white"
+components/StandingsView.tsx:116:                            : "hover:bg-[var(--hover)]"
+components/legal/LegalPage.tsx:1:import { ReactNode } from "react";
+components/legal/LegalPage.tsx:2:import Link from "next/link";
+components/legal/LegalPage.tsx:3:import { cookies } from "next/headers";
+components/legal/LegalPage.tsx:25:    cookieStore.get("lang")?.value ?? "en";
+components/legal/LegalPage.tsx:35:      day: "numeric",
+components/legal/LegalPage.tsx:36:      month: "long",
+components/legal/LegalPage.tsx:37:      year: "numeric",
+components/legal/LegalContent.tsx:1:import { LegalContent } from "@/lib/legal/types";
+components/AnalysisModal.tsx:1:"use client";
+components/AnalysisModal.tsx:3:import { useEffect, useState, useMemo } from "react";
+components/AnalysisModal.tsx:13:} from "recharts";
+components/AnalysisModal.tsx:41:  typeof window !== "undefined"
+components/AnalysisModal.tsx:42:    ? window.location.hostname === "localhost"
+components/AnalysisModal.tsx:55:  const [leagueFilter, setLeagueFilter] = useState("ALL");
+components/AnalysisModal.tsx:61:  const [statusFilter, setStatusFilter] = useState("ALL");
+components/AnalysisModal.tsx:81:    if (m === "BTTS") return s === "yes" ? "btts_yes" : "btts_no";
+components/AnalysisModal.tsx:82:    if (m === "OU25") return s === "over" ? "over_2_5" : "under_2_5";
+components/AnalysisModal.tsx:83:    if (m === "OU35") return s === "over" ? "over_3_5" : "under_3_5";
+components/AnalysisModal.tsx:84:    if (m === "1X2") return s;
+components/AnalysisModal.tsx:90:    if (b.market === "OU25")
+components/AnalysisModal.tsx:91:      return b.selection === "over" ? t.over25 : t.under25;
+components/AnalysisModal.tsx:93:    if (b.market === "OU35")
+components/AnalysisModal.tsx:94:      return b.selection === "over" ? t.over35 : t.under35;
+components/AnalysisModal.tsx:96:    if (b.market === "BTTS")
+components/AnalysisModal.tsx:97:      return b.selection === "yes" ? t.bttsYes : t.bttsNo;
+components/AnalysisModal.tsx:99:    if (b.market === "1X2") return b.selection.toUpperCase();
+components/AnalysisModal.tsx:116:    return ["ALL", ...Array.from(set)];
+components/AnalysisModal.tsx:126:      if (leagueFilter !== "ALL" && b.league !== leagueFilter) return false;
+components/AnalysisModal.tsx:143:      if (statusFilter === "pending" && b.status !== "pending") return false;
+components/AnalysisModal.tsx:144:      if (statusFilter === "finished" && b.status === "pending") return false;
+components/AnalysisModal.tsx:166:      if (b.status === "won") bankroll += b.odd * stake - stake;
+components/AnalysisModal.tsx:167:      else if (b.status === "lost") bankroll -= stake;
+components/AnalysisModal.tsx:178:      wins: filtered.filter((b) => b.status === "won").length,
+components/AnalysisModal.tsx:197:      if (b.status === "won") map[b.market].profit += b.odd * stake - stake;
+components/AnalysisModal.tsx:198:      else if (b.status === "lost") map[b.market].profit -= stake;
+components/AnalysisModal.tsx:218:      if (b.status === "won") map[b.league].profit += b.odd * stake - stake;
+components/AnalysisModal.tsx:219:      else if (b.status === "lost") map[b.league].profit -= stake;
+components/AnalysisModal.tsx:235:    if (b.status === "won" && b.odd) {
+components/AnalysisModal.tsx:238:    if (b.status === "lost") {
+components/AnalysisModal.tsx:266:                    ? "bg-[var(--primary)] text-white"
+components/AnalysisModal.tsx:267:                    : "bg-[var(--card)] border border-[var(--border)] hover:bg-[var(--hover)]"
+components/AnalysisModal.tsx:281:                ["btts_yes", t.bttsYes],
+components/AnalysisModal.tsx:282:                ["btts_no", t.bttsNo],
+components/AnalysisModal.tsx:283:                ["over_2_5", t.over25],
+components/AnalysisModal.tsx:284:                ["under_2_5", t.under25],
+components/AnalysisModal.tsx:285:                ["over_3_5", t.over35],
+components/AnalysisModal.tsx:286:                ["under_3_5", t.under35],
+components/AnalysisModal.tsx:287:                ["home", t.home],
+components/AnalysisModal.tsx:288:                ["draw", t.draw],
+components/AnalysisModal.tsx:289:                ["away", t.away],
+components/AnalysisModal.tsx:296:                      ? "bg-[var(--primary)] text-white"
+components/AnalysisModal.tsx:297:                      : "bg-[var(--card)] border border-[var(--border)] hover:bg-[var(--hover)]"
+components/AnalysisModal.tsx:308:                type="number"
+components/AnalysisModal.tsx:316:                type="number"
+components/AnalysisModal.tsx:328:                type="number"
+components/AnalysisModal.tsx:336:                type="number"
+components/AnalysisModal.tsx:351:              <option value="ALL">{t.all}</option>
+components/AnalysisModal.tsx:352:              <option value="pending">{t.pending}</option>
+components/AnalysisModal.tsx:353:              <option value="finished">{t.finished}</option>
+components/AnalysisModal.tsx:395:                <XAxis dataKey="bet" />
+components/AnalysisModal.tsx:398:                <Line dataKey="bankroll" stroke="#22c55e" />
+components/AnalysisModal.tsx:399:                <Line dataKey="roi" stroke="#3b82f6" />
+components/AnalysisModal.tsx:407:              <XAxis dataKey="market" />
+components/AnalysisModal.tsx:410:              <Bar dataKey="roi" fill="#3b82f6" />
+components/AnalysisModal.tsx:471:                          b.status === "won"
+components/AnalysisModal.tsx:472:                            ? "bg-[var(--success)] text-white"
+components/AnalysisModal.tsx:473:                            : b.status === "lost"
+components/AnalysisModal.tsx:474:                            ? "bg-[var(--danger)] text-white"
+components/AnalysisModal.tsx:475:                            : "bg-[var(--muted)] text-black"
+components/AnalysisModal.tsx:478:                        {b.status === "won"
+components/AnalysisModal.tsx:480:                          : b.status === "lost"
+components/AnalysisModal.tsx:493:                            ? "text-[var(--success)]"
+components/AnalysisModal.tsx:495:                            ? "text-[var(--danger)]"
+components/AnalysisModal.tsx:496:                            : "text-[var(--muted)]"
+components/AnalysisModal.tsx:507:                            ? "text-green-400"
+components/AnalysisModal.tsx:508:                            : "text-red-400"
+components/AnalysisModal.tsx:519:                  {b.status !== "pending" && (
+components/premium/PremiumPanel.tsx:1:import PremiumBenefits from "./PremiumBenefits";
+components/premium/PremiumPanel.tsx:11:  variant?: "inline" | "modal";
+components/premium/PremiumPanel.tsx:15:  variant = "inline",
+components/premium/PremiumPanel.tsx:20:  buttonText = "Explore Premium →",
+components/premium/PremiumPanel.tsx:22:  badge = "Premium",
+components/premium/PremiumPanel.tsx:27:              variant === "inline"
+components/premium/PremiumStat.tsx:1:import { useSubscription } from "@/context/SubscriptionContext";
+components/premium/PremiumStat.tsx:2:import { canUseAdvancedStats } from "@/lib/premium";
+components/premium/PremiumStat.tsx:3:import { usePremium } from "@/context/PremiumContext";
+components/premium/PremiumStat.tsx:33:                    ? "cursor-pointer hover:border-blue-500 transition"
+components/premium/PremiumModal.tsx:1:"use client";
+components/premium/PremiumModal.tsx:3:import PremiumPanel from "./PremiumPanel";
+components/premium/PremiumModal.tsx:12:    "🎨 8 Exclusive Themes",
+components/premium/PremiumModal.tsx:13:    "🤖 AI Match Analysis",
+components/premium/PremiumModal.tsx:14:    "⭐ Unlimited Favorites",
+components/premium/PremiumModal.tsx:15:    "📊 Advanced Statistics",
+components/premium/PremiumModal.tsx:16:    "🚀 Early Access Features",
+components/premium/PremiumModal.tsx:17:    "💎 Future Premium Updates",
+components/premium/PremiumModal.tsx:67:                        aria-label="Close"
+components/premium/PremiumModal.tsx:73:                        variant="modal"
+components/premium/PremiumModal.tsx:74:                        title="💎 Luranix Premium"
+components/premium/PremiumModal.tsx:75:                        description="Unlock the complete Luranix experience and access every Premium feature."
+components/premium/PremiumModal.tsx:76:                        buttonText="🚀 Upgrade to Premium"
+components/premium/PremiumModal.tsx:77:                        badge="Premium"
+components/FavoriteLeagues.tsx:1:"use client";
+components/FavoriteLeagues.tsx:3:import { useEffect, useState } from "react";
+components/FavoriteLeagues.tsx:22:    if (typeof window === "undefined") return [];
+components/FavoriteLeagues.tsx:25:      localStorage.getItem("fav_leagues");
+components/FavoriteLeagues.tsx:45:      "fav_leagues",
+components/FavoriteLeagues.tsx:63:            "Error loading metadata"
+components/FavoriteLeagues.tsx:75:          "Error loading league groups",
+components/FavoriteLeagues.tsx:155:                              ? "bg-[var(--accent)] text-white border-transparent"
+components/FavoriteLeagues.tsx:156:                              : "bg-[var(--card)] border-[var(--border)] hover:bg-[var(--hover)]"
+components/analysys/AnalysisCenter.tsx:1:"use client";
+components/analysys/AnalysisCenter.tsx:3:import { useState } from "react";
+components/analysys/AnalysisCenter.tsx:6:import BettingAnalyticsTab from "../tabs/BettingAnalyticsTab";
+components/analysys/AnalysisCenter.tsx:7:import TeamAnalysisTab from "../tabs/TeamAnalysisTab";
+components/analysys/AnalysisCenter.tsx:8:import H2HAnalysisTab from "../tabs/H2HAnalysisTab";
+components/analysys/AnalysisCenter.tsx:9:import MatchAnalysisTab from "../tabs/MatchAnalysisTab";
+components/analysys/AnalysisCenter.tsx:16:    useState("teams");
+components/analysys/AnalysisCenter.tsx:37:          onClick={() => setTab("betting")}
+components/analysys/AnalysisCenter.tsx:39:            tab === "betting"
+components/analysys/AnalysisCenter.tsx:40:              ? "bg-[var(--accent)] text-black"
+components/analysys/AnalysisCenter.tsx:41:              : "bg-[var(--card)] border border-[var(--border)]"
+components/analysys/AnalysisCenter.tsx:48:          onClick={() => setTab("teams")}
+components/analysys/AnalysisCenter.tsx:50:            tab === "teams"
+components/analysys/AnalysisCenter.tsx:51:              ? "bg-[var(--accent)] text-black"
+components/analysys/AnalysisCenter.tsx:52:              : "bg-[var(--card)] border border-[var(--border)]"
+components/analysys/AnalysisCenter.tsx:59:          onClick={() => setTab("h2h")}
+components/analysys/AnalysisCenter.tsx:61:            tab === "h2h"
+components/analysys/AnalysisCenter.tsx:62:              ? "bg-[var(--accent)] text-black"
+components/analysys/AnalysisCenter.tsx:63:              : "bg-[var(--card)] border border-[var(--border)]"
+components/analysys/AnalysisCenter.tsx:70:          onClick={() => setTab("match")}
+components/analysys/AnalysisCenter.tsx:72:            tab === "match"
+components/analysys/AnalysisCenter.tsx:73:              ? "bg-[var(--accent)] text-black"
+components/analysys/AnalysisCenter.tsx:74:              : "bg-[var(--card)] border border-[var(--border)]"
+components/analysys/AnalysisCenter.tsx:85:{/*         {tab === "betting" && (
+components/analysys/AnalysisCenter.tsx:89:        {tab === "teams" && (
+components/analysys/AnalysisCenter.tsx:93:        {tab === "h2h" && (
+components/analysys/AnalysisCenter.tsx:97:        {tab === "match"&& (
+components/ResultsView.tsx:1:"use client";
+components/ResultsView.tsx:3:import { useEffect, useState } from "react";
+components/ResultsView.tsx:4:// import { API_URL } from "@/lib/api";
+components/ResultsView.tsx:27:  typeof window !== "undefined"
+components/ResultsView.tsx:28:    ? window.location.hostname === "localhost"
+components/ResultsView.tsx:131:                {groupName === "Europe" && "🌍"}
+components/ResultsView.tsx:132:                {groupName === "America" && "🌎"}
+components/ResultsView.tsx:133:                {groupName === "International" && "🌐"}
+components/ResultsView.tsx:156:                          ? "bg-[var(--primary)] text-white"
+components/ResultsView.tsx:157:                          : "hover:bg-[var(--hover)]"
+components/ResultsView.tsx:220:                          ? "bg-[var(--warning)]/20 border border-[var(--warning)]"
+components/ResultsView.tsx:221:                          : "bg-[var(--hover)]"
+components/ResultsView.tsx:230:                            isHomeWin ? "font-semibold text-[var(--success)]" : ""
+components/ResultsView.tsx:250:                            isAwayWin ? "font-semibold text-[var(--success)]" : ""
+lib/branding/colors.ts:2:  primary: "#2563EB",
+lib/branding/colors.ts:3:  primaryHover: "#1D4ED8",
+lib/branding/colors.ts:5:  accent: "#06B6D4",
+lib/branding/colors.ts:7:  success: "#22C55E",
+lib/branding/colors.ts:9:  warning: "#F59E0B",
+lib/branding/colors.ts:11:  error: "#EF4444",
+lib/branding/colors.ts:13:  background: "#FFFFFF",
+lib/branding/colors.ts:17:  textSecondary: "#6B7280",
+lib/branding/index.ts:1:export * from "./company";
+lib/branding/index.ts:2:export * from "./colors";
+lib/branding/index.ts:3:export * from "./metadata";
+lib/branding/metadata.ts:1:import type { Metadata } from "next";
+lib/branding/metadata.ts:2:import { COMPANY } from "./company";
+lib/branding/metadata.ts:27:    type: "website",
+lib/branding/metadata.ts:31:    card: "summary_large_image",
+lib/branding/company.ts:2:  name: "Luranix",
+lib/branding/company.ts:4:  slogan: "Smarter Decisions. Better Outcomes.",
+lib/branding/company.ts:8:  domain: "luranix.com",
+lib/branding/company.ts:10:  email: "support@luranix.com",
+lib/branding/company.ts:12:  copyright: "Luranix",
+lib/branding/company.ts:16:  locale: "en",
+lib/branding/company.ts:18:  timezone: "Europe/Madrid",
+lib/stripe.ts:4:        method: "POST",
+lib/stripe.ts:5:        credentials: "include",
+lib/stripe.ts:9:        throw new Error("Unable to create Stripe Checkout Session.");
+lib/stripe.ts:20:        method: "POST",
+lib/stripe.ts:21:        credentials: "include",
+lib/stripe.ts:25:        throw new Error("Unable to open Customer Portal.");
+lib/config/leagues.ts:9:  { id: 140, name: "La Liga EA Sports" },
+lib/config/leagues.ts:10:  { id: 141, name: "La Liga Hypermotion" },
+lib/config/leagues.ts:11:  { id: 39, name: "Premier League" },
+lib/config/leagues.ts:12:  { id: 135, name: "Serie A" },
+lib/config/leagues.ts:13:  { id: 78, name: "Bundesliga" },
+lib/config/leagues.ts:14:  { id: 61, name: "Ligue 1" },
+lib/config/leagues.ts:15:  { id: 2, name: "Champions League" },
+lib/config/leagues.ts:16:  { id: 3, name: "Europa League" },
+lib/config/leagues.ts:17:  { id: 848, name: "Conference League" },
+lib/config/leagues.ts:21:  "La Liga",
+lib/config/leagues.ts:22:  "Segunda División",
+lib/config/leagues.ts:23:  "Premier League",
+lib/config/leagues.ts:24:  "Serie A",
+lib/config/leagues.ts:25:  "Bundesliga",
+lib/config/leagues.ts:26:  "Ligue 1",
+lib/topPicks.ts:1:import { Match } from "@/types/match";
+lib/topPicks.ts:2:import { getStakeFromOdd } from "@/lib/stake";
+lib/topPicks.ts:19:  tier: "high" | "medium" | "low";
+lib/topPicks.ts:58:    let tier: "high" | "medium" | "low" = "medium";
+lib/topPicks.ts:60:    if (probability >= 0.65) tier = "high";
+lib/topPicks.ts:61:    else if (probability >= 0.55) tier = "medium";
+lib/topPicks.ts:62:    else tier = "low";
+lib/topPicks.ts:106:    if (m.markets["1X2"] && m.value && m.probabilities) {
+lib/topPicks.ts:108:        { key: "home", prob: m.probabilities.home_odds },
+lib/topPicks.ts:109:        { key: "draw", prob: m.probabilities.draw_odds },
+lib/topPicks.ts:110:        { key: "away", prob: m.probabilities.away_odds },
+lib/topPicks.ts:114:        const marketdata = m.markets?.["1X2"]?.[key];
+lib/topPicks.ts:115:        const odd = m.markets?.["1X2"]?.[key]?.odd;
+lib/topPicks.ts:124:        addPick(m, "1X2", key, odd, value, probability, bookmaker);
+lib/topPicks.ts:137:        addPick(m, "OU25", "over", overOdd, overValue, overProb, bookmaker);
+lib/topPicks.ts:146:        addPick(m, "OU25", "under", underOdd, underValue, underProb, bookmaker);
+lib/topPicks.ts:159:        addPick(m, "OU35", "over", overOdd, overValue, overProb, bookmaker);
+lib/topPicks.ts:169:        addPick(m, "OU35", "under", underOdd, underValue, underProb, bookmaker);
+lib/topPicks.ts:182:        addPick(m, "BTTS", "yes", yesOdd, yesValue, yesProb, bookmaker);
+lib/topPicks.ts:192:        addPick(m, "BTTS", "no", noOdd, noValue, noProb, bookmaker);
+lib/api.ts:2:  if (typeof window === "undefined") {
+lib/api.ts:8:  if (host === "localhost") {
+lib/format.ts:1:import { Translation } from "./i18n/translations_old";
+lib/format.ts:9:  if (market === "1X2") {
+lib/format.ts:10:    if (selection === "home") return t.home;
+lib/format.ts:11:    if (selection === "draw") return t.draw;
+lib/format.ts:12:    if (selection === "away") return t.away;
+lib/format.ts:16:  if (market === "OU25") {
+lib/format.ts:17:    if (selection === "over") return t.over25;
+lib/format.ts:18:    if (selection === "under") return t.under25;
+lib/format.ts:22:  if (market === "OU35") {
+lib/format.ts:23:    if (selection === "over") return t.over35;
+lib/format.ts:24:    if (selection === "under") return t.under35;
+lib/format.ts:28:  if (market === "BTTS") {
+lib/format.ts:29:    if (selection === "yes") return t.bttsYes;
+lib/format.ts:30:    if (selection === "no") return t.bttsNo;
+lib/stake.ts:23:  if (typeof window === "undefined") return DEFAULT_STAKES;
+lib/stake.ts:26:    const saved = localStorage.getItem("stake_rules");
+lib/legal/privacy.ts:1:import { LegalContent } from "./types";
+lib/legal/privacy.ts:4:  "en" | "es" | "fr" | "it",
+lib/legal/privacy.ts:8:        locale: "en-GB",
+lib/legal/privacy.ts:9:        title: "Privacy Policy",
+lib/legal/privacy.ts:11:        intro: "This Privacy Policy explains how Luranix collects, uses, stores and protects your personal information when you use our platform.",
+lib/legal/privacy.ts:15:            title: "1. Introduction",
+lib/legal/privacy.ts:17:            "Luranix is committed to protecting your privacy. This Privacy Policy explains what information we collect, how we use it, and the rights you have regarding your personal data."
+lib/legal/privacy.ts:22:            title: "2. Information We Collect",
+lib/legal/privacy.ts:24:            "Name and email address.",
+lib/legal/privacy.ts:25:            "Authentication provider information.",
+lib/legal/privacy.ts:26:            "User preferences and settings.",
+lib/legal/privacy.ts:27:            "Betting history stored inside the platform.",
+lib/legal/privacy.ts:28:            "Technical information such as browser type and device information."
+lib/legal/privacy.ts:33:            title: "3. How We Use Your Data",
+lib/legal/privacy.ts:35:            "To provide and improve the service.",
+lib/legal/privacy.ts:36:            "To authenticate users.",
+lib/legal/privacy.ts:37:            "To personalize the platform experience.",
+lib/legal/privacy.ts:38:            "To communicate important account information.",
+lib/legal/privacy.ts:39:            "To comply with legal obligations."
+lib/legal/privacy.ts:44:            title: "4. Authentication Providers",
+lib/legal/privacy.ts:46:            "Users may authenticate using email/password, Google, GitHub, or other providers that may be added in the future."
+lib/legal/privacy.ts:51:            title: "5. Data Retention",
+lib/legal/privacy.ts:53:            "Personal information is retained only for as long as necessary to provide the service and fulfill legal obligations."
+lib/legal/privacy.ts:58:            title: "6. Your Rights",
+lib/legal/privacy.ts:60:            "Depending on your jurisdiction, you may have the right to access, modify, export, or delete your personal information."
+lib/legal/privacy.ts:65:            title: "7. Contact",
+lib/legal/privacy.ts:67:            "For privacy-related questions, contact:",
+lib/legal/privacy.ts:71:                label: "Email",
+lib/legal/privacy.ts:72:                value: "support@luranix.com"
+lib/legal/privacy.ts:79:    locale: "es-ES",
+lib/legal/privacy.ts:80:    title: "Política de Privacidad",
+lib/legal/privacy.ts:82:    intro: "Esta Política de Privacidad explica cómo Luranix recopila, utiliza, almacena y protege tu información personal cuando utilizas nuestra plataforma.",
+lib/legal/privacy.ts:86:        title: "1. Introducción",
+lib/legal/privacy.ts:89:            "En Luranix nos comprometemos a proteger tu privacidad y a tratar tus datos personales de forma responsable y transparente. Esta Política de Privacidad explica qué información recopilamos, cómo la utilizamos y qué derechos tienes sobre tus datos personales."
+lib/legal/privacy.ts:94:        title: "2. Información que recopilamos",
+lib/legal/privacy.ts:97:            "Nombre y dirección de correo electrónico.",
+lib/legal/privacy.ts:98:            "Información del proveedor de autenticación utilizado para iniciar sesión.",
+lib/legal/privacy.ts:99:            "Preferencias y configuración de la cuenta.",
+lib/legal/privacy.ts:100:            "Historial de apuestas almacenado dentro de la plataforma.",
+lib/legal/privacy.ts:101:            "Información técnica como el navegador, el dispositivo y datos básicos de uso."
+lib/legal/privacy.ts:106:        title: "3. Cómo utilizamos tus datos",
+lib/legal/privacy.ts:109:            "Proporcionar, mantener y mejorar nuestros servicios.",
+lib/legal/privacy.ts:110:            "Autenticar a los usuarios y proteger sus cuentas.",
+lib/legal/privacy.ts:111:            "Personalizar la experiencia de uso dentro de la plataforma.",
+lib/legal/privacy.ts:112:            "Enviar comunicaciones importantes relacionadas con la cuenta.",
+lib/legal/privacy.ts:113:            "Cumplir con las obligaciones legales aplicables."
+lib/legal/privacy.ts:118:        title: "4. Proveedores de autenticación",
+lib/legal/privacy.ts:121:            "Los usuarios pueden acceder mediante correo electrónico y contraseña, Google, GitHub u otros proveedores de autenticación que puedan incorporarse en el futuro."
+lib/legal/privacy.ts:126:        title: "5. Conservación de los datos",
+lib/legal/privacy.ts:129:            "Los datos personales se conservarán únicamente durante el tiempo necesario para prestar el servicio, cumplir con las obligaciones legales y resolver posibles incidencias relacionadas con la plataforma."
+lib/legal/privacy.ts:134:        title: "6. Tus derechos",
+lib/legal/privacy.ts:137:            "Dependiendo de la legislación aplicable, podrás solicitar el acceso, la rectificación, la exportación o la eliminación de tus datos personales, así como ejercer cualquier otro derecho reconocido por la normativa vigente."
+lib/legal/privacy.ts:142:        title: "7. Contacto",
+lib/legal/privacy.ts:145:            "Si tienes cualquier duda sobre esta Política de Privacidad o sobre el tratamiento de tus datos personales, puedes ponerte en contacto con nosotros."
+lib/legal/privacy.ts:149:            label: "Correo electrónico",
+lib/legal/privacy.ts:150:            value: "support@luranix.com"
+lib/legal/privacy.ts:157:    locale: "fr-FR",
+lib/legal/privacy.ts:158:    title: "Politique de confidentialité",
+lib/legal/privacy.ts:160:    intro: "Cette Politique de confidentialité explique comment Luranix collecte, utilise, conserve et protège vos données personnelles lorsque vous utilisez notre plateforme.",
+lib/legal/privacy.ts:164:        title: "1. Introduction",
+lib/legal/privacy.ts:167:            "Chez Luranix, nous nous engageons à protéger votre vie privée et à traiter vos données personnelles de manière responsable et transparente. Cette Politique de confidentialité explique quelles informations nous collectons, comment nous les utilisons et quels sont vos droits concernant vos données personnelles."
+lib/legal/privacy.ts:172:        title: "2. Informations que nous collectons",
+lib/legal/privacy.ts:175:            "Nom et adresse e-mail.",
+lib/legal/privacy.ts:176:            "Informations relatives au fournisseur d'authentification utilisé pour la connexion.",
+lib/legal/privacy.ts:177:            "Préférences et paramètres du compte.",
+lib/legal/privacy.ts:178:            "Historique des paris enregistré sur la plateforme.",
+lib/legal/privacy.ts:179:            "Informations techniques telles que le navigateur, l'appareil utilisé et certaines données d'utilisation."
+lib/legal/privacy.ts:184:        title: "3. Utilisation de vos données",
+lib/legal/privacy.ts:187:            "Fournir, maintenir et améliorer nos services.",
+lib/legal/privacy.ts:188:            "Authentifier les utilisateurs et protéger leurs comptes.",
+lib/legal/privacy.ts:189:            "Personnaliser l'expérience d'utilisation de la plateforme.",
+lib/legal/privacy.ts:190:            "Envoyer des communications importantes concernant votre compte.",
+lib/legal/privacy.ts:191:            "Respecter les obligations légales applicables."
+lib/legal/privacy.ts:196:        title: "4. Fournisseurs d'authentification",
+lib/legal/privacy.ts:199:            "Les utilisateurs peuvent se connecter à l'aide d'une adresse e-mail et d'un mot de passe, de Google, de GitHub ou de tout autre fournisseur d'authentification qui pourra être ajouté à l'avenir."
+lib/legal/privacy.ts:204:        title: "5. Conservation des données",
+lib/legal/privacy.ts:207:            "Les données personnelles sont conservées uniquement pendant la durée nécessaire à la fourniture du service, au respect des obligations légales et à la résolution d'éventuels incidents liés à la plateforme."
+lib/legal/privacy.ts:212:        title: "6. Vos droits",
+lib/legal/privacy.ts:215:            "Selon la législation applicable, vous pouvez demander l'accès, la rectification, l'exportation ou la suppression de vos données personnelles, ainsi qu'exercer tout autre droit reconnu par la réglementation en vigueur."
+lib/legal/privacy.ts:220:        title: "7. Contact",
+lib/legal/privacy.ts:223:            "Pour toute question concernant cette Politique de confidentialité ou le traitement de vos données personnelles, vous pouvez nous contacter."
+lib/legal/privacy.ts:227:            label: "Adresse e-mail",
+lib/legal/privacy.ts:228:            value: "support@luranix.com"
+lib/legal/privacy.ts:235:    locale: "it-IT",
+lib/legal/privacy.ts:236:    title: "Informativa sulla privacy",
+lib/legal/privacy.ts:238:    intro: "La presente Informativa sulla privacy spiega come Luranix raccoglie, utilizza, conserva e protegge i tuoi dati personali quando utilizzi la nostra piattaforma.",
+lib/legal/privacy.ts:242:        title: "1. Introduzione",
+lib/legal/privacy.ts:245:            "In Luranix ci impegniamo a proteggere la tua privacy e a trattare i tuoi dati personali in modo responsabile e trasparente. La presente Informativa sulla privacy spiega quali informazioni raccogliamo, come le utilizziamo e quali diritti hai in merito ai tuoi dati personali."
+lib/legal/privacy.ts:250:        title: "2. Informazioni che raccogliamo",
+lib/legal/privacy.ts:253:            "Nome e indirizzo e-mail.",
+lib/legal/privacy.ts:254:            "Informazioni relative al provider di autenticazione utilizzato per l'accesso.",
+lib/legal/privacy.ts:255:            "Preferenze e impostazioni dell'account.",
+lib/legal/privacy.ts:256:            "Cronologia delle scommesse memorizzata all'interno della piattaforma.",
+lib/legal/privacy.ts:257:            "Informazioni tecniche come browser, dispositivo utilizzato e dati di utilizzo di base."
+lib/legal/privacy.ts:262:        title: "3. Come utilizziamo i tuoi dati",
+lib/legal/privacy.ts:265:            "Fornire, mantenere e migliorare i nostri servizi.",
+lib/legal/privacy.ts:266:            "Autenticare gli utenti e proteggere i loro account.",
+lib/legal/privacy.ts:267:            "Personalizzare l'esperienza d'uso della piattaforma.",
+lib/legal/privacy.ts:268:            "Inviare comunicazioni importanti relative all'account.",
+lib/legal/privacy.ts:269:            "Rispettare gli obblighi di legge applicabili."
+lib/legal/privacy.ts:274:        title: "4. Provider di autenticazione",
+lib/legal/privacy.ts:277:            "Gli utenti possono accedere utilizzando e-mail e password, Google, GitHub o altri provider di autenticazione che potranno essere aggiunti in futuro."
+lib/legal/privacy.ts:282:        title: "5. Conservazione dei dati",
+lib/legal/privacy.ts:285:            "I dati personali saranno conservati solo per il tempo necessario a fornire il servizio, adempiere agli obblighi di legge e risolvere eventuali problematiche legate alla piattaforma."
+lib/legal/privacy.ts:290:        title: "6. I tuoi diritti",
+lib/legal/privacy.ts:293:            "In base alla normativa applicabile, puoi richiedere l'accesso, la rettifica, l'esportazione o la cancellazione dei tuoi dati personali, nonché esercitare qualsiasi altro diritto previsto dalla legislazione vigente."
+lib/legal/privacy.ts:298:        title: "7. Contatti",
+lib/legal/privacy.ts:301:            "Per qualsiasi domanda relativa alla presente Informativa sulla privacy o al trattamento dei tuoi dati personali, puoi contattarci utilizzando i recapiti riportati di seguito."
+lib/legal/privacy.ts:305:            label: "E-mail",
+lib/legal/privacy.ts:306:            value: "support@luranix.com"
+lib/legal/security.ts:1:import { LegalContent } from "./types";
+lib/legal/security.ts:4:  "en" | "es" | "fr" | "it",
+lib/legal/security.ts:8:    locale: "en-GB",
+lib/legal/security.ts:10:    title: "Security",
+lib/legal/security.ts:15:        "At Luranix, security is a fundamental priority. We are committed to protecting our platform, our users and their data by applying industry best practices and continuously improving our security measures.",
+lib/legal/security.ts:20:        title: "1. Our Security Commitment",
+lib/legal/security.ts:23:            "We continuously work to maintain a secure environment for all users by applying modern security standards, regular monitoring and ongoing improvements."
+lib/legal/security.ts:28:        title: "2. Account Security",
+lib/legal/security.ts:31:            "Passwords are securely protected.",
+lib/legal/security.ts:32:            "Authentication providers follow industry security standards.",
+lib/legal/security.ts:33:            "Account verification and password recovery mechanisms are available.",
+lib/legal/security.ts:34:            "Users are responsible for maintaining the confidentiality of their credentials."
+lib/legal/security.ts:39:        title: "3. Data Protection",
+lib/legal/security.ts:42:            "Personal data is processed in accordance with our Privacy Policy.",
+lib/legal/security.ts:43:            "Sensitive information is protected using appropriate security measures.",
+lib/legal/security.ts:44:            "Access to user information is limited to authorized processes and personnel."
+lib/legal/security.ts:49:        title: "4. Infrastructure Security",
+lib/legal/security.ts:52:            "Our services are hosted using secure infrastructure.",
+lib/legal/security.ts:53:            "Communications are protected using encrypted connections (HTTPS).",
+lib/legal/security.ts:54:            "Security updates are applied regularly.",
+lib/legal/security.ts:55:            "Access to production systems is restricted."
+lib/legal/security.ts:60:        title: "5. Responsible Disclosure",
+lib/legal/security.ts:63:            "If you believe you have discovered a security vulnerability, we encourage you to report it responsibly. We appreciate responsible disclosure and will investigate all legitimate reports."
+lib/legal/security.ts:68:        title: "6. Continuous Improvements",
+lib/legal/security.ts:71:            "Security is an ongoing process. We regularly review and improve our infrastructure, software and operational procedures to reduce risks and strengthen platform protection."
+lib/legal/security.ts:76:        title: "7. Contact",
+lib/legal/security.ts:79:            "If you need to report a security issue or have security-related questions, please contact us."
+lib/legal/security.ts:83:            label: "Email",
+lib/legal/security.ts:84:            value: "support@luranix.com"
+lib/legal/security.ts:91:        locale: "es-ES",
+lib/legal/security.ts:93:        title: "Seguridad",
+lib/legal/security.ts:98:        "En Luranix, la seguridad es una prioridad fundamental. Nos comprometemos a proteger nuestra plataforma, a nuestros usuarios y sus datos aplicando las mejores prácticas del sector y mejorando continuamente nuestras medidas de seguridad.",
+lib/legal/security.ts:103:            title: "1. Nuestro compromiso con la seguridad",
+lib/legal/security.ts:106:            "Trabajamos de forma continua para mantener un entorno seguro para todos los usuarios mediante la aplicación de estándares modernos de seguridad, monitorización constante y mejoras continuas."
+lib/legal/security.ts:111:            title: "2. Seguridad de las cuentas",
+lib/legal/security.ts:114:            "Las contraseñas se protegen de forma segura.",
+lib/legal/security.ts:115:            "Los proveedores de autenticación siguen los estándares de seguridad del sector.",
+lib/legal/security.ts:116:            "Disponemos de mecanismos de verificación de cuentas y recuperación de contraseñas.",
+lib/legal/security.ts:117:            "Cada usuario es responsable de mantener la confidencialidad de sus credenciales."
+lib/legal/security.ts:122:            title: "3. Protección de datos",
+lib/legal/security.ts:125:            "Los datos personales se tratan conforme a nuestra Política de Privacidad.",
+lib/legal/security.ts:126:            "La información sensible se protege mediante medidas de seguridad adecuadas.",
+lib/legal/security.ts:127:            "El acceso a la información de los usuarios está limitado a procesos y personal autorizado."
+lib/legal/security.ts:132:            title: "4. Seguridad de la infraestructura",
+lib/legal/security.ts:135:            "Nuestros servicios se alojan sobre infraestructura segura.",
+lib/legal/security.ts:136:            "Las comunicaciones están protegidas mediante conexiones cifradas (HTTPS).",
+lib/legal/security.ts:137:            "Las actualizaciones de seguridad se aplican periódicamente.",
+lib/legal/security.ts:138:            "El acceso a los sistemas de producción está restringido."
+lib/legal/security.ts:143:            title: "5. Divulgación responsable",
+lib/legal/security.ts:146:            "Si crees haber encontrado una vulnerabilidad de seguridad, te animamos a comunicarla de forma responsable. Investigaremos todas las notificaciones legítimas con la máxima prioridad."
+lib/legal/security.ts:151:            title: "6. Mejora continua",
+lib/legal/security.ts:154:            "La seguridad es un proceso continuo. Revisamos y mejoramos periódicamente nuestra infraestructura, software y procedimientos para reducir riesgos y reforzar la protección de la plataforma."
+lib/legal/security.ts:159:            title: "7. Contacto",
+lib/legal/security.ts:162:            "Si deseas informar sobre un problema de seguridad o tienes cualquier consulta relacionada con la seguridad, puedes ponerte en contacto con nosotros."
+lib/legal/security.ts:166:            label: "Correo electrónico",
+lib/legal/security.ts:167:            value: "support@luranix.com"
+lib/legal/security.ts:174:    locale: "fr-FR",
+lib/legal/security.ts:176:    title: "Sécurité",
+lib/legal/security.ts:181:        "Chez Luranix, la sécurité est une priorité essentielle. Nous nous engageons à protéger notre plateforme, nos utilisateurs et leurs données en appliquant les meilleures pratiques du secteur et en améliorant continuellement nos mesures de sécurité.",
+lib/legal/security.ts:186:        title: "1. Notre engagement en matière de sécurité",
+lib/legal/security.ts:189:            "Nous travaillons en permanence afin de maintenir un environnement sécurisé pour tous les utilisateurs en appliquant des normes de sécurité modernes, une surveillance continue et des améliorations régulières."
+lib/legal/security.ts:194:        title: "2. Sécurité des comptes",
+lib/legal/security.ts:197:            "Les mots de passe sont protégés de manière sécurisée.",
+lib/legal/security.ts:198:            "Les fournisseurs d'authentification appliquent les normes de sécurité du secteur.",
+lib/legal/security.ts:199:            "Des mécanismes de vérification des comptes et de récupération des mots de passe sont disponibles.",
+lib/legal/security.ts:200:            "Chaque utilisateur est responsable de la confidentialité de ses identifiants."
+lib/legal/security.ts:205:        title: "3. Protection des données",
+lib/legal/security.ts:208:            "Les données personnelles sont traitées conformément à notre Politique de confidentialité.",
+lib/legal/security.ts:209:            "Les informations sensibles sont protégées par des mesures de sécurité appropriées.",
+lib/legal/security.ts:210:            "L'accès aux données des utilisateurs est limité aux processus et au personnel autorisés."
+lib/legal/security.ts:215:        title: "4. Sécurité de l'infrastructure",
+lib/legal/security.ts:218:            "Nos services sont hébergés sur une infrastructure sécurisée.",
+lib/legal/security.ts:219:            "Les communications sont protégées par des connexions chiffrées (HTTPS).",
+lib/legal/security.ts:220:            "Les mises à jour de sécurité sont appliquées régulièrement.",
+lib/legal/security.ts:221:            "L'accès aux systèmes de production est strictement limité."
+lib/legal/security.ts:226:        title: "5. Divulgation responsable",
+lib/legal/security.ts:229:            "Si vous pensez avoir découvert une vulnérabilité de sécurité, nous vous encourageons à nous la signaler de manière responsable. Nous examinerons toutes les signalements légitimes avec la plus grande attention."
+lib/legal/security.ts:234:        title: "6. Amélioration continue",
+lib/legal/security.ts:237:            "La sécurité est un processus permanent. Nous révisons et améliorons régulièrement notre infrastructure, nos logiciels et nos procédures afin de réduire les risques et de renforcer la protection de la plateforme."
+lib/legal/security.ts:242:        title: "7. Contact",
+lib/legal/security.ts:245:            "Si vous souhaitez signaler un problème de sécurité ou si vous avez des questions concernant la sécurité, veuillez nous contacter."
+lib/legal/security.ts:249:            label: "Adresse e-mail",
+lib/legal/security.ts:250:            value: "support@luranix.com"
+lib/legal/security.ts:257:    locale: "it-IT",
+lib/legal/security.ts:259:    title: "Sicurezza",
+lib/legal/security.ts:264:        "In Luranix la sicurezza è una priorità fondamentale. Ci impegniamo a proteggere la nostra piattaforma, i nostri utenti e i loro dati applicando le migliori pratiche del settore e migliorando continuamente le nostre misure di sicurezza.",
+lib/legal/security.ts:269:        title: "1. Il nostro impegno per la sicurezza",
+lib/legal/security.ts:272:            "Lavoriamo costantemente per mantenere un ambiente sicuro per tutti gli utenti applicando moderni standard di sicurezza, monitoraggio continuo e miglioramenti costanti."
+lib/legal/security.ts:277:        title: "2. Sicurezza degli account",
+lib/legal/security.ts:280:            "Le password sono protette in modo sicuro.",
+lib/legal/security.ts:281:            "I provider di autenticazione seguono gli standard di sicurezza del settore.",
+lib/legal/security.ts:282:            "Sono disponibili procedure di verifica dell'account e recupero della password.",
+lib/legal/security.ts:283:            "Ogni utente è responsabile della riservatezza delle proprie credenziali."
+lib/legal/security.ts:288:        title: "3. Protezione dei dati",
+lib/legal/security.ts:291:            "I dati personali sono trattati in conformità con la nostra Informativa sulla privacy.",
+lib/legal/security.ts:292:            "Le informazioni sensibili sono protette mediante adeguate misure di sicurezza.",
+lib/legal/security.ts:293:            "L'accesso ai dati degli utenti è limitato ai soli processi e al personale autorizzati."
+lib/legal/security.ts:298:        title: "4. Sicurezza dell'infrastruttura",
+lib/legal/security.ts:301:            "I nostri servizi sono ospitati su infrastrutture sicure.",
+lib/legal/security.ts:302:            "Le comunicazioni sono protette mediante connessioni crittografate (HTTPS).",
+lib/legal/security.ts:303:            "Gli aggiornamenti di sicurezza vengono applicati regolarmente.",
+lib/legal/security.ts:304:            "L'accesso ai sistemi di produzione è strettamente limitato."
+lib/legal/security.ts:309:        title: "5. Divulgazione responsabile",
+lib/legal/security.ts:312:            "Se ritieni di aver individuato una vulnerabilità di sicurezza, ti invitiamo a segnalarcela in modo responsabile. Esamineremo con la massima attenzione tutte le segnalazioni legittime."
+lib/legal/security.ts:317:        title: "6. Miglioramento continuo",
+lib/legal/security.ts:320:            "La sicurezza è un processo continuo. Rivediamo e miglioriamo regolarmente la nostra infrastruttura, il software e le procedure operative per ridurre i rischi e rafforzare la protezione della piattaforma."
+lib/legal/security.ts:325:        title: "7. Contatti",
+lib/legal/security.ts:328:            "Se desideri segnalare un problema di sicurezza o hai domande relative alla sicurezza, puoi contattarci."
+lib/legal/security.ts:332:            label: "E-mail",
+lib/legal/security.ts:333:            value: "support@luranix.com"
+lib/legal/cookies.ts:1:import { LegalContent } from "./types";
+lib/legal/cookies.ts:4:  "en" | "es" | "fr" | "it",
+lib/legal/cookies.ts:9:        locale: "en-GB",
+lib/legal/cookies.ts:11:        title: "Cookie Policy",
+lib/legal/cookies.ts:16:        "This Cookie Policy explains how Luranix uses cookies and similar technologies to improve your browsing experience, remember your preferences and ensure the proper operation of our platform.",
+lib/legal/cookies.ts:21:            title: "1. What are cookies?",
+lib/legal/cookies.ts:24:            "Cookies are small text files stored on your device when you visit a website. They help websites remember your preferences, improve your browsing experience and provide certain functionality."
+lib/legal/cookies.ts:29:            title: "2. How we use cookies",
+lib/legal/cookies.ts:32:            "Keep you securely logged into your account.",
+lib/legal/cookies.ts:33:            "Remember your language and personal preferences.",
+lib/legal/cookies.ts:34:            "Improve the performance and reliability of the platform.",
+lib/legal/cookies.ts:35:            "Analyse how Luranix is used so we can continue improving our services.",
+lib/legal/cookies.ts:36:            "Provide a secure and consistent browsing experience."
+lib/legal/cookies.ts:41:            title: "3. Types of cookies",
+lib/legal/cookies.ts:44:            "Essential cookies required for the platform to function correctly.",
+lib/legal/cookies.ts:45:            "Preference cookies that remember your settings.",
+lib/legal/cookies.ts:46:            "Analytics cookies that help us understand platform usage.",
+lib/legal/cookies.ts:47:            "Security cookies used to protect your account and prevent fraudulent activity."
+lib/legal/cookies.ts:52:            title: "4. Third-party services",
+lib/legal/cookies.ts:55:            "Some features may rely on trusted third-party providers, such as authentication or analytics services. These providers may also use cookies according to their own privacy policies."
+lib/legal/cookies.ts:60:            title: "5. Managing cookies",
+lib/legal/cookies.ts:63:            "You can accept or reject non-essential cookies through the cookie banner or by configuring your browser settings. Please note that disabling certain cookies may affect some platform features."
+lib/legal/cookies.ts:68:            title: "6. Changes to this policy",
+lib/legal/cookies.ts:71:            "We may update this Cookie Policy from time to time to reflect legal, technical or operational changes. The latest version will always be available on this page."
+lib/legal/cookies.ts:76:            title: "7. Contact",
+lib/legal/cookies.ts:79:            "If you have any questions regarding our use of cookies, please contact us."
+lib/legal/cookies.ts:83:            label: "Email",
+lib/legal/cookies.ts:84:            value: "support@luranix.com"
+lib/legal/cookies.ts:92:    locale: "es-ES",
+lib/legal/cookies.ts:94:    title: "Política de Cookies",
+lib/legal/cookies.ts:99:        "Esta Política de Cookies explica cómo Luranix utiliza cookies y tecnologías similares para mejorar tu experiencia de navegación, recordar tus preferencias y garantizar el correcto funcionamiento de nuestra plataforma.",
+lib/legal/cookies.ts:104:        title: "1. ¿Qué son las cookies?",
+lib/legal/cookies.ts:107:            "Las cookies son pequeños archivos de texto que se almacenan en tu dispositivo cuando visitas un sitio web. Permiten recordar tus preferencias, mejorar la experiencia de navegación y ofrecer determinadas funcionalidades."
+lib/legal/cookies.ts:112:        title: "2. Cómo utilizamos las cookies",
+lib/legal/cookies.ts:115:            "Mantener tu sesión iniciada de forma segura.",
+lib/legal/cookies.ts:116:            "Recordar tu idioma y tus preferencias personales.",
+lib/legal/cookies.ts:117:            "Mejorar el rendimiento y la estabilidad de la plataforma.",
+lib/legal/cookies.ts:118:            "Analizar el uso de Luranix para seguir mejorando nuestros servicios.",
+lib/legal/cookies.ts:119:            "Proporcionar una experiencia de navegación segura y consistente."
+lib/legal/cookies.ts:124:        title: "3. Tipos de cookies",
+lib/legal/cookies.ts:127:            "Cookies esenciales necesarias para el correcto funcionamiento de la plataforma.",
+lib/legal/cookies.ts:128:            "Cookies de preferencias para recordar tu configuración.",
+lib/legal/cookies.ts:129:            "Cookies analíticas que nos ayudan a comprender cómo se utiliza la plataforma.",
+lib/legal/cookies.ts:130:            "Cookies de seguridad destinadas a proteger tu cuenta y prevenir actividades fraudulentas."
+lib/legal/cookies.ts:135:        title: "4. Servicios de terceros",
+lib/legal/cookies.ts:138:            "Algunas funcionalidades pueden depender de proveedores externos de confianza, como servicios de autenticación o herramientas de análisis. Estos proveedores también pueden utilizar cookies de acuerdo con sus propias políticas de privacidad."
+lib/legal/cookies.ts:143:        title: "5. Gestión de las cookies",
+lib/legal/cookies.ts:146:            "Puedes aceptar o rechazar las cookies no esenciales desde el banner de cookies o configurando tu navegador. Ten en cuenta que desactivar determinadas cookies puede afectar al funcionamiento de algunas características de la plataforma."
+lib/legal/cookies.ts:151:        title: "6. Cambios en esta política",
+lib/legal/cookies.ts:154:            "Podremos actualizar esta Política de Cookies para reflejar cambios legales, técnicos u operativos. La versión más reciente estará siempre disponible en esta página."
+lib/legal/cookies.ts:159:        title: "7. Contacto",
+lib/legal/cookies.ts:162:            "Si tienes cualquier duda sobre el uso de cookies en Luranix, puedes ponerte en contacto con nosotros."
+lib/legal/cookies.ts:166:            label: "Correo electrónico",
+lib/legal/cookies.ts:167:            value: "support@luranix.com"
+lib/legal/cookies.ts:175:    locale: "fr-FR",
+lib/legal/cookies.ts:177:    title: "Politique relative aux cookies",
+lib/legal/cookies.ts:182:        "Cette Politique relative aux cookies explique comment Luranix utilise les cookies et les technologies similaires afin d'améliorer votre expérience de navigation, de mémoriser vos préférences et d'assurer le bon fonctionnement de notre plateforme.",
+lib/legal/cookies.ts:187:        title: "1. Que sont les cookies ?",
+lib/legal/cookies.ts:190:            "Les cookies sont de petits fichiers texte enregistrés sur votre appareil lorsque vous consultez un site web. Ils permettent de mémoriser vos préférences, d'améliorer votre expérience de navigation et d'assurer certaines fonctionnalités."
+lib/legal/cookies.ts:195:        title: "2. Comment nous utilisons les cookies",
+lib/legal/cookies.ts:198:            "Maintenir votre session connectée en toute sécurité.",
+lib/legal/cookies.ts:199:            "Mémoriser votre langue et vos préférences personnelles.",
+lib/legal/cookies.ts:200:            "Améliorer les performances et la fiabilité de la plateforme.",
+lib/legal/cookies.ts:201:            "Analyser l'utilisation de Luranix afin d'améliorer continuellement nos services.",
+lib/legal/cookies.ts:202:            "Garantir une navigation sécurisée et cohérente."
+lib/legal/cookies.ts:207:        title: "3. Types de cookies",
+lib/legal/cookies.ts:210:            "Cookies essentiels au bon fonctionnement de la plateforme.",
+lib/legal/cookies.ts:211:            "Cookies de préférence permettant de mémoriser vos paramètres.",
+lib/legal/cookies.ts:212:            "Cookies analytiques nous aidant à comprendre l'utilisation de la plateforme.",
+lib/legal/cookies.ts:213:            "Cookies de sécurité destinés à protéger votre compte et prévenir toute activité frauduleuse."
+lib/legal/cookies.ts:218:        title: "4. Services tiers",
+lib/legal/cookies.ts:221:            "Certaines fonctionnalités peuvent s'appuyer sur des fournisseurs tiers de confiance, tels que des services d'authentification ou d'analyse. Ces fournisseurs peuvent également utiliser des cookies conformément à leurs propres politiques de confidentialité."
+lib/legal/cookies.ts:226:        title: "5. Gestion des cookies",
+lib/legal/cookies.ts:229:            "Vous pouvez accepter ou refuser les cookies non essentiels via la bannière de cookies ou en configurant votre navigateur. La désactivation de certains cookies peut limiter certaines fonctionnalités de la plateforme."
+lib/legal/cookies.ts:234:        title: "6. Modifications de cette politique",
+lib/legal/cookies.ts:237:            "Nous pouvons mettre à jour cette Politique relative aux cookies afin de refléter des évolutions juridiques, techniques ou opérationnelles. La version la plus récente sera toujours disponible sur cette page."
+lib/legal/cookies.ts:242:        title: "7. Contact",
+lib/legal/cookies.ts:245:            "Pour toute question concernant notre utilisation des cookies, n'hésitez pas à nous contacter."
+lib/legal/cookies.ts:249:            label: "Adresse e-mail",
+lib/legal/cookies.ts:250:            value: "support@luranix.com"
+lib/legal/cookies.ts:258:    locale: "it-IT",
+lib/legal/cookies.ts:260:    title: "Informativa sui Cookie",
+lib/legal/cookies.ts:265:        "La presente Informativa sui Cookie spiega come Luranix utilizza i cookie e tecnologie simili per migliorare la tua esperienza di navigazione, ricordare le tue preferenze e garantire il corretto funzionamento della piattaforma.",
+lib/legal/cookies.ts:270:        title: "1. Cosa sono i cookie?",
+lib/legal/cookies.ts:273:            "I cookie sono piccoli file di testo memorizzati sul tuo dispositivo quando visiti un sito web. Consentono di ricordare le tue preferenze, migliorare l'esperienza di navigazione e fornire determinate funzionalità."
+lib/legal/cookies.ts:278:        title: "2. Come utilizziamo i cookie",
+lib/legal/cookies.ts:281:            "Mantenere il tuo account connesso in modo sicuro.",
+lib/legal/cookies.ts:282:            "Ricordare la lingua e le tue preferenze personali.",
+lib/legal/cookies.ts:283:            "Migliorare le prestazioni e l'affidabilità della piattaforma.",
+lib/legal/cookies.ts:284:            "Analizzare l'utilizzo di Luranix per migliorare continuamente i nostri servizi.",
+lib/legal/cookies.ts:285:            "Garantire un'esperienza di navigazione sicura e coerente."
+lib/legal/cookies.ts:290:        title: "3. Tipologie di cookie",
+lib/legal/cookies.ts:293:            "Cookie essenziali necessari al corretto funzionamento della piattaforma.",
+lib/legal/cookies.ts:294:            "Cookie di preferenza per ricordare le tue impostazioni.",
+lib/legal/cookies.ts:295:            "Cookie analitici che ci aiutano a comprendere l'utilizzo della piattaforma.",
+lib/legal/cookies.ts:296:            "Cookie di sicurezza utilizzati per proteggere il tuo account e prevenire attività fraudolente."
+lib/legal/cookies.ts:301:        title: "4. Servizi di terze parti",
+lib/legal/cookies.ts:304:            "Alcune funzionalità possono dipendere da fornitori terzi affidabili, come servizi di autenticazione o strumenti di analisi. Tali fornitori possono utilizzare cookie in conformità con le proprie informative sulla privacy."
+lib/legal/cookies.ts:309:        title: "5. Gestione dei cookie",
+lib/legal/cookies.ts:312:            "Puoi accettare o rifiutare i cookie non essenziali tramite il banner dei cookie o configurando il tuo browser. La disattivazione di alcuni cookie potrebbe limitare alcune funzionalità della piattaforma."
+lib/legal/cookies.ts:317:        title: "6. Modifiche alla presente informativa",
+lib/legal/cookies.ts:320:            "Potremmo aggiornare periodicamente la presente Informativa sui Cookie per riflettere modifiche di natura legale, tecnica o operativa. La versione più recente sarà sempre disponibile su questa pagina."
+lib/legal/cookies.ts:325:        title: "7. Contatti",
+lib/legal/cookies.ts:328:            "Per qualsiasi domanda relativa all'utilizzo dei cookie da parte di Luranix, non esitare a contattarci."
+lib/legal/cookies.ts:332:            label: "E-mail",
+lib/legal/cookies.ts:333:            value: "support@luranix.com"
+lib/legal/terms.ts:1:import { LegalContent } from "./types";
+lib/legal/terms.ts:4:  "en" | "es" | "fr" | "it",
+lib/legal/terms.ts:8:        locale: "en-GB",
+lib/legal/terms.ts:10:        title: "Terms of Service",
+lib/legal/terms.ts:15:        "These Terms of Service govern your access to and use of Luranix. By creating an account or using the platform, you agree to comply with these terms.",
+lib/legal/terms.ts:20:            title: "1. Acceptance of Terms",
+lib/legal/terms.ts:23:            "By accessing or using Luranix, you acknowledge that you have read, understood and agreed to these Terms of Service. If you do not agree with any part of these terms, you should not use the platform."
+lib/legal/terms.ts:28:            title: "2. Description of the Service",
+lib/legal/terms.ts:31:            "Luranix provides football analytics, betting insights, statistical information and related tools for informational purposes only. The platform does not guarantee betting outcomes or financial gains."
+lib/legal/terms.ts:36:            title: "3. User Accounts",
+lib/legal/terms.ts:39:            "You are responsible for maintaining the confidentiality of your account.",
+lib/legal/terms.ts:40:            "You must provide accurate information during registration.",
+lib/legal/terms.ts:41:            "You are responsible for all activity carried out using your account.",
+lib/legal/terms.ts:42:            "We reserve the right to suspend accounts that violate these Terms."
+lib/legal/terms.ts:47:            title: "4. Acceptable Use",
+lib/legal/terms.ts:50:            "Do not attempt to compromise the security of the platform.",
+lib/legal/terms.ts:51:            "Do not misuse automated systems or bots.",
+lib/legal/terms.ts:52:            "Do not copy or redistribute premium content without permission.",
+lib/legal/terms.ts:53:            "Use the platform in accordance with applicable laws."
+lib/legal/terms.ts:58:            title: "5. Intellectual Property",
+lib/legal/terms.ts:61:            "All content, software, algorithms, branding and designs available on Luranix are protected by intellectual property laws and remain the property of Luranix unless otherwise stated."
+lib/legal/terms.ts:66:            title: "6. Disclaimer and Limitation of Liability",
+lib/legal/terms.ts:69:            "Luranix provides analytical information for educational and informational purposes. Users are solely responsible for their betting decisions. Luranix shall not be liable for any financial losses resulting from the use of the platform."
+lib/legal/terms.ts:74:            title: "7. Contact",
+lib/legal/terms.ts:77:            "If you have any questions regarding these Terms of Service, please contact us."
+lib/legal/terms.ts:81:            label: "Email",
+lib/legal/terms.ts:82:            value: "support@luranix.com"
+lib/legal/terms.ts:89:        locale: "es-ES",
+lib/legal/terms.ts:91:        title: "Términos del Servicio",
+lib/legal/terms.ts:96:        "Estos Términos del Servicio regulan el acceso y uso de Luranix. Al crear una cuenta o utilizar la plataforma, aceptas cumplir las presentes condiciones.",
+lib/legal/terms.ts:101:            title: "1. Aceptación de los términos",
+lib/legal/terms.ts:104:            "Al acceder o utilizar Luranix, confirmas que has leído, comprendido y aceptado estos Términos del Servicio. Si no estás de acuerdo con alguna de estas condiciones, no debes utilizar la plataforma."
+lib/legal/terms.ts:109:            title: "2. Descripción del servicio",
+lib/legal/terms.ts:112:            "Luranix proporciona análisis de fútbol, estadísticas, información sobre apuestas y herramientas relacionadas únicamente con fines informativos. La plataforma no garantiza resultados en las apuestas ni beneficios económicos."
+lib/legal/terms.ts:117:            title: "3. Cuentas de usuario",
+lib/legal/terms.ts:120:            "Eres responsable de mantener la confidencialidad de tu cuenta.",
+lib/legal/terms.ts:121:            "Debes proporcionar información veraz durante el registro.",
+lib/legal/terms.ts:122:            "Eres responsable de toda la actividad realizada desde tu cuenta.",
+lib/legal/terms.ts:123:            "Nos reservamos el derecho de suspender cuentas que incumplan estos Términos del Servicio."
+lib/legal/terms.ts:128:            title: "4. Uso permitido",
+lib/legal/terms.ts:131:            "No intentes comprometer la seguridad de la plataforma.",
+lib/legal/terms.ts:132:            "No utilices sistemas automatizados o bots de forma indebida.",
+lib/legal/terms.ts:133:            "No copies ni redistribuyas contenido Premium sin autorización.",
+lib/legal/terms.ts:134:            "Utiliza la plataforma respetando la legislación aplicable."
+lib/legal/terms.ts:139:            title: "5. Propiedad intelectual",
+lib/legal/terms.ts:142:            "Todo el contenido, software, algoritmos, marca y diseños disponibles en Luranix están protegidos por la legislación sobre propiedad intelectual y pertenecen a Luranix, salvo que se indique expresamente lo contrario."
+lib/legal/terms.ts:147:            title: "6. Exención y limitación de responsabilidad",
+lib/legal/terms.ts:150:            "Luranix proporciona información analítica con fines exclusivamente educativos e informativos. Cada usuario es el único responsable de sus decisiones de apuesta. Luranix no será responsable de las pérdidas económicas derivadas del uso de la plataforma."
+lib/legal/terms.ts:155:            title: "7. Contacto",
+lib/legal/terms.ts:158:            "Si tienes cualquier duda sobre estos Términos del Servicio, puedes ponerte en contacto con nosotros."
+lib/legal/terms.ts:162:            label: "Correo electrónico",
+lib/legal/terms.ts:163:            value: "support@luranix.com"
+lib/legal/terms.ts:170:    locale: "fr-FR",
+lib/legal/terms.ts:172:    title: "Conditions d'utilisation",
+lib/legal/terms.ts:177:        "Les présentes Conditions d'utilisation régissent votre accès et votre utilisation de Luranix. En créant un compte ou en utilisant la plateforme, vous acceptez ces conditions.",
+lib/legal/terms.ts:182:        title: "1. Acceptation des conditions",
+lib/legal/terms.ts:185:            "En accédant à Luranix ou en l'utilisant, vous reconnaissez avoir lu, compris et accepté les présentes Conditions d'utilisation. Si vous n'acceptez pas ces conditions, vous ne devez pas utiliser la plateforme."
+lib/legal/terms.ts:190:        title: "2. Description du service",
+lib/legal/terms.ts:193:            "Luranix fournit des analyses de football, des statistiques, des informations sur les paris sportifs et des outils associés à des fins exclusivement informatives. La plateforme ne garantit aucun résultat ni aucun gain financier."
+lib/legal/terms.ts:198:        title: "3. Comptes utilisateurs",
+lib/legal/terms.ts:201:            "Vous êtes responsable de la confidentialité de votre compte.",
+lib/legal/terms.ts:202:            "Vous devez fournir des informations exactes lors de votre inscription.",
+lib/legal/terms.ts:203:            "Vous êtes responsable de toute activité effectuée depuis votre compte.",
+lib/legal/terms.ts:204:            "Nous nous réservons le droit de suspendre tout compte ne respectant pas les présentes Conditions."
+lib/legal/terms.ts:209:        title: "4. Utilisation autorisée",
+lib/legal/terms.ts:212:            "Ne tentez pas de compromettre la sécurité de la plateforme.",
+lib/legal/terms.ts:213:            "N'utilisez pas de systèmes automatisés ou de robots de manière abusive.",
+lib/legal/terms.ts:214:            "Ne copiez ni ne redistribuez le contenu Premium sans autorisation.",
+lib/legal/terms.ts:215:            "Utilisez la plateforme conformément à la législation applicable."
+lib/legal/terms.ts:220:        title: "5. Propriété intellectuelle",
+lib/legal/terms.ts:223:            "L'ensemble des contenus, logiciels, algorithmes, marques et éléments graphiques disponibles sur Luranix sont protégés par les lois sur la propriété intellectuelle et demeurent la propriété de Luranix, sauf indication contraire."
+lib/legal/terms.ts:228:        title: "6. Exclusion et limitation de responsabilité",
+lib/legal/terms.ts:231:            "Luranix fournit des informations analytiques à des fins éducatives et informatives uniquement. Les utilisateurs restent seuls responsables de leurs décisions de paris. Luranix ne pourra être tenu responsable des pertes financières résultant de l'utilisation de la plateforme."
+lib/legal/terms.ts:236:        title: "7. Contact",
+lib/legal/terms.ts:239:            "Pour toute question concernant les présentes Conditions d'utilisation, veuillez nous contacter."
+lib/legal/terms.ts:243:            label: "Adresse e-mail",
+lib/legal/terms.ts:244:            value: "support@luranix.com"
+lib/legal/terms.ts:251:    locale: "it-IT",
+lib/legal/terms.ts:253:    title: "Termini di Servizio",
+lib/legal/terms.ts:258:        "I presenti Termini di Servizio disciplinano l'accesso e l'utilizzo di Luranix. Creando un account o utilizzando la piattaforma, accetti di rispettare le presenti condizioni.",
+lib/legal/terms.ts:263:        title: "1. Accettazione dei termini",
+lib/legal/terms.ts:266:            "Accedendo o utilizzando Luranix, dichiari di aver letto, compreso e accettato i presenti Termini di Servizio. Se non accetti una qualsiasi delle presenti condizioni, non devi utilizzare la piattaforma."
+lib/legal/terms.ts:271:        title: "2. Descrizione del servizio",
+lib/legal/terms.ts:274:            "Luranix fornisce analisi calcistiche, statistiche, informazioni sulle scommesse sportive e strumenti correlati esclusivamente a scopo informativo. La piattaforma non garantisce risultati nelle scommesse né profitti economici."
+lib/legal/terms.ts:279:        title: "3. Account utente",
+lib/legal/terms.ts:282:            "Sei responsabile della riservatezza del tuo account.",
+lib/legal/terms.ts:283:            "Devi fornire informazioni corrette durante la registrazione.",
+lib/legal/terms.ts:284:            "Sei responsabile di tutte le attività effettuate tramite il tuo account.",
+lib/legal/terms.ts:285:            "Ci riserviamo il diritto di sospendere gli account che violano i presenti Termini di Servizio."
+lib/legal/terms.ts:290:        title: "4. Utilizzo consentito",
+lib/legal/terms.ts:293:            "Non tentare di compromettere la sicurezza della piattaforma.",
+lib/legal/terms.ts:294:            "Non utilizzare sistemi automatizzati o bot in modo improprio.",
+lib/legal/terms.ts:295:            "Non copiare né ridistribuire contenuti Premium senza autorizzazione.",
+lib/legal/terms.ts:296:            "Utilizza la piattaforma nel rispetto delle leggi applicabili."
+lib/legal/terms.ts:301:        title: "5. Proprietà intellettuale",
+lib/legal/terms.ts:304:            "Tutti i contenuti, i software, gli algoritmi, il marchio e gli elementi grafici disponibili su Luranix sono protetti dalle leggi sulla proprietà intellettuale e rimangono di proprietà di Luranix, salvo diversa indicazione."
+lib/legal/terms.ts:309:        title: "6. Esclusione e limitazione di responsabilità",
+lib/legal/terms.ts:312:            "Luranix fornisce informazioni analitiche esclusivamente a scopo educativo e informativo. Ogni utente è l'unico responsabile delle proprie decisioni di scommessa. Luranix non potrà essere ritenuta responsabile per eventuali perdite economiche derivanti dall'utilizzo della piattaforma."
+lib/legal/terms.ts:317:        title: "7. Contatti",
+lib/legal/terms.ts:320:            "Per qualsiasi domanda relativa ai presenti Termini di Servizio, puoi contattarci."
+lib/legal/terms.ts:324:            label: "E-mail",
+lib/legal/terms.ts:325:            value: "support@luranix.com"
