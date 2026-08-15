@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import PremiumPanel from "@/components/premium/PremiumPanel";
+import { useSubscription } from "@/context/SubscriptionContext";
 import { usePremium } from "@/context/PremiumContext";
-import { upgradeToPremium } from "@/lib/stripe";
+import AISection from "@/components/ai/AISection";
+import { buildH2HInsights } from "@/lib/ai/h2hInsights";
 
 type H2HAnalysis = {
 
@@ -23,6 +25,26 @@ type H2HAnalysis = {
   over25: number;
 
   avg_goals: number;
+
+  ai_insights: {
+
+      insights: Array<{
+
+          score: number;
+
+          type: string;
+
+          subtype: string;
+
+          priority: string;
+
+          category: string;
+
+          data: Record<string, unknown>;
+
+      }>;
+
+  };
 
   recent_matches: {
 
@@ -50,9 +72,16 @@ const apiUrl =
       : `http://${window.location.hostname}:8000`
     : "";
 
-export default function H2HAnalysisTab() {
+type Props = {
+  onUpgrade: () => void;
+};
+
+export default function H2HAnalysisTab({
+  onUpgrade,
+}: Props) {
   const { t } = useLanguage();
   const { showPremium } = usePremium();
+  const { isPremium } = useSubscription();
 
   const [selectedLeague, setSelectedLeague] =
     useState("");
@@ -127,7 +156,10 @@ export default function H2HAnalysisTab() {
 
         const res = await fetch(
 
-          `${apiUrl}/analysis/h2h?team1=${encodeURIComponent(team1)}&team2=${encodeURIComponent(team2)}`
+          `${apiUrl}/analysis/h2h?team1=${encodeURIComponent(team1)}&team2=${encodeURIComponent(team2)}`,
+              {
+                  credentials: "include",
+              }
 
         );
 
@@ -158,6 +190,7 @@ export default function H2HAnalysisTab() {
   }, [
     team1,
     team2,
+    isPremium,
   ]);
 
   // ---------------- UI ----------------
@@ -401,7 +434,7 @@ export default function H2HAnalysisTab() {
           </div>
 
           {/* MARKET STATS */}
-          <div className="grid md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3">
 
             <div className="bg-[var(--surface-2)] border border-[var(--border)] rounded-xl p-5 text-center">
 
@@ -452,30 +485,48 @@ export default function H2HAnalysisTab() {
 
               {analysis?.recent_matches?.map((m, i) => (
 
-                <div
-                  key={i}
-                  className="flex items-center justify-between bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4"
-                >
+              <div
+                key={i}
+                className="flex items-center gap-4 bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4"
+              >
 
-                  <div className="text-sm text-[var(--muted)]">
+                {/* DATE */}
+                <div className="text-sm text-[var(--muted)] whitespace-nowrap shrink-0">
+                  {m.date}
+                </div>
 
-                    {m.date}
+                {/* MATCH */}
+                <div className="flex-1 min-w-0 text-sm md:text-base">
+
+                  {/* HOME */}
+                  <div className="flex items-center justify-between gap-3 font-semibold">
+
+                    <span className="truncate">
+                      {m.home_team}
+                    </span>
+
+                    <span className="shrink-0 w-6 text-center">
+                      {m.home_goals}
+                    </span>
 
                   </div>
 
-                  <div className="font-semibold text-center">
+                  {/* AWAY */}
+                  <div className="flex items-center justify-between gap-3 font-semibold">
 
-                    {m.home_team}
-                    {" "}
-                    {m.home_goals}
-                    {" - "}
-                    {m.away_goals}
-                    {" "}
-                    {m.away_team}
+                    <span className="truncate">
+                      {m.away_team}
+                    </span>
+
+                    <span className="shrink-0 w-6 text-center">
+                      {m.away_goals}
+                    </span>
 
                   </div>
 
                 </div>
+
+              </div>
 
               ))}
 
@@ -483,21 +534,35 @@ export default function H2HAnalysisTab() {
 
           </div>
 
-          <PremiumPanel
-              icon="⚔️"
-              title={t.aiInsightTitle}
-              badge="Premium"
-              description={t.aiInsightDescription}
-              features={[
-                  t.aiHistoricalDominance,
-                  t.aiGoalTrends,
-                  t.aiBTTSPrediction,
-                  t.aiOverUnderPrediction,
-                  t.aiMatchConclusion,
-              ]}
-              buttonText={t.explorePremium}
-              onClick={() => upgradeToPremium(apiUrl)}
-          />
+          {isPremium ? (
+
+              <AISection
+                  title={t.aiInsightTitle}
+                  insights={buildH2HInsights(
+                      analysis.ai_insights,
+                      t
+                  )}
+              />
+
+          ) : (
+
+              <PremiumPanel
+                  icon="⚔️"
+                  title={t.aiInsightTitle}
+                  badge="Premium"
+                  description={t.aiInsightDescription}
+                  features={[
+                      t.aiHistoricalDominance,
+                      t.aiGoalTrends,
+                      t.aiBTTSPrediction,
+                      t.aiOverUnderPrediction,
+                      t.aiMatchConclusion,
+                  ]}
+                  buttonText={t.explorePremium}
+                  onClick={onUpgrade}
+              />
+
+          )}
 
         </>
 

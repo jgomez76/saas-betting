@@ -5,7 +5,7 @@ import { Bet } from "@/types/bet";
 import { ReferenceLine } from "recharts";
 import { formatBetLabel } from "@/lib/format";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
-import { Translation } from "@/lib/i18n/translations_old";
+import { Translation } from "@/lib/i18n/translations";
 import { LOCALES } from "@/lib/i18n/config";
 
 import {
@@ -335,17 +335,23 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
   };
 
   const getProfit = (b: Bet) => {
-    const stake = b.stake ?? 10; // fallback por seguridad
 
-    if (b.status === "won" && b.odd) {
-      return (b.odd - 1) * stake;
-    }
+      const stake = b.stake ?? 10;
 
-    if (b.status === "lost") {
-      return -stake;
-    }
+      if (b.status === "won" && b.odd) {
+          return (b.odd - 1) * stake;
+      }
 
-    return 0;
+      if (b.status === "lost") {
+          return -stake;
+      }
+
+      if (b.status === "void") {
+          return 0;
+      }
+
+      return 0;
+
   };
 
   // ---------------- GROUP BY DAY ----------------
@@ -364,29 +370,58 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
 
   // ---------------- STATS BY DAY ----------------
   const statsByDay = useMemo(() => {
-    const result: Record<string, { profit: number; roi: number }> = {};
+
+    const result: Record<
+      string,
+      {
+        profit: number;
+        roi: number;
+      }
+    > = {};
 
     Object.entries(groupedBets).forEach(([date, bets]) => {
-      const totalStake = bets.reduce(
+
+      const settledBets = bets.filter(
+        (b) =>
+          b.status === "won" ||
+          b.status === "lost"
+      );
+
+      const totalStake = settledBets.reduce(
         (acc, b) => acc + (b.stake ?? 10),
         0
       );
 
-      const totalReturn = bets.reduce((acc, b) => {
-        if (b.status === "won" && b.odd) {
-          const stake = b.stake ?? 10;
-          return acc + b.odd * stake;
-        }
-        return acc;
-      }, 0);
+      const totalReturn = settledBets.reduce(
+        (acc, b) => {
+
+          if (b.status === "won" && b.odd) {
+            const stake = b.stake ?? 10;
+            return acc + b.odd * stake;
+          }
+
+          return acc;
+
+        },
+        0
+      );
 
       const profit = totalReturn - totalStake;
-      const roi = totalStake ? (profit / totalStake) * 100 : 0;
 
-      result[date] = { profit, roi };
+      const roi =
+        totalStake > 0
+          ? (profit / totalStake) * 100
+          : 0;
+
+      result[date] = {
+        profit,
+        roi,
+      };
+
     });
 
     return result;
+
   }, [groupedBets]);
 
   // ---------------- WEEK / MONTH ----------------
@@ -410,7 +445,9 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
   const globalStats = useMemo(() => {
 
     const finishedBets = filteredBets.filter(
-      (b) => b.status !== "pending"
+      (b) =>
+        b.status === "won" ||
+        b.status === "lost"
     );
 
     const totalStake = finishedBets.reduce(
@@ -469,7 +506,11 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
     > = {};
 
     filteredBets
-      .filter((b) => b.status !== "pending")
+      .filter(
+        (b) =>
+          b.status === "won" ||
+          b.status === "lost"
+      )
       .forEach((bet) => {
 
         const pick = getBetType(bet);
@@ -554,7 +595,11 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
     > = {};
 
     filteredBets
-      .filter((b) => b.status !== "pending")
+      .filter(
+        (b) =>
+          b.status === "won" ||
+          b.status === "lost"
+      )
       .forEach((bet) => {
 
         const league =
@@ -779,6 +824,7 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
                   <option value="pending">{t.pendingBets}</option>
                   <option value="won">{t.wonBets}</option>
                   <option value="lost">{t.lostBets}</option>
+                  <option value="void">{t.void}</option>
                 </select>
 
                 {/* FECHA */}
@@ -1534,6 +1580,8 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
                                         ? "bg-[var(--success)]/20 text-[var(--success)]"
                                         : b.status === "lost"
                                         ? "bg-[var(--danger)]/20 text-[var(--danger)]"
+                                        : b.status === "void"
+                                        ? "bg-gray-500/20 text-gray-300"
                                         : "bg-[var(--muted)]/20 text-[var(--muted)]"
                                     }`}
                                   >
@@ -1542,6 +1590,8 @@ export default function BetsModal({ open, onClose, bets, onDelete }: Props) {
                                       ? <>✔ {t.won}</>
                                       : b.status === "lost"
                                       ? <>✖ {t.lost}</>
+                                      : b.status === "void"
+                                      ? <>➖ {t.void}</>
                                       : <>⏳ {t.pending}</>}
 
                                   </span>

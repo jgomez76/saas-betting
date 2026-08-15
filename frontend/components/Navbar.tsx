@@ -64,10 +64,13 @@ const Navbar = memo(function Navbar({
 
   const [openMenu, setOpenMenu] = useState(false);
 
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
   const [leagueGroups, setLeagueGroups] =
     useState<LeagueGroups>({});
 
-  const menuRef = useRef<HTMLDivElement>(null);
+  const desktopMenuRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   const API =
     typeof window !== "undefined"
@@ -88,14 +91,29 @@ const Navbar = memo(function Navbar({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
 
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      const insideDesktop =
+        desktopMenuRef.current?.contains(target);
+
+      const insideMobile =
+        mobileMenuRef.current?.contains(target);
+
+      if (!insideDesktop && !insideMobile) {
         setOpenMenu(false);
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside
+    );
+
+    return () =>
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
   }, []);
 
   useEffect(() => {
@@ -115,9 +133,8 @@ const Navbar = memo(function Navbar({
   return (
     <div className="w-full bg-[var(--bg)] border-b border-[var(--border)] text-[var(--text)] p-4 mb-6 rounded-xl shadow">
 
-      {/* <div className="flex flex-wrap items-center gap-3"> */}
       <div className="flex flex-col gap-4">
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="hidden lg:flex flex-col lg:flex-row lg:items-center gap-3">
 
 
 
@@ -132,7 +149,9 @@ const Navbar = memo(function Navbar({
                 px-3
                 py-2
                 text-sm
-                min-w-[220px]
+                w-full
+                lg:w-auto
+                lg:min-w-[220px]
             "
           >
 
@@ -181,7 +200,9 @@ const Navbar = memo(function Navbar({
                 px-3
                 py-2
                 text-sm
-                min-w-[180px]
+                w-full
+                lg:w-auto
+                lg:min-w-[180px]
             "
           >
             <option value="TODAY">📅 {t.today}</option>
@@ -190,10 +211,22 @@ const Navbar = memo(function Navbar({
             <option value="ALL">🌍 {t.all}</option>
           </select>
 
-          <div className="ml-auto flex items-center gap-3">
+          <div
+            className="
+              flex
+              flex-wrap
+              items-center
+              justify-between
+              lg:justify-end
+              gap-3
+              w-full
+              lg:w-auto
+              lg:ml-auto
+            "
+          >
             {/* USER */}
             {email ? (
-              <div className="relative" ref={menuRef}>
+              <div className="relative" ref={desktopMenuRef}>
                 <div
                   onClick={(e) => {
                     e.stopPropagation();
@@ -337,10 +370,602 @@ const Navbar = memo(function Navbar({
 
         </div>
 
-        {/* FILTERS */}
-        <div className="w-full flex justify-start">
+        {/* MOBILE CONTROLS */}
+        <div className="lg:hidden w-full flex flex-col gap-3">
 
-          <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl px-5 py-3 flex gap-6">
+          {/* LOGIN + LANGUAGES */}
+          <div className="flex items-center justify-between gap-3">
+
+            {email ? (
+              <div className="relative" ref={mobileMenuRef}>
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenMenu(!openMenu);
+                  }}
+                  className="
+                    theme-button
+                    flex
+                    items-center
+                    gap-2
+                    px-4
+                    py-3
+                    font-semibold
+                  "
+                >
+
+                  {safeAvatar ? (
+                    <Image
+                      src={safeAvatar}
+                      alt="avatar"
+                      width={32}
+                      height={32}
+                      className="rounded-full"
+                      unoptimized
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <span>
+                      👤
+                    </span>
+                  )}
+
+                  <span className="max-w-[120px] truncate">
+                    {name || email}
+                  </span>
+
+                </button>
+
+                {openMenu && (
+                  <div className="
+                    absolute
+                    top-full
+                    left-0
+                    mt-2
+                    w-52
+                    bg-[var(--card)]
+                    border
+                    border-[var(--border)]
+                    rounded-xl
+                    shadow-lg
+                    z-50
+                  ">
+
+                    <button
+                      onClick={onOpenProfile}
+                      className="
+                        w-full
+                        text-left
+                        px-4
+                        py-3
+                        text-sm
+                        hover:bg-[var(--hover)]
+                      "
+                    >
+                      👤 {t.profile}
+                    </button>
+
+                    <button
+                      onClick={onLogout}
+                      className="
+                        w-full
+                        text-left
+                        px-4
+                        py-3
+                        text-sm
+                        text-[var(--danger)]
+                        hover:bg-[var(--hover)]
+                      "
+                    >
+                      🚪 {t.logout}
+                    </button>
+
+                  </div>
+                )}
+
+              </div>
+
+            ) : (
+
+              <button
+                onClick={onOpenLogin}
+                className="
+                  theme-button
+                  px-4
+                  py-3
+                  font-semibold
+                  whitespace-nowrap
+                "
+              >
+                🔐 {t.login}
+              </button>
+
+            )}
+
+            {/* LANGUAGES */}
+            <div className="flex items-center gap-2">
+
+              <button
+                onClick={() => changeLang("en")}
+                className={`
+                  rounded-full
+                  p-0.5
+                  transition-all
+                  ${lang === "en"
+                    ? "ring-2 ring-[var(--accent)] scale-110"
+                    : "opacity-60"}
+                `}
+              >
+                <Image
+                  src="/flags/gb.svg"
+                  alt="EN"
+                  width={28}
+                  height={28}
+                  className="rounded-full"
+                />
+              </button>
+
+              <button
+                onClick={() => changeLang("es")}
+                className={`
+                  rounded-full
+                  p-0.5
+                  transition-all
+                  ${lang === "es"
+                    ? "ring-2 ring-[var(--accent)] scale-110"
+                    : "opacity-60"}
+                `}
+              >
+                <Image
+                  src="/flags/es.svg"
+                  alt="ES"
+                  width={28}
+                  height={28}
+                  className="rounded-full"
+                />
+              </button>
+
+              <button
+                onClick={() => changeLang("fr")}
+                className={`
+                  rounded-full
+                  p-0.5
+                  transition-all
+                  ${lang === "fr"
+                    ? "ring-2 ring-[var(--accent)] scale-110"
+                    : "opacity-60"}
+                `}
+              >
+                <Image
+                  src="/flags/fr.svg"
+                  alt="FR"
+                  width={28}
+                  height={28}
+                  className="rounded-full"
+                />
+              </button>
+
+              <button
+                onClick={() => changeLang("it")}
+                className={`
+                  rounded-full
+                  p-0.5
+                  transition-all
+                  ${lang === "it"
+                    ? "ring-2 ring-[var(--accent)] scale-110"
+                    : "opacity-60"}
+                `}
+              >
+                <Image
+                  src="/flags/it.svg"
+                  alt="IT"
+                  width={28}
+                  height={28}
+                  className="rounded-full"
+                />
+              </button>
+
+            </div>
+
+          </div>
+
+
+          {/* FILTER BUTTON */}
+          <button
+            type="button"
+            onClick={() =>
+              setMobileFiltersOpen(
+                (prev) => !prev
+              )
+            }
+            className="
+              theme-button
+              w-full
+              flex
+              items-center
+              justify-between
+              px-4
+              py-3
+              font-semibold
+            "
+          >
+
+            <span>
+              🔎 {t.filters}
+            </span>
+
+            <span>
+              {mobileFiltersOpen
+                ? "▲"
+                : "▼"}
+            </span>
+
+          </button>
+
+
+          {/* FILTER CONTENT */}
+          {mobileFiltersOpen && (
+            <div className="
+              bg-[var(--card)]
+              border
+              border-[var(--border)]
+              rounded-xl
+              p-4
+              flex
+              flex-col
+              gap-5
+            ">
+
+              {/* LEAGUE */}
+              <div className="flex flex-col gap-2">
+
+                <span className="text-sm font-medium">
+                  🌍 Liga
+                </span>
+
+                <select
+                  value={leagueFilter}
+                  onChange={(e) =>
+                    setLeagueFilter(
+                      e.target.value
+                    )
+                  }
+                  className="
+                    theme-select
+                    w-full
+                    px-3
+                    py-3
+                    text-sm
+                  "
+                >
+
+                  <option value="ALL">
+                    🌍 {t.all}
+                  </option>
+
+                  {Object.entries(
+                    leagueGroups
+                  ).map(
+                    ([groupName, leagues]) => (
+                      <optgroup
+                        key={groupName}
+                        label={groupName}
+                      >
+                        {Object.entries(
+                          leagues
+                        ).map(
+                          ([
+                            leagueId,
+                            leagueName,
+                          ]) => (
+                            <option
+                              key={leagueId}
+                              value={leagueId}
+                            >
+                              {leagueName}
+                            </option>
+                          )
+                        )}
+                      </optgroup>
+                    )
+                  )}
+
+                </select>
+
+              </div>
+
+
+              {/* DATE */}
+              <div className="flex flex-col gap-2">
+
+                <span className="text-sm font-medium">
+                  📅 Fecha
+                </span>
+
+                <select
+                  value={dateFilter}
+                  onChange={(e) =>
+                    setDateFilter(
+                      e.target.value
+                    )
+                  }
+                  className="
+                    theme-select
+                    w-full
+                    px-3
+                    py-3
+                    text-sm
+                  "
+                >
+
+                  <option value="TODAY">
+                    📅 {t.today}
+                  </option>
+
+                  <option value="TODAY_TOMORROW">
+                    📅 {t.todayTomorrow}
+                  </option>
+
+                  <option value="ALL">
+                    🌍 {t.all}
+                  </option>
+
+                </select>
+
+              </div>
+
+
+              {/* VALUE */}
+              <div className="flex flex-col gap-3">
+
+                <div className="text-sm font-medium">
+                  📈 {t.value}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+
+                  {/* FROM */}
+                  <div className="flex flex-col gap-2">
+
+                    <span className="text-xs text-[var(--muted)]">
+                      {t.from}
+                    </span>
+
+                    <div className="flex items-center justify-between gap-2">
+
+                      <button
+                        onClick={() =>
+                          setMinValue(
+                            Math.max(
+                              0.05,
+                              minValue - 0.05
+                            )
+                          )
+                        }
+                        className="theme-icon-button"
+                      >
+                        −
+                      </button>
+
+                      <span className="font-medium text-center">
+                        {Math.round(
+                          minValue * 100
+                        )}%
+                      </span>
+
+                      <button
+                        onClick={() =>
+                          setMinValue(
+                            Math.min(
+                              maxValue,
+                              minValue + 0.05
+                            )
+                          )
+                        }
+                        className="theme-icon-button"
+                      >
+                        +
+                      </button>
+
+                    </div>
+
+                  </div>
+
+
+                  {/* TO */}
+                  <div className="flex flex-col gap-2">
+
+                    <span className="text-xs text-[var(--muted)]">
+                      {t.to}
+                    </span>
+
+                    <div className="flex items-center justify-between gap-2">
+
+                      <button
+                        onClick={() =>
+                          setMaxValue(
+                            Math.max(
+                              minValue,
+                              maxValue - 0.05
+                            )
+                          )
+                        }
+                        className="theme-icon-button"
+                      >
+                        −
+                      </button>
+
+                      <span className="font-medium text-center">
+                        {Math.round(
+                          maxValue * 100
+                        )}%
+                      </span>
+
+                      <button
+                        onClick={() =>
+                          setMaxValue(
+                            Math.min(
+                              1,
+                              maxValue + 0.05
+                            )
+                          )
+                        }
+                        className="theme-icon-button"
+                      >
+                        +
+                      </button>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+
+              {/* ODDS */}
+              <div className="flex flex-col gap-3">
+
+                <div className="text-sm font-medium">
+                  🎲 {t.odds}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+
+                  {/* FROM */}
+                  <div className="flex flex-col gap-2">
+
+                    <span className="text-xs text-[var(--muted)]">
+                      {t.from}
+                    </span>
+
+                    <div className="flex items-center justify-between gap-2">
+
+                      <button
+                        onClick={() =>
+                          setMinOdd(
+                            Math.max(
+                              1,
+                              Number(
+                                (
+                                  minOdd - 0.5
+                                ).toFixed(1)
+                              )
+                            )
+                          )
+                        }
+                        className="theme-icon-button"
+                      >
+                        −
+                      </button>
+
+                      <span className="font-medium text-center">
+                        {minOdd.toFixed(1)}
+                      </span>
+
+                      <button
+                        onClick={() =>
+                          setMinOdd(
+                            Math.min(
+                              maxOdd,
+                              Number(
+                                (
+                                  minOdd + 0.5
+                                ).toFixed(1)
+                              )
+                            )
+                          )
+                        }
+                        className="theme-icon-button"
+                      >
+                        +
+                      </button>
+
+                    </div>
+
+                  </div>
+
+
+                  {/* TO */}
+                  <div className="flex flex-col gap-2">
+
+                    <span className="text-xs text-[var(--muted)]">
+                      {t.to}
+                    </span>
+
+                    <div className="flex items-center justify-between gap-2">
+
+                      <button
+                        onClick={() =>
+                          setMaxOdd(
+                            Math.max(
+                              minOdd,
+                              Number(
+                                (
+                                  maxOdd - 0.5
+                                ).toFixed(1)
+                              )
+                            )
+                          )
+                        }
+                        className="theme-icon-button"
+                      >
+                        −
+                      </button>
+
+                      <span className="font-medium text-center">
+                        {maxOdd.toFixed(1)}
+                      </span>
+
+                      <button
+                        onClick={() =>
+                          setMaxOdd(
+                            Math.min(
+                              20,
+                              Number(
+                                (
+                                  maxOdd + 0.5
+                                ).toFixed(1)
+                              )
+                            )
+                          )
+                        }
+                        className="theme-icon-button"
+                      >
+                        +
+                      </button>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+          )}
+
+        </div>
+
+        {/* FILTERS - DESKTOP */}
+        <div className="hidden lg:flex w-full">
+
+          <div className="
+            bg-[var(--card)]
+            border
+            border-[var(--border)]
+            rounded-xl
+            px-5
+            py-3
+            flex
+            flex-col
+            lg:flex-row
+            gap-6
+          ">
 
             {/* VALUE */}
             <div className="flex flex-col gap-1 border-r border-[var(--border)] pr-6">

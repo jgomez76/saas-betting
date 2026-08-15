@@ -6,7 +6,6 @@ import Sidebar from "@/components/Sidebar";
 import TopValueModal from "@/components/TopValueModal";
 import BetsModal from "@/components/BetsModal";
 import LoginModal from "@/components/LoginModal";
-// import AnalysisModal from "@/components/AnalysisModal";
 import AnalysisCenter from "@/components/analysys/AnalysisCenter";
 import ResultsView from "@/components/ResultsView";
 import StandingsView from "@/components/StandingsView";
@@ -29,13 +28,13 @@ import LeagueSection from "@/components/dashboard/LeagueSection";
 import { Match } from "@/types/match";
 import { Bet } from "@/types/bet";
 
-// import { signOut, useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 
 import { useSubscription } from "@/context/SubscriptionContext"; 
 
 import { getStakeFromOdd } from "@/lib/stake";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
+import { upgradeToPremium } from "@/lib/stripe";
 
 import { useBets } from "@/hooks/useBets";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -222,6 +221,21 @@ export default function Home() {
   );
 
   const isLogged = !!user.email && !authLoading;
+
+  const handlePremiumAccess = async () => {
+
+    if (!isLogged) {
+
+      setShowLoginModal(true);
+
+      return;
+
+    }
+
+    await upgradeToPremium(apiUrl);
+
+  };
+
   const { bets, addBet, deleteBet } = useBets(isLogged);
   const { favorites, addFavorite, removeFavorite } = useFavorites(isLogged);
 
@@ -521,8 +535,6 @@ export default function Home() {
   };
 
   const countdown = mounted ? getCountdown(now) : null;
-
-  console.log("USER", user);
   
   return (
     <>
@@ -533,7 +545,7 @@ export default function Home() {
       {!isMobile && (
         <Sidebar view={view} setView={setView} />
       )}
-      <main className="flex-1 p-6 bg-[var(--bg)] min-h-screen text-[var(--text)]">
+      <main className="flex-1 min-w-0 w-full p-6 bg-[var(--bg)] min-h-screen text-[var(--text)]">
         {isMobile && (
         <div className="flex items-center justify-between mb-4">
 
@@ -588,19 +600,14 @@ export default function Home() {
           <DashboardHeader
             loading={loading}
             progress={progress}
-
             countdown={countdown}
-
             allFinished={allFinished}
-
             validPicks={validPicks}
-
             topPicksLoading={topPicksLoading}
-
             freePick={freePick}
-
             isPremium={isPremium}
-
+            isLogged={isLogged}
+            onLogin={() => setShowLoginModal(true)}
             onSelectPick={handleSelectTopPick}
 
             t={{
@@ -803,7 +810,9 @@ export default function Home() {
           />
         )} */}
         {view === "analysis" && !authLoading && (
-          <AnalysisCenter />
+          <AnalysisCenter
+              onUpgrade={handlePremiumAccess}
+          />
         )}
 
 

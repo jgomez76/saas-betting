@@ -61,7 +61,6 @@ export default function ProfileModal({
 
   const handleUpgrade = () => {
     onClose();
-    alert("TODO: Abrir Upgrade a Premium");
   };
 
   const handleSave = async () => {
@@ -143,7 +142,6 @@ export default function ProfileModal({
         throw new Error(data.detail || t.error);
       }
 
-      // alert("✅ Contraseña actualizada");
       setSuccess(t.passwordUpdated);
       setError("");
 
@@ -308,7 +306,7 @@ return createPortal(
 
           {/* PREMIUM */}
 
-          <div className="md:w-2/3">
+          <div className="hidden md:block md:w-2/3">
 
             <SubscriptionInfo
               user={user}

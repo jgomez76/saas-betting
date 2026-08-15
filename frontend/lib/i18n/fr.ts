@@ -526,4 +526,156 @@ export const fr = {
     upgradeDescription:
     "Passez à Premium pour débloquer toutes les fonctionnalités avancées de Luranix.",
 
+    void: "Annulée",
+
+    aiHistoricalEdgeTitle: "Avantage historique",
+    aiGoalTrendTitle: "Tendance des buts",
+    aiMarketInsightTitle: "Analyse des marchés",
+    aiConclusionTitle: "Conclusion de l'IA",
+
+    aiHistoricalEdgeDominant:
+    "{team} a clairement dominé les confrontations directes récentes.",
+
+    aiHistoricalEdgeBalanced:
+    "Les confrontations précédentes ont été très équilibrées sans équipe dominante.",
+
+    aiGoalTrendHigh:
+    "Ces matchs affichent une moyenne de {avgGoals} buts, indiquant des rencontres ouvertes.",
+
+    aiGoalTrendMedium:
+    "Une moyenne de {avgGoals} buts suggère une tendance offensive modérée.",
+
+    aiGoalTrendLow:
+    "Une moyenne de seulement {avgGoals} buts indique des matchs fermés.",
+
+    aiMarketBTTS:
+    "Les deux équipes ont marqué dans {value}% des confrontations.",
+
+    aiMarketOver25:
+    "Le marché Plus de 2,5 buts s'est produit dans {value}% des confrontations.",
+
+    aiMarketBalanced:
+    "Les tendances historiques des marchés sont relativement équilibrées.",
+
+    aiConclusionFavourite:
+    "{team} a historiquement obtenu de meilleurs résultats dans cette confrontation.",
+
+    aiConclusionBalanced:
+    "L'historique des confrontations ne montre aucun avantage clair.",
+
+    aiGoalsIncreasing:
+    "Les derniers affrontements affichent une moyenne de {recent} buts contre {historical} historiquement, ce qui suggère une tendance plus offensive.",
+
+    aiGoalsDecreasing:
+        "Les derniers affrontements affichent une moyenne de {recent} buts contre {historical} historiquement, ce qui suggère une tendance plus fermée.",
+
+    aiGoalsStable:
+        "La moyenne de buts reste stable autour de {goals} par match.",
+
+    // =========================
+    // H2H AI V2
+    // =========================
+
+    aiDominanceWeakeningTitle: "Domination historique",
+
+    aiDominanceWeakening:
+        "{team} a longtemps dominé cette confrontation, mais cet avantage s'est nettement réduit lors des rencontres les plus récentes.",
+
+    aiBTTSIncreasingTitle: "Tendance BTTS",
+
+    aiBTTSIncreasing:
+        "Les deux équipes marquent beaucoup plus souvent lors des dernières confrontations ({recent5}% sur les 5 derniers matchs).",
+
+    aiBTTSDecreasing:
+        "Les dernières confrontations montrent une nette baisse de la fréquence où les deux équipes marquent.",
+
+    aiOverTrendTitle: "Tendance des buts",
+
+    aiOverIncreasing:
+        "Les rencontres récentes produisent beaucoup plus de matchs à plus de 2,5 buts ({recent5}% sur les 5 derniers matchs).",
+
+    aiOverDecreasing:
+        "Les dernières confrontations montrent une baisse significative des matchs à plus de 2,5 buts.",
+
+    aiCleanSheetsTitle: "Solidité défensive",
+
+    aiCleanSheets:
+        "Lors de {matches} des {total} dernières confrontations, au moins une équipe a conservé sa cage inviolée.",
+
+    aiAttackTrendTitle: "Performance offensive",
+
+    aiTeamStoppedScoring:
+        "{team} n'a pas réussi à marquer lors de {matches} des confrontations les plus récentes entre ces deux équipes.",
+
+    aiDrawTrendTitle: "Tendance aux matchs nuls",
+
+    aiFrequentDraws:
+        "Les confrontations récentes montrent une forte tendance à se terminer par un match nul.",
+
+    aiCompositeTitle: "Luranix AI",
+
+    aiCompositeDominanceGoals:
+        "La domination historique semble s'estomper tandis que les matchs deviennent plus ouverts, ce qui suggère un changement dans la dynamique de cette confrontation.",
+
+    aiOpenMatchesTitle: "Matchs plus ouverts",
+
+    aiOpenMatches:
+        "Les confrontations récentes évoluent vers des matchs beaucoup plus ouverts, avec davantage de buts et une forte probabilité que les deux équipes marquent.",
+
+    aiNoClearPatternTitle: "Analyse de Luranix AI",
+
+    aiNoClearPattern:
+        "Aucune tendance historique suffisamment cohérente n'a été détectée pour tirer une conclusion fiable. Cette confrontation a été trop équilibrée ou imprévisible au fil du temps.",      
+
+    // =========================
+    // MATCH AI
+    // =========================  
+    matchAttackTitle: "Attaque",
+
+    matchHomeScoring:
+        "Les récentes performances offensives de {team} sont particulièrement solides, avec une moyenne de {avg_goals} buts par match.",
+
+    matchDefenceTitle: "Défense",
+
+    matchAwayConceding:
+        "La défense de {team} concède actuellement trop d'occasions, avec une moyenne de {avg_goals} buts encaissés par match.",
+
+    matchMarketTitle: "Marchés",
+
+    matchHomeOver25:
+        "Les matchs à domicile de {team} présentent une nette tendance à dépasser les 2,5 buts, ce qui se produit dans {over25}% des rencontres.",
+
+    matchAwayBTTS:
+        "Les matchs de {team} à l'extérieur présentent une nette tendance à voir les deux équipes marquer, ce qui se produit dans {btts}% des rencontres.",
+
+    matchH2HTitle: "Historique H2H",
+
+    matchH2HOver25:
+        "Les confrontations récentes entre les deux équipes montrent une nette tendance aux matchs avec plus de 2,5 buts, observée dans {over25}% des rencontres.",
+
+    matchH2HBTTS:
+        "L'historique récent entre les deux équipes révèle une forte fréquence de matchs où les deux formations parviennent à marquer, ce qui se produit dans {btts}% des rencontres.",
+
+    matchCompositeTitle: "Analyse IA",
+
+    matchCombinedOver25:
+        "La combinaison des performances récentes des deux équipes et de leurs confrontations directes renforce l'hypothèse d'un match avec une forte probabilité de dépasser les 2,5 buts.",
+
+    matchCombinedBTTS:
+        "L'analyse combinée des performances récentes des deux équipes et de leurs confrontations directes renforce l'hypothèse d'un match où les deux équipes devraient marquer.",
+
+    matchStreakTitle: "Série positive",
+
+    matchHomeWinningStreak:
+        "{team} aborde cette rencontre en pleine confiance, avec {matches} victoires consécutives.",
+
+    matchAwayWinningStreak:
+        "{team} aborde ce match avec une excellente dynamique après {matches} victoires consécutives.",
+
+    matchNoClearPatternTitle:
+        "Analyse IA",
+
+    matchNoClearPattern:
+        "Aucune tendance suffisamment cohérente n'a été détectée pour tirer une conclusion fiable. Les données disponibles ne révèlent pas de schéma clair offrant un avantage significatif pour cette rencontre.",
+
 }

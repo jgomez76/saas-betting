@@ -202,6 +202,7 @@ export default function SettingsView({
     }
   };
 
+
   return (
     <div className="w-full max-w-3xl mx-auto text-[var(--text)] space-y-4">
 
@@ -265,12 +266,20 @@ export default function SettingsView({
                     active={theme === themeItem.id}
                     locked={!isPremium}
                     onClick={() => {
+
                         if (!isPremium) {
+
+                            if (!isLogged) {
+                                onLogin();
+                                return;
+                            }
+
                             showPremium();
                             return;
                         }
 
                         setTheme(themeItem.id as Theme);
+
                     }}
                   />
 
@@ -295,7 +304,7 @@ export default function SettingsView({
           open={openLang}
           toggle={() => setOpenLang(!openLang)}
         >
-          <div className="flex gap-3">
+          <div className="grid grid-cols-2 md:flex md:flex-wrap gap-3">
 
             <button
               onClick={() => changeLang("en")}
@@ -395,9 +404,8 @@ export default function SettingsView({
             <span>{t.profile}</span>
           </button>
 
-
           {/* DELETE ACCOUNT */}
-          {isLogged && (
+          {isLogged && !isPremium && (
             <button
               onClick={() => setShowDeleteModal(true)}
               className="
@@ -416,6 +424,29 @@ export default function SettingsView({
             >
               <span className="text-xl">❌</span>
               <span>{t.deleteAccount}</span>
+            </button>
+          )}
+
+          {/* PREMIUM ACCOUNT */}
+          {isLogged && isPremium && (
+            <button
+              onClick={handleUpgrade}
+              className="
+                w-full
+                flex
+                items-center
+                gap-3
+                text-left
+                px-5
+                py-4
+                transition-all
+                border-b-0
+                border-[var(--border)]
+                hover:bg-[var(--hover)]
+              "
+            >
+              <span className="text-xl">💳</span>
+              <span>{t.manageSubscription}</span>
             </button>
           )}
 

@@ -9,7 +9,13 @@ import H2HAnalysisTab from "../tabs/H2HAnalysisTab";
 import MatchAnalysisTab from "../tabs/MatchAnalysisTab";
 
 
-export default function AnalysisCenter() {
+type Props = {
+  onUpgrade: () => void;
+};
+
+export default function AnalysisCenter({
+  onUpgrade,
+}: Props) {
   const { t } = useLanguage();
 
   const [tab, setTab] =
@@ -80,11 +86,15 @@ export default function AnalysisCenter() {
         )}
 
         {tab === "h2h" && (
-          <H2HAnalysisTab />
+          <H2HAnalysisTab
+            onUpgrade={onUpgrade}
+          />
         )}
 
         {tab === "match"&& (
-          <MatchAnalysisTab />
+          <MatchAnalysisTab
+            onUpgrade={onUpgrade}
+          />
         )}
 
       </div>

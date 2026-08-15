@@ -89,15 +89,21 @@ export function useMatches(apiUrl: string): UseMatchesReturn {
         return;
       }
 
+      console.log("1 DATA:", data.length);
+
       const filtered = data.filter(
         (m: Match) => m.markets?.["1X2"]
       );
+
+      console.log("2 FILTERED:", filtered.length);
 
       // 🔥 ABRIR TODAS LAS LIGAS
 
       const leagues: string[] = Array.from(
         new Set(filtered.map((m: Match) => m.league))
       );
+
+      console.log("3 LEAGUES:", leagues);
 
       const initialState: Record<string, boolean> = {};
 
@@ -165,11 +171,6 @@ export function useMatches(apiUrl: string): UseMatchesReturn {
           (m: Match) => m.markets?.["1X2"]
         );
 
-        console.log("Refresh:", filtered.length);
-
-        // setAllMatches((prev) =>
-        //   mergeMatches(prev, filtered)
-        // );
         setAllMatches(filtered);
       } catch (err) {
         console.error("Refresh error", err);

@@ -482,171 +482,171 @@ export default function TeamAnalysisTab() {
 
             </div>
 
-          {/* GOALS */}
-            <div className="grid md:grid-cols-2 gap-3">
+            {/* GOALS */}
+            <div className="grid grid-cols-2 gap-3">
 
-            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5">
+              <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 md:p-5 text-center">
 
-                <div className="text-sm text-[var(--muted)] mb-2">
-                ⚽ {t.goalsScored}
+                <div className="text-xs md:text-sm text-[var(--muted)] mb-2 whitespace-nowrap">
+                  ⚽ {t.goalsScored}
                 </div>
 
-                <div className="text-4xl font-bold">
-                {analysis.goals_scored}
+                <div className="text-3xl md:text-4xl font-bold">
+                  {analysis.goals_scored}
                 </div>
 
-                <div className="text-sm text-[var(--muted)] mt-2">
-                {t.average}: {analysis.avg_goals_scored}
+                <div className="text-xs md:text-sm text-[var(--muted)] mt-2 whitespace-nowrap">
+                  {t.average}: {analysis.avg_goals_scored}
                 </div>
+
+              </div>
+
+              <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 md:p-5 text-center">
+
+                <div className="text-xs md:text-sm text-[var(--muted)] mb-2 whitespace-nowrap">
+                  🥅 {t.goalsConceded}
+                </div>
+
+                <div className="text-3xl md:text-4xl font-bold">
+                  {analysis.goals_conceded}
+                </div>
+
+                <div className="text-xs md:text-sm text-[var(--muted)] mt-2 whitespace-nowrap">
+                  {t.average}: {analysis.avg_goals_conceded}
+                </div>
+
+              </div>
 
             </div>
 
-            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5">
+            {/* MARKET STATS */}
+            <div className="grid grid-cols-3 gap-2 md:gap-3">
 
-                <div className="text-sm text-[var(--muted)] mb-2">
-                🥅 {t.goalsConceded}
+              <div className="bg-[var(--surface-2)] border border-[var(--border)] rounded-xl p-3 md:p-5 text-center">
+
+                <div className="text-[11px] md:text-sm text-[var(--muted)] mb-2 whitespace-nowrap">
+                  Over 2.5
                 </div>
 
-                <div className="text-4xl font-bold">
-                {analysis.goals_conceded}
+                <div className="text-xl md:text-3xl font-bold whitespace-nowrap">
+                  {analysis.over25}%
                 </div>
 
-                <div className="text-sm text-[var(--muted)] mt-2">
-                {t.average}: {analysis.avg_goals_conceded}
+              </div>
+
+              <div className="bg-[var(--surface-2)] border border-[var(--border)] rounded-xl p-3 md:p-5 text-center">
+
+                <div className="text-[11px] md:text-sm text-[var(--muted)] mb-2 whitespace-nowrap">
+                  Over 3.5
                 </div>
+
+                <div className="text-xl md:text-3xl font-bold whitespace-nowrap">
+                  {analysis.over35}%
+                </div>
+
+              </div>
+
+              <div className="bg-[var(--surface-2)] border border-[var(--border)] rounded-xl p-3 md:p-5 text-center">
+
+                <div className="text-[11px] md:text-sm text-[var(--muted)] mb-2 whitespace-nowrap">
+                  {t.cleanSheets}
+                </div>
+
+                <div className="text-xl md:text-3xl font-bold whitespace-nowrap">
+                  {analysis.clean_sheets}%
+                </div>
+
+              </div>
 
             </div>
 
-            </div>
+            {/* GOALS CHART */}
+            <div className="hidden md:block bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5">
 
-          {/* MARKET STATS */}
-            <div className="grid md:grid-cols-3 gap-3">
+              <div className="flex items-center justify-between mb-4">
 
-            <div className="bg-[var(--surface-2)] border border-[var(--border)] rounded-xl p-5 text-center">
+                  <div>
 
-                <div className="text-sm text-[var(--muted)] mb-2">
-                Over 2.5
-                </div>
+                  <h3 className="text-lg font-semibold">
+                      📈 {t.goalsTrend}
+                  </h3>
 
-                <div className="text-3xl font-bold">
-                {analysis.over25}%
-                </div>
+                  <p className="text-sm text-[var(--muted)]">
+                      {t.goalsScored} vs {t.goalsConceded}
+                  </p>
 
-            </div>
+                  </div>
 
-            <div className="bg-[var(--surface-2)] border border-[var(--border)] rounded-xl p-5 text-center">
+              </div>
 
-                <div className="text-sm text-[var(--muted)] mb-2">
-                Over 3.5
-                </div>
+              <div className="w-full h-[320px]">
 
-                <div className="text-3xl font-bold">
-                {analysis.over35}%
-                </div>
+                  <ResponsiveContainer>
 
-            </div>
+                  <LineChart
+                      data={
+                      analysis.goals_timeline
+                      }
+                  >
 
-            <div className="bg-[var(--surface-2)] border border-[var(--border)] rounded-xl p-5 text-center">
+                      <XAxis dataKey="date" />
 
-                <div className="text-sm text-[var(--muted)] mb-2">
-                {t.cleanSheets}
-                </div>
+                      <YAxis />
 
-                <div className="text-3xl font-bold">
-                {analysis.clean_sheets}%
-                </div>
+                      <Tooltip
+                        content={({ active, payload }) => {
 
-            </div>
+                          if (!active || !payload?.length) {
+                            return null;
+                          }
 
-            </div>
+                          const data = payload[0].payload;
 
-          {/* GOALS CHART */}
-            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5">
+                          return (
+                            <div className="bg-[var(--card)] border border-[var(--border)] p-3 rounded-lg">
 
-            <div className="flex items-center justify-between mb-4">
+                              <div className="font-bold mb-2">
+                                {data.home_team} {data.home_goals}
+                                {" - "}
+                                {data.away_goals} {data.away_team}
+                              </div>
 
-                <div>
+                              <div className="text-sm text-[var(--muted)]">
+                                {data.date}
+                              </div>
 
-                <h3 className="text-lg font-semibold">
-                    📈 {t.goalsTrend}
-                </h3>
+                              <div className="mt-2">
+                                ⚽ {data.scored}
+                              </div>
 
-                <p className="text-sm text-[var(--muted)]">
-                    {t.goalsScored} vs {t.goalsConceded}
-                </p>
+                              <div>
+                                🥅 {data.conceded}
+                              </div>
 
-                </div>
-
-            </div>
-
-            <div className="w-full h-[320px]">
-
-                <ResponsiveContainer>
-
-                <LineChart
-                    data={
-                    analysis.goals_timeline
-                    }
-                >
-
-                    <XAxis dataKey="date" />
-
-                    <YAxis />
-
-                    <Tooltip
-                      content={({ active, payload }) => {
-
-                        if (!active || !payload?.length) {
-                          return null;
-                        }
-
-                        const data = payload[0].payload;
-
-                        return (
-                          <div className="bg-[var(--card)] border border-[var(--border)] p-3 rounded-lg">
-
-                            <div className="font-bold mb-2">
-                              {data.home_team} {data.home_goals}
-                              {" - "}
-                              {data.away_goals} {data.away_team}
                             </div>
+                          );
+                        }}
+                      />
 
-                            <div className="text-sm text-[var(--muted)]">
-                              {data.date}
-                            </div>
+                      <Line
+                      type="monotone"
+                      dataKey="scored"
+                      stroke="#22c55e"
+                      strokeWidth={3}
+                      />
 
-                            <div className="mt-2">
-                              ⚽ {data.scored}
-                            </div>
+                      <Line
+                      type="monotone"
+                      dataKey="conceded"
+                      stroke="#ef4444"
+                      strokeWidth={3}
+                      />
 
-                            <div>
-                              🥅 {data.conceded}
-                            </div>
+                  </LineChart>
 
-                          </div>
-                        );
-                      }}
-                    />
+                  </ResponsiveContainer>
 
-                    <Line
-                    type="monotone"
-                    dataKey="scored"
-                    stroke="#22c55e"
-                    strokeWidth={3}
-                    />
-
-                    <Line
-                    type="monotone"
-                    dataKey="conceded"
-                    stroke="#ef4444"
-                    strokeWidth={3}
-                    />
-
-                </LineChart>
-
-                </ResponsiveContainer>
-
-            </div>
+              </div>
 
             </div>
 

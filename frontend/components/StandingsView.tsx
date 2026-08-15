@@ -76,7 +76,78 @@ export default function StandingsView() {
           🏆 {t.leagues}
         </h2>
 
-        <div className="space-y-4">
+        {/* 📱 SELECTOR MÓVIL */}
+        <div className="md:hidden mb-4">
+
+          <select
+            value={selectedLeagueId ?? ""}
+            onChange={(e) => {
+              const value = e.target.value;
+
+              setSelectedLeagueId(
+                value ? Number(value) : null
+              );
+            }}
+            className="
+              w-full
+              p-3
+              rounded-lg
+              bg-[var(--card)]
+              border
+              border-[var(--border)]
+              text-[var(--text)]
+              text-sm
+              font-medium
+            "
+          >
+
+            <option value="">
+              🏆 {t.selectLeague}
+            </option>
+
+            {Object.entries(
+              leagueGroups
+            ).map(
+              ([groupName, leagues]) => (
+
+                <optgroup
+                  key={groupName}
+                  label={
+                    groupName === "Europe"
+                      ? "🌍 Europe"
+                      : groupName === "America"
+                        ? "🌎 America"
+                        : groupName === "International"
+                          ? "🌐 International"
+                          : groupName
+                  }
+                >
+
+                  {Object.entries(
+                    leagues
+                  ).map(
+                    ([id, name]) => (
+
+                      <option
+                        key={id}
+                        value={id}
+                      >
+                        {name}
+                      </option>
+
+                    )
+                  )}
+
+                </optgroup>
+
+              )
+            )}
+
+          </select>
+
+        </div>
+
+        <div className="hidden md:block space-y-4">
 
           {Object.entries(
             leagueGroups

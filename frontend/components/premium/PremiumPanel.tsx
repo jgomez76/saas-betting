@@ -27,11 +27,11 @@ export default function PremiumPanel({
               variant === "inline"
                   ? `
                       theme-card
-                      p-8
+                      p-4 md:p-8
                     `
                   : `
                       theme-card
-                      p-8
+                      p-4 md:p-8
                       relative
                       max-w-4xl
                       w-full
@@ -40,7 +40,7 @@ export default function PremiumPanel({
       >
       {/* Header */}
 
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
 
         <div>
 
@@ -48,12 +48,12 @@ export default function PremiumPanel({
             {icon}
           </div>
 
-          <h3 className="mt-3 text-2xl font-bold">
+          <h3 className="mt-3 text-xl md:text-2xl font-bold">
             {title}
           </h3>
 
           {description && (
-            <p className="mt-3 text-[var(--muted)] max-w-xl leading-7">
+            <p className="mt-3 text-sm md:text-base text-[var(--muted)] max-w-xl leading-6 md:leading-7">
               {description}
             </p>
           )}
@@ -63,6 +63,7 @@ export default function PremiumPanel({
         <div
           className="
             shrink-0
+            self-start
             inline-flex
             items-center
             rounded-full
@@ -74,7 +75,7 @@ export default function PremiumPanel({
             py-2
             text-sm
             font-semibold
-          "
+"
         >
           🔒 {badge}
         </div>
@@ -83,7 +84,7 @@ export default function PremiumPanel({
 
       {/* Divider */}
 
-      <div className="my-8 border-t border-[var(--border)]" />
+      <div className="my-5 md:my-8 border-t border-[var(--border)]" />
 
       {/* Features */}
       <PremiumBenefits
@@ -92,7 +93,7 @@ export default function PremiumPanel({
 
       {/* CTA */}
 
-      <div className="mt-8">
+      <div className="mt-6 md:mt-8">
 
         <button
           onClick={onClick}

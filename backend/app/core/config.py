@@ -5,33 +5,11 @@ load_dotenv()
 
 API_FOOTBALL_KEY = os.getenv("API_FOOTBALL_KEY")
 
-API_KEY_EUROPE = os.getenv(
-    "API_FOOTBALL_KEY_EUROPE"
-)
-
-API_KEY_AMERICA = os.getenv(
-    "API_FOOTBALL_KEY_AMERICA"
-)
-
 BASE_URL = "https://v3.football.api-sports.io"
 DATABASE_URL = "sqlite:///./app.db"
 SEASONS = [2025]
 CURRENT_SEASON = 2025
-#Ligas:
-# - 39: Premier League - ok
-# - 61: Ligue 1 - ok
-### - 71: Serie A Brasil
-# - 78: Bundesliga - ok
-# - 135: Seria A Italia - ok
-# - 140: La Liga EA Sports - ok
-# - 141: La Liga Hypermotion
-# - 2: Champions League
-# - 3: Europa League
-# - 848 - Conference League 
-# LEAGUES = [71]
-# LEAGUES = [2, 3, 39, 61, 78, 135, 140, 141, 848]
-# LEAGUES = [39, 61, 78, 135]
-# SELECTED_LEAGUES = [39, 61, 78, 135, 140, 141]
+
 SELECTED_LEAGUES = [140, 141, 39, 78, 135, 61, 71]
 
 LEAGUES_ALL = {
@@ -126,31 +104,6 @@ def get_current_season(league_id: int):
         league_id,
         CURRENT_SEASON
     )
-
-LEAGUES_BY_TOKEN = {
-
-    "EUROPE": [
-        39,
-        61,
-        78,
-        135,
-        140,
-        141,
-        2,
-        3,
-        848,
-    ],
-
-    "AMERICA": [
-        253,
-        262,
-        71,
-        128,
-        13,
-        11,
-    ]
-}
-
 
 
 # ---------------- OAUTH ----------------

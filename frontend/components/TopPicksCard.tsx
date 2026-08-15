@@ -20,6 +20,8 @@ type Props = {
   picks: TopPick[];
   freePick?: TopPick | null;
   isPremium: boolean;
+  isLogged: boolean;
+  onLogin: () => void;
   onSelectPick: (pick: TopPick) => void;
 };
 
@@ -77,20 +79,12 @@ export default function TopPicksCard({
   picks,
   freePick,
   isPremium,
+  isLogged,
+  onLogin,
   onSelectPick,
 }: Props) {
   const { t, lang } = useLanguage();
   const { showPremium } = usePremium();
-
-  // 🔥 Unificar FREE + PREMIUM
-  // const allPicks = freePick
-  //   ? [freePick, ...picks.filter(p => p.fixture_id !== freePick.fixture_id)]
-  //   : picks;
-  // const allPicks = freePick
-  //   ? [...picks, freePick]
-  //   : picks;
-
-  // allPicks.sort((a, b) => b.probability - a.probability);
 
   let allPicks: TopPick[] = [];
 
@@ -156,16 +150,41 @@ export default function TopPicksCard({
           const probStyles = getProbStyles(p.probability);
 
 return (
-  <PremiumLock key={p.fixture_id} locked={locked}>
+      <PremiumLock
+        key={p.fixture_id}
+        locked={locked}
+        onLockedClick={() => {
+
+          if (!isLogged) {
+            onLogin();
+            return;
+          }
+
+          showPremium();
+
+        }}
+      >
     <div
       onClick={() => {
 
-          if (locked) {
-              showPremium();
-              return;
-          }
+        console.log({
+          locked,
+          isLogged,
+          isPremium,
+        });
 
-          onSelectPick(p);
+        if (locked) {
+
+            if (!isLogged) {
+                onLogin();
+                return;
+            }
+
+            showPremium();
+            return;
+        }
+
+        onSelectPick(p);
 
       }}
       className={`

@@ -72,6 +72,11 @@ export default function MatchCard({
     <div
         className="
             theme-card
+            w-full
+            min-w-0
+            max-w-full
+            box-border
+            overflow-hidden
             bg-[var(--card)]
             text-[var(--text)]
             p-4
@@ -233,16 +238,6 @@ export default function MatchCard({
                     `${k}_value` as keyof typeof match.value
                     ];
 
-                console.log({
-                    team: match.home_team,
-                    selection: k,
-                    value,
-                    odd: odd?.odd,
-                    minValue,
-                    maxValue,
-                    minOdd,
-                    maxOdd,
-                });
 
                 const isValue =
                     value !== null &&
@@ -252,7 +247,7 @@ export default function MatchCard({
                     (odd?.odd ?? 0) >= minOdd &&
                     (odd?.odd ?? 0) <= maxOdd;
 
-                console.log("IS VALUE =", isValue);
+                // console.log("IS VALUE =", isValue);
 
                 return (
                     <div

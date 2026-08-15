@@ -516,4 +516,156 @@ export const en = {
     upgradeDescription:
       "Upgrade to Premium to unlock all advanced Luranix features.",
 
+    void: "Void",
+
+    aiHistoricalEdgeTitle: "Historical Edge",
+    aiGoalTrendTitle: "Goal Trend",
+    aiMarketInsightTitle: "Market Insight",
+    aiConclusionTitle: "AI Conclusion",
+
+    aiHistoricalEdgeDominant:
+      "{team} has shown a clear historical advantage in recent head-to-head meetings.",
+
+    aiHistoricalEdgeBalanced:
+      "Previous meetings have been very balanced with no clear dominant team.",
+
+    aiGoalTrendHigh:
+      "These matches average {avgGoals} goals, indicating an open and high-scoring rivalry.",
+
+    aiGoalTrendMedium:
+      "The average of {avgGoals} goals suggests a moderate scoring trend.",
+
+    aiGoalTrendLow:
+      "Only {avgGoals} goals per match on average indicate generally low-scoring encounters.",
+
+    aiMarketBTTS:
+      "BTTS has occurred in {value}% of previous meetings.",
+
+    aiMarketOver25:
+      "Over 2.5 Goals has landed in {value}% of previous meetings.",
+
+    aiMarketBalanced:
+      "Historical market trends are relatively balanced.",
+
+    aiConclusionFavourite:
+      "{team} has historically performed better in this matchup.",
+
+    aiConclusionBalanced:
+      "Head-to-head history alone does not reveal a clear betting edge.",
+
+    aiGoalsIncreasing:
+    "Recent meetings average {recent} goals compared to the historical average of {historical}, suggesting a more open trend.",
+
+    aiGoalsDecreasing:
+        "Recent meetings average {recent} goals compared to the historical average of {historical}, suggesting a tighter trend.",
+
+    aiGoalsStable:
+        "Goal production has remained stable around {goals} goals per match.",
+
+    // =========================
+    // H2H AI V2
+    // =========================
+
+    aiDominanceWeakeningTitle: "Historical Momentum",
+
+    aiDominanceWeakening:
+        "{team} has historically dominated this matchup, but that advantage has weakened considerably in recent meetings.",
+
+    aiBTTSIncreasingTitle: "BTTS Trend",
+
+    aiBTTSIncreasing:
+        "Both Teams To Score has become much more frequent in recent meetings ({recent5}% in the last 5 matches).",
+
+    aiBTTSDecreasing:
+        "Both Teams To Score has become less frequent in recent meetings ({recent5}% in the last 5 matches).",
+
+    aiOverTrendTitle: "Goals Market",
+
+    aiOverIncreasing:
+        "Recent meetings are producing significantly more Over 2.5 results ({recent5}% in the last 5 matches).",
+
+    aiOverDecreasing:
+        "Recent meetings are producing fewer Over 2.5 results than the historical average.",
+
+    aiCleanSheetsTitle: "Defensive Trend",
+
+    aiCleanSheets:
+        "{matches} of the last {total} meetings ended with at least one clean sheet.",
+
+    aiAttackTrendTitle: "Attacking Trend",
+
+    aiTeamStoppedScoring:
+        "{team} has failed to score in {matches} of the most recent head-to-head meetings.",
+
+    aiDrawTrendTitle: "Draw Trend",
+
+    aiFrequentDraws:
+        "Recent meetings have shown a strong tendency towards draws.",
+
+    aiCompositeTitle: "Luranix AI",
+
+    aiCompositeDominanceGoals:
+        "Historical dominance is fading while matches are becoming more open, suggesting a changing head-to-head dynamic.",
+
+    aiOpenMatchesTitle: "Open Match Trend",
+
+    aiOpenMatches:
+        "Recent meetings are becoming much more open, with more goals and a significantly higher probability of both teams scoring.",  
+        
+    aiNoClearPatternTitle: "Luranix AI Analysis",
+
+    aiNoClearPattern:
+        "No sufficiently consistent historical trends were detected to draw a reliable conclusion. This fixture has been too balanced or unpredictable over time.",
+
+    // =========================
+    // MATCH AI
+    // =========================  
+    matchAttackTitle: "Attack",
+
+    matchHomeScoring:
+        "{team}'s recent attacking performances have been consistently strong, averaging {avg_goals} goals per match.",
+
+    matchDefenceTitle: "Defence",
+
+    matchAwayConceding:
+        "{team}'s defence has been allowing too many chances, conceding an average of {avg_goals} goals per match.",
+
+    matchMarketTitle: "Markets",
+
+    matchHomeOver25:
+        "{team}'s home matches show a clear tendency to finish with over 2.5 goals, occurring in {over25}% of games.",
+
+    matchAwayBTTS:
+        "{team}'s away matches show a clear tendency for both teams to score, occurring in {btts}% of games.",
+
+    matchH2HTitle: "H2H History",
+
+    matchH2HOver25:
+        "Recent meetings between these teams show a strong tendency towards matches with over 2.5 goals, occurring in {over25}% of their encounters.",
+
+    matchH2HBTTS:
+        "The recent head-to-head record between these teams shows a high frequency of matches in which both sides find the net, occurring in {btts}% of their meetings.",
+
+    matchCompositeTitle: "AI Analysis",
+
+    matchCombinedOver25:
+        "The combination of both teams' recent performances and their head-to-head history reinforces the expectation of a match with a high probability of producing over 2.5 goals.",
+
+    matchCombinedBTTS:
+        "The combined analysis of both teams' recent performances and their head-to-head record reinforces the expectation of a match in which both teams are likely to score.",
+
+    matchStreakTitle: "Winning Momentum",
+
+    matchHomeWinningStreak:
+        "{team} comes into this match in excellent form, having won {matches} consecutive matches.",
+
+    matchAwayWinningStreak:
+        "{team} heads into this match with strong momentum after winning {matches} matches in a row.",      
+        
+    matchNoClearPatternTitle:
+        "AI Analysis",
+
+    matchNoClearPattern:
+        "No sufficiently consistent trends were detected to draw a reliable conclusion. The available data does not reveal clear patterns that provide a significant advantage for this match.",
+
 }

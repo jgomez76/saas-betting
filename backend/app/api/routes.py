@@ -12,6 +12,7 @@ from collections import defaultdict
 from typing import Literal
 from pydantic import BaseModel, EmailStr
 
+from app.core.auth import get_current_user
 from app.core.database import SessionLocal
 from app.core.config import (
     # CURRENT_SEASON, 
@@ -26,9 +27,11 @@ from app.core.config import (
     get_current_season,
 )
 
-from app.core.auth import create_token, get_current_user
 from app.core.database import get_db
 from app.core.security import SECRET_KEY, ALGORITHM, create_access_token, hash_password, verify_password
+
+from datetime import datetime
+
 from app.emails.service import (
     send_verification_email,
     send_reset_password_email,
@@ -58,7 +61,7 @@ from app.services.team_analysis import get_team_analysis
 from app.services.h2h_analysis import get_h2h_analysis
 from app.services.match_analysis import get_match_analysis
 from app.services.fixtures import fetch_fixtures
-from app.services.subscription import get_subscription
+from app.services.subscription import get_subscription, is_premium
 from app.api.subscription import router as subscription_router
 
 from uuid import uuid4
@@ -197,10 +200,6 @@ def update_odds(db: Session = Depends(get_db)):
         )
 
         for date in dates:
-
-            print(
-                f"Fetching odds for league {league} season {season} date {date}"
-            )
 
             data = get_odds_by_date(
                 league,
@@ -749,11 +748,8 @@ async def auth_github_callback(
 @router.post("/login")
 def login(data: LoginRequest, response: Response, db: Session = Depends(get_db)):
     try:
-        print("🔥 LOGIN HIT")
-        # print("DATA:", data)
 
         user = db.query(User).filter(User.email == data.email).first()
-        # print("USER:", user)
 
         if not user:
             raise HTTPException(status_code=401, detail="Invalid credentials")
@@ -806,6 +802,19 @@ def login(data: LoginRequest, response: Response, db: Session = Depends(get_db))
     except Exception as e:
         print("💥 LOGIN ERROR:", str(e))
         raise HTTPException(status_code=500, detail="Internal server error")
+    
+
+@router.post("/logout")
+def logout(response: Response):
+
+    response.delete_cookie(
+        key="access_token",
+        path="/",
+    )
+
+    return {
+        "message": "logout ok",
+    }
     
 
 @router.get("/me")
@@ -862,7 +871,6 @@ def register(
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
 ):
-    print("🔥 REGISTER HIT:", data.email)
 
     # 🔍 comprobar si ya existe
     existing = (
@@ -896,8 +904,6 @@ def register(
 
     db.add(user)
     db.commit()
-
-    print("✅ USER CREATED")
 
     # 📧 enviar email en background
     background_tasks.add_task(
@@ -963,16 +969,11 @@ def reset_password(data: dict, db: Session = Depends(get_db)):
     token = data.get("token")
     password = data.get("password")
 
-    print("🔥 RESET HIT")
-    print("TOKEN:", token)
-    print("PASSWORD:", password)
-
     user = db.query(User).filter(User.reset_token == token).first()
 
     if not user:
         raise HTTPException(status_code=400, detail="Invalid token")
 
-    from datetime import datetime
 
     if user.reset_token_expiry < datetime.utcnow():
         raise HTTPException(status_code=400, detail="Token expired")
@@ -991,12 +992,19 @@ def deactivate_account(
     user=Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    print("🔥 USER OBJ:", user)
-    print("🔥 USER EMAIL:", user.email)
 
     db_user = db.query(User).filter(User.email == user.email).first()
 
-    print("🔥 DB USER:", db_user)
+    # No permitir eliminar una cuenta mientras exista una suscripción Premium activa
+    if (
+        db_user.subscription_status in ["active", "cancelled"]
+        and db_user.subscription_end
+        and db_user.subscription_end > datetime.utcnow()
+    ):
+        raise HTTPException(
+            status_code=409,
+            detail="PREMIUM_ACTIVE"
+        )
 
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -1005,7 +1013,6 @@ def deactivate_account(
 
     try:
         db.commit()
-        print("✅ COMMIT OK")
     except Exception as e:
         print("💥 DB ERROR:", e)
         raise
@@ -1041,8 +1048,6 @@ def request_reactivation(
 
     db.commit()
 
-    # 🔥 TEMPORAL (sin email)
-    # print(f"👉 REACTIVATE LINK: http://localhost:3000/reactivate?token={token}")
     background_tasks.add_task(
         send_reactivation_email,
         user.email,
@@ -1131,14 +1136,6 @@ def oauth_login(data: dict, db: Session = Depends(get_db)):
     provider = data.get("provider")
 
     user = db.query(User).filter(User.email == email).first()
-
-    # print("🔥 OAUTH EMAIL:", email)
-    # print("🔥 USER:", user)
-
-    # if user:
-    #     print("🔥 USER EMAIL:", user.email)
-    #     print("🔥 USER ACTIVE:", user.is_active)
-    #     print("🔥 USER PROVIDER:", user.provider)
 
     if not user:
         user = User(
@@ -1277,24 +1274,36 @@ def upload_avatar(
 from datetime import datetime, date
 
 @router.get("/top-picks")
-def get_top_picks(db: Session = Depends(get_db)):
+def get_top_picks(
+    db: Session = Depends(get_db),
+    current_user: User | None = Depends(get_current_user),
+):
     today = date.today()
     now = datetime.utcnow()
 
-    picks = db.query(TopPick)\
-        .filter(TopPick.date == today)\
-        .order_by(TopPick.value.desc(), TopPick.probability.desc())\
+    picks = (
+        db.query(TopPick)
+        .filter(TopPick.date == today)
+        .order_by(
+            TopPick.value.desc(),
+            TopPick.probability.desc(),
+        )
         .all()
+    )
 
     if not picks:
         return {
             "free": None,
             "premium": [],
-            "message": "no_picks_today"
+            "premium_count": 0,
+            "message": "no_picks_today",
         }
 
-    # 🔥 comprobar si ya han pasado todos
-    all_finished = all(p.kickoff < now for p in picks)
+    # ¿Han comenzado ya todos los partidos?
+    all_finished = all(
+        p.kickoff < now
+        for p in picks
+    )
 
     serialized = [
         {
@@ -1307,18 +1316,36 @@ def get_top_picks(db: Session = Depends(get_db)):
             "bookmaker": p.bookmaker,
             "value": p.value,
             "kickoff": p.kickoff,
-            "is_free": p.is_free
+            "is_free": p.is_free,
         }
         for p in picks
     ]
 
-    free = next((p for p in serialized if p["is_free"]), None)
-    premium = [p for p in serialized if not p["is_free"]]
+    free = next(
+        (
+            p
+            for p in serialized
+            if p["is_free"]
+        ),
+        None,
+    )
+
+    premium = [
+        p
+        for p in serialized
+        if not p["is_free"]
+    ]
+
+    premium_count = len(premium)
+
+    if not current_user or not is_premium(current_user):
+        premium = []
 
     return {
         "free": free,
         "premium": premium,
-        "all_finished": all_finished
+        "premium_count": premium_count,
+        "all_finished": all_finished,
     }
 
 @router.post("/top-picks/generate")
@@ -1478,8 +1505,6 @@ def clean_finished_favorites(db: Session):
     )
 
     db.commit()
-
-    print(f"🧹 Favoritos eliminados (FT): {deleted}")
 
 @router.post("/favorites")
 def add_favorite(
@@ -1675,6 +1700,7 @@ def analysis_h2h(
     team1: str,
     team2: str,
     db: Session = Depends(get_db),
+    current_user: User | None = Depends(get_current_user),
 ):
 
     result = get_h2h_analysis(
@@ -1689,6 +1715,10 @@ def analysis_h2h(
             "error": "No H2H found"
         }
 
+    if not current_user or not is_premium(current_user):
+
+        result["ai_insights"] = []
+
     return result
 
 @router.get("/analysis/match")
@@ -1696,6 +1726,7 @@ def analysis_match(
     home_team: str,
     away_team: str,
     db: Session = Depends(get_db),
+    current_user: User | None = Depends(get_current_user),
 ):
 
     result = get_match_analysis(
@@ -1709,6 +1740,12 @@ def analysis_match(
         return {
             "error": "Match analysis not found"
         }
+
+    if not current_user or not is_premium(current_user):
+
+        result["insights"] = []
+        result["markets"] = []
+        result["value_opportunities"] = []
 
     return result
 

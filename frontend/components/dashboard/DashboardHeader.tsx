@@ -31,6 +31,9 @@ type Props = {
 
   isPremium: boolean;
 
+  isLogged: boolean;
+  onLogin: () => void;
+
   onSelectPick: (
     pick: TopPick
   ) => void;
@@ -54,6 +57,8 @@ export default function DashboardHeader({
   topPicksLoading,
   freePick,
   isPremium,
+  isLogged,
+  onLogin,
   onSelectPick,
   t,
 }: Props) {
@@ -177,6 +182,8 @@ export default function DashboardHeader({
           picks={validPicks}
           freePick={freePick}
           isPremium={isPremium}
+          isLogged={isLogged}
+          onLogin={onLogin}
           onSelectPick={onSelectPick}
         />
       )}

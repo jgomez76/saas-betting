@@ -5,11 +5,13 @@ import { usePremium } from "@/context/PremiumContext";
 type Props = {
     title: string;
     children: React.ReactNode;
+    onClick?: () => void;
 };
 
 export default function PremiumStat({
   title,
   children,
+  onClick,
 }: Props) {
     const { isPremium } = useSubscription();    
     const { showPremium } = usePremium();
@@ -18,7 +20,13 @@ export default function PremiumStat({
     <div
         onClick={() => {
             if (!canUseAdvancedStats(isPremium)) {
-                showPremium();
+
+                if (onClick) {
+                    onClick();
+                } else {
+                    showPremium();
+                }
+
             }
         }}
         className={`
@@ -35,7 +43,7 @@ export default function PremiumStat({
             }
         `}
     >
-    <div className="text-sm text-[var(--muted)] mb-2">
+    <div className="text-xs sm:text-sm text-[var(--muted)] mb-2 whitespace-nowrap">
         {title}
     </div>
 

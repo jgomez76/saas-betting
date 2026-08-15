@@ -1,15 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-// import { API_URL } from "@/lib/api";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import { useSearchParams } from "next/navigation";
 
 // ---------------- TYPES ----------------
-
-// type LoginResponse = {
-//   message: string;
-// };
 
 type Props = {
   onClose: () => void;
@@ -194,7 +189,6 @@ export default function LoginModal({ onClose, onLogin }: Props) {
       setError(t.emailSentReactivation);
       setShowReactivate(false);
 
-      // alert(t.accountReactivated);
 
     } catch {
       setError(t.connectionError);

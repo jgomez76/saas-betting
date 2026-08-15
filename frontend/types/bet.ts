@@ -11,7 +11,7 @@ export type Bet = {
 
     fixture_id?: number;
     
-    status: "pending" | "won" | "lost";
+    status: "pending" | "won" | "lost" | "void";
     result?: string;
 
     stake?: number;

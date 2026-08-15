@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
+import { API_URL } from "@/lib/api";
 
 type LeagueGroups = {
   [group: string]: {
@@ -32,9 +33,7 @@ export default function FavoriteLeagues() {
   const [leagueGroups, setLeagueGroups] =
     useState<LeagueGroups>({});
 
-  const apiUrl =
-    process.env.NEXT_PUBLIC_API_URL ||
-    "http://localhost:8000";
+  const apiUrl = API_URL();
 
   // -------------------------
   // SAVE FAVORITES

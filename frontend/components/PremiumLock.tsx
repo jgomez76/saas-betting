@@ -6,11 +6,13 @@ import { usePremium } from "@/context/PremiumContext";
 type Props = {
     locked: boolean;
     children: React.ReactNode;
+    onLockedClick?: () => void;
 };
 
 export default function PremiumLock({
     locked,
     children,
+    onLockedClick,
 }: Props) {
 
     const { t } = useLanguage();
@@ -25,12 +27,21 @@ export default function PremiumLock({
 
             {locked && (
               <button
-                  onClick={showPremium}
-                  className="
-                      absolute inset-0
-                      flex items-center justify-center
-                      cursor-pointer
-                      group
+                    onClick={() => {
+
+                        if (onLockedClick) {
+                            onLockedClick();
+                            return;
+                        }
+
+                        showPremium();
+
+                    }}
+                    className="
+                    absolute inset-0
+                    flex items-center justify-center
+                    cursor-pointer
+                    group
                   "
               >
                 <div

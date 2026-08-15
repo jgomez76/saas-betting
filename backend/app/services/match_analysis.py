@@ -107,85 +107,220 @@ def get_match_analysis(
 
     # ---------------- INSIGHTS
 
+
     insights = []
+
+    def add_insight(
+        score: int,
+        type_: str,
+        subtype: str,
+        data: dict,
+    ):
+
+        insights.append({
+
+            "score": score,
+            "type": type_,
+            "subtype": subtype,
+
+            "priority": (
+
+                "high"
+
+                if score >= 90
+                else "medium"
+
+                if score >= 70
+                else "low"
+
+            ),
+
+            "category": type_,
+            "data": data,
+
+        })
 
     # HOME ATTACK
 
-    if home["avg_goals_scored"] >= 2:
+    if home["avg_goals_scored"] >= 1.4:
 
-        insights.append(
+        add_insight(
 
-            f"{home_team} scores {home['avg_goals_scored']} goals per match"
+            90,
+
+            "attack",
+
+            "home_scoring",
+
+            {
+
+                "team": home_team,
+
+                "avg_goals": home["avg_goals_scored"],
+
+            }
 
         )
 
     # AWAY DEFENSE
 
-    if away["avg_goals_conceded"] >= 1.5:
+    if away["avg_goals_conceded"] >= 1.3:
 
-        insights.append(
+        add_insight(
 
-            f"{away_team} concedes {away['avg_goals_conceded']} goals per match"
+            85,
+
+            "defence",
+
+            "away_conceding",
+
+            {
+
+                "team": away_team,
+
+                "avg_goals": away["avg_goals_conceded"],
+
+            }
 
         )
 
     # HOME OVER
 
-    if home["home"]["over25"] >= 70:
+    if home["home"]["over25"] >= 55:
 
-        insights.append(
+        add_insight(
 
-            f"{home_team} home matches go Over 2.5 in {home['home']['over25']}%"
+            80,
+
+            "market",
+
+            "home_over25",
+
+            {
+
+                "team": home_team,
+
+                "over25": home["home"]["over25"],
+
+            }
 
         )
 
     # AWAY BTTS
 
-    if away["away"]["btts"] >= 65:
+    if away["away"]["btts"] >= 55:
 
-        insights.append(
+        add_insight(
 
-            f"{away_team} away matches hit BTTS in {away['away']['btts']}%"
+            80,
+
+            "market",
+
+            "away_btts",
+
+            {
+
+                "team": away_team,
+
+                "btts": away["away"]["btts"],
+
+            }
 
         )
 
     # H2H OVER
 
-    if h2h and h2h["over25"] >= 70:
+    if h2h and h2h["over25"] >= 60:
 
-        insights.append(
+        add_insight(
 
-            f"{h2h['over25']}% of recent H2H ended Over 2.5"
+            75,
+
+            "h2h",
+
+            "over25",
+
+            {
+
+                "over25": h2h["over25"],
+
+            }
 
         )
 
     # H2H BTTS
 
-    if h2h and h2h["btts"] >= 70:
+    if h2h and h2h["btts"] >= 60:
 
-        insights.append(
+        add_insight(
 
-            f"{h2h['btts']}% of recent H2H ended BTTS"
+            75,
+
+            "h2h",
+
+            "btts",
+
+            {
+
+                "btts": h2h["btts"],
+
+            }
 
         )
 
     # STRONG OVER TREND
 
-    if combined_over25 >= 70:
+    if combined_over25 >= 60:
 
-        insights.append(
+        add_insight(
 
-            "Strong combined Over 2.5 trend"
+            95,
+
+            "composite",
+
+            "combined_over25",
+
+            {
+
+                "combined_over25": combined_over25,
+
+                "h2h_over25": (
+                    h2h["over25"]
+                    if h2h
+                    else None
+                ),
+
+            }
 
         )
 
     # STRONG BTTS TREND
 
-    if combined_btts >= 65:
+    if combined_btts >= 55:
 
-        insights.append(
+        add_insight(
 
-            "Strong combined BTTS trend"
+            95,
+
+            "composite",
+
+            "combined_btts",
+
+            {
+
+                "combined_btts": combined_btts,
+
+                "h2h_btts": (
+
+                    h2h["btts"]
+
+                    if h2h
+
+                    else None
+
+                ),
+
+            }
 
         )
 
@@ -193,9 +328,21 @@ def get_match_analysis(
 
     if home_winning_streak >= 3:
 
-        insights.append(
+        add_insight(
 
-            f"{home_team} is on a {home_winning_streak}-match winning streak"
+            88,
+
+            "streak",
+
+            "home_winning",
+
+            {
+
+                "team": home_team,
+
+                "matches": home_winning_streak,
+
+            }
 
         )
 
@@ -203,9 +350,21 @@ def get_match_analysis(
 
     if away_winning_streak >= 3:
 
-        insights.append(
+        add_insight(
 
-            f"{away_team} is on a {away_winning_streak}-match winning streak"
+            88,
+
+            "streak",
+
+            "away_winning",
+
+            {
+
+                "team": away_team,
+
+                "matches": away_winning_streak,
+
+            }
 
         )
 
@@ -413,6 +572,34 @@ def get_match_analysis(
                     "fair_odds": fair_odds,
                 })
 
+    # ---------------- NO CLEAR PATTERN
+
+    if not insights:
+
+        add_insight(
+
+            10,
+
+            "general",
+
+            "no_clear_pattern",
+
+            {}
+
+        )
+        
+    # ---------------- SORT INSIGHTS
+
+    insights.sort(
+
+        key=lambda x: x["priority"],
+
+        reverse=True,
+
+    )
+
+    insights = insights[:4]
+    
     return {
 
         "home_team": home_team,

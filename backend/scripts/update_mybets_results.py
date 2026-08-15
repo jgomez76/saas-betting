@@ -18,7 +18,28 @@ for bet in pending:
 
     FINISHED_STATUSES = {"FT", "AET", "PEN"}
 
-    if not fixture or fixture.status not in FINISHED_STATUSES:
+    VOID_STATUSES = {
+        "CANC",   # Cancelled
+        "PST",    # Postponed
+        "ABD",    # Abandoned
+        "SUSP",   # Suspended
+    }
+
+    if not fixture:
+        continue
+
+    # Partido anulado
+    if fixture.status in VOID_STATUSES:
+
+        bet.status = "void"
+        bet.result = fixture.status
+
+        updated += 1
+
+        continue
+
+    # Todavía no ha terminado
+    if fixture.status not in FINISHED_STATUSES:
         continue
 
     home = fixture.home_goals
