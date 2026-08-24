@@ -101,13 +101,10 @@ type LeagueGroups = {
 };
 
 type UpcomingFixture = {
-
   id: number;
-
   league: string;
-
+  league_id: number;
   date: string;
-
   home_team: string;
   away_team: string;
 };
@@ -215,7 +212,7 @@ export default function MatchAnalysisTab({
 
         const res = await fetch(
 
-          `${apiUrl}/analysis/match?home_team=${encodeURIComponent(selectedFixture.home_team)}&away_team=${encodeURIComponent(selectedFixture.away_team)}`,
+          `${apiUrl}/analysis/match?home_team=${encodeURIComponent(selectedFixture.home_team)}&away_team=${encodeURIComponent(selectedFixture.away_team)}&league_id=${encodeURIComponent(selectedFixture.league_id)}`,
               {
                   credentials: "include",
               }

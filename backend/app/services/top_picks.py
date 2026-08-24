@@ -37,8 +37,8 @@ def extract_candidates(db: Session):
 
     matches = get_value_bets(db)
 
-    print("TOTAL MATCHES:", len(matches))
-    print("TODAY:", today)
+    # print("TOTAL MATCHES:", len(matches))
+    # print("TODAY:", today)
 
     candidates = []
 
@@ -638,7 +638,34 @@ def generate_top_picks_v4(db: Session):
 
     print("TOTAL CANDIDATES:", len(candidates))
 
+    print("\n========== CANDIDATES BEFORE FILTER ==========")
+
+    for i, c in enumerate(candidates, 1):
+
+        print(
+            f"{i}. "
+            f"{c['match']} | "
+            f"{c['market']} {c['selection']} | "
+            f"prob={c.get('probability')} | "
+            f"value={c.get('value')} | "
+            f"odd={c.get('odd')} | "
+            f"bookmaker={c.get('bookmaker')}"
+        )
+
+    print("=============================================\n")
+
     enriched = []
+
+    rejected = {
+        "missing_data": 0,
+        "prob_low": 0,
+        "prob_high": 0,
+        "value_low": 0,
+        "odd_low": 0,
+        "odd_high": 0,
+        "bad_market": 0,
+        "score_invalid": 0,
+    }
 
     # --------------------------------------------------
     # FILTER + SCORE
@@ -656,37 +683,39 @@ def generate_top_picks_v4(db: Session):
         if not prob or not odd or not value:
             continue
 
-        # --------------------------------------------------
-        # HARD FILTERS
-        # --------------------------------------------------
+        if prob is None or odd is None or value is None:
+            rejected["missing_data"] += 1
+            continue
 
         if prob < MIN_PROB:
+            rejected["prob_low"] += 1
             continue
 
         if prob > MAX_PROB:
+            rejected["prob_high"] += 1
             continue
 
         if value < MIN_VALUE:
+            rejected["value_low"] += 1
             continue
 
         if odd < MIN_ODD:
+            rejected["odd_low"] += 1
             continue
 
         if odd > MAX_ODD:
+            rejected["odd_high"] += 1
             continue
 
-        # --------------------------------------------------
-        # AVOID BAD MARKETS
-        # --------------------------------------------------
-
         if (market, selection) in BAD_MARKETS:
+            rejected["bad_market"] += 1
             continue
 
         # --------------------------------------------------
         # SAFE PROBABILITY CAP
         # --------------------------------------------------
 
-        prob = min(prob, 0.78)
+        # prob = min(prob, 0.78)
 
         # --------------------------------------------------
         # EXPECTED VALUE
@@ -732,9 +761,36 @@ def generate_top_picks_v4(db: Session):
 
         enriched.append(c)
 
+        print(
+            f"VALID CANDIDATE | "
+            f"{c['match']} | "
+            f"{market} {selection} | "
+            f"prob={prob:.3f} | "
+            f"odd={odd:.2f} | "
+            f"value={value:.3f} | "
+            f"ev={ev:.3f} | "
+            f"score={score:.5f}"
+        )
+
     # --------------------------------------------------
     # NO PICKS
     # --------------------------------------------------
+
+    print("\n========== TOP PICKS ANALYSIS ==========")
+
+    print(f"TOTAL CANDIDATES: {len(candidates)}")
+
+    print(f"VALID AFTER FILTERS: {len(enriched)}")
+
+    print(f"REJECTED - missing data: {rejected['missing_data']}")
+    print(f"REJECTED - probability < {MIN_PROB}: {rejected['prob_low']}")
+    print(f"REJECTED - probability > {MAX_PROB}: {rejected['prob_high']}")
+    print(f"REJECTED - value < {MIN_VALUE}: {rejected['value_low']}")
+    print(f"REJECTED - odd < {MIN_ODD}: {rejected['odd_low']}")
+    print(f"REJECTED - odd > {MAX_ODD}: {rejected['odd_high']}")
+    print(f"REJECTED - bad market: {rejected['bad_market']}")
+
+    print("========================================\n")
 
     if not enriched:
         print("❌ NO HAY PICKS VALIDOS")
@@ -754,6 +810,22 @@ def generate_top_picks_v4(db: Session):
     # --------------------------------------------------
 
     enriched = enriched[:TOP_CANDIDATES_POOL]
+
+    print("\n========== TOP CANDIDATES POOL ==========")
+
+    for i, p in enumerate(enriched, 1):
+        print(
+            f"{i}. "
+            f"{p['match']} | "
+            f"{p['market']} {p['selection']} | "
+            f"prob={p['probability']:.3f} | "
+            f"odd={p['odd']:.2f} | "
+            f"value={p['value']:.3f} | "
+            f"ev={p['ev']:.3f} | "
+            f"score={p['score']:.5f}"
+        )
+
+    print("==========================================\n")
 
     # --------------------------------------------------
     # SMART SELECTION

@@ -1,49 +1,58 @@
 from sqlalchemy.orm import Session
 from app.models.fixture import Fixture
+from app.core.config import get_current_season
 
+def get_team_form(
+    db: Session,
+    team_id: int,
+    league_id: int,
+    limit: int = 5
+):
 
-def get_team_form(db: Session, team_id: int, limit: int = 5):
-
-    print(f"👉 get_team_form CALLED for team_id: {team_id}")
+    season = get_current_season(league_id)
 
     matches = (
         db.query(Fixture)
         .filter(
             (Fixture.home_team_id == team_id) |
             (Fixture.away_team_id == team_id),
-            Fixture.status == "FT"
+            Fixture.status.in_(["FT", "AET", "PEN"]),
+            Fixture.season == season,
+            Fixture.league_id == league_id
         )
         .order_by(Fixture.date.desc())
         .limit(limit)
         .all()
     )
 
-    print(f"👉 matches found: {len(matches)}")
-
     form = ""
 
     for match in matches:
-        print(
-            f"   MATCH → {match.home_team_id} vs {match.away_team_id} | {match.home_goals}-{match.away_goals}"
-        )
 
         if match.home_team_id == team_id:
+
             if match.home_goals > match.away_goals:
                 form += "W"
+
             elif match.home_goals == match.away_goals:
                 form += "D"
+
             else:
                 form += "L"
+
         else:
+
             if match.away_goals > match.home_goals:
                 form += "W"
+
             elif match.away_goals == match.home_goals:
                 form += "D"
+
             else:
                 form += "L"
 
-    print(f"👉 FINAL FORM: {form}")
-
+    # La consulta viene de más reciente → más antiguo.
+    # La devolvemos de más antiguo → más reciente.
     return form[::-1]
 
 

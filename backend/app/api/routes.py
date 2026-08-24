@@ -212,12 +212,41 @@ def update_odds(db: Session = Depends(get_db)):
     return {"message": "Odds updated (today + next 2 days)"}
 
 @router.get("/team/{team_id}/matches")
-def get_team_matches(team_id: int, db: Session = Depends(get_db)):
+def get_team_matches(
+    team_id: int,
+    db: Session = Depends(get_db)
+):
+
+    # Buscar el partido más reciente del equipo
+    # para obtener la liga a la que pertenece.
+    fixture = (
+        db.query(Fixture)
+        .filter(
+            (Fixture.home_team_id == team_id) |
+            (Fixture.away_team_id == team_id)
+        )
+        .order_by(Fixture.date.desc())
+        .first()
+    )
+
+    if not fixture:
+        return []
+
+    # Usar la temporada actual de esa liga
+    season = get_current_season(
+        fixture.league_id
+    )
+
     matches = (
         db.query(Fixture)
         .filter(
-            (Fixture.home_team_id == team_id) | (Fixture.away_team_id == team_id),
-            Fixture.status == "FT"
+            (
+                (Fixture.home_team_id == team_id) |
+                (Fixture.away_team_id == team_id)
+            ),
+            Fixture.status.in_(["FT", "AET", "PEN"]),
+            Fixture.league_id == fixture.league_id,
+            Fixture.season == season
         )
         .order_by(Fixture.date.desc())
         .limit(5)
@@ -1725,14 +1754,17 @@ def analysis_h2h(
 def analysis_match(
     home_team: str,
     away_team: str,
+    league_id: int,
     db: Session = Depends(get_db),
     current_user: User | None = Depends(get_current_user),
 ):
+
 
     result = get_match_analysis(
         db=db,
         home_team=home_team,
         away_team=away_team,
+        league_id=league_id
     )
 
     if not result:
@@ -1775,15 +1807,11 @@ def analysis_upcoming_fixtures(
     ).all()
 
     return [
-
         {
-
             "id": f.id,
-
             "league": f.league,
-
+            "league_id": f.league_id,
             "date": f.date.isoformat() + "Z",
-
             "home_team": f.home_team,
             "away_team": f.away_team,
         }

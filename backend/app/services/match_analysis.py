@@ -10,6 +10,8 @@ from app.services.h2h_analysis import (
 
 from app.models.value_bet import ValueBet
 
+from app.core.config import get_current_season
+
 
 def consecutive_true(values):
 
@@ -29,18 +31,23 @@ def get_match_analysis(
     db: Session,
     home_team: str,
     away_team: str,
+    league_id: int,
 ):
+    
+    season = get_current_season(league_id)
 
     # ---------------- TEAM ANALYSIS
 
     home = get_team_analysis(
         db=db,
         team=home_team,
+        season=season,
     )
 
     away = get_team_analysis(
         db=db,
         team=away_team,
+        season=season,
     )
 
     if not home or not away:
